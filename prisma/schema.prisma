@@ -1,0 +1,656 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Role {
+  ADMIN
+  CORRETOR
+  PARCEIRO
+}
+
+enum LeadSource {
+  INSTAGRAM
+  SITE
+  WHATSAPP
+  INDICACAO
+  TRAFEGO_PAGO
+  OUTRO
+}
+
+enum LeadIntent {
+  COMPRAR
+  VENDER
+  INVESTIR
+  ALUGAR
+}
+
+enum LeadStage {
+  NOVO
+  PRIMEIRO_CONTATO
+  QUALIFICADO
+  OPCOES_ENVIADAS
+  VISITA_AGENDADA
+  PROPOSTA_ENVIADA
+  NEGOCIACAO
+  FECHADO
+  PERDIDO
+}
+
+enum InteractionType {
+  FORM_SUBMISSION
+  WHATSAPP_CLICK
+  WHATSAPP_MESSAGE
+  TABLE_DOWNLOAD
+  EMAIL
+  PHONE_CALL
+  NOTE
+}
+
+enum InteractionChannel {
+  SITE
+  WHATSAPP
+  EMAIL
+  PHONE
+  INSTAGRAM
+  CRM
+}
+
+enum PropertyType {
+  CASA
+  APARTAMENTO
+  LOTE
+  COMERCIAL
+  RURAL
+}
+
+enum PropertyPurpose {
+  VENDA
+  LOCACAO
+  INVESTIMENTO
+  LEILAO
+  LANCAMENTO
+}
+
+enum PropertyStatus {
+  DISPONIVEL
+  RESERVADO
+  VENDIDO
+  ALUGADO
+  EM_ANALISE
+}
+
+enum MediaKind {
+  IMAGE
+  VIDEO
+  TOUR
+  DOCUMENT
+}
+
+enum MediaStatus {
+  PENDENTE
+  PROCESSANDO
+  PRONTO
+  FALHA
+}
+
+enum TaskStatus {
+  PENDENTE
+  CONCLUIDA
+  CANCELADA
+}
+
+enum TaskPriority {
+  BAIXA
+  MEDIA
+  ALTA
+  URGENTE
+}
+
+enum VisitStatus {
+  AGENDADA
+  REALIZADA
+  CANCELADA
+  REAGENDADA
+}
+
+enum ProposalStatus {
+  ENVIADA
+  ACEITA
+  RECUSADA
+  CONTRA_PROPOSTA
+  EXPIRADA
+}
+
+enum OpportunityStatus {
+  ANALISE
+  ATIVA
+  FECHADA
+  DESCARTADA
+}
+
+enum AuctionRisk {
+  BAIXO
+  MEDIO
+  ALTO
+}
+
+enum PortalPublicationStatus {
+  PENDENTE
+  PUBLICADO
+  ERRO
+  PAUSADO
+}
+
+enum DevelopmentPublicationStatus {
+  DRAFT
+  REVIEW
+  PUBLISHED
+  ARCHIVED
+}
+
+enum DevelopmentStage {
+  PRE_LAUNCH
+  LAUNCH
+  SALES
+  CONSTRUCTION
+  DELIVERED
+}
+
+enum DevelopmentMediaKind {
+  HERO
+  GALLERY
+  FLOORPLAN
+  VIDEO
+  PDF
+}
+
+enum DevelopmentMilestoneStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum SeoPageStatus {
+  DRAFT
+  PUBLISHED
+}
+
+enum SeoListingMode {
+  TODOS
+  PRONTOS
+  PLANTA
+  LEILAO
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  phone        String?
+  creci        String?
+  role         Role     @default(CORRETOR)
+  passwordHash String?
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  ownedLeads   Lead[]                 @relation("LeadOwnerUser")
+  interactions LeadInteraction[]      @relation("InteractionUser")
+  stageChanges PipelineStageHistory[] @relation("StageChangedByUser")
+  tasks        Task[]                 @relation("TaskAssignedUser")
+  visits       Visit[]                @relation("VisitAssignedUser")
+  proposals    Proposal[]             @relation("ProposalCreatedUser")
+  auditLogs    AuditLog[]
+}
+
+model Lead {
+  id                String     @id @default(cuid())
+  name              String
+  phone             String
+  email             String?
+  source            LeadSource
+  intent            LeadIntent
+  stage             LeadStage  @default(NOVO)
+  desiredType       PropertyType?
+  desiredPurpose    PropertyPurpose?
+  budgetMin         Decimal?   @db.Decimal(14, 2)
+  budgetMax         Decimal?   @db.Decimal(14, 2)
+  desiredCity       String?
+  desiredDistrict   String?
+  notes             String?
+  lastContactAt     DateTime?
+  lgpdConsentAt     DateTime?
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+
+  ownerUserId       String?
+  ownerUser         User?                  @relation("LeadOwnerUser", fields: [ownerUserId], references: [id], onDelete: SetNull)
+  linkedPropertyId  String?
+  linkedProperty    Property?              @relation(fields: [linkedPropertyId], references: [id], onDelete: SetNull)
+  linkedDevelopmentId String?
+  linkedDevelopment Development?           @relation(fields: [linkedDevelopmentId], references: [id], onDelete: SetNull)
+  linkedOwnerId     String?
+  linkedOwner       Owner?                 @relation(fields: [linkedOwnerId], references: [id], onDelete: SetNull)
+
+  interactions      LeadInteraction[]
+  stageHistory      PipelineStageHistory[]
+  tasks             Task[]
+  visits            Visit[]
+  proposals         Proposal[]
+
+  @@index([stage])
+  @@index([source])
+  @@index([intent])
+  @@index([phone])
+  @@index([linkedDevelopmentId])
+}
+
+model LeadInteraction {
+  id          String             @id @default(cuid())
+  leadId      String
+  type        InteractionType
+  channel     InteractionChannel
+  message     String?
+  metadata    Json?
+  createdAt   DateTime           @default(now())
+
+  lead        Lead               @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  propertyId  String?
+  property    Property?          @relation(fields: [propertyId], references: [id], onDelete: SetNull)
+  developmentId String?
+  development Development?       @relation(fields: [developmentId], references: [id], onDelete: SetNull)
+  createdById String?
+  createdBy   User?              @relation("InteractionUser", fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@index([leadId, createdAt])
+}
+
+model PipelineStageHistory {
+  id          String    @id @default(cuid())
+  leadId       String
+  fromStage    LeadStage?
+  toStage      LeadStage
+  reason       String?
+  createdAt    DateTime @default(now())
+  changedById  String?
+
+  lead         Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  changedBy    User?    @relation("StageChangedByUser", fields: [changedById], references: [id], onDelete: SetNull)
+
+  @@index([leadId, createdAt])
+}
+
+model Owner {
+  id           String   @id @default(cuid())
+  name         String
+  phone        String
+  email        String?
+  city         String?
+  district     String?
+  address      String?
+  notes        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  properties   Property[]
+  leads        Lead[]
+
+  @@index([phone])
+}
+
+model Development {
+  id                        String                       @id @default(cuid())
+  slug                      String                       @unique
+  title                     String
+  tagline                   String?
+  summary                   String
+  description               String
+  district                  String
+  city                      String
+  neighborhood              String?
+  address                   String?
+  postalCode                String?
+  latitude                  Decimal?                     @db.Decimal(10, 7)
+  longitude                 Decimal?                     @db.Decimal(10, 7)
+  developerName             String?
+  builderName               String?
+  stage                     DevelopmentStage             @default(PRE_LAUNCH)
+  deliveryDate              DateTime?
+  startingPrice             Decimal?                     @db.Decimal(14, 2)
+  areaFromM2                Decimal?                     @db.Decimal(10, 2)
+  areaToM2                  Decimal?                     @db.Decimal(10, 2)
+  bedroomsFrom              Int?
+  bedroomsTo                Int?
+  parkingFrom               Int?
+  parkingTo                 Int?
+  totalUnits                Int?
+  availableUnits            Int?
+  amenities                 String[]
+  differentials             String[]
+  regionLiquidityNotes      String?
+  mapEmbedUrl               String?
+  tablePdfUrl               String?
+  whatsappMessageTemplate   String?
+  ctaPrimaryLabel           String?
+  ctaPrimaryUrl             String?
+  ctaSecondaryLabel         String?
+  ctaSecondaryUrl           String?
+  seoTitle                  String?
+  seoDescription            String?
+  seoOgImageUrl             String?
+  status                    DevelopmentPublicationStatus @default(DRAFT)
+  publishedAt               DateTime?
+  createdAt                 DateTime                     @default(now())
+  updatedAt                 DateTime                     @updatedAt
+
+  unitTypes                 DevelopmentUnitType[]
+  media                     DevelopmentMedia[]
+  milestones                DevelopmentMilestone[]
+  faqs                      DevelopmentFaq[]
+  leads                     Lead[]
+  interactions              LeadInteraction[]
+
+  @@index([status, stage])
+  @@index([city, district])
+  @@index([startingPrice])
+}
+
+model DevelopmentUnitType {
+  id              String       @id @default(cuid())
+  developmentId   String
+  name            String
+  bedrooms        Int?
+  suites          Int?
+  bathrooms       Int?
+  parkingSpaces   Int?
+  areaFromM2      Decimal?     @db.Decimal(10, 2)
+  areaToM2        Decimal?     @db.Decimal(10, 2)
+  priceFrom       Decimal?     @db.Decimal(14, 2)
+  priceTo         Decimal?     @db.Decimal(14, 2)
+  availableUnits  Int?
+  totalUnits      Int?
+  description     String?
+  position        Int          @default(0)
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+
+  development     Development  @relation(fields: [developmentId], references: [id], onDelete: Cascade)
+
+  @@index([developmentId, position])
+}
+
+model DevelopmentMedia {
+  id                String               @id @default(cuid())
+  developmentId     String
+  kind              DevelopmentMediaKind
+  status            MediaStatus          @default(PENDENTE)
+  cloudflareMediaId String?
+  url               String
+  title             String?
+  position          Int                  @default(0)
+  metadata          Json?
+  createdAt         DateTime             @default(now())
+
+  development       Development          @relation(fields: [developmentId], references: [id], onDelete: Cascade)
+
+  @@index([developmentId, kind])
+}
+
+model DevelopmentMilestone {
+  id             String                     @id @default(cuid())
+  developmentId  String
+  title          String
+  description    String?
+  status         DevelopmentMilestoneStatus @default(NOT_STARTED)
+  targetDate     DateTime?
+  actualDate     DateTime?
+  progressPct    Int?
+  position       Int                        @default(0)
+  createdAt      DateTime                   @default(now())
+  updatedAt      DateTime                   @updatedAt
+
+  development    Development                @relation(fields: [developmentId], references: [id], onDelete: Cascade)
+
+  @@index([developmentId, position])
+}
+
+model DevelopmentFaq {
+  id             String       @id @default(cuid())
+  developmentId  String
+  question       String
+  answer         String
+  position       Int          @default(0)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  development    Development  @relation(fields: [developmentId], references: [id], onDelete: Cascade)
+
+  @@index([developmentId, position])
+}
+
+model Property {
+  id                    String                @id @default(cuid())
+  slug                  String                @unique
+  title                 String
+  type                  PropertyType
+  purpose               PropertyPurpose
+  status                PropertyStatus        @default(DISPONIVEL)
+  price                 Decimal               @db.Decimal(14, 2)
+  address               String?
+  city                  String
+  district              String
+  postalCode            String?
+  googleMapsUrl         String?
+  latitude              Decimal?              @db.Decimal(10, 7)
+  longitude             Decimal?              @db.Decimal(10, 7)
+  areaM2                Decimal?              @db.Decimal(10, 2)
+  bedrooms              Int?
+  suites                Int?
+  bathrooms             Int?
+  parkingSpaces         Int?
+  description           String
+  features              String[]
+  legalNotes            String?
+  internalNotes         String?
+  commissionPct         Decimal?              @db.Decimal(5, 2)
+  documents             Json?
+  marketAskingValue     Decimal?              @db.Decimal(14, 2)
+  marketEstimatedValue  Decimal?              @db.Decimal(14, 2)
+  marketOpportunity     Decimal?              @db.Decimal(14, 2)
+  marketComparableLinks String[]
+  marketLiquidityNotes  String?
+  isInvestorHighlight   Boolean               @default(false)
+  isAuctionOpportunity  Boolean               @default(false)
+  publishedAt           DateTime?
+  createdAt             DateTime              @default(now())
+  updatedAt             DateTime              @updatedAt
+
+  ownerId               String?
+  owner                 Owner?                @relation(fields: [ownerId], references: [id], onDelete: SetNull)
+
+  media                 PropertyMedia[]
+  leads                 Lead[]
+  interactions          LeadInteraction[]
+  visits                Visit[]
+  proposals             Proposal[]
+  tasks                 Task[]
+  investorOpportunity   InvestorOpportunity?
+  auctionCase           AuctionCase?
+  portalPublications    PortalPublication[]
+
+  @@index([status, purpose])
+  @@index([city, district])
+  @@index([price])
+}
+
+model PropertyMedia {
+  id                String      @id @default(cuid())
+  propertyId        String
+  kind              MediaKind
+  status            MediaStatus @default(PENDENTE)
+  cloudflareMediaId String?
+  url               String
+  variant           String?
+  position          Int         @default(0)
+  metadata          Json?
+  createdAt         DateTime    @default(now())
+
+  property          Property    @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@index([propertyId, kind])
+}
+
+model Visit {
+  id          String      @id @default(cuid())
+  leadId      String
+  propertyId  String
+  status      VisitStatus @default(AGENDADA)
+  scheduledAt DateTime
+  notes       String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  assignedToId String?
+  assignedTo   User?      @relation("VisitAssignedUser", fields: [assignedToId], references: [id], onDelete: SetNull)
+  lead         Lead       @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  property     Property   @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@index([scheduledAt])
+  @@index([status])
+}
+
+model Proposal {
+  id            String         @id @default(cuid())
+  leadId        String
+  propertyId    String
+  status        ProposalStatus @default(ENVIADA)
+  offeredValue  Decimal        @db.Decimal(14, 2)
+  commissionPct Decimal?       @db.Decimal(5, 2)
+  notes         String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  createdById   String?
+  createdBy     User?          @relation("ProposalCreatedUser", fields: [createdById], references: [id], onDelete: SetNull)
+  lead          Lead           @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  property      Property       @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@index([status])
+}
+
+model Task {
+  id           String       @id @default(cuid())
+  title        String
+  description  String?
+  status       TaskStatus   @default(PENDENTE)
+  priority     TaskPriority @default(MEDIA)
+  dueAt        DateTime?
+  completedAt  DateTime?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  assignedToId String?
+  assignedTo   User?        @relation("TaskAssignedUser", fields: [assignedToId], references: [id], onDelete: SetNull)
+  leadId       String?
+  lead         Lead?        @relation(fields: [leadId], references: [id], onDelete: SetNull)
+  propertyId   String?
+  property     Property?    @relation(fields: [propertyId], references: [id], onDelete: SetNull)
+
+  @@index([status, dueAt])
+}
+
+model InvestorOpportunity {
+  id                String            @id @default(cuid())
+  propertyId         String            @unique
+  status             OpportunityStatus @default(ANALISE)
+  marketValue        Decimal?          @db.Decimal(14, 2)
+  entryValue         Decimal?
+  estimatedRoiPct    Decimal?          @db.Decimal(5, 2)
+  legalRiskSummary   String?
+  documentaryRisk    AuctionRisk?
+  liquidityRating    Int?
+  notes              String?
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+
+  property           Property          @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+}
+
+model AuctionCase {
+  id                    String       @id @default(cuid())
+  propertyId             String       @unique
+  caseNumber             String?
+  courtName              String?
+  auctionDate            DateTime?
+  minimumBid             Decimal?     @db.Decimal(14, 2)
+  estimatedCosts         Decimal?     @db.Decimal(14, 2)
+  documentaryRisk        AuctionRisk?
+  legalStatus            String?
+  editalUrl              String?
+  status                 OpportunityStatus @default(ANALISE)
+  notes                  String?
+  createdAt              DateTime     @default(now())
+  updatedAt              DateTime     @updatedAt
+
+  property               Property     @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+}
+
+model PortalPublication {
+  id              String                  @id @default(cuid())
+  propertyId      String
+  portalName      String
+  externalId      String?
+  status          PortalPublicationStatus @default(PENDENTE)
+  lastSyncAt      DateTime?
+  payload         Json?
+  errorMessage    String?
+  createdAt       DateTime                @default(now())
+  updatedAt       DateTime                @updatedAt
+
+  property        Property                @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+
+  @@unique([propertyId, portalName])
+  @@index([status])
+}
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  action      String
+  resource    String
+  resourceId  String?
+  metadata    Json?
+  createdAt   DateTime @default(now())
+  actorId     String?
+
+  actor       User?    @relation(fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([resource, createdAt])
+}
+
+model SeoLandingPage {
+  id          String         @id @default(cuid())
+  name        String
+  path        String         @unique
+  city        String
+  district    String?
+  listingMode SeoListingMode @default(TODOS)
+  title       String
+  description String
+  h1          String
+  intro       String
+  keywords    String[]
+  faqs        Json?
+  status      SeoPageStatus  @default(DRAFT)
+  publishedAt DateTime?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  @@index([status])
+  @@index([city, district])
+}

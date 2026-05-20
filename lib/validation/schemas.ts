@@ -1,0 +1,272 @@
+import {
+  DevelopmentMediaKind,
+  DevelopmentMilestoneStatus,
+  DevelopmentPublicationStatus,
+  DevelopmentStage,
+  LeadIntent,
+  LeadSource,
+  LeadStage,
+  PropertyPurpose,
+  PropertyStatus,
+  PropertyType,
+  SeoListingMode,
+  SeoPageStatus,
+  TaskPriority
+} from "@prisma/client";
+import { z } from "zod";
+
+export const publicPropertyInterestSchema = z.object({
+  name: z.string().min(3),
+  whatsapp: z.string().min(10),
+  email: z.string().email().optional().or(z.literal("")),
+  message: z.string().optional(),
+  propertySlug: z.string().optional(),
+  lgpdConsent: z.boolean().optional().default(true)
+});
+
+export const publicSellerCaptureSchema = z.object({
+  name: z.string().min(3),
+  whatsapp: z.string().min(10),
+  propertyType: z.nativeEnum(PropertyType),
+  district: z.string().min(2),
+  city: z.string().default("Palmas"),
+  askingPrice: z.coerce.number().positive(),
+  statusDescription: z.string().optional(),
+  photos: z.array(z.string().url()).optional(),
+  lgpdConsent: z.boolean().optional().default(true)
+});
+
+export const publicWhatsappClickSchema = z.object({
+  propertyId: z.string().optional(),
+  propertySlug: z.string().optional(),
+  developmentId: z.string().optional(),
+  developmentSlug: z.string().optional(),
+  leadPhone: z.string().optional(),
+  leadName: z.string().optional(),
+  messageTemplate: z.string().optional()
+});
+
+export const publicDevelopmentInterestSchema = z.object({
+  name: z.string().min(3),
+  whatsapp: z.string().min(10),
+  email: z.string().email().optional().or(z.literal("")),
+  message: z.string().optional(),
+  developmentSlug: z.string().optional(),
+  developmentId: z.string().optional(),
+  requestTable: z.boolean().optional().default(false),
+  lgpdConsent: z.boolean().optional().default(true)
+});
+
+export const crmCreateLeadSchema = z.object({
+  name: z.string().min(2),
+  phone: z.string().min(8),
+  email: z.string().email().optional(),
+  source: z.nativeEnum(LeadSource),
+  intent: z.nativeEnum(LeadIntent),
+  desiredType: z.nativeEnum(PropertyType).optional(),
+  desiredPurpose: z.nativeEnum(PropertyPurpose).optional(),
+  budgetMin: z.coerce.number().optional(),
+  budgetMax: z.coerce.number().optional(),
+  desiredCity: z.string().optional(),
+  desiredDistrict: z.string().optional(),
+  notes: z.string().optional(),
+  ownerUserId: z.string().optional(),
+  linkedPropertyId: z.string().optional(),
+  linkedDevelopmentId: z.string().optional()
+});
+
+export const crmCreatePropertySchema = z.object({
+  title: z.string().min(3),
+  slug: z.string().min(3),
+  type: z.nativeEnum(PropertyType),
+  purpose: z.nativeEnum(PropertyPurpose),
+  status: z.nativeEnum(PropertyStatus).default(PropertyStatus.DISPONIVEL),
+  price: z.coerce.number().positive(),
+  city: z.string().min(2).default("Palmas"),
+  district: z.string().min(2),
+  address: z.string().optional(),
+  postalCode: z.string().optional(),
+  googleMapsUrl: z.string().optional().or(z.literal("")),
+  latitude: z.coerce.number().optional(),
+  longitude: z.coerce.number().optional(),
+  areaM2: z.coerce.number().optional(),
+  bedrooms: z.coerce.number().int().optional(),
+  suites: z.coerce.number().int().optional(),
+  bathrooms: z.coerce.number().int().optional(),
+  parkingSpaces: z.coerce.number().int().optional(),
+  description: z.string().min(12),
+  features: z.array(z.string()).default([]),
+  legalNotes: z.string().optional(),
+  internalNotes: z.string().optional(),
+  commissionPct: z.coerce.number().min(0).max(100).optional()
+});
+
+export const crmUpdatePropertySchema = crmCreatePropertySchema.partial();
+
+export const crmUpdateStageSchema = z.object({
+  toStage: z.nativeEnum(LeadStage),
+  reason: z.string().optional()
+});
+
+export const createTaskSchema = z.object({
+  title: z.string().min(3),
+  description: z.string().optional(),
+  priority: z.nativeEnum(TaskPriority).default(TaskPriority.MEDIA),
+  dueAt: z.string().datetime().optional(),
+  leadId: z.string().optional(),
+  propertyId: z.string().optional(),
+  assignedToId: z.string().optional()
+});
+
+export const createVisitSchema = z.object({
+  leadId: z.string(),
+  propertyId: z.string(),
+  scheduledAt: z.string().datetime(),
+  notes: z.string().optional(),
+  assignedToId: z.string().optional()
+});
+
+export const createProposalSchema = z.object({
+  leadId: z.string(),
+  propertyId: z.string(),
+  offeredValue: z.coerce.number().positive(),
+  commissionPct: z.coerce.number().min(0).max(100).optional(),
+  notes: z.string().optional()
+});
+
+export const cloudflareImageDirectUploadSchema = z.object({
+  id: z.string().optional(),
+  creator: z.string().optional(),
+  metadata: z.record(z.string(), z.unknown()).optional(),
+  requireSignedURLs: z.boolean().optional().default(false),
+  expiry: z.string().datetime().optional()
+});
+
+export const cloudflareStreamDirectUploadSchema = z.object({
+  maxDurationSeconds: z.coerce.number().int().positive().max(10800).default(3600),
+  requireSignedURLs: z.boolean().optional().default(false),
+  allowedOrigins: z.array(z.string()).optional(),
+  creator: z.string().optional(),
+  metadata: z.record(z.string(), z.unknown()).optional()
+});
+
+export const whatsappTemplateSchema = z.object({
+  to: z.string().min(8),
+  templateName: z.string().min(2),
+  languageCode: z.string().default("pt_BR"),
+  bodyParams: z.array(z.string()).default([])
+});
+
+export const crmCreateDevelopmentSchema = z.object({
+  title: z.string().min(3),
+  slug: z.string().min(3),
+  tagline: z.string().optional(),
+  summary: z.string().min(10),
+  description: z.string().min(20),
+  district: z.string().min(2),
+  city: z.string().default("Palmas"),
+  neighborhood: z.string().optional(),
+  address: z.string().optional(),
+  postalCode: z.string().optional(),
+  latitude: z.coerce.number().optional(),
+  longitude: z.coerce.number().optional(),
+  developerName: z.string().optional(),
+  builderName: z.string().optional(),
+  stage: z.nativeEnum(DevelopmentStage).default(DevelopmentStage.PRE_LAUNCH),
+  deliveryDate: z.string().datetime().optional(),
+  startingPrice: z.coerce.number().optional(),
+  areaFromM2: z.coerce.number().optional(),
+  areaToM2: z.coerce.number().optional(),
+  bedroomsFrom: z.coerce.number().int().optional(),
+  bedroomsTo: z.coerce.number().int().optional(),
+  parkingFrom: z.coerce.number().int().optional(),
+  parkingTo: z.coerce.number().int().optional(),
+  totalUnits: z.coerce.number().int().optional(),
+  availableUnits: z.coerce.number().int().optional(),
+  amenities: z.array(z.string()).default([]),
+  differentials: z.array(z.string()).default([]),
+  regionLiquidityNotes: z.string().optional(),
+  mapEmbedUrl: z.string().url().optional().or(z.literal("")),
+  tablePdfUrl: z.string().url().optional().or(z.literal("")),
+  whatsappMessageTemplate: z.string().optional(),
+  ctaPrimaryLabel: z.string().optional(),
+  ctaPrimaryUrl: z.string().url().optional().or(z.literal("")),
+  ctaSecondaryLabel: z.string().optional(),
+  ctaSecondaryUrl: z.string().optional(),
+  seoTitle: z.string().optional(),
+  seoDescription: z.string().optional(),
+  seoOgImageUrl: z.string().url().optional().or(z.literal("")),
+  status: z.nativeEnum(DevelopmentPublicationStatus).optional()
+});
+
+export const crmUpdateDevelopmentSchema = crmCreateDevelopmentSchema.partial().extend({
+  status: z.nativeEnum(DevelopmentPublicationStatus).optional()
+});
+
+export const crmUpdateDevelopmentStatusSchema = z.object({
+  status: z.nativeEnum(DevelopmentPublicationStatus)
+});
+
+export const crmCreateDevelopmentUnitTypeSchema = z.object({
+  name: z.string().min(2),
+  bedrooms: z.coerce.number().int().optional(),
+  suites: z.coerce.number().int().optional(),
+  bathrooms: z.coerce.number().int().optional(),
+  parkingSpaces: z.coerce.number().int().optional(),
+  areaFromM2: z.coerce.number().optional(),
+  areaToM2: z.coerce.number().optional(),
+  priceFrom: z.coerce.number().optional(),
+  priceTo: z.coerce.number().optional(),
+  availableUnits: z.coerce.number().int().optional(),
+  totalUnits: z.coerce.number().int().optional(),
+  description: z.string().optional(),
+  position: z.coerce.number().int().optional()
+});
+
+export const crmCreateDevelopmentMediaSchema = z.object({
+  kind: z.nativeEnum(DevelopmentMediaKind),
+  url: z.string().url(),
+  title: z.string().optional(),
+  position: z.coerce.number().int().optional(),
+  cloudflareMediaId: z.string().optional(),
+  status: z.enum(["PENDENTE", "PROCESSANDO", "PRONTO", "FALHA"]).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional()
+});
+
+export const crmCreateDevelopmentMilestoneSchema = z.object({
+  title: z.string().min(2),
+  description: z.string().optional(),
+  status: z.nativeEnum(DevelopmentMilestoneStatus).default(DevelopmentMilestoneStatus.NOT_STARTED),
+  targetDate: z.string().datetime().optional(),
+  actualDate: z.string().datetime().optional(),
+  progressPct: z.coerce.number().int().min(0).max(100).optional(),
+  position: z.coerce.number().int().optional()
+});
+
+export const crmCreateDevelopmentFaqSchema = z.object({
+  question: z.string().min(4),
+  answer: z.string().min(6),
+  position: z.coerce.number().int().optional()
+});
+
+export const crmSeoFaqSchema = z.object({
+  question: z.string().min(4),
+  answer: z.string().min(6)
+});
+
+export const crmCreateSeoLandingPageSchema = z.object({
+  name: z.string().min(4),
+  path: z.string().min(3),
+  city: z.string().min(2).default("Palmas"),
+  district: z.string().optional(),
+  listingMode: z.nativeEnum(SeoListingMode).default(SeoListingMode.TODOS),
+  title: z.string().min(10),
+  description: z.string().min(20),
+  h1: z.string().min(6),
+  intro: z.string().min(20),
+  keywords: z.array(z.string()).default([]),
+  faqs: z.array(crmSeoFaqSchema).default([]),
+  status: z.nativeEnum(SeoPageStatus).default(SeoPageStatus.DRAFT)
+});
+
+export const crmUpdateSeoLandingPageSchema = crmCreateSeoLandingPageSchema.partial();
