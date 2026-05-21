@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useSyncExternalStore } from "react";
 
 type ConsentChoice = "accepted" | "rejected";
 
@@ -10,6 +10,13 @@ const CONSENT_COOKIE_NAME = "ps_cookie_consent";
 const CONSENT_VERSION = 1;
 const CONSENT_MAX_AGE_SECONDS = 60 * 60 * 24 * 180;
 const OPEN_EVENT_NAME = "ps:open-cookie-consent";
+const CHANGE_EVENT_NAME = "ps:cookie-consent-changed";
+
+let isForcedOpen = false;
+
+function isConsentChoice(value: unknown): value is ConsentChoice {
+  return value === "accepted" || value === "rejected";
+}
 
 function readCookieConsent(): ConsentChoice | null {
   if (typeof document === "undefined") return null;
@@ -23,38 +30,86 @@ function readCookieConsent(): ConsentChoice | null {
   return null;
 }
 
+function readLocalConsent(): ConsentChoice | null {
+  if (typeof window === "undefined") return null;
+
+  try {
+    const storedValue = window.localStorage.getItem(CONSENT_STORAGE_KEY);
+    if (!storedValue) return null;
+
+    const parsed = JSON.parse(storedValue) as { choice?: unknown; version?: unknown };
+    if (parsed.version === CONSENT_VERSION && isConsentChoice(parsed.choice)) {
+      return parsed.choice;
+    }
+  } catch {
+    return null;
+  }
+
+  return null;
+}
+
+function hasStoredConsent() {
+  return Boolean(readLocalConsent() || readCookieConsent());
+}
+
+function getConsentSnapshot() {
+  if (typeof window === "undefined") return false;
+  return isForcedOpen || !hasStoredConsent();
+}
+
+function getServerConsentSnapshot() {
+  return false;
+}
+
+function subscribeToConsentChanges(callback: () => void) {
+  const openBanner = () => {
+    isForcedOpen = true;
+    callback();
+  };
+
+  const handleStorageChange = (event: StorageEvent) => {
+    if (event.key === CONSENT_STORAGE_KEY) callback();
+  };
+
+  window.addEventListener(OPEN_EVENT_NAME, openBanner);
+  window.addEventListener(CHANGE_EVENT_NAME, callback);
+  window.addEventListener("storage", handleStorageChange);
+
+  return () => {
+    window.removeEventListener(OPEN_EVENT_NAME, openBanner);
+    window.removeEventListener(CHANGE_EVENT_NAME, callback);
+    window.removeEventListener("storage", handleStorageChange);
+  };
+}
+
 function persistConsent(choice: ConsentChoice) {
   const payload = JSON.stringify({
     choice,
     version: CONSENT_VERSION,
     updatedAt: new Date().toISOString()
   });
-  localStorage.setItem(CONSENT_STORAGE_KEY, payload);
+
+  try {
+    window.localStorage.setItem(CONSENT_STORAGE_KEY, payload);
+  } catch {
+    // The consent cookie is enough when storage is blocked or unavailable.
+  }
+
   document.cookie = `${CONSENT_COOKIE_NAME}=${choice}; Max-Age=${CONSENT_MAX_AGE_SECONDS}; Path=/; SameSite=Lax`;
 }
 
 export function CookieConsentBanner() {
-  const [isVisible, setIsVisible] = useState(() => {
-    if (typeof window === "undefined") return false;
-    const localValue = localStorage.getItem(CONSENT_STORAGE_KEY);
-    const cookieValue = readCookieConsent();
-    return !localValue && !cookieValue;
-  });
-
-  useEffect(() => {
-    const openBanner = () => setIsVisible(true);
-    window.addEventListener(OPEN_EVENT_NAME, openBanner);
-    return () => window.removeEventListener(OPEN_EVENT_NAME, openBanner);
-  }, []);
-
-  const bannerClassName = useMemo(
-    () => `cookie-consent-banner ${isVisible ? "open" : ""}`,
-    [isVisible]
+  const isVisible = useSyncExternalStore(
+    subscribeToConsentChanges,
+    getConsentSnapshot,
+    getServerConsentSnapshot
   );
+  const bannerClassName = `cookie-consent-banner ${isVisible ? "open" : ""}`;
 
   const handleChoice = (choice: ConsentChoice) => {
     persistConsent(choice);
-    setIsVisible(false);
+    isForcedOpen = false;
+    window.dispatchEvent(new Event(CHANGE_EVENT_NAME));
   };
 
   return (
