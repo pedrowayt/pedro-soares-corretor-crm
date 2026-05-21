@@ -1,4 +1,5 @@
 import type { CSSProperties } from "react";
+import { LeadDevelopmentStatusControl } from "@/components/crm/lead-development-status-control";
 import { QuickLeadForm } from "@/components/crm/quick-forms";
 import { listLeads } from "@/lib/data/crm";
 
@@ -23,7 +24,8 @@ export default async function CrmLeadsPage() {
               <th style={thStyle}>Origem</th>
               <th style={thStyle}>Interesse</th>
               <th style={thStyle}>Etapa</th>
-                <th style={thStyle}>Imóvel/Empreendimento</th>
+              <th style={thStyle}>Contexto</th>
+              <th style={thStyle}>Status lançamento</th>
             </tr>
           </thead>
           <tbody>
@@ -34,7 +36,23 @@ export default async function CrmLeadsPage() {
                 <td style={tdStyle}>{lead.source}</td>
                 <td style={tdStyle}>{lead.intent}</td>
                 <td style={tdStyle}>{lead.stage}</td>
-                <td style={tdStyle}>{lead.linkedProperty?.title ?? lead.linkedDevelopment?.title ?? "-"}</td>
+                <td style={tdStyle}>
+                  {lead.linkedProperty?.title ??
+                    (lead.linkedDevelopment
+                      ? `${lead.linkedDevelopment.title}${
+                          lead.linkedDevelopmentUnitType?.name
+                            ? ` • ${lead.linkedDevelopmentUnitType.name}`
+                            : ""
+                        }`
+                      : "-")}
+                </td>
+                <td style={tdStyle}>
+                  <LeadDevelopmentStatusControl
+                    leadId={lead.id}
+                    initialStatus={lead.developmentLeadStatus}
+                    disabled={!lead.linkedDevelopmentId}
+                  />
+                </td>
               </tr>
             ))}
           </tbody>
@@ -49,11 +67,11 @@ const thStyle: CSSProperties = {
   padding: "12px 14px",
   borderBottom: "1px solid rgba(242,194,122,.2)",
   color: "var(--credibility-200)",
-  fontSize: ".85rem"
+  fontSize: "var(--fs-12)"
 };
 
 const tdStyle: CSSProperties = {
   padding: "12px 14px",
   borderBottom: "1px solid rgba(242,194,122,.12)",
-  fontSize: ".92rem"
+  fontSize: "var(--fs-14)"
 };

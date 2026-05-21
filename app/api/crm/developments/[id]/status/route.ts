@@ -34,6 +34,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   if (parsed.data.status === DevelopmentPublicationStatus.PUBLISHED) {
     const checklist = getDevelopmentPublicationChecklist({
       title: development.title,
+      summary: development.summary,
       description: development.description,
       district: development.district,
       city: development.city,
@@ -53,6 +54,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     where: { id },
     data: {
       status: parsed.data.status,
+      isPublished: parsed.data.status === DevelopmentPublicationStatus.PUBLISHED,
       publishedAt: parsed.data.status === DevelopmentPublicationStatus.PUBLISHED ? new Date() : null
     }
   });

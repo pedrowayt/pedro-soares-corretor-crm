@@ -23,10 +23,10 @@ export default async function CrmPaginasSeoPage() {
             <p className="text-card" style={{ margin: "4px 0", color: "var(--text-muted)" }}>
               {page.path}
             </p>
-            <p className="text-card" style={{ margin: "4px 0", color: "var(--text-muted)", fontSize: ".9rem" }}>
+            <p className="text-card" style={{ margin: "4px 0", color: "var(--text-muted)", fontSize: "var(--fs-14)" }}>
               Cidade: {page.city} {page.district ? `• Bairro: ${page.district}` : ""}
             </p>
-            <p className="text-card" style={{ margin: "4px 0", color: "var(--text-muted)", fontSize: ".9rem" }}>
+            <p className="text-card" style={{ margin: "4px 0", color: "var(--text-muted)", fontSize: "var(--fs-14)" }}>
               Modo: {page.listingMode}
             </p>
           </article>

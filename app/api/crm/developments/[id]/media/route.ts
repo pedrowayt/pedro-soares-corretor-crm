@@ -20,8 +20,11 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     data: {
       developmentId: id,
       kind: parsed.data.kind,
+      category: parsed.data.category,
       url: parsed.data.url,
       title: parsed.data.title,
+      caption: parsed.data.caption,
+      isPrimary: parsed.data.isPrimary ?? false,
       position: parsed.data.position ?? 0,
       cloudflareMediaId: parsed.data.cloudflareMediaId,
       status: parsed.data.status,

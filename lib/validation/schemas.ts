@@ -1,8 +1,12 @@
 import {
+  DevelopmentLeadStatus,
+  DevelopmentMediaCategory,
   DevelopmentMediaKind,
   DevelopmentMilestoneStatus,
+  DevelopmentPropertyType,
   DevelopmentPublicationStatus,
   DevelopmentStage,
+  DevelopmentUnitCategory,
   LeadIntent,
   LeadSource,
   LeadStage,
@@ -41,9 +45,13 @@ export const publicWhatsappClickSchema = z.object({
   propertySlug: z.string().optional(),
   developmentId: z.string().optional(),
   developmentSlug: z.string().optional(),
+  unitTypeId: z.string().optional(),
+  unitTypeName: z.string().optional(),
   leadPhone: z.string().optional(),
   leadName: z.string().optional(),
-  messageTemplate: z.string().optional()
+  leadEmail: z.string().email().optional().or(z.literal("")),
+  messageTemplate: z.string().optional(),
+  context: z.enum(["development", "unit_type", "schedule"]).optional()
 });
 
 export const publicDevelopmentInterestSchema = z.object({
@@ -53,6 +61,7 @@ export const publicDevelopmentInterestSchema = z.object({
   message: z.string().optional(),
   developmentSlug: z.string().optional(),
   developmentId: z.string().optional(),
+  unitTypeId: z.string().optional(),
   requestTable: z.boolean().optional().default(false),
   lgpdConsent: z.boolean().optional().default(true)
 });
@@ -70,9 +79,11 @@ export const crmCreateLeadSchema = z.object({
   desiredCity: z.string().optional(),
   desiredDistrict: z.string().optional(),
   notes: z.string().optional(),
+  developmentLeadStatus: z.nativeEnum(DevelopmentLeadStatus).optional(),
   ownerUserId: z.string().optional(),
   linkedPropertyId: z.string().optional(),
-  linkedDevelopmentId: z.string().optional()
+  linkedDevelopmentId: z.string().optional(),
+  linkedDevelopmentUnitTypeId: z.string().optional()
 });
 
 export const crmCreatePropertySchema = z.object({
@@ -106,6 +117,10 @@ export const crmUpdatePropertySchema = crmCreatePropertySchema.partial();
 export const crmUpdateStageSchema = z.object({
   toStage: z.nativeEnum(LeadStage),
   reason: z.string().optional()
+});
+
+export const crmUpdateDevelopmentLeadStatusSchema = z.object({
+  developmentLeadStatus: z.nativeEnum(DevelopmentLeadStatus)
 });
 
 export const createTaskSchema = z.object({
@@ -157,9 +172,16 @@ export const whatsappTemplateSchema = z.object({
   bodyParams: z.array(z.string()).default([])
 });
 
+const crmReferencePointSchema = z.object({
+  name: z.string().min(2),
+  distance: z.string().optional(),
+  type: z.string().optional()
+});
+
 export const crmCreateDevelopmentSchema = z.object({
   title: z.string().min(3),
   slug: z.string().min(3),
+  propertyType: z.nativeEnum(DevelopmentPropertyType).optional(),
   tagline: z.string().optional(),
   summary: z.string().min(10),
   description: z.string().min(20),
@@ -172,30 +194,62 @@ export const crmCreateDevelopmentSchema = z.object({
   longitude: z.coerce.number().optional(),
   developerName: z.string().optional(),
   builderName: z.string().optional(),
+  builderId: z.string().optional(),
   stage: z.nativeEnum(DevelopmentStage).default(DevelopmentStage.PRE_LAUNCH),
-  deliveryDate: z.string().datetime().optional(),
+  deliveryDate: z.string().datetime().nullable().optional(),
+  constructionProgressPct: z.coerce.number().int().min(0).max(100).nullable().optional(),
+  appreciationPotential: z.enum(["BAIXO", "MEDIO", "ALTO", "MUITO_ALTO"]).nullable().optional(),
+  buyerProfile: z.string().nullable().optional(),
+  opportunityText: z.string().nullable().optional(),
+  showInvestmentPotentialBlock: z.boolean().optional(),
   startingPrice: z.coerce.number().optional(),
+  priceMax: z.coerce.number().optional(),
   areaFromM2: z.coerce.number().optional(),
   areaToM2: z.coerce.number().optional(),
+  landAreaM2: z.coerce.number().optional(),
   bedroomsFrom: z.coerce.number().int().optional(),
   bedroomsTo: z.coerce.number().int().optional(),
+  suitesFrom: z.coerce.number().int().optional(),
+  suitesTo: z.coerce.number().int().optional(),
+  bathroomsFrom: z.coerce.number().int().optional(),
+  bathroomsTo: z.coerce.number().int().optional(),
   parkingFrom: z.coerce.number().int().optional(),
   parkingTo: z.coerce.number().int().optional(),
+  towersCount: z.coerce.number().int().optional(),
+  floorsCount: z.coerce.number().int().optional(),
+  elevatorsCount: z.coerce.number().int().optional(),
   totalUnits: z.coerce.number().int().optional(),
   availableUnits: z.coerce.number().int().optional(),
+  incorporationRegistry: z.string().optional(),
+  hasPatrimonyOfAffectation: z.boolean().optional(),
   amenities: z.array(z.string()).default([]),
   differentials: z.array(z.string()).default([]),
+  projectText: z.string().optional(),
+  apartmentsText: z.string().optional(),
+  locationText: z.string().optional(),
+  locationHighlights: z.string().optional(),
+  referencePoints: z.array(crmReferencePointSchema).default([]),
   regionLiquidityNotes: z.string().optional(),
-  mapEmbedUrl: z.string().url().optional().or(z.literal("")),
+  mapEmbedUrl: z.string().optional().or(z.literal("")),
   tablePdfUrl: z.string().url().optional().or(z.literal("")),
   whatsappMessageTemplate: z.string().optional(),
   ctaPrimaryLabel: z.string().optional(),
   ctaPrimaryUrl: z.string().url().optional().or(z.literal("")),
   ctaSecondaryLabel: z.string().optional(),
-  ctaSecondaryUrl: z.string().optional(),
+  ctaSecondaryUrl: z.string().optional().or(z.literal("")),
   seoTitle: z.string().optional(),
   seoDescription: z.string().optional(),
   seoOgImageUrl: z.string().url().optional().or(z.literal("")),
+  seoKeyword: z.string().optional(),
+  seoNoIndex: z.boolean().optional(),
+  isFeatured: z.boolean().optional(),
+  displayOrder: z.coerce.number().int().optional(),
+  showPrice: z.boolean().optional(),
+  showMap: z.boolean().optional(),
+  showBuilder: z.boolean().optional(),
+  showFloorplanTable: z.boolean().optional(),
+  showWhatsappButton: z.boolean().optional(),
+  isPublished: z.boolean().optional(),
   status: z.nativeEnum(DevelopmentPublicationStatus).optional()
 });
 
@@ -209,14 +263,20 @@ export const crmUpdateDevelopmentStatusSchema = z.object({
 
 export const crmCreateDevelopmentUnitTypeSchema = z.object({
   name: z.string().min(2),
+  unitCategory: z.nativeEnum(DevelopmentUnitCategory).optional(),
   bedrooms: z.coerce.number().int().optional(),
   suites: z.coerce.number().int().optional(),
   bathrooms: z.coerce.number().int().optional(),
   parkingSpaces: z.coerce.number().int().optional(),
   areaFromM2: z.coerce.number().optional(),
   areaToM2: z.coerce.number().optional(),
+  areaPrivateM2: z.coerce.number().optional(),
+  areaTotalM2: z.coerce.number().optional(),
   priceFrom: z.coerce.number().optional(),
   priceTo: z.coerce.number().optional(),
+  initialPrice: z.coerce.number().optional(),
+  imageUrl: z.string().url().optional().or(z.literal("")),
+  isAvailable: z.boolean().optional(),
   availableUnits: z.coerce.number().int().optional(),
   totalUnits: z.coerce.number().int().optional(),
   description: z.string().optional(),
@@ -225,8 +285,11 @@ export const crmCreateDevelopmentUnitTypeSchema = z.object({
 
 export const crmCreateDevelopmentMediaSchema = z.object({
   kind: z.nativeEnum(DevelopmentMediaKind),
+  category: z.nativeEnum(DevelopmentMediaCategory).optional(),
   url: z.string().url(),
   title: z.string().optional(),
+  caption: z.string().optional(),
+  isPrimary: z.boolean().optional(),
   position: z.coerce.number().int().optional(),
   cloudflareMediaId: z.string().optional(),
   status: z.enum(["PENDENTE", "PROCESSANDO", "PRONTO", "FALHA"]).optional(),
@@ -248,6 +311,24 @@ export const crmCreateDevelopmentFaqSchema = z.object({
   answer: z.string().min(6),
   position: z.coerce.number().int().optional()
 });
+
+export const crmCreateBuilderSchema = z.object({
+  name: z.string().min(2),
+  slug: z.string().min(2),
+  logoUrl: z.string().url().optional().or(z.literal("")),
+  description: z.string().optional(),
+  city: z.string().optional(),
+  state: z.string().optional(),
+  foundedYear: z.coerce.number().int().optional(),
+  website: z.string().url().optional().or(z.literal("")),
+  instagram: z.string().optional(),
+  deliveredDevelopmentsCount: z.coerce.number().int().optional(),
+  deliveredUnitsCount: z.coerce.number().int().optional(),
+  activeProjectsCount: z.coerce.number().int().optional(),
+  institutionalText: z.string().optional()
+});
+
+export const crmUpdateBuilderSchema = crmCreateBuilderSchema.partial();
 
 export const crmSeoFaqSchema = z.object({
   question: z.string().min(4),

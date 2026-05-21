@@ -27,7 +27,7 @@ const categoryCards = [
     image: "/brand/areas/plano-diretor-sul.png"
   },
   {
-    href: "/imoveis/na-planta",
+    href: "/lancamentos",
     title: "Imóveis na planta",
     subtitle: "Empreendimentos com tipologias, entrega prevista e tabela atualizada.",
     image: "/brand/areas/plano-diretor-norte.png"
@@ -81,7 +81,7 @@ export default function ImoveisPage() {
             <Link href="/imoveis/prontos" className="wp-type-chip">
               Imóveis prontos
             </Link>
-            <Link href="/imoveis/na-planta" className="wp-type-chip">
+            <Link href="/lancamentos" className="wp-type-chip">
               Imóveis na planta
             </Link>
             <Link href="/imoveis/leilao" className="wp-type-chip">

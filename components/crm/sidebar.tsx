@@ -6,6 +6,7 @@ const crmMenu = [
   { href: "/crm/funil", label: "Funil de vendas" },
   { href: "/crm/imoveis", label: "Imóveis" },
   { href: "/crm/empreendimentos", label: "Empreendimentos" },
+  { href: "/crm/construtoras", label: "Construtoras" },
   { href: "/crm/proprietarios", label: "Proprietários" },
   { href: "/crm/visitas", label: "Visitas" },
   { href: "/crm/propostas", label: "Propostas" },
@@ -29,7 +30,7 @@ export function CrmSidebar() {
               border: "1px solid rgba(242,194,122,.2)",
               borderRadius: 12,
               padding: "9px 11px",
-              fontSize: ".92rem"
+              fontSize: "var(--fs-14)"
             }}
           >
             {item.label}

@@ -1,49 +1,129 @@
-import Link from "next/link";
 import { DevelopmentForms } from "@/components/crm/development-forms";
-import { listCrmDevelopments } from "@/lib/data/developments";
-import { formatCurrencyBRL } from "@/lib/utils";
+import { listCrmBuilders, listCrmDevelopments } from "@/lib/data/developments";
 
 export default async function CrmEmpreendimentosPage() {
-  const developments = await listCrmDevelopments();
+  const [developments, builders] = await Promise.all([
+    listCrmDevelopments({ includeArchived: true }),
+    listCrmBuilders()
+  ]);
 
   return (
     <>
-      <h1 className="section-title" style={{ marginTop: 0 }}>Empreendimentos</h1>
+      <h1 className="section-title" style={{ marginTop: 0 }}>
+        Empreendimentos
+      </h1>
       <p className="section-subtitle">
-        Cadastro e publicação de lançamentos com controle editorial, tipologias, mídia e cronograma de obra.
+        Gestão completa de lançamentos com workflow editorial, tipologias, mídia Cloudflare, construtora, SEO e publicação.
       </p>
 
-      <div className="grid-3" style={{ marginTop: 16, marginBottom: 20 }}>
-        {developments.map((development) => (
-          <article className="card" key={development.id} style={{ padding: 14 }}>
-            <p className="badge">{development.status}</p>
-            <h3 className="title-luxury" style={{ marginBottom: 8 }}>{development.title}</h3>
-            <p className="text-card" style={{ margin: "4px 0", color: "var(--text-muted)" }}>
-              {development.city} • {development.district}
-            </p>
-            <p style={{ margin: "4px 0", color: "var(--sophistication-gold-300)", fontWeight: 700 }}>
-              A partir de {development.startingPriceNumber ? formatCurrencyBRL(development.startingPriceNumber) : "sob consulta"}
-            </p>
-            <p className="text-card" style={{ margin: "4px 0", color: "var(--text-muted)", fontSize: ".9rem" }}>
-              Tipologias: {development.unitTypes.length} • Mídias: {development.media.length}
-            </p>
-            <div style={{ marginTop: 8, display: "flex", gap: 8, flexWrap: "wrap" }}>
-              <Link className="button button-ghost" href={`/lancamentos/${development.slug}`} target="_blank">
-                Preview público
-              </Link>
-            </div>
-          </article>
-        ))}
+      <div style={{ marginTop: 16 }}>
+        <DevelopmentForms
+          developments={developments.map((item) => ({
+            ...item,
+            builderId: item.builderId ?? null,
+            builderName: item.builderName ?? null,
+            developerName: item.developerName ?? null,
+            deliveryDate: item.deliveryDate ? new Date(item.deliveryDate).toISOString() : null,
+            constructionProgressPct: item.constructionProgressPct ?? null,
+            appreciationPotential: item.appreciationPotential ?? null,
+            buyerProfile: item.buyerProfile ?? null,
+            opportunityText: item.opportunityText ?? null,
+            showInvestmentPotentialBlock: item.showInvestmentPotentialBlock ?? true,
+            tagline: item.tagline ?? null,
+            regionLiquidityNotes: item.regionLiquidityNotes ?? null,
+            neighborhood: item.neighborhood ?? null,
+            address: item.address ?? null,
+            postalCode: item.postalCode ?? null,
+            latitudeNumber: item.latitudeNumber,
+            longitudeNumber: item.longitudeNumber,
+            mapEmbedUrl: item.mapEmbedUrl ?? null,
+            tablePdfUrl: item.tablePdfUrl ?? null,
+            whatsappMessageTemplate: item.whatsappMessageTemplate ?? null,
+            ctaPrimaryLabel: item.ctaPrimaryLabel ?? null,
+            ctaPrimaryUrl: item.ctaPrimaryUrl ?? null,
+            ctaSecondaryLabel: item.ctaSecondaryLabel ?? null,
+            ctaSecondaryUrl: item.ctaSecondaryUrl ?? null,
+            seoTitle: item.seoTitle ?? null,
+            seoDescription: item.seoDescription ?? null,
+            seoOgImageUrl: item.seoOgImageUrl ?? null,
+            seoKeyword: item.seoKeyword ?? null,
+            propertyType: item.propertyType ?? null,
+            startingPriceNumber: item.startingPriceNumber,
+            priceMaxNumber: item.priceMaxNumber,
+            areaFromM2Number: item.areaFromM2Number,
+            areaToM2Number: item.areaToM2Number,
+            landAreaM2Number: item.landAreaM2Number,
+            bedroomsFrom: item.bedroomsFrom ?? null,
+            bedroomsTo: item.bedroomsTo ?? null,
+            suitesFrom: item.suitesFrom ?? null,
+            suitesTo: item.suitesTo ?? null,
+            bathroomsFrom: item.bathroomsFrom ?? null,
+            bathroomsTo: item.bathroomsTo ?? null,
+            parkingFrom: item.parkingFrom ?? null,
+            parkingTo: item.parkingTo ?? null,
+            towersCount: item.towersCount ?? null,
+            floorsCount: item.floorsCount ?? null,
+            elevatorsCount: item.elevatorsCount ?? null,
+            totalUnits: item.totalUnits ?? null,
+            availableUnits: item.availableUnits ?? null,
+            incorporationRegistry: item.incorporationRegistry ?? null,
+            hasPatrimonyOfAffectation: item.hasPatrimonyOfAffectation ?? null,
+            projectText: item.projectText ?? null,
+            apartmentsText: item.apartmentsText ?? null,
+            locationText: item.locationText ?? null,
+            locationHighlights: item.locationHighlights ?? null,
+            referencePoints: item.referencePoints,
+            seoNoIndex: item.seoNoIndex,
+            isFeatured: item.isFeatured,
+            displayOrder: item.displayOrder,
+            showPrice: item.showPrice,
+            showMap: item.showMap,
+            showBuilder: item.showBuilder,
+            showFloorplanTable: item.showFloorplanTable,
+            showWhatsappButton: item.showWhatsappButton,
+            isPublished: item.isPublished,
+            amenities: Array.from(item.amenities ?? []),
+            differentials: Array.from(item.differentials ?? []),
+            media: item.media.map((media, mediaIndex) => ({
+              id: media.id,
+              url: media.url,
+              title: media.title ?? null,
+              kind: String(media.kind),
+              category: media.category ?? "OUTROS",
+              position: typeof media.position === "number" ? media.position : mediaIndex
+            })),
+            unitTypes: item.unitTypes.map((unit) => ({
+              id: unit.id,
+              name: unit.name,
+              unitCategory: unit.unitCategory ?? null,
+              bedrooms: unit.bedrooms ?? null,
+              suites: unit.suites ?? null,
+              bathrooms: unit.bathrooms ?? null,
+              parkingSpaces: unit.parkingSpaces ?? null,
+              areaPrivateM2Number: unit.areaPrivateM2Number,
+              areaTotalM2Number: unit.areaTotalM2Number,
+              initialPriceNumber: unit.initialPriceNumber,
+              isAvailable: unit.isAvailable
+            })),
+            milestones: item.milestones.map((milestone) => ({
+              id: milestone.id,
+              title: milestone.title,
+              status: milestone.status,
+              progressPct: milestone.progressPct ?? null
+            })),
+            faqs: item.faqs.map((faq) => ({
+              id: faq.id,
+              question: faq.question,
+              answer: faq.answer
+            }))
+          }))}
+          builders={builders.map((builder) => ({
+            id: builder.id,
+            name: builder.name,
+            slug: builder.slug
+          }))}
+        />
       </div>
-
-      <DevelopmentForms
-        developments={developments.map((item) => ({
-          id: item.id,
-          title: item.title,
-          slug: item.slug,
-          status: item.status
-        }))}
-      />
     </>
   );
 }

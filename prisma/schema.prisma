@@ -158,8 +158,33 @@ enum DevelopmentStage {
   PRE_LAUNCH
   LAUNCH
   SALES
+  FOUNDATION_COMPLETED
   CONSTRUCTION
+  ADVANCED_STRUCTURE
+  FINISHING
+  READY_TO_MOVE
   DELIVERED
+}
+
+enum DevelopmentPropertyType {
+  APARTAMENTO
+  CASA
+  LOTE
+  SALA_COMERCIAL
+  STUDIO
+  COBERTURA
+}
+
+enum DevelopmentUnitCategory {
+  STUDIO
+  UM_QUARTO
+  DOIS_QUARTOS
+  TRES_QUARTOS
+  QUATRO_QUARTOS
+  GARDEN
+  COBERTURA
+  DUPLEX
+  SALA_COMERCIAL
 }
 
 enum DevelopmentMediaKind {
@@ -168,6 +193,27 @@ enum DevelopmentMediaKind {
   FLOORPLAN
   VIDEO
   PDF
+}
+
+enum DevelopmentMediaCategory {
+  HERO
+  FACHADA
+  LAZER
+  DECORADO
+  PLANTA
+  LOCALIZACAO
+  OBRA
+  OUTROS
+}
+
+enum DevelopmentLeadStatus {
+  NOVO
+  EM_ATENDIMENTO
+  RECEBEU_TABELA
+  AGENDOU_APRESENTACAO
+  EM_NEGOCIACAO
+  COMPROU
+  PERDIDO
 }
 
 enum DevelopmentMilestoneStatus {
@@ -210,246 +256,326 @@ model User {
 }
 
 model Lead {
-  id                String     @id @default(cuid())
-  name              String
-  phone             String
-  email             String?
-  source            LeadSource
-  intent            LeadIntent
-  stage             LeadStage  @default(NOVO)
-  desiredType       PropertyType?
-  desiredPurpose    PropertyPurpose?
-  budgetMin         Decimal?   @db.Decimal(14, 2)
-  budgetMax         Decimal?   @db.Decimal(14, 2)
-  desiredCity       String?
-  desiredDistrict   String?
-  notes             String?
-  lastContactAt     DateTime?
-  lgpdConsentAt     DateTime?
-  createdAt         DateTime   @default(now())
-  updatedAt         DateTime   @updatedAt
+  id                    String                @id @default(cuid())
+  name                  String
+  phone                 String
+  email                 String?
+  source                LeadSource
+  intent                LeadIntent
+  stage                 LeadStage             @default(NOVO)
+  desiredType           PropertyType?
+  desiredPurpose        PropertyPurpose?
+  budgetMin             Decimal?              @db.Decimal(14, 2)
+  budgetMax             Decimal?              @db.Decimal(14, 2)
+  desiredCity           String?
+  desiredDistrict       String?
+  notes                 String?
+  lastContactAt         DateTime?
+  lgpdConsentAt         DateTime?
+  developmentLeadStatus DevelopmentLeadStatus @default(NOVO)
+  createdAt             DateTime              @default(now())
+  updatedAt             DateTime              @updatedAt
 
-  ownerUserId       String?
-  ownerUser         User?                  @relation("LeadOwnerUser", fields: [ownerUserId], references: [id], onDelete: SetNull)
-  linkedPropertyId  String?
-  linkedProperty    Property?              @relation(fields: [linkedPropertyId], references: [id], onDelete: SetNull)
-  linkedDevelopmentId String?
-  linkedDevelopment Development?           @relation(fields: [linkedDevelopmentId], references: [id], onDelete: SetNull)
-  linkedOwnerId     String?
-  linkedOwner       Owner?                 @relation(fields: [linkedOwnerId], references: [id], onDelete: SetNull)
+  ownerUserId                 String?
+  ownerUser                   User?                @relation("LeadOwnerUser", fields: [ownerUserId], references: [id], onDelete: SetNull)
+  linkedPropertyId            String?
+  linkedProperty              Property?            @relation(fields: [linkedPropertyId], references: [id], onDelete: SetNull)
+  linkedDevelopmentId         String?
+  linkedDevelopment           Development?         @relation(fields: [linkedDevelopmentId], references: [id], onDelete: SetNull)
+  linkedDevelopmentUnitTypeId String?
+  linkedDevelopmentUnitType   DevelopmentUnitType? @relation("LeadDevelopmentUnitType", fields: [linkedDevelopmentUnitTypeId], references: [id], onDelete: SetNull)
+  linkedOwnerId               String?
+  linkedOwner                 Owner?               @relation(fields: [linkedOwnerId], references: [id], onDelete: SetNull)
 
-  interactions      LeadInteraction[]
-  stageHistory      PipelineStageHistory[]
-  tasks             Task[]
-  visits            Visit[]
-  proposals         Proposal[]
+  interactions LeadInteraction[]
+  stageHistory PipelineStageHistory[]
+  tasks        Task[]
+  visits       Visit[]
+  proposals    Proposal[]
 
   @@index([stage])
   @@index([source])
   @@index([intent])
   @@index([phone])
   @@index([linkedDevelopmentId])
+  @@index([developmentLeadStatus])
 }
 
 model LeadInteraction {
-  id          String             @id @default(cuid())
-  leadId      String
-  type        InteractionType
-  channel     InteractionChannel
-  message     String?
-  metadata    Json?
-  createdAt   DateTime           @default(now())
+  id        String             @id @default(cuid())
+  leadId    String
+  type      InteractionType
+  channel   InteractionChannel
+  message   String?
+  metadata  Json?
+  createdAt DateTime           @default(now())
 
-  lead        Lead               @relation(fields: [leadId], references: [id], onDelete: Cascade)
-  propertyId  String?
-  property    Property?          @relation(fields: [propertyId], references: [id], onDelete: SetNull)
+  lead          Lead                 @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  propertyId    String?
+  property      Property?            @relation(fields: [propertyId], references: [id], onDelete: SetNull)
   developmentId String?
-  development Development?       @relation(fields: [developmentId], references: [id], onDelete: SetNull)
-  createdById String?
-  createdBy   User?              @relation("InteractionUser", fields: [createdById], references: [id], onDelete: SetNull)
+  development   Development?         @relation(fields: [developmentId], references: [id], onDelete: SetNull)
+  unitTypeId    String?
+  unitType      DevelopmentUnitType? @relation("InteractionDevelopmentUnitType", fields: [unitTypeId], references: [id], onDelete: SetNull)
+  createdById   String?
+  createdBy     User?                @relation("InteractionUser", fields: [createdById], references: [id], onDelete: SetNull)
 
   @@index([leadId, createdAt])
 }
 
 model PipelineStageHistory {
-  id          String    @id @default(cuid())
-  leadId       String
-  fromStage    LeadStage?
-  toStage      LeadStage
-  reason       String?
-  createdAt    DateTime @default(now())
-  changedById  String?
+  id          String     @id @default(cuid())
+  leadId      String
+  fromStage   LeadStage?
+  toStage     LeadStage
+  reason      String?
+  createdAt   DateTime   @default(now())
+  changedById String?
 
-  lead         Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
-  changedBy    User?    @relation("StageChangedByUser", fields: [changedById], references: [id], onDelete: SetNull)
+  lead      Lead  @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  changedBy User? @relation("StageChangedByUser", fields: [changedById], references: [id], onDelete: SetNull)
 
   @@index([leadId, createdAt])
 }
 
 model Owner {
-  id           String   @id @default(cuid())
-  name         String
-  phone        String
-  email        String?
-  city         String?
-  district     String?
-  address      String?
-  notes        String?
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id        String   @id @default(cuid())
+  name      String
+  phone     String
+  email     String?
+  city      String?
+  district  String?
+  address   String?
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  properties   Property[]
-  leads        Lead[]
+  properties Property[]
+  leads      Lead[]
 
   @@index([phone])
 }
 
-model Development {
-  id                        String                       @id @default(cuid())
-  slug                      String                       @unique
-  title                     String
-  tagline                   String?
-  summary                   String
-  description               String
-  district                  String
-  city                      String
-  neighborhood              String?
-  address                   String?
-  postalCode                String?
-  latitude                  Decimal?                     @db.Decimal(10, 7)
-  longitude                 Decimal?                     @db.Decimal(10, 7)
-  developerName             String?
-  builderName               String?
-  stage                     DevelopmentStage             @default(PRE_LAUNCH)
-  deliveryDate              DateTime?
-  startingPrice             Decimal?                     @db.Decimal(14, 2)
-  areaFromM2                Decimal?                     @db.Decimal(10, 2)
-  areaToM2                  Decimal?                     @db.Decimal(10, 2)
-  bedroomsFrom              Int?
-  bedroomsTo                Int?
-  parkingFrom               Int?
-  parkingTo                 Int?
-  totalUnits                Int?
-  availableUnits            Int?
-  amenities                 String[]
-  differentials             String[]
-  regionLiquidityNotes      String?
-  mapEmbedUrl               String?
-  tablePdfUrl               String?
-  whatsappMessageTemplate   String?
-  ctaPrimaryLabel           String?
-  ctaPrimaryUrl             String?
-  ctaSecondaryLabel         String?
-  ctaSecondaryUrl           String?
-  seoTitle                  String?
-  seoDescription            String?
-  seoOgImageUrl             String?
-  status                    DevelopmentPublicationStatus @default(DRAFT)
-  publishedAt               DateTime?
-  createdAt                 DateTime                     @default(now())
-  updatedAt                 DateTime                     @updatedAt
+model Builder {
+  id                         String    @id @default(cuid())
+  name                       String
+  slug                       String    @unique
+  logoUrl                    String?
+  description                String?
+  city                       String?
+  state                      String?
+  foundedYear                Int?
+  website                    String?
+  instagram                  String?
+  deliveredDevelopmentsCount Int?
+  deliveredUnitsCount        Int?
+  activeProjectsCount        Int?
+  institutionalText          String?
+  archivedAt                 DateTime?
+  createdAt                  DateTime  @default(now())
+  updatedAt                  DateTime  @updatedAt
 
-  unitTypes                 DevelopmentUnitType[]
-  media                     DevelopmentMedia[]
-  milestones                DevelopmentMilestone[]
-  faqs                      DevelopmentFaq[]
-  leads                     Lead[]
-  interactions              LeadInteraction[]
+  developments Development[]
+
+  @@index([archivedAt])
+}
+
+model Development {
+  id                           String                       @id @default(cuid())
+  slug                         String                       @unique
+  title                        String
+  tagline                      String?
+  summary                      String
+  description                  String
+  district                     String
+  city                         String
+  neighborhood                 String?
+  address                      String?
+  postalCode                   String?
+  latitude                     Decimal?                     @db.Decimal(10, 7)
+  longitude                    Decimal?                     @db.Decimal(10, 7)
+  propertyType                 DevelopmentPropertyType?
+  developerName                String?
+  builderName                  String?
+  builderId                    String?
+  stage                        DevelopmentStage             @default(PRE_LAUNCH)
+  deliveryDate                 DateTime?
+  constructionProgressPct      Int?
+  appreciationPotential        String?
+  buyerProfile                 String?
+  opportunityText              String?
+  showInvestmentPotentialBlock Boolean                      @default(true)
+  startingPrice                Decimal?                     @db.Decimal(14, 2)
+  priceMax                     Decimal?                     @db.Decimal(14, 2)
+  areaFromM2                   Decimal?                     @db.Decimal(10, 2)
+  areaToM2                     Decimal?                     @db.Decimal(10, 2)
+  landAreaM2                   Decimal?                     @db.Decimal(12, 2)
+  bedroomsFrom                 Int?
+  bedroomsTo                   Int?
+  suitesFrom                   Int?
+  suitesTo                     Int?
+  bathroomsFrom                Int?
+  bathroomsTo                  Int?
+  parkingFrom                  Int?
+  parkingTo                    Int?
+  towersCount                  Int?
+  floorsCount                  Int?
+  elevatorsCount               Int?
+  totalUnits                   Int?
+  availableUnits               Int?
+  incorporationRegistry        String?
+  hasPatrimonyOfAffectation    Boolean?
+  amenities                    String[]
+  differentials                String[]
+  projectText                  String?
+  apartmentsText               String?
+  locationText                 String?
+  locationHighlights           String?
+  referencePoints              Json?
+  regionLiquidityNotes         String?
+  mapEmbedUrl                  String?
+  tablePdfUrl                  String?
+  whatsappMessageTemplate      String?
+  ctaPrimaryLabel              String?
+  ctaPrimaryUrl                String?
+  ctaSecondaryLabel            String?
+  ctaSecondaryUrl              String?
+  seoTitle                     String?
+  seoDescription               String?
+  seoOgImageUrl                String?
+  seoKeyword                   String?
+  seoNoIndex                   Boolean                      @default(false)
+  isFeatured                   Boolean                      @default(false)
+  displayOrder                 Int                          @default(0)
+  showPrice                    Boolean                      @default(true)
+  showMap                      Boolean                      @default(true)
+  showBuilder                  Boolean                      @default(true)
+  showFloorplanTable           Boolean                      @default(true)
+  showWhatsappButton           Boolean                      @default(true)
+  isPublished                  Boolean                      @default(false)
+  status                       DevelopmentPublicationStatus @default(DRAFT)
+  archivedAt                   DateTime?
+  publishedAt                  DateTime?
+  createdAt                    DateTime                     @default(now())
+  updatedAt                    DateTime                     @updatedAt
+
+  builder      Builder?               @relation(fields: [builderId], references: [id], onDelete: SetNull)
+  unitTypes    DevelopmentUnitType[]
+  media        DevelopmentMedia[]
+  milestones   DevelopmentMilestone[]
+  faqs         DevelopmentFaq[]
+  leads        Lead[]
+  interactions LeadInteraction[]
 
   @@index([status, stage])
   @@index([city, district])
   @@index([startingPrice])
+  @@index([builderId])
+  @@index([archivedAt])
+  @@index([isFeatured, displayOrder])
 }
 
 model DevelopmentUnitType {
-  id              String       @id @default(cuid())
-  developmentId   String
-  name            String
-  bedrooms        Int?
-  suites          Int?
-  bathrooms       Int?
-  parkingSpaces   Int?
-  areaFromM2      Decimal?     @db.Decimal(10, 2)
-  areaToM2        Decimal?     @db.Decimal(10, 2)
-  priceFrom       Decimal?     @db.Decimal(14, 2)
-  priceTo         Decimal?     @db.Decimal(14, 2)
-  availableUnits  Int?
-  totalUnits      Int?
-  description     String?
-  position        Int          @default(0)
-  createdAt       DateTime     @default(now())
-  updatedAt       DateTime     @updatedAt
+  id             String                   @id @default(cuid())
+  developmentId  String
+  name           String
+  unitCategory   DevelopmentUnitCategory?
+  bedrooms       Int?
+  suites         Int?
+  bathrooms      Int?
+  parkingSpaces  Int?
+  areaFromM2     Decimal?                 @db.Decimal(10, 2)
+  areaToM2       Decimal?                 @db.Decimal(10, 2)
+  areaPrivateM2  Decimal?                 @db.Decimal(10, 2)
+  areaTotalM2    Decimal?                 @db.Decimal(10, 2)
+  priceFrom      Decimal?                 @db.Decimal(14, 2)
+  priceTo        Decimal?                 @db.Decimal(14, 2)
+  initialPrice   Decimal?                 @db.Decimal(14, 2)
+  imageUrl       String?
+  isAvailable    Boolean                  @default(true)
+  availableUnits Int?
+  totalUnits     Int?
+  description    String?
+  position       Int                      @default(0)
+  createdAt      DateTime                 @default(now())
+  updatedAt      DateTime                 @updatedAt
 
-  development     Development  @relation(fields: [developmentId], references: [id], onDelete: Cascade)
+  development  Development       @relation(fields: [developmentId], references: [id], onDelete: Cascade)
+  leads        Lead[]            @relation("LeadDevelopmentUnitType")
+  interactions LeadInteraction[] @relation("InteractionDevelopmentUnitType")
 
   @@index([developmentId, position])
 }
 
 model DevelopmentMedia {
-  id                String               @id @default(cuid())
+  id                String                   @id @default(cuid())
   developmentId     String
   kind              DevelopmentMediaKind
-  status            MediaStatus          @default(PENDENTE)
+  category          DevelopmentMediaCategory @default(OUTROS)
+  status            MediaStatus              @default(PENDENTE)
   cloudflareMediaId String?
   url               String
   title             String?
-  position          Int                  @default(0)
+  caption           String?
+  isPrimary         Boolean                  @default(false)
+  position          Int                      @default(0)
   metadata          Json?
-  createdAt         DateTime             @default(now())
+  createdAt         DateTime                 @default(now())
+  updatedAt         DateTime                 @updatedAt
 
-  development       Development          @relation(fields: [developmentId], references: [id], onDelete: Cascade)
+  development Development @relation(fields: [developmentId], references: [id], onDelete: Cascade)
 
   @@index([developmentId, kind])
 }
 
 model DevelopmentMilestone {
-  id             String                     @id @default(cuid())
-  developmentId  String
-  title          String
-  description    String?
-  status         DevelopmentMilestoneStatus @default(NOT_STARTED)
-  targetDate     DateTime?
-  actualDate     DateTime?
-  progressPct    Int?
-  position       Int                        @default(0)
-  createdAt      DateTime                   @default(now())
-  updatedAt      DateTime                   @updatedAt
+  id            String                     @id @default(cuid())
+  developmentId String
+  title         String
+  description   String?
+  status        DevelopmentMilestoneStatus @default(NOT_STARTED)
+  targetDate    DateTime?
+  actualDate    DateTime?
+  progressPct   Int?
+  position      Int                        @default(0)
+  createdAt     DateTime                   @default(now())
+  updatedAt     DateTime                   @updatedAt
 
-  development    Development                @relation(fields: [developmentId], references: [id], onDelete: Cascade)
+  development Development @relation(fields: [developmentId], references: [id], onDelete: Cascade)
 
   @@index([developmentId, position])
 }
 
 model DevelopmentFaq {
-  id             String       @id @default(cuid())
-  developmentId  String
-  question       String
-  answer         String
-  position       Int          @default(0)
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
+  id            String   @id @default(cuid())
+  developmentId String
+  question      String
+  answer        String
+  position      Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
-  development    Development  @relation(fields: [developmentId], references: [id], onDelete: Cascade)
+  development Development @relation(fields: [developmentId], references: [id], onDelete: Cascade)
 
   @@index([developmentId, position])
 }
 
 model Property {
-  id                    String                @id @default(cuid())
-  slug                  String                @unique
+  id                    String          @id @default(cuid())
+  slug                  String          @unique
   title                 String
   type                  PropertyType
   purpose               PropertyPurpose
-  status                PropertyStatus        @default(DISPONIVEL)
-  price                 Decimal               @db.Decimal(14, 2)
+  status                PropertyStatus  @default(DISPONIVEL)
+  price                 Decimal         @db.Decimal(14, 2)
   address               String?
   city                  String
   district              String
   postalCode            String?
   googleMapsUrl         String?
-  latitude              Decimal?              @db.Decimal(10, 7)
-  longitude             Decimal?              @db.Decimal(10, 7)
-  areaM2                Decimal?              @db.Decimal(10, 2)
+  latitude              Decimal?        @db.Decimal(10, 7)
+  longitude             Decimal?        @db.Decimal(10, 7)
+  areaM2                Decimal?        @db.Decimal(10, 2)
   bedrooms              Int?
   suites                Int?
   bathrooms             Int?
@@ -458,31 +584,31 @@ model Property {
   features              String[]
   legalNotes            String?
   internalNotes         String?
-  commissionPct         Decimal?              @db.Decimal(5, 2)
+  commissionPct         Decimal?        @db.Decimal(5, 2)
   documents             Json?
-  marketAskingValue     Decimal?              @db.Decimal(14, 2)
-  marketEstimatedValue  Decimal?              @db.Decimal(14, 2)
-  marketOpportunity     Decimal?              @db.Decimal(14, 2)
+  marketAskingValue     Decimal?        @db.Decimal(14, 2)
+  marketEstimatedValue  Decimal?        @db.Decimal(14, 2)
+  marketOpportunity     Decimal?        @db.Decimal(14, 2)
   marketComparableLinks String[]
   marketLiquidityNotes  String?
-  isInvestorHighlight   Boolean               @default(false)
-  isAuctionOpportunity  Boolean               @default(false)
+  isInvestorHighlight   Boolean         @default(false)
+  isAuctionOpportunity  Boolean         @default(false)
   publishedAt           DateTime?
-  createdAt             DateTime              @default(now())
-  updatedAt             DateTime              @updatedAt
+  createdAt             DateTime        @default(now())
+  updatedAt             DateTime        @updatedAt
 
-  ownerId               String?
-  owner                 Owner?                @relation(fields: [ownerId], references: [id], onDelete: SetNull)
+  ownerId String?
+  owner   Owner?  @relation(fields: [ownerId], references: [id], onDelete: SetNull)
 
-  media                 PropertyMedia[]
-  leads                 Lead[]
-  interactions          LeadInteraction[]
-  visits                Visit[]
-  proposals             Proposal[]
-  tasks                 Task[]
-  investorOpportunity   InvestorOpportunity?
-  auctionCase           AuctionCase?
-  portalPublications    PortalPublication[]
+  media               PropertyMedia[]
+  leads               Lead[]
+  interactions        LeadInteraction[]
+  visits              Visit[]
+  proposals           Proposal[]
+  tasks               Task[]
+  investorOpportunity InvestorOpportunity?
+  auctionCase         AuctionCase?
+  portalPublications  PortalPublication[]
 
   @@index([status, purpose])
   @@index([city, district])
@@ -501,7 +627,7 @@ model PropertyMedia {
   metadata          Json?
   createdAt         DateTime    @default(now())
 
-  property          Property    @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
 
   @@index([propertyId, kind])
 }
@@ -517,9 +643,9 @@ model Visit {
   updatedAt   DateTime    @updatedAt
 
   assignedToId String?
-  assignedTo   User?      @relation("VisitAssignedUser", fields: [assignedToId], references: [id], onDelete: SetNull)
-  lead         Lead       @relation(fields: [leadId], references: [id], onDelete: Cascade)
-  property     Property   @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  assignedTo   User?    @relation("VisitAssignedUser", fields: [assignedToId], references: [id], onDelete: SetNull)
+  lead         Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  property     Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
 
   @@index([scheduledAt])
   @@index([status])
@@ -536,99 +662,99 @@ model Proposal {
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
 
-  createdById   String?
-  createdBy     User?          @relation("ProposalCreatedUser", fields: [createdById], references: [id], onDelete: SetNull)
-  lead          Lead           @relation(fields: [leadId], references: [id], onDelete: Cascade)
-  property      Property       @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  createdById String?
+  createdBy   User?    @relation("ProposalCreatedUser", fields: [createdById], references: [id], onDelete: SetNull)
+  lead        Lead     @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  property    Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
 
   @@index([status])
 }
 
 model Task {
-  id           String       @id @default(cuid())
-  title        String
-  description  String?
-  status       TaskStatus   @default(PENDENTE)
-  priority     TaskPriority @default(MEDIA)
-  dueAt        DateTime?
-  completedAt  DateTime?
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
+  id          String       @id @default(cuid())
+  title       String
+  description String?
+  status      TaskStatus   @default(PENDENTE)
+  priority    TaskPriority @default(MEDIA)
+  dueAt       DateTime?
+  completedAt DateTime?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
 
   assignedToId String?
-  assignedTo   User?        @relation("TaskAssignedUser", fields: [assignedToId], references: [id], onDelete: SetNull)
+  assignedTo   User?     @relation("TaskAssignedUser", fields: [assignedToId], references: [id], onDelete: SetNull)
   leadId       String?
-  lead         Lead?        @relation(fields: [leadId], references: [id], onDelete: SetNull)
+  lead         Lead?     @relation(fields: [leadId], references: [id], onDelete: SetNull)
   propertyId   String?
-  property     Property?    @relation(fields: [propertyId], references: [id], onDelete: SetNull)
+  property     Property? @relation(fields: [propertyId], references: [id], onDelete: SetNull)
 
   @@index([status, dueAt])
 }
 
 model InvestorOpportunity {
-  id                String            @id @default(cuid())
-  propertyId         String            @unique
-  status             OpportunityStatus @default(ANALISE)
-  marketValue        Decimal?          @db.Decimal(14, 2)
-  entryValue         Decimal?
-  estimatedRoiPct    Decimal?          @db.Decimal(5, 2)
-  legalRiskSummary   String?
-  documentaryRisk    AuctionRisk?
-  liquidityRating    Int?
-  notes              String?
-  createdAt          DateTime          @default(now())
-  updatedAt          DateTime          @updatedAt
+  id               String            @id @default(cuid())
+  propertyId       String            @unique
+  status           OpportunityStatus @default(ANALISE)
+  marketValue      Decimal?          @db.Decimal(14, 2)
+  entryValue       Decimal?
+  estimatedRoiPct  Decimal?          @db.Decimal(5, 2)
+  legalRiskSummary String?
+  documentaryRisk  AuctionRisk?
+  liquidityRating  Int?
+  notes            String?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
 
-  property           Property          @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
 }
 
 model AuctionCase {
-  id                    String       @id @default(cuid())
-  propertyId             String       @unique
-  caseNumber             String?
-  courtName              String?
-  auctionDate            DateTime?
-  minimumBid             Decimal?     @db.Decimal(14, 2)
-  estimatedCosts         Decimal?     @db.Decimal(14, 2)
-  documentaryRisk        AuctionRisk?
-  legalStatus            String?
-  editalUrl              String?
-  status                 OpportunityStatus @default(ANALISE)
-  notes                  String?
-  createdAt              DateTime     @default(now())
-  updatedAt              DateTime     @updatedAt
+  id              String            @id @default(cuid())
+  propertyId      String            @unique
+  caseNumber      String?
+  courtName       String?
+  auctionDate     DateTime?
+  minimumBid      Decimal?          @db.Decimal(14, 2)
+  estimatedCosts  Decimal?          @db.Decimal(14, 2)
+  documentaryRisk AuctionRisk?
+  legalStatus     String?
+  editalUrl       String?
+  status          OpportunityStatus @default(ANALISE)
+  notes           String?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
 
-  property               Property     @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
 }
 
 model PortalPublication {
-  id              String                  @id @default(cuid())
-  propertyId      String
-  portalName      String
-  externalId      String?
-  status          PortalPublicationStatus @default(PENDENTE)
-  lastSyncAt      DateTime?
-  payload         Json?
-  errorMessage    String?
-  createdAt       DateTime                @default(now())
-  updatedAt       DateTime                @updatedAt
+  id           String                  @id @default(cuid())
+  propertyId   String
+  portalName   String
+  externalId   String?
+  status       PortalPublicationStatus @default(PENDENTE)
+  lastSyncAt   DateTime?
+  payload      Json?
+  errorMessage String?
+  createdAt    DateTime                @default(now())
+  updatedAt    DateTime                @updatedAt
 
-  property        Property                @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+  property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
 
   @@unique([propertyId, portalName])
   @@index([status])
 }
 
 model AuditLog {
-  id          String   @id @default(cuid())
-  action      String
-  resource    String
-  resourceId  String?
-  metadata    Json?
-  createdAt   DateTime @default(now())
-  actorId     String?
+  id         String   @id @default(cuid())
+  action     String
+  resource   String
+  resourceId String?
+  metadata   Json?
+  createdAt  DateTime @default(now())
+  actorId    String?
 
-  actor       User?    @relation(fields: [actorId], references: [id], onDelete: SetNull)
+  actor User? @relation(fields: [actorId], references: [id], onDelete: SetNull)
 
   @@index([resource, createdAt])
 }

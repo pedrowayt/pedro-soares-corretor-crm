@@ -17,7 +17,7 @@ export default async function CrmFunilPage() {
               {column.leads.slice(0, 4).map((lead) => (
                 <div key={lead.id} style={{ border: "1px solid rgba(242,194,122,.2)", borderRadius: 10, padding: 8 }}>
                   <strong>{lead.name}</strong>
-                  <p style={{ margin: "4px 0 0", color: "var(--text-muted)", fontSize: ".85rem" }}>
+                  <p style={{ margin: "4px 0 0", color: "var(--text-muted)", fontSize: "var(--fs-12)" }}>
                     {lead.linkedProperty?.title ?? "Sem imóvel vinculado"}
                   </p>
                 </div>

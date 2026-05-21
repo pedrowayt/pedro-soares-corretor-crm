@@ -1,0 +1,85 @@
+import {
+  Baby,
+  BadgeDollarSign,
+  Bath,
+  Bed,
+  BedDouble,
+  Building2,
+  Calendar,
+  Car,
+  CircleDollarSign,
+  Dumbbell,
+  Flame,
+  HardHat,
+  Home,
+  Laptop,
+  Leaf,
+  MapPin,
+  Package,
+  PartyPopper,
+  PawPrint,
+  Ruler,
+  ShieldCheck,
+  ShoppingCart,
+  Smile,
+  Utensils,
+  Waves
+} from "lucide-react";
+import type { ComponentType } from "react";
+
+export const propertyInfoIconMap = {
+  area: Ruler,
+  bedrooms: Bed,
+  suites: BedDouble,
+  bathrooms: Bath,
+  parkingSpaces: Car,
+  location: MapPin,
+  stage: Building2,
+  price: CircleDollarSign,
+  deliveryDate: Calendar,
+  builder: HardHat,
+  development: Home,
+  priceRange: BadgeDollarSign
+};
+
+export const amenityIconMap: Record<string, ComponentType<{ className?: string }>> = {
+  "piscina": Waves,
+  "academia": Dumbbell,
+  "espaço gourmet": Utensils,
+  "espaco gourmet": Utensils,
+  "salão de festas": PartyPopper,
+  "salao de festas": PartyPopper,
+  "brinquedoteca": Baby,
+  "playground": Smile,
+  "coworking": Laptop,
+  "pet place": PawPrint,
+  "churrasqueira": Flame,
+  "espaço delivery": Package,
+  "espaco delivery": Package,
+  "mini mercado": ShoppingCart,
+  "sauna": Waves,
+  "quadra": ShieldCheck,
+  "rooftop": Building2,
+  "beach tennis": ShieldCheck,
+  "sustentável": Leaf,
+  "sustentavel": Leaf
+};
+
+export const featureIconMap: Record<string, ComponentType<{ className?: string }>> = {
+  "vista para o lago": Waves,
+  "perto da marina": MapPin,
+  "perto da praia": MapPin,
+  "perto do shopping": ShoppingCart,
+  "alto padrão": Building2,
+  "alto padrao": Building2,
+  "região em valorização": CircleDollarSign,
+  "regiao em valorizacao": CircleDollarSign,
+  "patrimônio de afetação": ShieldCheck,
+  "patrimonio de afetacao": ShieldCheck,
+  "registro de incorporação": ShieldCheck,
+  "registro de incorporacao": ShieldCheck,
+  "construtora renomada": HardHat,
+  "entrada facilitada": BadgeDollarSign,
+  "financiamento": CircleDollarSign,
+  "poucas unidades": Home
+};

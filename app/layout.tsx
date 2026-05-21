@@ -1,56 +1,19 @@
 import type { Metadata } from "next";
-import {
-  Bodoni_Moda,
-  Cormorant_Garamond,
-  DM_Serif_Display,
-  Inter,
-  Montserrat,
-  Playfair_Display,
-  Poppins
-} from "next/font/google";
+import { Montserrat, Playfair_Display } from "next/font/google";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
+import { CookieConsentBanner } from "@/components/layout/cookie-consent-banner";
 import "./globals.css";
 
-const titlePrimary = Bodoni_Moda({
+const titlePrimary = Playfair_Display({
   subsets: ["latin"],
-  variable: "--font-title-primary",
-  weight: ["500", "600", "700", "800"]
-});
-
-const titleSecondary = Playfair_Display({
-  subsets: ["latin"],
-  variable: "--font-title-secondary",
+  variable: "--font-title",
   weight: ["500", "600", "700"]
-});
-
-const titleAlt = Cormorant_Garamond({
-  subsets: ["latin"],
-  variable: "--font-title-alt",
-  weight: ["500", "600", "700"]
-});
-
-const titleLuxury = DM_Serif_Display({
-  subsets: ["latin"],
-  variable: "--font-title-luxury",
-  weight: ["400"]
 });
 
 const cardPrimary = Montserrat({
   subsets: ["latin"],
-  variable: "--font-card-primary",
-  weight: ["400", "500", "600", "700"]
-});
-
-const cardSecondary = Inter({
-  subsets: ["latin"],
-  variable: "--font-card-secondary",
-  weight: ["400", "500", "600", "700"]
-});
-
-const cardTertiary = Poppins({
-  subsets: ["latin"],
-  variable: "--font-card-tertiary",
+  variable: "--font-ui",
   weight: ["400", "500", "600"]
 });
 
@@ -64,12 +27,11 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="pt-BR">
-      <body
-        className={`${titlePrimary.variable} ${titleSecondary.variable} ${titleAlt.variable} ${titleLuxury.variable} ${cardPrimary.variable} ${cardSecondary.variable} ${cardTertiary.variable}`}
-      >
+      <body className={`${titlePrimary.variable} ${cardPrimary.variable}`}>
         <SiteHeader />
         <main>{children}</main>
         <SiteFooter />
+        <CookieConsentBanner />
       </body>
     </html>
   );

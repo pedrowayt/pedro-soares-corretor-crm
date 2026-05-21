@@ -22,7 +22,7 @@ export default async function CrmImoveisPage() {
             <p style={{ margin: "6px 0", color: "var(--text-muted)" }}>
               {property.city} • {property.district}
             </p>
-            <p style={{ margin: "6px 0", color: "var(--text-muted)", fontSize: ".9rem" }}>
+            <p style={{ margin: "6px 0", color: "var(--text-muted)", fontSize: "var(--fs-14)" }}>
               Proprietário: {(property.owner as { name?: string } | null | undefined)?.name ?? "Não vinculado"}
             </p>
             <div style={{ marginTop: 8, display: "flex", gap: 8, flexWrap: "wrap" }}>

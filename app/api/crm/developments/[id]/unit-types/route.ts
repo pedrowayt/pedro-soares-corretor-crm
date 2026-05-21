@@ -18,7 +18,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   const unitType = await prisma.developmentUnitType.create({
     data: {
       developmentId: id,
-      ...parsed.data
+      ...parsed.data,
+      imageUrl: parsed.data.imageUrl || undefined
     }
   });
 

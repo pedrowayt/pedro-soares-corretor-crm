@@ -205,7 +205,7 @@ export default async function PropertyDetailsPage({ params }: { params: Promise<
         <h1 className="section-title title-luxury" style={{ marginTop: 10 }}>
           {property.title}
         </h1>
-        <p style={{ color: "var(--sophistication-gold-300)", fontWeight: 700, fontSize: "1.3rem", marginTop: 0 }}>
+        <p style={{ color: "var(--sophistication-gold-300)", fontWeight: 700, fontSize: "var(--fs-20)", marginTop: 0 }}>
           {formatCurrencyBRL(property.priceValue)}
         </p>
 

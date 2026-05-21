@@ -1,6 +1,7 @@
 import { PropertyPurpose, PropertyType } from "@prisma/client";
 import Link from "next/link";
 import { listHighlightedDevelopments } from "@/lib/data/developments";
+import { developmentStageOptions, getDevelopmentStageLabel } from "@/lib/development-investment";
 import { listPublicProperties } from "@/lib/data/properties";
 import { formatCurrencyBRL } from "@/lib/utils";
 
@@ -51,14 +52,6 @@ const typeLabelMap: Record<PropertyType, string> = {
   LOTE: "Lote",
   COMERCIAL: "Comercial",
   RURAL: "Rural"
-};
-
-const developmentStageLabelMap: Record<string, string> = {
-  PRE_LAUNCH: "Pré-lançamento",
-  LAUNCH: "Lançamento",
-  SALES: "Vendas",
-  CONSTRUCTION: "Em obras",
-  DELIVERED: "Entregue"
 };
 
 const fallbackPropertyCards: HomePropertyCard[] = [
@@ -410,7 +403,7 @@ export default async function HomePage({
           </div>
 
           {searchMode === "planta" ? (
-            <form className="wp-search-panel" action="/imoveis/na-planta" method="GET">
+            <form className="wp-search-panel" action="/lancamentos" method="GET">
               <div>
                 <label htmlFor="district">Bairro</label>
                 <input id="district" name="district" placeholder="Plano Diretor Sul" />
@@ -427,14 +420,14 @@ export default async function HomePage({
                 <summary>Mais filtros</summary>
                 <div className="wp-search-advanced-content">
                   <div>
-                    <label htmlFor="stage">Estágio</label>
+                    <label htmlFor="stage">Etapa</label>
                     <select id="stage" name="stage" defaultValue="">
                       <option value="">Todos</option>
-                      <option value="PRE_LAUNCH">Pré-lançamento</option>
-                      <option value="LAUNCH">Lançamento</option>
-                      <option value="SALES">Vendas abertas</option>
-                      <option value="CONSTRUCTION">Em obras</option>
-                      <option value="DELIVERED">Entregue</option>
+                      {developmentStageOptions.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
                     </select>
                   </div>
                   <div>
@@ -688,7 +681,7 @@ export default async function HomePage({
                   >
                     <div className="wp-media-badges">
                       <span className="badge">Lançamento</span>
-                      <span className="badge">{developmentStageLabelMap[development.stage] ?? development.stage}</span>
+                      <span className="badge">{getDevelopmentStageLabel(development.stage)}</span>
                     </div>
                     <p>{development.city} • {development.district}</p>
                   </div>

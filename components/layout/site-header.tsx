@@ -15,7 +15,7 @@ type NavItem = NavLinkItem & {
 
 const propertySubNav: NavLinkItem[] = [
   { href: "/imoveis/prontos", label: "Imóveis prontos" },
-  { href: "/imoveis/na-planta", label: "Imóveis na planta" },
+  { href: "/lancamentos", label: "Imóveis na planta" },
   { href: "/imoveis/leilao", label: "Imóveis leilão" }
 ];
 
@@ -51,10 +51,10 @@ export function SiteHeader() {
       <div className="container site-header-inner">
         <Link href="/" className="site-logo" aria-label="Pedro Soares Corretor de Imóveis">
           <Image
-            src="/brand/logo-home-top-final.png"
+            src="/brand/logo-home-top-mobile-new.png"
             alt="Pedro Soares Corretor de Imóveis"
-            width={1920}
-            height={700}
+            width={618}
+            height={138}
             priority
           />
         </Link>
@@ -120,10 +120,10 @@ export function SiteHeader() {
         <div className="site-mobile-drawer-head">
           <Link href="/" className="site-logo" aria-label="Pedro Soares Corretor de Imóveis" onClick={() => setIsMenuOpen(false)}>
             <Image
-              src="/brand/logo-home-top-final.png"
+              src="/brand/logo-home-top-mobile-new.png"
               alt="Pedro Soares Corretor de Imóveis"
-              width={1920}
-              height={700}
+              width={618}
+              height={138}
               priority
             />
           </Link>

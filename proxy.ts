@@ -5,6 +5,12 @@ const CRM_ROLES = new Set(["ADMIN", "CORRETOR", "PARCEIRO"]);
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  if (pathname === "/imoveis/na-planta" || pathname.startsWith("/imoveis/na-planta/")) {
+    const target = new URL("/lancamentos", request.url);
+    target.search = request.nextUrl.search;
+    return NextResponse.redirect(target, 301);
+  }
+
   if (pathname.startsWith("/crm") || pathname.startsWith("/api/crm")) {
     const roleCookie = request.cookies.get("crm_role")?.value;
 
@@ -25,5 +31,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/crm/:path*", "/api/crm/:path*"]
+  matcher: ["/crm/:path*", "/api/crm/:path*", "/imoveis/na-planta/:path*"]
 };

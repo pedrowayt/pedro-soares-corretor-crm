@@ -36,9 +36,11 @@ export function PropertyCard({
         <p className="badge" style={{ margin: 0 }}>
           {city} • {district}
         </p>
-        <h3 style={{ margin: "12px 0 8px", fontSize: "1.05rem" }}>{title}</h3>
+        <h3 className="title-luxury" style={{ margin: "12px 0 8px", fontSize: "var(--fs-20)" }}>
+          {title}
+        </h3>
         <p style={{ margin: 0, color: "var(--sophistication-gold-300)", fontWeight: 700 }}>{formatCurrencyBRL(price)}</p>
-        <p style={{ margin: "8px 0 14px", color: "var(--text-muted)", fontSize: ".9rem" }}>
+        <p style={{ margin: "8px 0 14px", color: "var(--text-muted)", fontSize: "var(--fs-14)" }}>
           {bedrooms ? `${bedrooms} quartos` : "-"} • {areaM2 ? `${areaM2} m²` : "-"}
         </p>
         <Link href={`/imoveis/${slug}`} className="button button-primary">

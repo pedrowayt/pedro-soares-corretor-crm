@@ -2,6 +2,12 @@ import type { MetadataRoute } from "next";
 import { listPublicDevelopments } from "@/lib/data/developments";
 import { listPublicProperties } from "@/lib/data/properties";
 import { listPublishedSeoLandingPages } from "@/lib/data/seo-landing-pages";
+import { slugify } from "@/lib/crm/slug";
+
+function cityToSeoSlug(city: string) {
+  const normalized = slugify(city);
+  return normalized.endsWith("-to") ? normalized : `${normalized}-to`;
+}
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
@@ -15,12 +21,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "",
     "/imoveis",
     "/imoveis/prontos",
-    "/imoveis/na-planta",
+    "/lancamentos",
     "/imoveis/leilao",
     "/investidores",
     "/venda-seu-imovel",
     "/sobre",
     "/contato",
+    "/politica-de-cookies",
     "/politica-de-privacidade",
     "/termos-de-servico",
     "/termos-de-uso"
@@ -52,5 +59,28 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.85
   }));
 
-  return [...staticRoutes, ...propertyRoutes, ...developmentRoutes, ...seoRoutes];
+  const autoLaunchRoutesSet = new Set<string>();
+
+  developments.forEach((development) => {
+    const citySlug = cityToSeoSlug(development.city);
+    autoLaunchRoutesSet.add(`/${citySlug}/lancamentos`);
+
+    if (development.district) {
+      autoLaunchRoutesSet.add(`/${citySlug}/${slugify(development.district)}/lancamentos`);
+    }
+
+    const builderSlug = development.builder?.slug ?? (development.displayBuilderName ? slugify(development.displayBuilderName) : null);
+    if (builderSlug) {
+      autoLaunchRoutesSet.add(`/${citySlug}/construtora/${builderSlug}/lancamentos`);
+    }
+  });
+
+  const autoLaunchRoutes = Array.from(autoLaunchRoutesSet).map((path) => ({
+    url: `${baseUrl}${path}`,
+    lastModified: new Date(),
+    changeFrequency: "weekly" as const,
+    priority: 0.8
+  }));
+
+  return [...staticRoutes, ...propertyRoutes, ...developmentRoutes, ...autoLaunchRoutes, ...seoRoutes];
 }

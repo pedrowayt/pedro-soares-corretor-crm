@@ -1,4 +1,11 @@
-import { InteractionChannel, InteractionType, LeadIntent, LeadSource, PropertyPurpose } from "@prisma/client";
+import {
+  DevelopmentLeadStatus,
+  InteractionChannel,
+  InteractionType,
+  LeadIntent,
+  LeadSource,
+  PropertyPurpose
+} from "@prisma/client";
 import { fail, ok } from "@/lib/api/http";
 import { prisma } from "@/lib/prisma";
 import { publicDevelopmentInterestSchema } from "@/lib/validation/schemas";
@@ -11,12 +18,32 @@ export async function POST(request: Request) {
     return fail("Payload inválido para interesse em empreendimento.", 422, parsed.error.flatten());
   }
 
-  const { name, whatsapp, email, message, developmentSlug, developmentId, requestTable, lgpdConsent } = parsed.data;
+  const {
+    name,
+    whatsapp,
+    email,
+    message,
+    developmentSlug,
+    developmentId,
+    unitTypeId,
+    requestTable,
+    lgpdConsent
+  } = parsed.data;
 
   const development = developmentId
     ? await prisma.development.findUnique({ where: { id: developmentId } })
     : developmentSlug
       ? await prisma.development.findUnique({ where: { slug: developmentSlug } })
+      : null;
+
+  const unitType =
+    development && unitTypeId
+      ? await prisma.developmentUnitType.findFirst({
+          where: {
+            id: unitTypeId,
+            developmentId: development.id
+          }
+        })
       : null;
 
   const existingLead = await prisma.lead.findFirst({
@@ -42,6 +69,10 @@ export async function POST(request: Request) {
           intent: LeadIntent.COMPRAR,
           desiredPurpose: PropertyPurpose.LANCAMENTO,
           linkedDevelopmentId: development?.id ?? existingLead.linkedDevelopmentId,
+          linkedDevelopmentUnitTypeId: unitType?.id ?? existingLead.linkedDevelopmentUnitTypeId,
+          developmentLeadStatus: requestTable
+            ? DevelopmentLeadStatus.RECEBEU_TABELA
+            : existingLead.developmentLeadStatus,
           lgpdConsentAt: lgpdConsent ? new Date() : existingLead.lgpdConsentAt,
           notes: note || existingLead.notes
         }
@@ -55,6 +86,10 @@ export async function POST(request: Request) {
           intent: LeadIntent.COMPRAR,
           desiredPurpose: PropertyPurpose.LANCAMENTO,
           linkedDevelopmentId: development?.id,
+          linkedDevelopmentUnitTypeId: unitType?.id ?? undefined,
+          developmentLeadStatus: requestTable
+            ? DevelopmentLeadStatus.RECEBEU_TABELA
+            : DevelopmentLeadStatus.NOVO,
           lgpdConsentAt: lgpdConsent ? new Date() : undefined,
           notes: note || undefined
         }
@@ -64,12 +99,15 @@ export async function POST(request: Request) {
     data: {
       leadId: lead.id,
       developmentId: development?.id,
+      unitTypeId: unitType?.id,
       type: InteractionType.FORM_SUBMISSION,
       channel: InteractionChannel.SITE,
       message: message || "Interesse via página de empreendimento",
       metadata: {
         developmentSlug,
         developmentId,
+        unitTypeId,
+        unitTypeName: unitType?.name,
         requestTable
       }
     }

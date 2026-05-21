@@ -1,4 +1,11 @@
-import { InteractionChannel, InteractionType, LeadIntent, LeadSource, PropertyPurpose } from "@prisma/client";
+import {
+  DevelopmentLeadStatus,
+  InteractionChannel,
+  InteractionType,
+  LeadIntent,
+  LeadSource,
+  PropertyPurpose
+} from "@prisma/client";
 import { fail, ok } from "@/lib/api/http";
 import { prisma } from "@/lib/prisma";
 
@@ -17,7 +24,18 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
     name?: string;
     whatsapp?: string;
     email?: string;
+    unitTypeId?: string;
+    unitTypeName?: string;
   };
+
+  const unitType = body.unitTypeId
+    ? await prisma.developmentUnitType.findFirst({
+        where: {
+          id: body.unitTypeId,
+          developmentId: development.id
+        }
+      })
+    : null;
 
   let leadId: string | null = null;
 
@@ -38,7 +56,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
             source: LeadSource.SITE,
             intent: LeadIntent.COMPRAR,
             desiredPurpose: PropertyPurpose.LANCAMENTO,
-            linkedDevelopmentId: development.id
+            linkedDevelopmentId: development.id,
+            linkedDevelopmentUnitTypeId: unitType?.id ?? existingLead.linkedDevelopmentUnitTypeId,
+            developmentLeadStatus: DevelopmentLeadStatus.RECEBEU_TABELA
           }
         })
       : await prisma.lead.create({
@@ -49,7 +69,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
             source: LeadSource.SITE,
             intent: LeadIntent.COMPRAR,
             desiredPurpose: PropertyPurpose.LANCAMENTO,
-            linkedDevelopmentId: development.id
+            linkedDevelopmentId: development.id,
+            linkedDevelopmentUnitTypeId: unitType?.id,
+            developmentLeadStatus: DevelopmentLeadStatus.RECEBEU_TABELA
           }
         });
 
@@ -59,12 +81,15 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
       data: {
         leadId: lead.id,
         developmentId: development.id,
+        unitTypeId: unitType?.id,
         type: InteractionType.TABLE_DOWNLOAD,
         channel: InteractionChannel.SITE,
         message: "Solicitou tabela PDF",
         metadata: {
           developmentId: development.id,
-          tablePdfUrl: development.tablePdfUrl
+          tablePdfUrl: development.tablePdfUrl,
+          unitTypeId: unitType?.id,
+          unitTypeName: unitType?.name ?? body.unitTypeName
         }
       }
     });
@@ -72,6 +97,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
 
   return ok({
     downloadUrl: development.tablePdfUrl,
-    leadId
+    leadId,
+    unitTypeId: unitType?.id ?? null
   });
 }

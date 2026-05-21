@@ -1,3 +1,4 @@
+import { DevelopmentLeadStatus } from "@prisma/client";
 import { fail, ok } from "@/lib/api/http";
 import { requireCrmWriteAccess } from "@/lib/auth/permissions";
 import { prisma } from "@/lib/prisma";
@@ -17,6 +18,9 @@ export async function POST(request: Request) {
   const lead = await prisma.lead.create({
     data: {
       ...parsed.data,
+      developmentLeadStatus:
+        parsed.data.developmentLeadStatus ??
+        (parsed.data.linkedDevelopmentId ? DevelopmentLeadStatus.NOVO : undefined),
       ownerUserId: parsed.data.ownerUserId ?? session?.userId ?? undefined
     }
   });

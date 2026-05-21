@@ -11,6 +11,7 @@ export async function listLeads() {
       include: {
         linkedProperty: true,
         linkedDevelopment: true,
+        linkedDevelopmentUnitType: true,
         ownerUser: true
       }
     });
