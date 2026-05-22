@@ -1,4 +1,3 @@
-import type { CSSProperties } from "react";
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -327,6 +326,33 @@ export default async function LancamentoDetailsPage({ params }: { params: Promis
                 <span className="badge">{development.city} • {development.district}</span>
                 <span className="badge">Entrega prevista: {formatMonthYear(development.deliveryDate)}</span>
               </div>
+
+              <div className="development-quick-facts">
+                <div className="development-quick-fact">
+                  <span className="development-quick-fact-label">A partir de</span>
+                  <strong className="development-quick-fact-value">
+                    {development.startingPriceNumber ? formatCurrencyBRL(development.startingPriceNumber) : "Sob consulta"}
+                  </strong>
+                </div>
+                <div className="development-quick-fact">
+                  <span className="development-quick-fact-label">Área</span>
+                  <strong className="development-quick-fact-value">
+                    {numberRange(development.areaFromM2Number, development.areaToM2Number, " m²")}
+                  </strong>
+                </div>
+                <div className="development-quick-fact">
+                  <span className="development-quick-fact-label">Quartos</span>
+                  <strong className="development-quick-fact-value">
+                    {numberRange(development.bedroomsFrom, development.bedroomsTo, "")}
+                  </strong>
+                </div>
+                <div className="development-quick-fact">
+                  <span className="development-quick-fact-label">Vagas</span>
+                  <strong className="development-quick-fact-value">
+                    {numberRange(development.parkingFrom, development.parkingTo, "")}
+                  </strong>
+                </div>
+              </div>
             </div>
 
             {development.showBuilder ? (
@@ -354,11 +380,23 @@ export default async function LancamentoDetailsPage({ params }: { params: Promis
           </div>
         </div>
 
+        <nav className="development-toc" aria-label="Seções do empreendimento">
+          <span className="development-toc-label">Navegar</span>
+          <a href="#resumo">Resumo</a>
+          <a href="#plantas">Plantas</a>
+          {development.units.length ? <a href="#disponibilidade">Disponibilidade</a> : null}
+          {development.showInvestmentPotentialBlock ? <a href="#valorizacao">Valorização</a> : null}
+          <a href="#localizacao">Localização</a>
+          {development.showBuilder ? <a href="#construtora">Construtora</a> : null}
+          {development.faqs.length ? <a href="#faq">FAQ</a> : null}
+        </nav>
+
         <div className="development-layout">
-          <div style={{ display: "grid", gap: 14 }}>
-            <article className="card" style={{ padding: 18 }}>
-              <h2 className="title-luxury" style={{ marginTop: 0 }}>Informações principais</h2>
-              <div className="grid-3" style={{ gap: 10 }}>
+          <div style={{ display: "grid", gap: 16 }}>
+            <article id="resumo" className="development-section development-section--feature">
+              <span className="development-section-eyebrow">Resumo</span>
+              <h2 className="development-section-title">Informações principais</h2>
+              <div className="development-stats-grid">
                 <p className="property-summary-grid-item"><CircleDollarSign size={16} /> {development.startingPriceNumber ? `A partir de ${formatCurrencyBRL(development.startingPriceNumber)}` : "Sob consulta"}</p>
                 <p className="property-summary-grid-item"><Ruler size={16} /> {numberRange(development.areaFromM2Number, development.areaToM2Number, " m²")}</p>
                 <p className="property-summary-grid-item"><Bed size={16} /> {numberRange(development.bedroomsFrom, development.bedroomsTo, " quartos")}</p>
@@ -367,7 +405,7 @@ export default async function LancamentoDetailsPage({ params }: { params: Promis
                 <p className="property-summary-grid-item"><MapPin size={16} /> {development.city} • {development.district}</p>
               </div>
 
-              <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 12 }}>
+              <div className="development-section-actions">
                 <a href={buildWhatsAppUrl(buildDevelopmentMessage(development.title))} target="_blank" rel="noreferrer" className="button button-whatsapp">
                   Falar no WhatsApp
                 </a>
@@ -382,16 +420,16 @@ export default async function LancamentoDetailsPage({ params }: { params: Promis
               </div>
             </article>
 
-            <article className="card" style={{ padding: 18 }}>
-              <h2 className="title-luxury" style={{ marginTop: 0 }}>Projeto</h2>
+            <article className="development-section development-section--quiet">
+              <h2 className="development-section-title">Projeto</h2>
               <p className="text-card" style={{ margin: 0, color: "var(--text-muted)" }}>
                 {development.projectText || development.description}
               </p>
             </article>
 
-            <article className="card" style={{ padding: 18 }}>
-              <h2 className="title-luxury" style={{ marginTop: 0 }}>Dados técnicos</h2>
-              <div className="grid-3" style={{ gap: 10 }}>
+            <article className="development-section development-section--quiet">
+              <h2 className="development-section-title">Dados técnicos</h2>
+              <div className="development-stats-grid">
                 {development.landAreaM2Number ? <p className="property-summary-grid-item"><Ruler size={16} /> Terreno: {development.landAreaM2Number} m²</p> : null}
                 {development.towersCount ? <p className="property-summary-grid-item">Torres: {development.towersCount}</p> : null}
                 {development.floorsCount ? <p className="property-summary-grid-item">Pavimentos: {development.floorsCount}</p> : null}
@@ -403,14 +441,14 @@ export default async function LancamentoDetailsPage({ params }: { params: Promis
             </article>
 
             {normalizedGallery.length ? (
-              <article className="card" style={{ padding: 18 }}>
-                <h2 className="title-luxury" style={{ marginTop: 0 }}>Galeria</h2>
-                <div className="grid-3">
+              <article id="galeria" className="development-section">
+                <h2 className="development-section-title">Galeria</h2>
+                <div className="development-gallery-grid">
                   {normalizedGallery.map((media) => (
-                    <figure key={media.id} className="card" style={{ margin: 0, overflow: "hidden" }}>
-                      <Image src={media.url} alt={media.title || development.title} width={960} height={620} style={{ width: "100%", height: 210, objectFit: "cover" }} />
+                    <figure key={media.id} className="development-gallery-item">
+                      <Image src={media.url} alt={media.title || development.title} width={960} height={620} />
                       {(media.title || media.caption) ? (
-                        <figcaption className="text-card" style={{ padding: 10, color: "var(--text-muted)" }}>
+                        <figcaption>
                           {media.title || media.caption}
                         </figcaption>
                       ) : null}
@@ -421,8 +459,8 @@ export default async function LancamentoDetailsPage({ params }: { params: Promis
             ) : null}
 
             {development.milestones.length ? (
-              <article className="card" style={{ padding: 18 }}>
-                <h2 className="title-luxury" style={{ marginTop: 0 }}>Marcos da obra</h2>
+              <article id="obra" className="development-section development-section--quiet">
+                <h2 className="development-section-title">Marcos da obra</h2>
                 <div style={{ display: "grid", gap: 8 }}>
                   {development.milestones.map((milestone) => (
                     <div key={milestone.id} className="development-milestone-row">
@@ -439,9 +477,9 @@ export default async function LancamentoDetailsPage({ params }: { params: Promis
               </article>
             ) : null}
 
-            <article className="card" style={{ padding: 18 }}>
-              <h2 className="title-luxury" style={{ marginTop: 0 }}>Áreas de convívio e lazer</h2>
-              <div className="grid-3" style={{ gap: 10 }}>
+            <article className="development-section development-section--quiet">
+              <h2 className="development-section-title">Áreas de convívio e lazer</h2>
+              <div className="development-stats-grid">
                 {development.amenities.map((item) => {
                   const Icon = pickAmenityIcon(item);
                   return (
@@ -453,23 +491,29 @@ export default async function LancamentoDetailsPage({ params }: { params: Promis
               </div>
             </article>
 
-            <article className="card" style={{ padding: 18 }}>
-              <h2 className="title-luxury" style={{ marginTop: 0 }}>Apartamentos do {development.title}</h2>
-              <p className="text-card" style={{ margin: 0, color: "var(--text-muted)" }}>
+            <article id="plantas" className="development-section development-section--feature">
+              <span className="development-section-eyebrow">Plantas disponíveis</span>
+              <h2 className="development-section-title">Apartamentos do {development.title}</h2>
+              <p className="development-section-lede">
                 {development.apartmentsText || development.summary}
               </p>
 
-              <div style={{ marginTop: 10, display: "grid", gap: 8 }}>
+              <div className="development-unit-grid">
                 {development.unitTypes.map((unit) => (
-                  <div key={unit.id} className="card" style={{ padding: 12 }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
+                  <div key={unit.id} className="development-unit-card">
+                    <div className="development-unit-card-header">
                       <strong>{unit.towerName ? `${unit.towerName} • ${unit.name}` : unit.name}</strong>
-                      <span className="badge">{unit.isAvailable ? "Disponível" : "Indisponível"}</span>
+                      <span className={`development-unit-status development-unit-status--${unit.isAvailable ? "disponivel" : "bloqueada"}`}>
+                        {unit.isAvailable ? "Disponível" : "Indisponível"}
+                      </span>
                     </div>
-                    <p className="text-card" style={{ margin: "6px 0", color: "var(--text-muted)" }}>
-                      {numberRange(unit.areaPrivateM2Number ?? unit.areaFromM2Number, unit.areaTotalM2Number ?? unit.areaToM2Number, " m²")} • {numberRange(unit.bedrooms, unit.bedrooms, " quartos")} • {numberRange(unit.suites, unit.suites, " suítes")} • {numberRange(unit.parkingSpaces, unit.parkingSpaces, " vagas")}
+                    <p className="development-unit-card-specs">
+                      <span><Ruler size={14} /> {numberRange(unit.areaPrivateM2Number ?? unit.areaFromM2Number, unit.areaTotalM2Number ?? unit.areaToM2Number, " m²")}</span>
+                      <span><Bed size={14} /> {numberRange(unit.bedrooms, unit.bedrooms, "")}</span>
+                      {unit.suites ? <span>{unit.suites} suíte{unit.suites > 1 ? "s" : ""}</span> : null}
+                      {unit.parkingSpaces ? <span><Car size={14} /> {unit.parkingSpaces}</span> : null}
                     </p>
-                    <p style={{ margin: "0 0 8px", color: "var(--sophistication-gold-500)", fontWeight: 700 }}>
+                    <p className="development-unit-card-price">
                       {unit.initialPriceNumber
                         ? `A partir de ${formatCurrencyBRL(unit.initialPriceNumber)}`
                         : unit.priceFromNumber
@@ -477,17 +521,16 @@ export default async function LancamentoDetailsPage({ params }: { params: Promis
                           : "Preço sob consulta"}
                     </p>
                     {unit.description ? (
-                      <p className="text-card" style={{ margin: "0 0 8px", color: "var(--text-muted)" }}>
-                        {unit.description}
-                      </p>
+                      <p className="development-unit-card-description">{unit.description}</p>
                     ) : null}
                     <a
                       className="button button-whatsapp"
                       href={buildWhatsAppUrl(buildDevelopmentUnitMessage(development.title, unit.name))}
                       target="_blank"
                       rel="noreferrer"
+                      style={{ marginTop: "auto" }}
                     >
-                      Tenho interesse nessa planta
+                      Tenho interesse
                     </a>
                   </div>
                 ))}
@@ -495,37 +538,43 @@ export default async function LancamentoDetailsPage({ params }: { params: Promis
             </article>
 
             {development.units.length ? (
-              <article className="card" style={{ padding: 18 }}>
-                <h2 className="title-luxury" style={{ marginTop: 0 }}>Disponibilidade por unidade</h2>
-                <div style={{ display: "grid", gap: 14 }}>
+              <article id="disponibilidade" className="development-section development-section--feature">
+                <span className="development-section-eyebrow">Disponibilidade em tempo real</span>
+                <h2 className="development-section-title">Disponibilidade por unidade</h2>
+                <div style={{ display: "grid", gap: 18 }}>
                   {unitGroups.map(([towerKey, group]) => (
-                    <div key={towerKey} style={{ display: "grid", gap: 8 }}>
+                    <div key={towerKey} style={{ display: "grid", gap: 10 }}>
                       <strong>{group.towerName}</strong>
-                      <div style={{ overflowX: "auto" }}>
-                        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                      <div className="development-table-scroll">
+                        <table className="development-table">
                           <thead>
                             <tr>
-                              <th style={tableHeadStyle}>Unidade</th>
-                              <th style={tableHeadStyle}>Planta</th>
-                              <th style={tableHeadStyle}>Andar</th>
-                              <th style={tableHeadStyle}>Área</th>
-                              <th style={tableHeadStyle}>Status</th>
-                              <th style={tableHeadStyle}>Valor</th>
-                              <th style={tableHeadStyle}>Ação</th>
+                              <th>Unidade</th>
+                              <th>Planta</th>
+                              <th>Andar</th>
+                              <th>Área</th>
+                              <th>Status</th>
+                              <th>Valor</th>
+                              <th>Ação</th>
                             </tr>
                           </thead>
                           <tbody>
                             {group.units.map((unit) => {
                               const unitInterestLabel = [unit.label, unit.unitTypeName].filter(Boolean).join(" - ");
+                              const statusKey = unit.status.toLowerCase();
                               return (
                                 <tr key={unit.id}>
-                                  <td style={tableCellStyle}>{unit.label}</td>
-                                  <td style={tableCellStyle}>{unit.unitTypeName ?? "-"}</td>
-                                  <td style={tableCellStyle}>{unit.floor ?? "-"}</td>
-                                  <td style={tableCellStyle}>{unit.areaPrivateM2Number ? `${unit.areaPrivateM2Number} m²` : "-"}</td>
-                                  <td style={tableCellStyle}>{unitStatusLabels[unit.status] ?? unit.status}</td>
-                                  <td style={tableCellStyle}>{unit.priceNumber ? formatCurrencyBRL(unit.priceNumber) : "Sob consulta"}</td>
-                                  <td style={tableCellStyle}>
+                                  <td data-label="Unidade">{unit.label}</td>
+                                  <td data-label="Planta">{unit.unitTypeName ?? "-"}</td>
+                                  <td data-label="Andar">{unit.floor ?? "-"}</td>
+                                  <td data-label="Área">{unit.areaPrivateM2Number ? `${unit.areaPrivateM2Number} m²` : "-"}</td>
+                                  <td data-label="Status">
+                                    <span className={`development-unit-status development-unit-status--${statusKey}`}>
+                                      {unitStatusLabels[unit.status] ?? unit.status}
+                                    </span>
+                                  </td>
+                                  <td data-label="Valor">{unit.priceNumber ? formatCurrencyBRL(unit.priceNumber) : "Sob consulta"}</td>
+                                  <td>
                                     <a
                                       className="button button-ghost"
                                       href={buildWhatsAppUrl(buildDevelopmentUnitMessage(development.title, unitInterestLabel || unit.label))}
@@ -548,41 +597,41 @@ export default async function LancamentoDetailsPage({ params }: { params: Promis
             ) : null}
 
             {development.showFloorplanTable ? (
-              <article className="card" style={{ padding: 18 }}>
-                <h2 className="title-luxury" style={{ marginTop: 0 }}>Quadro de áreas e preços</h2>
-                <div style={{ overflowX: "auto" }}>
-                  <table style={{ width: "100%", borderCollapse: "collapse" }}>
+              <article className="development-section">
+                <h2 className="development-section-title">Quadro de áreas e preços</h2>
+                <div className="development-table-scroll">
+                  <table className="development-table">
                     <thead>
                       <tr>
-                        <th style={tableHeadStyle}>Torre/bloco</th>
-                        <th style={tableHeadStyle}>A partir de</th>
-                        <th style={tableHeadStyle}>Planta</th>
-                        <th style={tableHeadStyle}>Área</th>
-                        <th style={tableHeadStyle}>Quartos</th>
-                        <th style={tableHeadStyle}>Suítes</th>
-                        <th style={tableHeadStyle}>Banheiros</th>
-                        <th style={tableHeadStyle}>Vagas</th>
-                        <th style={tableHeadStyle}>Ação</th>
+                        <th>Torre/bloco</th>
+                        <th>A partir de</th>
+                        <th>Planta</th>
+                        <th>Área</th>
+                        <th>Quartos</th>
+                        <th>Suítes</th>
+                        <th>Banheiros</th>
+                        <th>Vagas</th>
+                        <th>Ação</th>
                       </tr>
                     </thead>
                     <tbody>
                       {development.unitTypes.map((unit) => (
                         <tr key={unit.id}>
-                          <td style={tableCellStyle}>{unit.towerName ?? "-"}</td>
-                          <td style={tableCellStyle}>
+                          <td data-label="Torre/bloco">{unit.towerName ?? "-"}</td>
+                          <td data-label="A partir de">
                             {unit.initialPriceNumber
                               ? formatCurrencyBRL(unit.initialPriceNumber)
                               : unit.priceFromNumber
                                 ? formatCurrencyBRL(unit.priceFromNumber)
                                 : "Sob consulta"}
                           </td>
-                          <td style={tableCellStyle}>{unit.name}</td>
-                          <td style={tableCellStyle}>{numberRange(unit.areaPrivateM2Number ?? unit.areaFromM2Number, unit.areaTotalM2Number ?? unit.areaToM2Number, " m²")}</td>
-                          <td style={tableCellStyle}>{unit.bedrooms ?? "-"}</td>
-                          <td style={tableCellStyle}>{unit.suites ?? "-"}</td>
-                          <td style={tableCellStyle}>{unit.bathrooms ?? "-"}</td>
-                          <td style={tableCellStyle}>{unit.parkingSpaces ?? "-"}</td>
-                          <td style={tableCellStyle}>
+                          <td data-label="Planta">{unit.name}</td>
+                          <td data-label="Área">{numberRange(unit.areaPrivateM2Number ?? unit.areaFromM2Number, unit.areaTotalM2Number ?? unit.areaToM2Number, " m²")}</td>
+                          <td data-label="Quartos">{unit.bedrooms ?? "-"}</td>
+                          <td data-label="Suítes">{unit.suites ?? "-"}</td>
+                          <td data-label="Banheiros">{unit.bathrooms ?? "-"}</td>
+                          <td data-label="Vagas">{unit.parkingSpaces ?? "-"}</td>
+                          <td>
                             <a className="button button-ghost" href={buildWhatsAppUrl(buildDevelopmentUnitMessage(development.title, unit.name))} target="_blank" rel="noreferrer">
                               Contatar
                             </a>
@@ -596,7 +645,7 @@ export default async function LancamentoDetailsPage({ params }: { params: Promis
             ) : null}
 
             {development.showInvestmentPotentialBlock ? (
-              <article className="card development-investment-card">
+              <article id="valorizacao" className="card development-investment-card">
                 <div className="development-investment-header">
                   <div>
                     <p className="text-card development-investment-eyebrow">Etapa atual do empreendimento</p>
@@ -655,9 +704,9 @@ export default async function LancamentoDetailsPage({ params }: { params: Promis
               </article>
             ) : null}
 
-            <article className="card" style={{ padding: 18 }}>
-              <h2 className="title-luxury" style={{ marginTop: 0 }}>Diferenciais do {development.title}</h2>
-              <div className="grid-3" style={{ gap: 10 }}>
+            <article className="development-section development-section--quiet">
+              <h2 className="development-section-title">Diferenciais do {development.title}</h2>
+              <div className="development-stats-grid">
                 {development.differentials.map((item) => {
                   const Icon = pickFeatureIcon(item);
                   return (
@@ -670,8 +719,8 @@ export default async function LancamentoDetailsPage({ params }: { params: Promis
             </article>
 
             {development.showBuilder ? (
-              <article className="card development-builder-detail-card">
-                <h2 className="title-luxury" style={{ marginTop: 0 }}>Construtora responsável</h2>
+              <article id="construtora" className="card development-builder-detail-card">
+                <h2 className="development-section-title">Construtora responsável</h2>
                 <div className="development-builder-detail-head">
                   <div className="development-builder-detail-avatar-shell">
                     {builderLogoUrl ? (
@@ -726,9 +775,10 @@ export default async function LancamentoDetailsPage({ params }: { params: Promis
               </article>
             ) : null}
 
-            <article className="card" style={{ padding: 18 }}>
-              <h2 className="title-luxury" style={{ marginTop: 0 }}>Localização do {development.title}</h2>
-              <p className="text-card" style={{ marginTop: 0, color: "var(--text-muted)" }}>
+            <article id="localizacao" className="development-section development-section--feature">
+              <span className="development-section-eyebrow">Onde fica</span>
+              <h2 className="development-section-title">Localização do {development.title}</h2>
+              <p className="development-section-lede">
                 {development.locationText || `${development.city} • ${development.district}${development.neighborhood ? ` • ${development.neighborhood}` : ""}`}
               </p>
 
@@ -764,19 +814,9 @@ export default async function LancamentoDetailsPage({ params }: { params: Promis
               ) : null}
             </article>
 
-            <article className="card" style={{ padding: 18 }}>
-              <h2 className="title-luxury" style={{ marginTop: 0 }}>Atendimento com Pedro Soares</h2>
-              <p className="text-card" style={{ marginTop: 0, color: "var(--text-muted)" }}>
-                CRECI-TO 5861. Receba tabela atualizada, plantas disponíveis e análise do empreendimento com atendimento personalizado.
-              </p>
-              <a className="button button-whatsapp" href={buildWhatsAppUrl(buildDevelopmentMessage(development.title))} target="_blank" rel="noreferrer">
-                Falar com Pedro Soares
-              </a>
-            </article>
-
             {development.faqs.length ? (
-              <article className="card" style={{ padding: 18 }}>
-                <h2 className="title-luxury" style={{ marginTop: 0 }}>FAQ</h2>
+              <article id="faq" className="development-section development-section--quiet">
+                <h2 className="development-section-title">Perguntas frequentes</h2>
                 <div className="property-faq-list">
                   {development.faqs.map((faq) => (
                     <details key={faq.id} className="property-faq-item">
@@ -787,52 +827,40 @@ export default async function LancamentoDetailsPage({ params }: { params: Promis
                 </div>
               </article>
             ) : null}
-
-            <article className="card" style={{ padding: 18 }}>
-              <h2 className="title-luxury" style={{ marginTop: 0 }}>Gostou desse empreendimento?</h2>
-              <p className="text-card" style={{ marginTop: 0, color: "var(--text-muted)" }}>
-                Fale agora com Pedro Soares e receba tabela atualizada, plantas e condições de pagamento.
-              </p>
-              <a className="button button-whatsapp" href={buildWhatsAppUrl(buildDevelopmentMessage(development.title))} target="_blank" rel="noreferrer">
-                Falar no WhatsApp
-              </a>
-            </article>
           </div>
 
-          <DevelopmentInterestForm
-            developmentId={development.id}
-            developmentSlug={development.slug}
-            developmentName={development.title}
-            whatsappMessage={development.whatsappMessageTemplate || buildDevelopmentMessage(development.title)}
-            tablePdfUrl={development.tablePdfUrl}
-            unitTypes={development.unitTypes.map((unit) => ({
-              id: unit.id,
-              name: unit.towerName ? `${unit.towerName} • ${unit.name}` : unit.name
-            }))}
-            units={development.units.map((unit) => ({
-              id: unit.id,
-              unitTypeId: unit.unitTypeId,
-              label: unit.label,
-              displayName: [unit.towerName, unit.label, unit.unitTypeName].filter(Boolean).join(" • ")
-            }))}
-          />
+          <aside className="development-aside-sticky">
+            <DevelopmentInterestForm
+              developmentId={development.id}
+              developmentSlug={development.slug}
+              developmentName={development.title}
+              whatsappMessage={development.whatsappMessageTemplate || buildDevelopmentMessage(development.title)}
+              tablePdfUrl={development.tablePdfUrl}
+              unitTypes={development.unitTypes.map((unit) => ({
+                id: unit.id,
+                name: unit.towerName ? `${unit.towerName} • ${unit.name}` : unit.name
+              }))}
+              units={development.units.map((unit) => ({
+                id: unit.id,
+                unitTypeId: unit.unitTypeId,
+                label: unit.label,
+                displayName: [unit.towerName, unit.label, unit.unitTypeName].filter(Boolean).join(" • ")
+              }))}
+            />
+          </aside>
         </div>
+      </div>
+
+      <div className="development-mobile-cta" aria-hidden="false">
+        <a
+          className="button button-whatsapp development-mobile-cta-button"
+          href={buildWhatsAppUrl(buildDevelopmentMessage(development.title))}
+          target="_blank"
+          rel="noreferrer"
+        >
+          <MessageCircle size={18} /> Falar no WhatsApp
+        </a>
       </div>
     </section>
   );
 }
-
-const tableHeadStyle: CSSProperties = {
-  textAlign: "left",
-  padding: "10px 12px",
-  borderBottom: "1px solid #dbe4f0",
-  color: "#64748b",
-  fontSize: "var(--fs-12)"
-};
-
-const tableCellStyle: CSSProperties = {
-  padding: "10px 12px",
-  borderBottom: "1px solid #edf2f7",
-  fontSize: "var(--fs-14)",
-  verticalAlign: "top"
-};

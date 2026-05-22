@@ -2888,3 +2888,475 @@ body:has(.admin-login-page) .cookie-consent-banner {
     font-weight: 700;
   }
 }
+
+/* === Lancamento detail layout refresh === */
+.development-section {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 22px;
+  scroll-margin-top: 96px;
+  box-shadow: 0 8px 22px rgba(16, 24, 40, 0.04);
+}
+
+.development-section--feature {
+  border-color: rgba(216, 154, 59, 0.4);
+  box-shadow: 0 12px 32px -22px rgba(216, 154, 59, 0.55);
+}
+
+.development-section--quiet {
+  background: var(--surface-soft);
+  padding: 18px 20px;
+  box-shadow: none;
+}
+
+.development-section-eyebrow {
+  display: inline-block;
+  font-size: var(--fs-12);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sophistication-gold-500);
+  margin: 0 0 6px;
+  font-weight: 600;
+}
+
+.development-section-title {
+  margin: 0 0 14px;
+  font-size: var(--fs-20);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  font-family: var(--font-title), serif;
+}
+
+.development-section--quiet .development-section-title {
+  font-size: var(--fs-16);
+  margin-bottom: 10px;
+}
+
+.development-section--feature .development-section-title {
+  font-size: var(--fs-28);
+  margin-bottom: 16px;
+}
+
+.development-section-lede {
+  margin: 0 0 14px;
+  color: var(--text-muted);
+  font-size: var(--fs-14);
+}
+
+.development-section-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+
+/* === Hero quick facts === */
+.development-quick-facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 14px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.development-quick-fact {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.development-quick-fact-label {
+  font-size: var(--fs-12);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+}
+
+.development-quick-fact-value {
+  font-size: var(--fs-16);
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* === Sticky aside === */
+.development-aside-sticky {
+  position: sticky;
+  top: 88px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  align-self: start;
+}
+
+/* === Section TOC === */
+.development-toc {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 10px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  margin-bottom: 16px;
+  font-size: var(--fs-14);
+  align-items: center;
+  box-shadow: 0 4px 14px rgba(16, 24, 40, 0.04);
+}
+
+.development-toc-label {
+  color: var(--text-muted);
+  font-size: var(--fs-12);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding-right: 10px;
+  border-right: 1px solid var(--border);
+  margin-right: 6px;
+  font-weight: 600;
+}
+
+.development-toc a {
+  color: var(--text);
+  text-decoration: none;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: var(--fs-14);
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.development-toc a:hover {
+  background: rgba(216, 154, 59, 0.12);
+  color: var(--sophistication-gold-500);
+}
+
+/* === Tables === */
+.development-table-scroll {
+  overflow-x: auto;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+
+.development-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.development-table thead th {
+  text-align: left;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: var(--fs-12);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+  background: var(--surface-soft);
+}
+
+.development-table tbody td {
+  padding: 12px 14px;
+  border-bottom: 1px solid #edf2f7;
+  font-size: var(--fs-14);
+  vertical-align: middle;
+}
+
+.development-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.development-table tbody tr:hover {
+  background: #fafbfd;
+}
+
+.development-table .button {
+  padding: 6px 12px;
+  font-size: var(--fs-14);
+}
+
+/* status pill in tables */
+.development-unit-status {
+  display: inline-flex;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: var(--fs-12);
+  font-weight: 600;
+  background: var(--surface-soft);
+  color: var(--text);
+  letter-spacing: 0;
+  text-transform: none;
+  border: 0;
+}
+
+.development-unit-status--disponivel {
+  background: rgba(15, 74, 60, 0.12);
+  color: var(--solidity-700);
+}
+
+.development-unit-status--reservada {
+  background: rgba(216, 154, 59, 0.18);
+  color: #a06912;
+}
+
+.development-unit-status--vendida,
+.development-unit-status--bloqueada {
+  background: rgba(102, 112, 133, 0.18);
+  color: var(--text-muted);
+}
+
+/* === Unit cards grid (in Apartamentos section) === */
+.development-unit-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.development-unit-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.development-unit-card:hover {
+  border-color: rgba(216, 154, 59, 0.45);
+  box-shadow: 0 12px 26px -20px rgba(216, 154, 59, 0.55);
+  transform: translateY(-2px);
+}
+
+.development-unit-card-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.development-unit-card-header strong {
+  font-size: var(--fs-14);
+  line-height: 1.35;
+}
+
+.development-unit-card-price {
+  margin: 0;
+  color: var(--sophistication-gold-500);
+  font-weight: 700;
+  font-size: var(--fs-16);
+}
+
+.development-unit-card-specs {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: var(--fs-14);
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.development-unit-card-specs span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.development-unit-card-description {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: var(--fs-14);
+  line-height: 1.5;
+}
+
+/* === Galeria === */
+.development-gallery-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 12px;
+}
+
+.development-gallery-item {
+  position: relative;
+  margin: 0;
+  overflow: hidden;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--surface-soft);
+  aspect-ratio: 4 / 3;
+}
+
+.development-gallery-item img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover;
+  display: block;
+}
+
+.development-gallery-item figcaption {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 10px 12px;
+  font-size: var(--fs-12);
+  color: #ffffff;
+  background: linear-gradient(0deg, rgba(7, 13, 24, 0.78), rgba(7, 13, 24, 0));
+}
+
+/* === Stats grid (replaces inline grid-3 with property-summary-grid-item) === */
+.development-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 10px;
+}
+
+/* === Mobile collapse === */
+@media (max-width: 960px) {
+  .development-aside-sticky {
+    position: static;
+  }
+  .development-toc {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 14px;
+    scrollbar-width: thin;
+  }
+  .development-section--feature .development-section-title {
+    font-size: var(--fs-20);
+  }
+  .development-section {
+    scroll-margin-top: 84px;
+  }
+}
+
+@media (max-width: 640px) {
+  .development-section {
+    padding: 18px;
+    scroll-margin-top: 72px;
+  }
+  .development-section--feature {
+    padding: 20px;
+  }
+  .development-section--feature .development-section-title {
+    font-size: var(--fs-20);
+  }
+  .development-section-actions {
+    gap: 8px;
+  }
+  .development-section-actions .button {
+    flex: 1 1 100%;
+    min-width: 100%;
+    justify-content: center;
+    text-align: center;
+  }
+
+  /* Hero quick-facts: force 2 cols for cleaner alignment */
+  .development-quick-facts {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-top: 12px;
+    padding-top: 12px;
+  }
+  .development-quick-fact-label {
+    font-size: 0.7rem;
+  }
+  .development-quick-fact-value {
+    font-size: var(--fs-14);
+  }
+
+  /* TOC: compact + hide leading label */
+  .development-toc {
+    padding: 8px 12px;
+    gap: 4px;
+  }
+  .development-toc-label {
+    display: none;
+  }
+  .development-toc a {
+    padding: 4px 10px;
+    flex-shrink: 0;
+  }
+
+  /* Unit cards on phone: 1 col w/ tight spacing */
+  .development-unit-card {
+    padding: 12px;
+  }
+  .development-unit-card-specs {
+    font-size: var(--fs-14);
+    gap: 8px;
+  }
+
+  /* Gallery: 1 col on tight screens */
+  .development-gallery-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Tables -> stacked cards on phone */
+  .development-table-scroll {
+    border: none;
+    background: transparent;
+    overflow-x: visible;
+  }
+  .development-table {
+    display: block;
+  }
+  .development-table thead {
+    display: none;
+  }
+  .development-table tbody {
+    display: grid;
+    gap: 10px;
+  }
+  .development-table tbody tr {
+    display: grid;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px;
+    background: var(--surface);
+  }
+  .development-table tbody tr:hover {
+    background: var(--surface);
+  }
+  .development-table tbody td {
+    display: grid;
+    grid-template-columns: 100px 1fr;
+    gap: 10px;
+    padding: 6px 0;
+    border-bottom: 1px dashed var(--border);
+    align-items: center;
+    font-size: var(--fs-14);
+  }
+  .development-table tbody td::before {
+    content: attr(data-label);
+    font-size: var(--fs-12);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    font-weight: 600;
+  }
+  .development-table tbody td:last-child {
+    border-bottom: none;
+    grid-template-columns: 1fr;
+    padding-top: 10px;
+    margin-top: 2px;
+  }
+  .development-table tbody td:last-child::before {
+    display: none;
+  }
+  .development-table tbody td .button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Mobile bottom CTA bar (consumer for .development-mobile-cta already set globally) */
+  .development-mobile-cta-button {
+    box-shadow: 0 12px 28px rgba(37, 211, 102, 0.35);
+  }
+}
