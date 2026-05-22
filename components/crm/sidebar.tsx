@@ -32,9 +32,11 @@ export function CrmSidebar() {
         ))}
       </nav>
 
-      <Link href="/admin/logout" className="crm-sidebar-logout">
-        Sair do CRM
-      </Link>
+      <form action="/admin/logout" method="post" className="crm-sidebar-logout-form">
+        <button type="submit" className="crm-sidebar-logout">
+          Sair do CRM
+        </button>
+      </form>
     </aside>
   );
 }

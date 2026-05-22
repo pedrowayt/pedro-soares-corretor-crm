@@ -313,6 +313,10 @@ body:has(.admin-login-page) .cookie-consent-banner {
   transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
 }
 
+.crm-sidebar-logout-form {
+  margin: 0;
+}
+
 .crm-sidebar-link:hover {
   border-color: rgba(216, 154, 59, 0.45);
   background: rgba(242, 194, 122, 0.12);
@@ -322,7 +326,11 @@ body:has(.admin-login-page) .cookie-consent-banner {
 .crm-sidebar-logout {
   margin-top: 4px;
   border-color: rgba(185, 28, 28, 0.16);
+  background: #ffffff;
   color: #9f1d1d;
+  cursor: pointer;
+  font-family: inherit;
+  width: 100%;
   text-align: center;
 }
 
