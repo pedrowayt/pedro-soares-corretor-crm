@@ -1569,6 +1569,278 @@ body:has(.admin-login-page) .cookie-consent-banner {
   font-size: var(--fs-16);
 }
 
+.builder-directory-hero {
+  padding-bottom: 28px;
+}
+
+.builder-directory-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.builder-directory-card {
+  padding: 16px;
+  display: grid;
+  gap: 14px;
+  align-content: start;
+}
+
+.builder-directory-card-head {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+}
+
+.builder-logo-frame {
+  width: 152px;
+  height: 152px;
+  border: 1px solid #dbe4f0;
+  border-radius: 8px;
+  background: #ffffff;
+  display: grid;
+  place-items: center;
+  padding: 14px;
+}
+
+.builder-logo-frame-small {
+  width: 82px;
+  height: 82px;
+  padding: 9px;
+}
+
+.builder-logo-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.builder-logo-fallback {
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  background: #f3f6fb;
+  color: #172035;
+  font-size: var(--fs-28);
+  font-weight: 800;
+}
+
+.builder-card-kicker {
+  margin: 0 0 4px;
+  color: #64748b;
+  font-size: var(--fs-12);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.builder-card-title {
+  margin: 0;
+  font-size: var(--fs-22);
+  line-height: 1.12;
+}
+
+.builder-card-summary {
+  margin: 0;
+  color: var(--text-muted);
+}
+
+.builder-mini-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.builder-mini-stats p,
+.builder-profile-stats p {
+  min-width: 0;
+  margin: 0;
+  border: 1px solid #dbe4f0;
+  border-radius: 8px;
+  background: #f8fafc;
+  padding: 10px;
+  display: grid;
+  gap: 4px;
+}
+
+.builder-mini-stats span,
+.builder-profile-stats span {
+  color: #64748b;
+  font-size: var(--fs-12);
+  font-weight: 600;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.builder-mini-stats strong,
+.builder-profile-stats strong {
+  color: #172035;
+  font-size: var(--fs-16);
+}
+
+.builder-card-actions,
+.builder-profile-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.builder-card-actions .button,
+.builder-profile-actions .button,
+.builder-sidebar-cta .button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+}
+
+.builder-empty-card {
+  padding: 18px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  color: var(--text-muted);
+}
+
+.builder-profile-hero {
+  border: 1px solid #dbe4f0;
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 22px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 260px;
+  gap: 18px;
+  align-items: center;
+}
+
+.builder-profile-copy {
+  display: grid;
+  gap: 12px;
+}
+
+.builder-profile-copy .wp-hero-eyebrow,
+.builder-profile-title,
+.builder-profile-summary {
+  margin: 0;
+}
+
+.builder-profile-brand {
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #f8fafc;
+  padding: 14px;
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  text-align: center;
+}
+
+.builder-profile-brand-name {
+  margin: 0;
+  color: #172035;
+  font-size: var(--fs-22);
+  line-height: 1.1;
+}
+
+.builder-profile-location {
+  margin: 0;
+  color: #64748b;
+}
+
+.builder-profile-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 340px);
+  gap: 18px;
+  align-items: start;
+}
+
+.builder-profile-main,
+.builder-profile-sidebar {
+  display: grid;
+  gap: 16px;
+}
+
+.builder-content-card {
+  padding: 18px;
+}
+
+.builder-content-card h2 {
+  margin: 0 0 12px;
+}
+
+.builder-content-card .text-card {
+  color: var(--text-muted);
+}
+
+.builder-content-card .text-card:last-child {
+  margin-bottom: 0;
+}
+
+.builder-region-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.builder-region-title {
+  margin: 0 0 8px;
+  color: #172035;
+  font-size: var(--fs-16);
+}
+
+.builder-region-list {
+  display: grid;
+  gap: 8px;
+}
+
+.builder-region-list p {
+  margin: 0;
+  border: 1px solid #dbe4f0;
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  color: var(--text-muted);
+}
+
+.builder-region-list strong {
+  color: #172035;
+  white-space: nowrap;
+}
+
+.builder-profile-stats,
+.builder-link-list {
+  display: grid;
+  gap: 8px;
+}
+
+.builder-link-list a {
+  border: 1px solid #dbe4f0;
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #172035;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.builder-link-list a:hover {
+  border-color: var(--sophistication-gold-500);
+  color: var(--sophistication-gold-500);
+}
+
+.builder-sidebar-cta {
+  display: grid;
+  gap: 10px;
+}
+
 .development-hero-slider {
   position: relative;
   display: grid;
@@ -2135,6 +2407,10 @@ body:has(.admin-login-page) .cookie-consent-banner {
   .property-review-grid {
     grid-template-columns: 1fr 1fr;
   }
+
+  .builder-directory-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 960px) {
@@ -2220,6 +2496,16 @@ body:has(.admin-login-page) .cookie-consent-banner {
   .development-stage-timeline,
   .development-investment-metrics {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .builder-profile-hero,
+  .builder-profile-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .builder-profile-brand {
+    justify-self: start;
+    width: min(320px, 100%);
   }
 }
 
@@ -2528,6 +2814,36 @@ body:has(.admin-login-page) .cookie-consent-banner {
 
   .property-review-grid {
     grid-template-columns: 1fr;
+  }
+
+  .builder-directory-grid,
+  .builder-mini-stats,
+  .builder-region-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .builder-directory-card-head {
+    grid-template-columns: 1fr;
+  }
+
+  .builder-logo-frame-small {
+    width: 96px;
+    height: 96px;
+  }
+
+  .builder-profile-hero {
+    padding: 16px;
+  }
+
+  .builder-profile-brand {
+    justify-self: stretch;
+    width: 100%;
+  }
+
+  .builder-card-actions .button,
+  .builder-profile-actions .button,
+  .builder-sidebar-cta .button {
+    width: 100%;
   }
 
   .property-detail-page {

@@ -571,6 +571,40 @@ export async function listCrmBuilders(options?: { includeArchived?: boolean }) {
   }
 }
 
+export async function listPublicBuilders() {
+  if (!hasDatabase) return [];
+
+  try {
+    const builders = await prisma.builder.findMany({
+      where: { archivedAt: null },
+      include: {
+        developments: {
+          where: {
+            status: DevelopmentPublicationStatus.PUBLISHED,
+            archivedAt: null
+          },
+          include: {
+            builder: true,
+            media: { orderBy: [{ isPrimary: "desc" }, { position: "asc" }] },
+            unitTypes: { orderBy: [{ isAvailable: "desc" }, { position: "asc" }] },
+            milestones: { orderBy: { position: "asc" } },
+            faqs: { orderBy: { position: "asc" } }
+          },
+          orderBy: [{ isFeatured: "desc" }, { displayOrder: "asc" }, { updatedAt: "desc" }]
+        }
+      },
+      orderBy: [{ name: "asc" }]
+    });
+
+    return builders.map((builder) => ({
+      ...builder,
+      developments: builder.developments.map(normalizeDevelopment)
+    }));
+  } catch {
+    return [];
+  }
+}
+
 export async function getCrmBuilderById(id: string) {
   if (!hasDatabase) return null;
 

@@ -7,13 +7,17 @@ type BuilderItem = {
   id: string;
   name: string;
   slug: string;
+  logoUrl: string | null;
+  description: string | null;
   city: string | null;
   state: string | null;
+  foundedYear: number | null;
   website: string | null;
   instagram: string | null;
   deliveredDevelopmentsCount: number | null;
   deliveredUnitsCount: number | null;
   activeProjectsCount: number | null;
+  institutionalText: string | null;
   archivedAt: Date | null;
 };
 
@@ -40,17 +44,22 @@ function toFormState(builder?: BuilderItem | null) {
   return {
     name: builder?.name ?? "",
     slug: builder?.slug ?? "",
+    logoUrl: builder?.logoUrl ?? "",
+    description: builder?.description ?? "",
     city: builder?.city ?? "",
     state: builder?.state ?? "",
+    foundedYear: builder?.foundedYear?.toString() ?? "",
     website: builder?.website ?? "",
     instagram: builder?.instagram ?? "",
     deliveredDevelopmentsCount: builder?.deliveredDevelopmentsCount?.toString() ?? "",
     deliveredUnitsCount: builder?.deliveredUnitsCount?.toString() ?? "",
     activeProjectsCount: builder?.activeProjectsCount?.toString() ?? "",
-    description: "",
-    institutionalText: "",
-    logoUrl: ""
+    institutionalText: builder?.institutionalText ?? ""
   };
+}
+
+function optionalNumber(value: string) {
+  return value.trim() ? Number(value) : null;
 }
 
 export function BuilderForms({ builders }: { builders: BuilderItem[] }) {
@@ -85,16 +94,17 @@ export function BuilderForms({ builders }: { builders: BuilderItem[] }) {
     const payload = {
       name: form.name,
       slug: form.slug,
+      logoUrl: form.logoUrl,
+      description: form.description,
       city: form.city,
       state: form.state,
+      foundedYear: optionalNumber(form.foundedYear),
       website: form.website,
       instagram: form.instagram,
-      description: form.description,
       institutionalText: form.institutionalText,
-      logoUrl: form.logoUrl,
-      deliveredDevelopmentsCount: form.deliveredDevelopmentsCount ? Number(form.deliveredDevelopmentsCount) : undefined,
-      deliveredUnitsCount: form.deliveredUnitsCount ? Number(form.deliveredUnitsCount) : undefined,
-      activeProjectsCount: form.activeProjectsCount ? Number(form.activeProjectsCount) : undefined
+      deliveredDevelopmentsCount: optionalNumber(form.deliveredDevelopmentsCount),
+      deliveredUnitsCount: optionalNumber(form.deliveredUnitsCount),
+      activeProjectsCount: optionalNumber(form.activeProjectsCount)
     };
 
     try {
@@ -104,11 +114,13 @@ export function BuilderForms({ builders }: { builders: BuilderItem[] }) {
         setItems((prev) => [created, ...prev]);
         setSelectedId(created.id);
         setMode("edit");
+        setForm(toFormState(created));
         setStatusMessage("Construtora criada.");
       } else if (selectedId) {
         const data = await requestJson(`/api/crm/builders/${selectedId}`, "PATCH", payload);
         const updated = data.data.builder as BuilderItem;
         setItems((prev) => prev.map((item) => (item.id === updated.id ? updated : item)));
+        setForm(toFormState(updated));
         setStatusMessage("Construtora atualizada.");
       }
 
@@ -201,6 +213,16 @@ export function BuilderForms({ builders }: { builders: BuilderItem[] }) {
           <div>
             <label>Estado</label>
             <input value={form.state} onChange={(event) => setForm((prev) => ({ ...prev, state: event.target.value }))} />
+          </div>
+          <div>
+            <label>Ano de fundação</label>
+            <input
+              type="number"
+              min={1800}
+              max={2100}
+              value={form.foundedYear}
+              onChange={(event) => setForm((prev) => ({ ...prev, foundedYear: event.target.value }))}
+            />
           </div>
           <div>
             <label>Logo (URL)</label>

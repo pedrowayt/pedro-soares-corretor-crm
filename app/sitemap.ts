@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { listPublicDevelopments } from "@/lib/data/developments";
+import { listPublicBuilders, listPublicDevelopments } from "@/lib/data/developments";
 import { listPublicProperties } from "@/lib/data/properties";
 import { listPublishedSeoLandingPages } from "@/lib/data/seo-landing-pages";
 import { slugify } from "@/lib/crm/slug";
@@ -11,10 +11,11 @@ function cityToSeoSlug(city: string) {
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
-  const [properties, developments, seoPages] = await Promise.all([
+  const [properties, developments, seoPages, builders] = await Promise.all([
     listPublicProperties(),
     listPublicDevelopments(),
-    listPublishedSeoLandingPages()
+    listPublishedSeoLandingPages(),
+    listPublicBuilders()
   ]);
 
   const staticRoutes = [
@@ -22,6 +23,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/imoveis",
     "/imoveis/prontos",
     "/lancamentos",
+    "/construtoras",
     "/imoveis/leilao",
     "/investidores",
     "/venda-seu-imovel",
@@ -50,6 +52,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     lastModified: new Date(),
     changeFrequency: "daily" as const,
     priority: 0.9
+  }));
+
+  const builderRoutes = builders.map((builder) => ({
+    url: `${baseUrl}/construtoras/${builder.slug}`,
+    lastModified: builder.updatedAt,
+    changeFrequency: "weekly" as const,
+    priority: 0.8
   }));
 
   const seoRoutes = seoPages.map((page) => ({
@@ -82,5 +91,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8
   }));
 
-  return [...staticRoutes, ...propertyRoutes, ...developmentRoutes, ...autoLaunchRoutes, ...seoRoutes];
+  return [...staticRoutes, ...propertyRoutes, ...developmentRoutes, ...builderRoutes, ...autoLaunchRoutes, ...seoRoutes];
 }

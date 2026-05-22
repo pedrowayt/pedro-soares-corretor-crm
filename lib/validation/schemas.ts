@@ -319,12 +319,12 @@ export const crmCreateBuilderSchema = z.object({
   description: z.string().optional(),
   city: z.string().optional(),
   state: z.string().optional(),
-  foundedYear: z.coerce.number().int().optional(),
+  foundedYear: z.coerce.number().int().nullable().optional(),
   website: z.string().url().optional().or(z.literal("")),
   instagram: z.string().optional(),
-  deliveredDevelopmentsCount: z.coerce.number().int().optional(),
-  deliveredUnitsCount: z.coerce.number().int().optional(),
-  activeProjectsCount: z.coerce.number().int().optional(),
+  deliveredDevelopmentsCount: z.coerce.number().int().nullable().optional(),
+  deliveredUnitsCount: z.coerce.number().int().nullable().optional(),
+  activeProjectsCount: z.coerce.number().int().nullable().optional(),
   institutionalText: z.string().optional()
 });
 
