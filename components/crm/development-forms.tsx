@@ -289,6 +289,103 @@ const tabs = [
   { id: "publish", label: "Publicação" }
 ] as const;
 
+type TabId = (typeof tabs)[number]["id"];
+
+const developmentFieldLabels: Record<string, string> = {
+  title: "Nome do empreendimento",
+  slug: "Slug",
+  summary: "Frase curta",
+  description: "Descrição principal",
+  city: "Cidade",
+  district: "Bairro",
+  tablePdfUrl: "PDF da tabela",
+  ctaPrimaryUrl: "Link do CTA principal",
+  seoOgImageUrl: "Imagem OG"
+};
+
+const developmentFieldTabs: Record<string, TabId> = {
+  title: "basic",
+  slug: "basic",
+  summary: "basic",
+  description: "basic",
+  city: "location",
+  district: "location",
+  tablePdfUrl: "descriptions",
+  ctaPrimaryUrl: "descriptions",
+  seoOgImageUrl: "seo"
+};
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
+}
+
+function normalizeWhitespace(value: string) {
+  return value.replace(/\s+/g, " ").trim();
+}
+
+function humanizeValidationMessage(message: string) {
+  const lower = message.toLowerCase();
+  const minMatch = message.match(/>=\s*(\d+)/);
+
+  if (lower.includes("too small") && lower.includes("string")) {
+    return minMatch ? `mínimo de ${minMatch[1]} caracteres` : "texto muito curto";
+  }
+
+  if (lower.includes("invalid url") || lower.includes("url")) {
+    return "URL inválida";
+  }
+
+  if (lower.includes("required") || lower.includes("expected string")) {
+    return "obrigatório";
+  }
+
+  return message;
+}
+
+function validationMessagesFromUnknown(value: unknown) {
+  if (Array.isArray(value)) {
+    return value.filter((item): item is string => typeof item === "string" && item.trim().length > 0);
+  }
+
+  return typeof value === "string" && value.trim() ? [value.trim()] : [];
+}
+
+function formatValidationDetails(details: unknown) {
+  if (!isRecord(details)) return "";
+
+  const fieldErrors = isRecord(details.fieldErrors) ? details.fieldErrors : null;
+  const formErrors = validationMessagesFromUnknown(details.formErrors);
+  const messages: string[] = [];
+
+  if (fieldErrors) {
+    for (const [field, rawMessages] of Object.entries(fieldErrors)) {
+      const fieldMessages = validationMessagesFromUnknown(rawMessages);
+      if (!fieldMessages.length) continue;
+
+      const label = developmentFieldLabels[field] ?? field;
+      messages.push(`${label}: ${humanizeValidationMessage(fieldMessages[0])}`);
+    }
+  }
+
+  for (const message of formErrors) {
+    messages.push(humanizeValidationMessage(message));
+  }
+
+  if (!messages.length) return "";
+
+  const visibleMessages = messages.slice(0, 6);
+  const suffix = messages.length > visibleMessages.length ? `; +${messages.length - visibleMessages.length} campo(s)` : "";
+  return `Campos para revisar: ${visibleMessages.join("; ")}${suffix}.`;
+}
+
+function formatApiError(payload: unknown) {
+  const error = isRecord(payload) && isRecord(payload.error) ? payload.error : null;
+  const baseMessage = typeof error?.message === "string" ? error.message : "Falha na operação.";
+  const detailsMessage = formatValidationDetails(error?.details);
+
+  return detailsMessage ? `${baseMessage} ${detailsMessage}` : baseMessage;
+}
+
 function parseReferencePoints(value: unknown) {
   if (!Array.isArray(value)) return "";
   return value
@@ -305,15 +402,46 @@ function parseReferencePoints(value: unknown) {
     .join("\n");
 }
 
+function normalizeNumberInput(value: string) {
+  const cleaned = value
+    .trim()
+    .replace(/\s+/g, "")
+    .replace(/[^\d,.-]/g, "");
+
+  if (!cleaned || cleaned === "-" || cleaned === "," || cleaned === ".") return "";
+
+  const lastComma = cleaned.lastIndexOf(",");
+  const lastDot = cleaned.lastIndexOf(".");
+
+  if (lastComma >= 0 && lastDot >= 0) {
+    const decimalSeparator = lastComma > lastDot ? "," : ".";
+    const thousandsSeparator = decimalSeparator === "," ? "." : ",";
+    return cleaned.replace(new RegExp(`\\${thousandsSeparator}`, "g"), "").replace(decimalSeparator, ".");
+  }
+
+  if (lastComma >= 0) {
+    const looksLikeThousands = /^\d{1,3}(,\d{3})+$/.test(cleaned);
+    return looksLikeThousands ? cleaned.replace(/,/g, "") : cleaned.replace(",", ".");
+  }
+
+  if (lastDot >= 0 && /^\d{1,3}(\.\d{3})+$/.test(cleaned)) {
+    return cleaned.replace(/\./g, "");
+  }
+
+  return cleaned;
+}
+
 function parseNumber(value: string) {
-  if (!value.trim()) return undefined;
-  const parsed = Number(value);
+  const normalized = normalizeNumberInput(value);
+  if (!normalized) return undefined;
+  const parsed = Number(normalized);
   return Number.isFinite(parsed) ? parsed : undefined;
 }
 
 function parseNullableNumber(value: string) {
-  if (!value.trim()) return null;
-  const parsed = Number(value);
+  const normalized = normalizeNumberInput(value);
+  if (!normalized) return null;
+  const parsed = Number(normalized);
   return Number.isFinite(parsed) ? parsed : null;
 }
 
@@ -361,8 +489,14 @@ function formatMonthInput(value: Date | string | null | undefined) {
 }
 
 function monthInputToIso(value: string) {
-  if (!value.trim()) return null;
-  return new Date(`${value}-01T12:00:00.000Z`).toISOString();
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+
+  const normalized = /^\d{4}$/.test(trimmed) ? `${trimmed}-01` : trimmed;
+  if (!/^\d{4}-\d{2}$/.test(normalized)) return null;
+
+  const date = new Date(`${normalized}-01T12:00:00.000Z`);
+  return Number.isNaN(date.getTime()) ? null : date.toISOString();
 }
 
 function toFormState(development: DevelopmentItem | null) {
@@ -444,6 +578,191 @@ function toFormState(development: DevelopmentItem | null) {
 
 type DevelopmentFormState = ReturnType<typeof toFormState>;
 
+type DevelopmentValidationIssue = {
+  field: string;
+  message: string;
+  tab: TabId;
+};
+
+function isValidUrlOrEmpty(value: string) {
+  const trimmed = value.trim();
+  if (!trimmed) return true;
+
+  try {
+    const url = new URL(trimmed);
+    return url.protocol === "http:" || url.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
+function labelForPropertyType(value: string) {
+  return developmentPropertyTypeOptions.find((item) => item.value === value)?.label.toLowerCase() ?? "empreendimento";
+}
+
+function firstTextWithMinimumLength(minLength: number, ...values: Array<string | null | undefined>) {
+  return values.map((value) => normalizeWhitespace(value ?? "")).find((value) => value.length >= minLength) ?? "";
+}
+
+function truncateSentence(value: string, maxLength: number) {
+  const normalized = normalizeWhitespace(value);
+  if (normalized.length <= maxLength) return normalized;
+
+  const clipped = normalized.slice(0, maxLength).replace(/\s+\S*$/, "").trim();
+  return clipped || normalized.slice(0, maxLength).trim();
+}
+
+function ensureFinalPunctuation(value: string) {
+  const trimmed = normalizeWhitespace(value);
+  return /[.!?]$/.test(trimmed) ? trimmed : `${trimmed}.`;
+}
+
+function inferDistrictFromText(...values: Array<string | null | undefined>) {
+  const text = values.map((value) => value ?? "").join("\n");
+  if (!text.trim()) return "";
+
+  const patterns = [
+    /\bPlano Diretor Sul\b/i,
+    /\bPlano Diretor Norte\b/i,
+    /\bJardim Aureny\s*(?:I{1,3}|IV|V)?\b/i,
+    /\bTaquaralto\b/i,
+    /\bTaquari\b/i,
+    /\bGraciosa\b/i,
+    /\bOrla(?:\s+de\s+Palmas)?\b/i,
+    /\bCentro\b/i,
+    /\b(?:ARSE|ARSO|ARNO|ACNO|ACSO|ACSU|ACSU-SE|ACSU-SO|ACSU-NO|ACSU-NE)\s*-?\s*\d{1,3}\b/i,
+    /\b(?:Setor|Quadra)\s+([A-Z]{2,}[-\s]?\d{1,3})\b/i
+  ];
+
+  for (const pattern of patterns) {
+    const match = text.match(pattern);
+    const value = match?.[1] ?? match?.[0] ?? "";
+    if (value.trim().length >= 2) {
+      return normalizeWhitespace(value)
+        .replace(/\s*-\s*/g, "-")
+        .replace(/\b(arse|arso|arno|acno|acso|acsu|acsu-se|acsu-so|acsu-no|acsu-ne)\b/gi, (item) => item.toUpperCase());
+    }
+  }
+
+  return "";
+}
+
+function completeAiRequiredFields(next: DevelopmentFormState) {
+  const title = normalizeWhitespace(next.title);
+  if (title) next.title = title;
+
+  if (!next.slug.trim() && title) {
+    next.slug = slugify(title);
+  }
+
+  if (!next.city.trim()) {
+    next.city = "Palmas";
+  }
+
+  if (next.district.trim().length < 2) {
+    const inferredDistrict = inferDistrictFromText(
+      next.neighborhood,
+      next.address,
+      next.locationText,
+      next.locationHighlights,
+      next.referencePoints,
+      next.regionLiquidityNotes
+    );
+
+    if (inferredDistrict) {
+      next.district = inferredDistrict;
+    }
+  }
+
+  if (next.summary.trim().length < 10) {
+    const fallbackSummary = firstTextWithMinimumLength(
+      10,
+      next.tagline,
+      next.projectText,
+      next.apartmentsText,
+      next.locationHighlights,
+      next.description
+    );
+
+    if (fallbackSummary) {
+      next.summary = truncateSentence(fallbackSummary, 180);
+    } else if (title) {
+      const location = [next.district, next.city].map((value) => value.trim()).filter(Boolean).join(", ");
+      next.summary = truncateSentence(
+        [title, location ? `em ${location}` : "", labelForPropertyType(next.propertyType)].filter(Boolean).join(" "),
+        180
+      );
+    }
+  }
+
+  if (next.description.trim().length < 20) {
+    const fallbackDescription = firstTextWithMinimumLength(
+      20,
+      next.description,
+      next.projectText,
+      next.apartmentsText,
+      next.locationText,
+      next.summary,
+      next.locationHighlights
+    );
+
+    if (fallbackDescription) {
+      next.description = ensureFinalPunctuation(fallbackDescription);
+    } else if (title) {
+      const location = [next.district, next.city].map((value) => value.trim()).filter(Boolean).join(", ");
+      next.description = ensureFinalPunctuation(
+        `${title} é um ${labelForPropertyType(next.propertyType)}${location ? ` localizado em ${location}` : ""}.`
+      );
+    }
+  }
+}
+
+function validateRequiredDevelopmentForm(form: DevelopmentFormState): DevelopmentValidationIssue[] {
+  const slug = form.slug.trim() || slugify(form.title);
+  const checks = [
+    { field: "title", value: form.title, min: 3, message: "mínimo de 3 caracteres" },
+    { field: "slug", value: slug, min: 3, message: "mínimo de 3 caracteres" },
+    { field: "summary", value: form.summary, min: 10, message: "mínimo de 10 caracteres" },
+    { field: "description", value: form.description, min: 20, message: "mínimo de 20 caracteres" },
+    { field: "city", value: form.city, min: 2, message: "obrigatória" },
+    { field: "district", value: form.district, min: 2, message: "obrigatório" }
+  ];
+
+  const issues = checks
+    .filter((check) => check.value.trim().length < check.min)
+    .map((check) => ({
+      field: check.field,
+      message: check.message,
+      tab: developmentFieldTabs[check.field] ?? "basic"
+    }));
+
+  const urlChecks = [
+    { field: "tablePdfUrl", value: form.tablePdfUrl },
+    { field: "ctaPrimaryUrl", value: form.ctaPrimaryUrl },
+    { field: "seoOgImageUrl", value: form.seoOgImageUrl }
+  ];
+
+  for (const check of urlChecks) {
+    if (!isValidUrlOrEmpty(check.value)) {
+      issues.push({
+        field: check.field,
+        message: "URL inválida",
+        tab: developmentFieldTabs[check.field] ?? "basic"
+      });
+    }
+  }
+
+  return issues;
+}
+
+function formatClientValidationMessage(issues: DevelopmentValidationIssue[]) {
+  const visibleIssues = issues.slice(0, 6);
+  const suffix = issues.length > visibleIssues.length ? `; +${issues.length - visibleIssues.length} campo(s)` : "";
+  return `Revise antes de salvar: ${visibleIssues
+    .map((issue) => `${developmentFieldLabels[issue.field] ?? issue.field}: ${issue.message}`)
+    .join("; ")}${suffix}.`;
+}
+
 function numberToInput(value: number | null | undefined) {
   if (value === null || value === undefined || !Number.isFinite(value)) return "";
   return String(value);
@@ -451,6 +770,7 @@ function numberToInput(value: number | null | undefined) {
 
 function apiNumber(value: unknown) {
   if (value === null || value === undefined || value === "") return null;
+  if (typeof value === "string") return parseNullableNumber(value);
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : null;
 }
@@ -534,12 +854,12 @@ async function fetchJson(url: string, method: "POST" | "PATCH", payload?: unknow
     body: payload ? JSON.stringify(payload) : undefined
   });
 
-  const data = await response.json().catch(() => ({}));
-  if (!response.ok || !data.success) {
-    throw new Error(data?.error?.message ?? "Falha na operação.");
+  const data = (await response.json().catch(() => ({}))) as unknown;
+  if (!response.ok || !isRecord(data) || data.success !== true) {
+    throw new Error(formatApiError(data));
   }
 
-  return data;
+  return data as { success: true; data: Record<string, unknown> };
 }
 
 export function DevelopmentForms({ developments, builders }: { developments: DevelopmentItem[]; builders: BuilderItem[] }) {
@@ -682,12 +1002,17 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
 
         const fieldKey = key as keyof DevelopmentFormState;
         const currentValue = next[fieldKey];
-        mutable[fieldKey] = typeof currentValue === "boolean" ? Boolean(value) : String(value);
+        if (typeof currentValue === "boolean") {
+          mutable[fieldKey] = Boolean(value);
+          continue;
+        }
+
+        const stringValue = normalizeWhitespace(String(value));
+        if (!stringValue) continue;
+        mutable[fieldKey] = stringValue;
       }
 
-      if (!next.slug && next.title) {
-        next.slug = slugify(next.title);
-      }
+      completeAiRequiredFields(next);
 
       const builderName = typeof fields.builderName === "string" ? fields.builderName : "";
       const matchedBuilderId = builderName ? matchBuilderIdByName(builderName) : "";
@@ -941,17 +1266,20 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
   }
 
   function buildPayload() {
+    const title = form.title.trim();
+    const slug = form.slug.trim() || slugify(title);
+
     return {
-      title: form.title,
-      slug: form.slug,
-      summary: form.summary,
+      title,
+      slug,
+      summary: form.summary.trim(),
       tagline: optionalString(form.tagline),
-      description: form.description,
+      description: form.description.trim(),
       propertyType: form.propertyType,
       stage: form.stage,
       status: form.status,
-      city: form.city,
-      district: form.district,
+      city: form.city.trim() || "Palmas",
+      district: form.district.trim(),
       neighborhood: optionalString(form.neighborhood),
       address: optionalString(form.address),
       postalCode: optionalString(form.postalCode),
@@ -1019,6 +1347,15 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
 
   async function onSave(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
+
+    const validationIssues = validateRequiredDevelopmentForm(form);
+    if (validationIssues.length) {
+      setSaveStatus("error");
+      setSaveMessage(formatClientValidationMessage(validationIssues));
+      setActiveTab(validationIssues[0]?.tab ?? "basic");
+      return;
+    }
+
     setSaveStatus("saving");
     setSaveMessage("");
 

@@ -649,6 +649,9 @@ Regras:
 - Use null quando o texto nao trouxer uma informacao factual.
 - Nao invente endereco, preco, area, registro de incorporacao, prazo, coordenadas ou quantidade de unidades.
 - Pode redigir summary, description, projectText, apartmentsText, locationText, locationHighlights, regionLiquidityNotes, seoTitle, seoDescription e seoKeyword a partir dos fatos do texto.
+- title, summary, description, city e district sao os campos minimos para criar o empreendimento. Quando houver fatos suficientes, entregue summary com pelo menos 10 caracteres e description com pelo menos 20 caracteres.
+- Preencha district com o bairro, regiao comercial ou zona principal do empreendimento. Em Palmas, termos como Plano Diretor Sul, Plano Diretor Norte, Orla, Centro, Taquaralto, Taquari, Aureny, ARSE, ARSO, ARNO ou ACSU podem ser district somente se aparecerem no material.
+- Use neighborhood para setor, quadra, microbairro, condominio ou referencia menor. Se o texto trouxer setor/quadra mas nao trouxer bairro, coloque esse dado em neighborhood e tambem use-o em district quando for a melhor localizacao factual disponivel.
 - Campos numericos devem vir como numero, sem "R$", "m2", pontos de milhar ou texto.
 - O texto pode ter vindo de PDF, com quebras de linha, tabulacoes e colunas fora de ordem. Preserve fatos, mas normalize a estrutura.
 - deliveryDate deve ser "YYYY-MM" quando houver mes/ano ou apenas ano claro; caso contrario use null.
