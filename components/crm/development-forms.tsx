@@ -125,11 +125,17 @@ type AiAutofillMediaCandidate = {
   category: string | null;
   title: string | null;
   caption: string | null;
+  cropX: number | null;
+  cropY: number | null;
+  cropWidth: number | null;
+  cropHeight: number | null;
   confidence: number | null;
   shouldAttach: boolean | null;
   dataUrl?: string;
   width?: number;
   height?: number;
+  cropApplied?: boolean;
+  crop?: { x: number; y: number; width: number; height: number } | null;
 };
 
 type AiAutofillResponse = {
@@ -164,6 +170,8 @@ type AiMediaCandidateDraft = {
   dataUrl: string;
   width: number | null;
   height: number | null;
+  cropApplied: boolean;
+  crop: { x: number; y: number; width: number; height: number } | null;
   attached: boolean;
 };
 
@@ -432,6 +440,8 @@ function mediaCandidateDraftFromAi(candidate: AiAutofillMediaCandidate): AiMedia
     dataUrl: candidate.dataUrl,
     width: candidate.width ?? null,
     height: candidate.height ?? null,
+    cropApplied: candidate.cropApplied ?? false,
+    crop: candidate.crop ?? null,
     attached: false
   };
 }
@@ -703,7 +713,7 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
       const imageDeliveryUrl = directUploadData.data.imageDeliveryUrl as string | null | undefined;
       const blob = await dataUrlToBlob(candidate.dataUrl);
       const body = new FormData();
-      body.append("file", blob, `pagina-${candidate.page}.png`);
+      body.append("file", blob, `${candidate.cropApplied ? "recorte" : "pagina"}-${candidate.page}.png`);
 
       const uploadResponse = await fetch(uploadUrl, {
         method: "POST",
@@ -734,6 +744,8 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
           source: "ai-pdf",
           page: candidate.page,
           confidence: parseNumber(candidate.confidence),
+          cropApplied: candidate.cropApplied,
+          crop: candidate.crop,
           width: candidate.width,
           height: candidate.height
         }
@@ -1338,6 +1350,11 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
                           </div>
                           <div><label>Título</label><input value={candidate.title} onChange={(e) => updateAiMediaCandidate(index, "title", e.target.value)} /></div>
                           <div><label>Página</label><input value={String(candidate.page)} readOnly /></div>
+                          <div style={{ gridColumn: "1 / -1" }}>
+                            <span className="text-card" style={{ color: "var(--text-muted)", fontSize: "var(--fs-12)" }}>
+                              {candidate.cropApplied ? "Preview recortado automaticamente pela IA." : "Preview usando a página inteira do PDF."}
+                            </span>
+                          </div>
                           <div style={{ gridColumn: "1 / -1" }}><label>Legenda</label><input value={candidate.caption} onChange={(e) => updateAiMediaCandidate(index, "caption", e.target.value)} /></div>
                           <div style={{ gridColumn: "1 / -1", display: "flex", gap: 8, flexWrap: "wrap" }}>
                             <button

@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { PDFParse } from "pdf-parse";
+import sharp from "sharp";
 import { fail, ok, parseJsonSafely } from "@/lib/api/http";
 import { requireCrmWriteAccess } from "@/lib/auth/permissions";
 
@@ -11,6 +12,8 @@ const MAX_PDF_BYTES = 20 * 1024 * 1024;
 const MAX_PDF_PAGES = 40;
 const MAX_VISUAL_PDF_PAGES = 6;
 const MAX_MEDIA_CANDIDATES = 8;
+const MIN_CROP_PIXELS = 96;
+const CROP_PADDING_RATIO = 0.015;
 const MIN_PDF_TEXT_CHARS = 80;
 const OPENAI_MODEL = process.env.OPENAI_AUTOFILL_MODEL || process.env.OPENAI_MODEL || "gpt-5.4-mini";
 
@@ -142,6 +145,10 @@ const aiAutofillMediaCandidateSchema = z.object({
   category: z.enum(mediaCategoryValues).nullable(),
   title: nullableString,
   caption: nullableString,
+  cropX: nullableNumber,
+  cropY: nullableNumber,
+  cropWidth: nullableNumber,
+  cropHeight: nullableNumber,
   confidence: nullableNumber,
   shouldAttach: nullableBoolean
 });
@@ -300,10 +307,26 @@ const aiOutputJsonSchema = {
           category: { type: ["string", "null"], enum: [...mediaCategoryValues, null] },
           title: { type: ["string", "null"] },
           caption: { type: ["string", "null"] },
+          cropX: { type: ["number", "null"] },
+          cropY: { type: ["number", "null"] },
+          cropWidth: { type: ["number", "null"] },
+          cropHeight: { type: ["number", "null"] },
           confidence: { type: ["number", "null"] },
           shouldAttach: { type: ["boolean", "null"] }
         },
-        required: ["page", "kind", "category", "title", "caption", "confidence", "shouldAttach"]
+        required: [
+          "page",
+          "kind",
+          "category",
+          "title",
+          "caption",
+          "cropX",
+          "cropY",
+          "cropWidth",
+          "cropHeight",
+          "confidence",
+          "shouldAttach"
+        ]
       }
     },
     notes: {
@@ -381,7 +404,11 @@ Regras:
 - Em unitTypes, inclua plantas, tipologias e faixas de preco detectadas. Se nao houver planta clara, retorne array vazio.
 - Em mediaCandidates, quando houver paginas renderizadas do PDF, indique paginas que valem anexar como imagem do empreendimento.
 - Para mediaCandidates, use kind HERO para capa/fachada forte, GALLERY para imagens gerais, FLOORPLAN para plantas, e category conforme o conteudo visual.
-- Retorne shouldAttach false para paginas sem valor comercial, puramente textuais, sumarios, disclaimers ou tabelas pouco legiveis.
+- Para cada mediaCandidate, preencha cropX, cropY, cropWidth e cropHeight com a caixa do elemento visual a recortar na pagina.
+- As coordenadas do recorte devem ser normalizadas em escala 0 a 1000, com cropX/cropY no canto superior esquerdo e cropWidth/cropHeight como tamanho.
+- Recorte apenas a imagem, planta, fachada, mapa ou render comercial relevante; evite incluir textos longos, margens, menus, rodapes e tabelas.
+- Use cropWidth/cropHeight null somente quando a pagina inteira for o proprio elemento visual.
+- Retorne shouldAttach false para paginas sem valor comercial, puramente textuais, sumarios, disclaimers, tabelas pouco legiveis ou quando nao houver recorte util.
 - A pagina em mediaCandidates deve ser o numero da pagina renderizada no PDF.
 
 Paginas visuais enviadas: ${visualPageCount}.
@@ -506,29 +533,145 @@ function buildInputContent(source: AiSourceContent) {
   ];
 }
 
-function attachMediaCandidateDataUrls(
+function clamp(value: number, min: number, max: number) {
+  return Math.min(max, Math.max(min, value));
+}
+
+function dataUrlToBuffer(dataUrl: string) {
+  const [, base64] = dataUrl.split(",");
+  if (!base64) throw new Error("Imagem renderizada do PDF inválida.");
+  return Buffer.from(base64, "base64");
+}
+
+function pngDataUrl(buffer: Buffer) {
+  return `data:image/png;base64,${buffer.toString("base64")}`;
+}
+
+function getCropRect(candidate: z.infer<typeof aiAutofillMediaCandidateSchema>, page: VisualPdfPage) {
+  const cropValues = [candidate.cropX, candidate.cropY, candidate.cropWidth, candidate.cropHeight];
+  if (cropValues.some((value) => typeof value !== "number" || Number.isNaN(value))) {
+    return {
+      applied: false,
+      left: 0,
+      top: 0,
+      width: page.width,
+      height: page.height,
+      normalized: null
+    };
+  }
+
+  const normalizedX = clamp(Number(candidate.cropX), 0, 1000);
+  const normalizedY = clamp(Number(candidate.cropY), 0, 1000);
+  const normalizedRight = clamp(normalizedX + Number(candidate.cropWidth), normalizedX, 1000);
+  const normalizedBottom = clamp(normalizedY + Number(candidate.cropHeight), normalizedY, 1000);
+
+  const paddingX = Math.round(page.width * CROP_PADDING_RATIO);
+  const paddingY = Math.round(page.height * CROP_PADDING_RATIO);
+  const left = clamp(Math.floor((normalizedX / 1000) * page.width) - paddingX, 0, page.width - 1);
+  const top = clamp(Math.floor((normalizedY / 1000) * page.height) - paddingY, 0, page.height - 1);
+  const right = clamp(Math.ceil((normalizedRight / 1000) * page.width) + paddingX, left + 1, page.width);
+  const bottom = clamp(Math.ceil((normalizedBottom / 1000) * page.height) + paddingY, top + 1, page.height);
+  const width = right - left;
+  const height = bottom - top;
+
+  if (width < MIN_CROP_PIXELS || height < MIN_CROP_PIXELS) {
+    return {
+      applied: false,
+      left: 0,
+      top: 0,
+      width: page.width,
+      height: page.height,
+      normalized: null
+    };
+  }
+
+  return {
+    applied: true,
+    left,
+    top,
+    width,
+    height,
+    normalized: {
+      x: Math.round((left / page.width) * 1000),
+      y: Math.round((top / page.height) * 1000),
+      width: Math.round((width / page.width) * 1000),
+      height: Math.round((height / page.height) * 1000)
+    }
+  };
+}
+
+async function cropVisualPage(
+  candidate: z.infer<typeof aiAutofillMediaCandidateSchema>,
+  page: VisualPdfPage
+) {
+  const crop = getCropRect(candidate, page);
+  if (!crop.applied) {
+    return {
+      dataUrl: page.dataUrl,
+      width: page.width,
+      height: page.height,
+      cropApplied: false,
+      crop: crop.normalized
+    };
+  }
+
+  try {
+    const { data, info } = await sharp(dataUrlToBuffer(page.dataUrl))
+      .extract({
+        left: crop.left,
+        top: crop.top,
+        width: crop.width,
+        height: crop.height
+      })
+      .png()
+      .toBuffer({ resolveWithObject: true });
+
+    return {
+      dataUrl: pngDataUrl(data),
+      width: info.width,
+      height: info.height,
+      cropApplied: true,
+      crop: crop.normalized
+    };
+  } catch {
+    return {
+      dataUrl: page.dataUrl,
+      width: page.width,
+      height: page.height,
+      cropApplied: false,
+      crop: null
+    };
+  }
+}
+
+async function attachMediaCandidateDataUrls(
   candidates: z.infer<typeof aiAutofillMediaCandidateSchema>[],
   visualPages: VisualPdfPage[]
 ) {
   const pageMap = new Map(visualPages.map((page) => [page.pageNumber, page]));
+  const hydratedCandidates = await Promise.all(
+    candidates
+      .filter((candidate) => candidate.shouldAttach !== false && candidate.page !== null)
+      .slice(0, MAX_MEDIA_CANDIDATES)
+      .map(async (candidate) => {
+        const page = pageMap.get(Number(candidate.page));
+        if (!page) return null;
 
-  return candidates
-    .filter((candidate) => candidate.shouldAttach !== false && candidate.page !== null)
-    .map((candidate) => {
-      const page = pageMap.get(Number(candidate.page));
-      if (!page) return null;
+        const image = await cropVisualPage(candidate, page);
+        return {
+          ...candidate,
+          kind: candidate.kind ?? "GALLERY",
+          category: candidate.category ?? "OUTROS",
+          dataUrl: image.dataUrl,
+          width: image.width,
+          height: image.height,
+          cropApplied: image.cropApplied,
+          crop: image.crop
+        };
+      })
+  );
 
-      return {
-        ...candidate,
-        kind: candidate.kind ?? "GALLERY",
-        category: candidate.category ?? "OUTROS",
-        dataUrl: page.dataUrl,
-        width: page.width,
-        height: page.height
-      };
-    })
-    .filter((candidate): candidate is NonNullable<typeof candidate> => Boolean(candidate))
-    .slice(0, MAX_MEDIA_CANDIDATES);
+  return hydratedCandidates.filter((candidate): candidate is NonNullable<typeof candidate> => Boolean(candidate));
 }
 
 export async function POST(request: Request) {
@@ -610,7 +753,7 @@ export async function POST(request: Request) {
   return ok({
     autofill: {
       ...parsed.data,
-      mediaCandidates: attachMediaCandidateDataUrls(parsed.data.mediaCandidates, source.visualPages)
+      mediaCandidates: await attachMediaCandidateDataUrls(parsed.data.mediaCandidates, source.visualPages)
     }
   });
 }
