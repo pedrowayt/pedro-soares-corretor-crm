@@ -389,6 +389,7 @@ export default async function LancamentoDetailsPage({ params }: { params: Promis
           <a href="#localizacao">Localização</a>
           {development.showBuilder ? <a href="#construtora">Construtora</a> : null}
           {development.faqs.length ? <a href="#faq">FAQ</a> : null}
+          <a href="#atendimento">Atendimento</a>
         </nav>
 
         <div className="development-layout">
@@ -827,9 +828,7 @@ export default async function LancamentoDetailsPage({ params }: { params: Promis
                 </div>
               </article>
             ) : null}
-          </div>
 
-          <aside className="development-aside-sticky">
             <DevelopmentInterestForm
               developmentId={development.id}
               developmentSlug={development.slug}
@@ -847,7 +846,7 @@ export default async function LancamentoDetailsPage({ params }: { params: Promis
                 displayName: [unit.towerName, unit.label, unit.unitTypeName].filter(Boolean).join(" • ")
               }))}
             />
-          </aside>
+          </div>
         </div>
       </div>
 

@@ -358,7 +358,7 @@ body:has(.admin-login-page) .cookie-consent-banner {
 
 .development-layout {
   display: grid;
-  grid-template-columns: 1.45fr 0.75fr;
+  grid-template-columns: minmax(0, 1fr);
   gap: 16px;
   align-items: start;
 }
@@ -2030,6 +2030,77 @@ body:has(.admin-login-page) .cookie-consent-banner {
   letter-spacing: 0.03em;
 }
 
+.development-interest-form-actions .button {
+  gap: 7px;
+}
+
+.development-interest-section-grid {
+  display: grid;
+  grid-template-columns: minmax(180px, 0.7fr) minmax(0, 1.4fr);
+  gap: 18px;
+  align-items: start;
+}
+
+.development-interest-section-aside {
+  display: grid;
+  gap: 10px;
+}
+
+.development-interest-section-aside p {
+  margin: 0;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.development-interest-form {
+  display: grid;
+  gap: 12px;
+}
+
+.development-interest-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.development-interest-message-field textarea {
+  min-height: 104px;
+}
+
+.development-interest-checkbox {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin: 0;
+  scroll-margin-top: 96px;
+}
+
+.development-interest-checkbox input {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+}
+
+.development-interest-form-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.development-interest-status {
+  margin: 0;
+  font-size: var(--fs-14);
+  font-weight: 600;
+}
+
+.development-interest-status--success {
+  color: #0a7a56;
+}
+
+.development-interest-status--error {
+  color: #c92a2a;
+}
+
 .property-info-block p {
   margin: 0;
   color: #526174;
@@ -2981,16 +3052,6 @@ body:has(.admin-login-page) .cookie-consent-banner {
   font-weight: 600;
 }
 
-/* === Sticky aside === */
-.development-aside-sticky {
-  position: sticky;
-  top: 88px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  align-self: start;
-}
-
 /* === Section TOC === */
 .development-toc {
   display: flex;
@@ -3218,8 +3279,8 @@ body:has(.admin-login-page) .cookie-consent-banner {
 
 /* === Mobile collapse === */
 @media (max-width: 960px) {
-  .development-aside-sticky {
-    position: static;
+  .development-interest-section-grid {
+    grid-template-columns: 1fr;
   }
   .development-toc {
     overflow-x: auto;
@@ -3255,6 +3316,13 @@ body:has(.admin-login-page) .cookie-consent-banner {
     min-width: 100%;
     justify-content: center;
     text-align: center;
+  }
+  .development-interest-form-grid {
+    grid-template-columns: 1fr;
+  }
+  .development-interest-form-actions .button {
+    flex: 1 1 100%;
+    min-width: 100%;
   }
 
   /* Hero quick-facts: force 2 cols for cleaner alignment */
