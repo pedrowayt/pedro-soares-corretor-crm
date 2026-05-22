@@ -7,6 +7,7 @@ import {
   DevelopmentPublicationStatus,
   DevelopmentStage,
   DevelopmentUnitCategory,
+  DevelopmentUnitStatus,
   LeadIntent,
   LeadSource,
   LeadStage,
@@ -47,6 +48,8 @@ export const publicWhatsappClickSchema = z.object({
   developmentSlug: z.string().optional(),
   unitTypeId: z.string().optional(),
   unitTypeName: z.string().optional(),
+  unitId: z.string().optional(),
+  unitLabel: z.string().optional(),
   leadPhone: z.string().optional(),
   leadName: z.string().optional(),
   leadEmail: z.string().email().optional().or(z.literal("")),
@@ -62,6 +65,7 @@ export const publicDevelopmentInterestSchema = z.object({
   developmentSlug: z.string().optional(),
   developmentId: z.string().optional(),
   unitTypeId: z.string().optional(),
+  unitId: z.string().optional(),
   requestTable: z.boolean().optional().default(false),
   lgpdConsent: z.boolean().optional().default(true)
 });
@@ -262,6 +266,7 @@ export const crmUpdateDevelopmentStatusSchema = z.object({
 });
 
 export const crmCreateDevelopmentUnitTypeSchema = z.object({
+  towerId: z.string().optional(),
   name: z.string().min(2),
   unitCategory: z.nativeEnum(DevelopmentUnitCategory).optional(),
   bedrooms: z.coerce.number().int().optional(),
@@ -280,6 +285,36 @@ export const crmCreateDevelopmentUnitTypeSchema = z.object({
   availableUnits: z.coerce.number().int().optional(),
   totalUnits: z.coerce.number().int().optional(),
   description: z.string().optional(),
+  position: z.coerce.number().int().optional()
+});
+
+export const crmCreateDevelopmentTowerSchema = z.object({
+  name: z.string().min(2),
+  slug: z.string().optional(),
+  propertyType: z.nativeEnum(DevelopmentPropertyType).optional(),
+  description: z.string().optional(),
+  floorsCount: z.coerce.number().int().optional(),
+  elevatorsCount: z.coerce.number().int().optional(),
+  totalUnits: z.coerce.number().int().optional(),
+  availableUnits: z.coerce.number().int().optional(),
+  deliveryDate: z.string().datetime().nullable().optional(),
+  incorporationRegistry: z.string().optional(),
+  position: z.coerce.number().int().optional()
+});
+
+export const crmCreateDevelopmentUnitSchema = z.object({
+  towerId: z.string().optional(),
+  unitTypeId: z.string().optional(),
+  label: z.string().min(1),
+  unitNumber: z.string().optional(),
+  floor: z.coerce.number().int().optional(),
+  status: z.nativeEnum(DevelopmentUnitStatus).optional(),
+  price: z.coerce.number().optional(),
+  areaPrivateM2: z.coerce.number().optional(),
+  areaTotalM2: z.coerce.number().optional(),
+  parkingSpaces: z.coerce.number().int().optional(),
+  orientation: z.string().optional(),
+  notes: z.string().optional(),
   position: z.coerce.number().int().optional()
 });
 

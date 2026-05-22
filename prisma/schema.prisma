@@ -187,6 +187,13 @@ enum DevelopmentUnitCategory {
   SALA_COMERCIAL
 }
 
+enum DevelopmentUnitStatus {
+  DISPONIVEL
+  RESERVADA
+  VENDIDA
+  BLOQUEADA
+}
+
 enum DevelopmentMediaKind {
   HERO
   GALLERY
@@ -321,6 +328,8 @@ model Lead {
   linkedDevelopment           Development?         @relation(fields: [linkedDevelopmentId], references: [id], onDelete: SetNull)
   linkedDevelopmentUnitTypeId String?
   linkedDevelopmentUnitType   DevelopmentUnitType? @relation("LeadDevelopmentUnitType", fields: [linkedDevelopmentUnitTypeId], references: [id], onDelete: SetNull)
+  linkedDevelopmentUnitId     String?
+  linkedDevelopmentUnit       DevelopmentUnit?     @relation("LeadDevelopmentUnit", fields: [linkedDevelopmentUnitId], references: [id], onDelete: SetNull)
   linkedOwnerId               String?
   linkedOwner                 Owner?               @relation(fields: [linkedOwnerId], references: [id], onDelete: SetNull)
 
@@ -335,6 +344,8 @@ model Lead {
   @@index([intent])
   @@index([phone])
   @@index([linkedDevelopmentId])
+  @@index([linkedDevelopmentUnitTypeId])
+  @@index([linkedDevelopmentUnitId])
   @@index([developmentLeadStatus])
 }
 
@@ -354,10 +365,13 @@ model LeadInteraction {
   development   Development?         @relation(fields: [developmentId], references: [id], onDelete: SetNull)
   unitTypeId    String?
   unitType      DevelopmentUnitType? @relation("InteractionDevelopmentUnitType", fields: [unitTypeId], references: [id], onDelete: SetNull)
+  unitId        String?
+  unit          DevelopmentUnit?     @relation("InteractionDevelopmentUnit", fields: [unitId], references: [id], onDelete: SetNull)
   createdById   String?
   createdBy     User?                @relation("InteractionUser", fields: [createdById], references: [id], onDelete: SetNull)
 
   @@index([leadId, createdAt])
+  @@index([unitId])
 }
 
 model PipelineStageHistory {
@@ -497,7 +511,9 @@ model Development {
   updatedAt                    DateTime                     @updatedAt
 
   builder      Builder?               @relation(fields: [builderId], references: [id], onDelete: SetNull)
+  towers       DevelopmentTower[]
   unitTypes    DevelopmentUnitType[]
+  units        DevelopmentUnit[]
   media        DevelopmentMedia[]
   milestones   DevelopmentMilestone[]
   faqs         DevelopmentFaq[]
@@ -512,9 +528,35 @@ model Development {
   @@index([isFeatured, displayOrder])
 }
 
+model DevelopmentTower {
+  id                    String    @id @default(cuid())
+  developmentId         String
+  name                  String
+  slug                  String?
+  propertyType          DevelopmentPropertyType?
+  description           String?
+  floorsCount           Int?
+  elevatorsCount        Int?
+  totalUnits            Int?
+  availableUnits        Int?
+  deliveryDate          DateTime?
+  incorporationRegistry String?
+  position              Int       @default(0)
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  development Development           @relation(fields: [developmentId], references: [id], onDelete: Cascade)
+  unitTypes   DevelopmentUnitType[]
+  units       DevelopmentUnit[]
+
+  @@unique([developmentId, slug])
+  @@index([developmentId, position])
+}
+
 model DevelopmentUnitType {
   id             String                   @id @default(cuid())
   developmentId  String
+  towerId        String?
   name           String
   unitCategory   DevelopmentUnitCategory?
   bedrooms       Int?
@@ -538,10 +580,44 @@ model DevelopmentUnitType {
   updatedAt      DateTime                 @updatedAt
 
   development  Development       @relation(fields: [developmentId], references: [id], onDelete: Cascade)
+  tower        DevelopmentTower? @relation(fields: [towerId], references: [id], onDelete: SetNull)
+  units        DevelopmentUnit[]
   leads        Lead[]            @relation("LeadDevelopmentUnitType")
   interactions LeadInteraction[] @relation("InteractionDevelopmentUnitType")
 
   @@index([developmentId, position])
+  @@index([towerId])
+}
+
+model DevelopmentUnit {
+  id              String                @id @default(cuid())
+  developmentId   String
+  towerId         String?
+  unitTypeId      String?
+  label           String
+  unitNumber      String?
+  floor           Int?
+  status          DevelopmentUnitStatus @default(DISPONIVEL)
+  price           Decimal?              @db.Decimal(14, 2)
+  areaPrivateM2   Decimal?              @db.Decimal(10, 2)
+  areaTotalM2     Decimal?              @db.Decimal(10, 2)
+  parkingSpaces   Int?
+  orientation     String?
+  notes           String?
+  position        Int                   @default(0)
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+
+  development  Development          @relation(fields: [developmentId], references: [id], onDelete: Cascade)
+  tower        DevelopmentTower?    @relation(fields: [towerId], references: [id], onDelete: SetNull)
+  unitType     DevelopmentUnitType? @relation(fields: [unitTypeId], references: [id], onDelete: SetNull)
+  leads        Lead[]               @relation("LeadDevelopmentUnit")
+  interactions LeadInteraction[]    @relation("InteractionDevelopmentUnit")
+
+  @@unique([towerId, unitNumber])
+  @@index([developmentId, status])
+  @@index([towerId, status])
+  @@index([unitTypeId, status])
 }
 
 model DevelopmentMedia {
