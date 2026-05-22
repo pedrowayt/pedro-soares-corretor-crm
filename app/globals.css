@@ -201,106 +201,39 @@ textarea {
   resize: vertical;
 }
 
+body:has(.admin-login-page) .site-header,
+body:has(.admin-login-page) .site-footer,
+body:has(.admin-login-page) .cookie-consent-banner {
+  display: none;
+}
+
 .admin-login-page {
-  padding: 58px 0 72px;
+  display: flex;
+  align-items: center;
+  padding: 54px 0 72px;
+  min-height: 100vh;
 }
 
 .admin-login-shell {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(360px, 460px);
-  gap: 28px;
-  align-items: center;
-  min-height: calc(100vh - 300px);
-}
-
-.admin-login-copy {
-  display: grid;
-  gap: 18px;
-  align-content: center;
-}
-
-.admin-login-kicker {
-  width: fit-content;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  border: 1px solid rgba(15, 74, 60, 0.2);
-  border-radius: 999px;
-  background: rgba(15, 74, 60, 0.08);
-  color: var(--solidity-700);
-  padding: 0.42rem 0.72rem;
-  font-size: var(--fs-12);
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-
-.admin-login-copy h1 {
-  margin: 0;
-  color: #142036;
-  font-size: 4rem;
-  line-height: 0.95;
-  letter-spacing: 0;
-}
-
-.admin-login-copy p {
-  margin: 0;
-  max-width: 58ch;
-  color: #4d5f78;
-  font-size: var(--fs-16);
-}
-
-.admin-login-highlights {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.admin-login-highlights span {
-  border: 1px solid #d6dfeb;
-  border-radius: 999px;
-  background: #ffffff;
-  color: #26384f;
-  padding: 0.44rem 0.74rem;
-  font-size: var(--fs-12);
-  font-weight: 700;
+  grid-template-columns: minmax(0, 420px);
+  justify-content: center;
 }
 
 .admin-login-panel {
   border: 1px solid #dce4ee;
-  border-radius: var(--radius);
+  border-radius: 14px;
   background: #ffffff;
-  padding: 24px;
-  box-shadow: 0 18px 45px rgba(16, 24, 40, 0.09);
+  padding: 28px;
+  box-shadow: 0 14px 34px rgba(16, 24, 40, 0.08);
 }
 
-.admin-login-panel-head {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  border-bottom: 1px solid #e6ecf4;
-  margin-bottom: 18px;
-  padding-bottom: 16px;
-  color: var(--solidity-700);
-}
-
-.admin-login-panel-head p,
-.admin-login-panel-head strong {
-  display: block;
+.admin-login-title {
   margin: 0;
-}
-
-.admin-login-panel-head p {
-  color: #667085;
-  font-size: var(--fs-12);
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.admin-login-panel-head strong {
   color: #17243a;
-  font-size: var(--fs-20);
+  font-size: var(--fs-24);
+  line-height: 1.12;
+  letter-spacing: 0;
 }
 
 .admin-login-alert,
@@ -326,49 +259,21 @@ textarea {
 
 .admin-login-form {
   display: grid;
-  gap: 10px;
+  gap: 11px;
+  margin-top: 18px;
 }
 
-.admin-login-field {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  align-items: center;
-  gap: 10px;
-  border: 1px solid #d0d8e5;
-  border-radius: 10px;
-  background: #ffffff;
-  padding: 0 0.78rem;
-  color: #667085;
-}
-
-.admin-login-field:focus-within {
+.admin-login-form input:focus {
   border-color: rgba(216, 154, 59, 0.9);
   box-shadow: 0 0 0 3px rgba(216, 154, 59, 0.14);
-}
-
-.admin-login-field input {
-  border: 0;
-  border-radius: 0;
-  padding: 0.78rem 0;
   outline: 0;
 }
 
 .admin-login-submit {
   min-height: 46px;
-  margin-top: 8px;
-  gap: 8px;
+  margin-top: 10px;
   width: 100%;
   cursor: pointer;
-}
-
-.admin-login-note {
-  border-top: 1px solid #e6ecf4;
-  color: #667085;
-  font-size: var(--fs-12);
-  line-height: 1.45;
-  margin-top: 18px;
-  padding-top: 14px;
-  margin-bottom: 0;
 }
 
 .crm-shell {
@@ -2238,24 +2143,6 @@ textarea {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .admin-login-shell {
-    grid-template-columns: 1fr;
-    align-items: start;
-  }
-
-  .admin-login-copy {
-    text-align: center;
-    justify-items: center;
-  }
-
-  .admin-login-copy h1 {
-    font-size: 3.1rem;
-  }
-
-  .admin-login-highlights {
-    justify-content: center;
-  }
-
   .crm-shell {
     grid-template-columns: 1fr;
   }
@@ -2345,26 +2232,8 @@ textarea {
     padding: 36px 0 54px;
   }
 
-  .admin-login-shell {
-    gap: 20px;
-  }
-
-  .admin-login-copy h1 {
-    font-size: 2.3rem;
-  }
-
   .admin-login-panel {
     padding: 18px;
-  }
-
-  .admin-login-field {
-    grid-template-columns: 1fr;
-    gap: 0;
-    padding: 0 0.72rem;
-  }
-
-  .admin-login-field svg {
-    display: none;
   }
 
   .crm-sidebar-nav {
