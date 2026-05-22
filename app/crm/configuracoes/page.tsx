@@ -1,7 +1,7 @@
 export default function CrmConfiguracoesPage() {
   const integrationFlags = [
-    { label: "Cloudflare Images", key: "CLOUDFLARE_ACCOUNT_ID" },
-    { label: "Cloudflare Stream", key: "CLOUDFLARE_STREAM_CUSTOMER_CODE" },
+    { label: "Imagens", key: "CLOUDFLARE_ACCOUNT_ID" },
+    { label: "Vídeos", key: "CLOUDFLARE_STREAM_CUSTOMER_CODE" },
     { label: "WhatsApp API", key: "WHATSAPP_PHONE_NUMBER_ID" },
     { label: "Google Analytics", key: "NEXT_PUBLIC_GA_ID" },
     { label: "Google Tag Manager", key: "NEXT_PUBLIC_GTM_ID" },

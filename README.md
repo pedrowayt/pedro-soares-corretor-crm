@@ -114,9 +114,11 @@ npm run cloudflare:setup:variants
 ### Variáveis necessárias
 - `CLOUDFLARE_ACCOUNT_ID`
 - `CLOUDFLARE_API_TOKEN`
-- `CLOUDFLARE_IMAGES_ACCOUNT_HASH`
+- `CLOUDFLARE_IMAGES_ACCOUNT_HASH` (usado para montar `https://imagedelivery.net/<hash>/<image_id>/<variant>`)
 - `CLOUDFLARE_STREAM_CUSTOMER_CODE`
 - `CLOUDFLARE_WEBHOOK_SECRET`
+
+O upload direto de imagens retorna uma URL pública com a variante `public` quando `CLOUDFLARE_IMAGES_ACCOUNT_HASH` está configurado. A aplicação também permite imagens remotas de `imagedelivery.net` no `next.config.ts`.
 
 ## Segurança e governança
 

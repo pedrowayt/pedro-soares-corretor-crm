@@ -20,6 +20,16 @@ function getCloudflareEnv() {
   return { accountId, token };
 }
 
+export function getCloudflareImagesDeliveryBaseUrl() {
+  const accountHash = process.env.CLOUDFLARE_IMAGES_ACCOUNT_HASH;
+  return accountHash ? `https://imagedelivery.net/${accountHash}` : null;
+}
+
+export function getCloudflareImageDeliveryUrl(imageId: string, variant = "public") {
+  const baseUrl = getCloudflareImagesDeliveryBaseUrl();
+  return baseUrl ? `${baseUrl}/${imageId}/${variant}` : null;
+}
+
 async function callCloudflare<T>(path: string, init?: RequestInit): Promise<T> {
   const { token } = getCloudflareEnv();
   const response = await fetch(`${API_BASE}${path}`, {

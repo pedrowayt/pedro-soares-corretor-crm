@@ -614,7 +614,7 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
       }
 
       const uploadUrl = directUploadData.data.directUpload.uploadURL as string;
-      const cloudflareId = directUploadData.data.directUpload.id as string;
+      const imageDeliveryUrl = directUploadData.data.imageDeliveryUrl as string | null | undefined;
 
       const body = new FormData();
       body.append("file", file);
@@ -626,16 +626,16 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
 
       const uploadPayload = await uploadResponse.json();
       if (!uploadResponse.ok || !uploadPayload.success) {
-        throw new Error(uploadPayload?.errors?.[0]?.message ?? "Falha no upload para Cloudflare.");
+        throw new Error(uploadPayload?.errors?.[0]?.message ?? "Falha no upload da imagem.");
       }
 
       const variants = uploadPayload?.result?.variants as string[] | undefined;
       const uploadResultUrl = variants?.[0];
 
-      if (uploadResultUrl) {
+      if (imageDeliveryUrl) {
+        setMediaUrl(imageDeliveryUrl);
+      } else if (uploadResultUrl) {
         setMediaUrl(uploadResultUrl);
-      } else if (process.env.NEXT_PUBLIC_CLOUDFLARE_IMAGES_DELIVERY_URL) {
-        setMediaUrl(`${process.env.NEXT_PUBLIC_CLOUDFLARE_IMAGES_DELIVERY_URL}/${cloudflareId}/public`);
       }
 
       setSaveStatus("success");
@@ -861,7 +861,7 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
 
           <div style={{ display: "grid", gap: 12 }}>
             <div className="card" style={{ padding: 12 }}>
-              <h4 style={{ marginTop: 0 }}>Adicionar mídia (Cloudflare + URL)</h4>
+              <h4 style={{ marginTop: 0 }}>Adicionar mídia</h4>
               <div style={{ display: "grid", gap: 10 }}>
                 <div
                   style={{
@@ -886,7 +886,7 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
                 <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                   <input ref={uploadFileRef} type="file" accept="image/*" style={{ maxWidth: 320 }} />
                   <button type="button" className="button button-ghost" onClick={handleDirectUpload} disabled={mediaFileUploading}>
-                    {mediaFileUploading ? "Enviando..." : "Upload direto Cloudflare"}
+                    {mediaFileUploading ? "Enviando..." : "Enviar imagem"}
                   </button>
                 </div>
                 <form className="form-grid" onSubmit={createMedia}>

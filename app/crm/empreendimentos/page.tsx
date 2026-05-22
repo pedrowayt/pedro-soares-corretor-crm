@@ -13,7 +13,7 @@ export default async function CrmEmpreendimentosPage() {
         Empreendimentos
       </h1>
       <p className="section-subtitle">
-        Gestão completa de lançamentos com workflow editorial, tipologias, mídia Cloudflare, construtora, SEO e publicação.
+        Gestão completa de lançamentos com workflow editorial, tipologias, mídia, construtora, SEO e publicação.
       </p>
 
       <div style={{ marginTop: 16 }}>
