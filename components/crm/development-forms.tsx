@@ -2,6 +2,7 @@
 
 import { useMemo, useRef, useState } from "react";
 import type { CSSProperties } from "react";
+import { slugify } from "@/lib/crm/slug";
 import { appreciationPotentialOptions, developmentStageOptions } from "@/lib/development-investment";
 
 type DevelopmentItem = {
@@ -102,13 +103,62 @@ type BuilderItem = {
   slug: string;
 };
 
+type AiAutofillUnitType = {
+  name: string | null;
+  unitCategory: string | null;
+  bedrooms: number | null;
+  suites: number | null;
+  bathrooms: number | null;
+  parkingSpaces: number | null;
+  areaPrivateM2: number | null;
+  areaTotalM2: number | null;
+  initialPrice: number | null;
+  isAvailable: boolean | null;
+  description: string | null;
+  position: number | null;
+};
+
+type AiAutofillResponse = {
+  fields: Record<string, string | number | boolean | null>;
+  unitTypes: AiAutofillUnitType[];
+  notes: string[];
+};
+
+type AiUnitTypeDraft = {
+  name: string;
+  unitCategory: string;
+  bedrooms: string;
+  suites: string;
+  bathrooms: string;
+  parkingSpaces: string;
+  areaPrivateM2: string;
+  areaTotalM2: string;
+  initialPrice: string;
+  isAvailable: boolean;
+  description: string;
+  position: string;
+};
+
 type SaveStatus = "idle" | "saving" | "success" | "error";
+type AiStatus = "idle" | "loading" | "success" | "error";
 
 const publicationOptions = [
   { value: "DRAFT", label: "Rascunho" },
   { value: "REVIEW", label: "Revisão" },
   { value: "PUBLISHED", label: "Publicado" },
   { value: "ARCHIVED", label: "Arquivado" }
+];
+
+const unitCategoryOptions = [
+  { value: "STUDIO", label: "Studio" },
+  { value: "UM_QUARTO", label: "1 quarto" },
+  { value: "DOIS_QUARTOS", label: "2 quartos" },
+  { value: "TRES_QUARTOS", label: "3 quartos" },
+  { value: "QUATRO_QUARTOS", label: "4 quartos" },
+  { value: "GARDEN", label: "Garden" },
+  { value: "COBERTURA", label: "Cobertura" },
+  { value: "DUPLEX", label: "Duplex" },
+  { value: "SALA_COMERCIAL", label: "Sala comercial" }
 ];
 
 const tabs = [
@@ -270,6 +320,51 @@ function toFormState(development: DevelopmentItem | null) {
   };
 }
 
+type DevelopmentFormState = ReturnType<typeof toFormState>;
+
+function numberToInput(value: number | null | undefined) {
+  if (value === null || value === undefined || !Number.isFinite(value)) return "";
+  return String(value);
+}
+
+function emptyUnitTypeDraft(position = 0): AiUnitTypeDraft {
+  return {
+    name: "",
+    unitCategory: "",
+    bedrooms: "",
+    suites: "",
+    bathrooms: "",
+    parkingSpaces: "",
+    areaPrivateM2: "",
+    areaTotalM2: "",
+    initialPrice: "",
+    isAvailable: true,
+    description: "",
+    position: String(position)
+  };
+}
+
+function unitTypeDraftFromAi(unit: AiAutofillUnitType, index: number): AiUnitTypeDraft {
+  const unitCategory = unit.unitCategory && unitCategoryOptions.some((item) => item.value === unit.unitCategory)
+    ? unit.unitCategory
+    : "";
+
+  return {
+    name: unit.name ?? "",
+    unitCategory,
+    bedrooms: numberToInput(unit.bedrooms),
+    suites: numberToInput(unit.suites),
+    bathrooms: numberToInput(unit.bathrooms),
+    parkingSpaces: numberToInput(unit.parkingSpaces),
+    areaPrivateM2: numberToInput(unit.areaPrivateM2),
+    areaTotalM2: numberToInput(unit.areaTotalM2),
+    initialPrice: numberToInput(unit.initialPrice),
+    isAvailable: unit.isAvailable ?? true,
+    description: unit.description ?? "",
+    position: numberToInput(unit.position ?? index)
+  };
+}
+
 async function fetchJson(url: string, method: "POST" | "PATCH", payload?: unknown) {
   const response = await fetch(url, {
     method,
@@ -297,6 +392,12 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
   const [saveMessage, setSaveMessage] = useState("");
   const [mediaUrl, setMediaUrl] = useState("");
   const [mediaFileUploading, setMediaFileUploading] = useState(false);
+  const [aiText, setAiText] = useState("");
+  const [aiFileName, setAiFileName] = useState("");
+  const [aiStatus, setAiStatus] = useState<AiStatus>("idle");
+  const [aiMessage, setAiMessage] = useState("");
+  const [aiUnitTypes, setAiUnitTypes] = useState<AiUnitTypeDraft[]>([]);
+  const aiFileRef = useRef<HTMLInputElement | null>(null);
   const uploadFileRef = useRef<HTMLInputElement | null>(null);
 
   const selected = useMemo(() => items.find((item) => item.id === selectedId) ?? null, [items, selectedId]);
@@ -308,6 +409,9 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
     setForm(toFormState(next));
     setSaveStatus("idle");
     setSaveMessage("");
+    setAiStatus("idle");
+    setAiMessage("");
+    setAiUnitTypes([]);
   }
 
   function resetCreate() {
@@ -316,11 +420,145 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
     setForm(toFormState(null));
     setSaveStatus("idle");
     setSaveMessage("");
+    setAiStatus("idle");
+    setAiMessage("");
+    setAiUnitTypes([]);
     setActiveTab("basic");
   }
 
   function updateField<K extends keyof typeof form>(key: K, value: (typeof form)[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
+  }
+
+  function matchBuilderIdByName(name: string) {
+    const normalizedName = slugify(name);
+    if (!normalizedName) return "";
+
+    const matched = builders.find((builder) => {
+      const normalizedBuilder = slugify(builder.name);
+      return normalizedBuilder === normalizedName || normalizedBuilder.includes(normalizedName) || normalizedName.includes(normalizedBuilder);
+    });
+
+    return matched?.id ?? "";
+  }
+
+  function applyAiAutofillFields(fields: AiAutofillResponse["fields"]) {
+    setForm((prev) => {
+      const next = { ...prev };
+      const mutable = next as Record<keyof DevelopmentFormState, string | boolean>;
+
+      for (const [key, value] of Object.entries(fields)) {
+        if (value === null || value === undefined || !(key in next)) continue;
+
+        const fieldKey = key as keyof DevelopmentFormState;
+        const currentValue = next[fieldKey];
+        mutable[fieldKey] = typeof currentValue === "boolean" ? Boolean(value) : String(value);
+      }
+
+      if (!next.slug && next.title) {
+        next.slug = slugify(next.title);
+      }
+
+      const builderName = typeof fields.builderName === "string" ? fields.builderName : "";
+      const matchedBuilderId = builderName ? matchBuilderIdByName(builderName) : "";
+      if (matchedBuilderId) {
+        next.builderId = matchedBuilderId;
+      }
+
+      return next;
+    });
+  }
+
+  function handleAiFileChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0] ?? null;
+    setAiFileName(file?.name ?? "");
+    setAiStatus("idle");
+    setAiMessage("");
+  }
+
+  async function runAiAutofill() {
+    const file = aiFileRef.current?.files?.[0] ?? null;
+
+    if (!file && !aiText.trim()) {
+      setAiStatus("error");
+      setAiMessage("Envie um arquivo .txt, .pdf textual ou cole o texto do material.");
+      return;
+    }
+
+    setAiStatus("loading");
+    setAiMessage("");
+
+    try {
+      const body = new FormData();
+      if (aiText.trim()) body.append("text", aiText.trim());
+      if (file) body.append("file", file);
+
+      const response = await fetch("/api/crm/developments/ai-autofill", {
+        method: "POST",
+        body
+      });
+
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || !data.success) {
+        throw new Error(data?.error?.message ?? "Falha ao preencher com IA.");
+      }
+
+      const autofill = data.data.autofill as AiAutofillResponse;
+      applyAiAutofillFields(autofill.fields);
+      setAiUnitTypes(autofill.unitTypes.map(unitTypeDraftFromAi).filter((unit) => unit.name.trim()));
+      setActiveTab("basic");
+      setAiStatus("success");
+      setAiMessage(
+        autofill.unitTypes.length
+          ? `Rascunho preenchido. ${autofill.unitTypes.length} planta(s) foram colocadas na aba Plantas e preços.`
+          : "Rascunho preenchido. Revise os campos antes de salvar."
+      );
+    } catch (error) {
+      setAiStatus("error");
+      setAiMessage(error instanceof Error ? error.message : "Erro ao preencher com IA.");
+    }
+  }
+
+  function updateAiUnitType<K extends keyof AiUnitTypeDraft>(index: number, key: K, value: AiUnitTypeDraft[K]) {
+    setAiUnitTypes((prev) => prev.map((unit, itemIndex) => (itemIndex === index ? { ...unit, [key]: value } : unit)));
+  }
+
+  function addAiUnitType() {
+    setAiUnitTypes((prev) => [...prev, emptyUnitTypeDraft(prev.length)]);
+    setActiveTab("plants");
+  }
+
+  function removeAiUnitType(index: number) {
+    setAiUnitTypes((prev) => prev.filter((_, itemIndex) => itemIndex !== index));
+  }
+
+  function buildUnitTypePayload(unit: AiUnitTypeDraft, index: number) {
+    return {
+      name: unit.name.trim(),
+      unitCategory: unit.unitCategory || undefined,
+      bedrooms: parseNumber(unit.bedrooms),
+      suites: parseNumber(unit.suites),
+      bathrooms: parseNumber(unit.bathrooms),
+      parkingSpaces: parseNumber(unit.parkingSpaces),
+      areaPrivateM2: parseNumber(unit.areaPrivateM2),
+      areaTotalM2: parseNumber(unit.areaTotalM2),
+      initialPrice: parseNumber(unit.initialPrice),
+      description: optionalString(unit.description),
+      isAvailable: unit.isAvailable,
+      position: parseNumber(unit.position) ?? index
+    };
+  }
+
+  async function persistAiUnitTypes(developmentId: string) {
+    const validUnitTypes = aiUnitTypes.filter((unit) => unit.name.trim().length >= 2);
+
+    await Promise.all(
+      validUnitTypes.map((unit, index) =>
+        fetchJson(`/api/crm/developments/${developmentId}/unit-types`, "POST", buildUnitTypePayload(unit, index))
+      )
+    );
+
+    return validUnitTypes.length;
   }
 
   function buildPayload() {
@@ -407,20 +645,41 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
 
     try {
       const payload = buildPayload();
+      let targetDevelopmentId = selectedId;
+
       if (mode === "create") {
         const data = await fetchJson("/api/crm/developments", "POST", payload);
         const created = data.data.development as DevelopmentItem;
         setItems((prev) => [{ ...created, media: [], unitTypes: [], milestones: [], faqs: [] }, ...prev]);
         setSelectedId(created.id);
         setMode("edit");
+        targetDevelopmentId = created.id;
       } else {
         const data = await fetchJson(`/api/crm/developments/${selectedId}`, "PATCH", payload);
         const updated = data.data.development as DevelopmentItem;
         setItems((prev) => prev.map((item) => (item.id === updated.id ? { ...item, ...updated } : item)));
       }
 
-      setSaveStatus("success");
-      setSaveMessage("Empreendimento salvo com sucesso.");
+      let createdUnitTypes = 0;
+      let unitTypeError = "";
+
+      if (targetDevelopmentId && aiUnitTypes.some((unit) => unit.name.trim().length >= 2)) {
+        try {
+          createdUnitTypes = await persistAiUnitTypes(targetDevelopmentId);
+          setAiUnitTypes([]);
+        } catch (error) {
+          unitTypeError = error instanceof Error ? error.message : "Falha ao criar plantas sugeridas.";
+        }
+      }
+
+      setSaveStatus(unitTypeError ? "error" : "success");
+      setSaveMessage(
+        unitTypeError
+          ? `Empreendimento salvo, mas as plantas sugeridas não foram criadas: ${unitTypeError}`
+          : createdUnitTypes
+            ? `Empreendimento salvo com sucesso. ${createdUnitTypes} planta(s) sugeridas foram adicionadas.`
+            : "Empreendimento salvo com sucesso."
+      );
     } catch (error) {
       setSaveStatus("error");
       setSaveMessage(error instanceof Error ? error.message : "Erro ao salvar empreendimento.");
@@ -691,6 +950,54 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
       </article>
 
       <article className="card" style={{ padding: 16 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
+          <h3 className="title-luxury" style={{ margin: 0 }}>
+            Preencher com IA
+          </h3>
+          {aiFileName ? (
+            <span className="text-card" style={{ color: "var(--text-muted)", fontSize: "var(--fs-12)" }}>
+              {aiFileName}
+            </span>
+          ) : null}
+        </div>
+
+        <div className="form-grid" style={{ marginTop: 12 }}>
+          <div>
+            <label>Arquivo de texto ou PDF</label>
+            <input ref={aiFileRef} type="file" accept=".txt,.pdf,text/plain,application/pdf" onChange={handleAiFileChange} />
+          </div>
+          <div style={{ gridColumn: "1 / -1" }}>
+            <label>Texto do material</label>
+            <textarea value={aiText} onChange={(event) => setAiText(event.target.value)} />
+          </div>
+          <div style={{ gridColumn: "1 / -1", display: "flex", gap: 8, flexWrap: "wrap" }}>
+            <button type="button" className="button button-primary" onClick={runAiAutofill} disabled={aiStatus === "loading"}>
+              {aiStatus === "loading" ? "Preenchendo..." : "Preencher com IA"}
+            </button>
+            <button
+              type="button"
+              className="button button-ghost"
+              onClick={() => {
+                setAiText("");
+                setAiFileName("");
+                setAiStatus("idle");
+                setAiMessage("");
+                if (aiFileRef.current) aiFileRef.current.value = "";
+              }}
+            >
+              Limpar
+            </button>
+          </div>
+        </div>
+
+        {aiMessage ? (
+          <p style={{ marginBottom: 0, color: aiStatus === "error" ? "#c92a2a" : aiStatus === "success" ? "#0a7a56" : "#64748b" }}>
+            {aiMessage}
+          </p>
+        ) : null}
+      </article>
+
+      <article className="card" style={{ padding: 16 }}>
         <h3 className="title-luxury" style={{ marginTop: 0 }}>
           {mode === "create" ? "Novo empreendimento" : `Editar empreendimento${selected ? ` • ${selected.title}` : ""}`}
         </h3>
@@ -785,6 +1092,87 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
               <div style={{ gridColumn: "1 / -1" }}><label>Observações de liquidez</label><textarea value={form.regionLiquidityNotes} onChange={(e) => updateField("regionLiquidityNotes", e.target.value)} /></div>
               <div><label>Template WhatsApp</label><input value={form.whatsappMessageTemplate} onChange={(e) => updateField("whatsappMessageTemplate", e.target.value)} /></div>
               <div><label>PDF tabela</label><input value={form.tablePdfUrl} onChange={(e) => updateField("tablePdfUrl", e.target.value)} /></div>
+            </>
+          ) : null}
+
+          {activeTab === "plants" ? (
+            <>
+              <div style={{ gridColumn: "1 / -1", display: "grid", gap: 12 }}>
+                {selected?.unitTypes.length ? (
+                  <div style={{ display: "grid", gap: 8 }}>
+                    <strong className="text-card">Tipologias cadastradas</strong>
+                    <div style={{ overflowX: "auto" }}>
+                      <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                        <thead>
+                          <tr>
+                            <th style={thStyle}>Nome</th>
+                            <th style={thStyle}>Quartos</th>
+                            <th style={thStyle}>Área privativa</th>
+                            <th style={thStyle}>Preço inicial</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {selected.unitTypes.map((unit) => (
+                            <tr key={unit.id}>
+                              <td style={tdStyle}>{unit.name}</td>
+                              <td style={tdStyle}>{unit.bedrooms ?? "-"}</td>
+                              <td style={tdStyle}>{unit.areaPrivateM2Number ? `${unit.areaPrivateM2Number} m²` : "-"}</td>
+                              <td style={tdStyle}>{unit.initialPriceNumber ? `R$ ${unit.initialPriceNumber.toLocaleString("pt-BR")}` : "-"}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                ) : null}
+
+                <div style={{ display: "flex", justifyContent: "space-between", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+                  <strong className="text-card">Plantas sugeridas</strong>
+                  <button type="button" className="button button-ghost" onClick={addAiUnitType} style={{ padding: "0.44rem 0.7rem" }}>
+                    Adicionar planta
+                  </button>
+                </div>
+
+                {aiUnitTypes.length ? (
+                  <div style={{ display: "grid", gap: 10 }}>
+                    {aiUnitTypes.map((unit, index) => (
+                      <div key={`${unit.name}-${index}`} style={{ border: "1px solid var(--border)", borderRadius: 8, padding: 12 }}>
+                        <div className="form-grid">
+                          <div><label>Nome da planta</label><input value={unit.name} onChange={(e) => updateAiUnitType(index, "name", e.target.value)} /></div>
+                          <div>
+                            <label>Categoria</label>
+                            <select value={unit.unitCategory} onChange={(e) => updateAiUnitType(index, "unitCategory", e.target.value)}>
+                              <option value="">Selecionar</option>
+                              {unitCategoryOptions.map((item) => (
+                                <option key={item.value} value={item.value}>{item.label}</option>
+                              ))}
+                            </select>
+                          </div>
+                          <div><label>Quartos</label><input type="number" min={0} value={unit.bedrooms} onChange={(e) => updateAiUnitType(index, "bedrooms", e.target.value)} /></div>
+                          <div><label>Suítes</label><input type="number" min={0} value={unit.suites} onChange={(e) => updateAiUnitType(index, "suites", e.target.value)} /></div>
+                          <div><label>Banheiros</label><input type="number" min={0} value={unit.bathrooms} onChange={(e) => updateAiUnitType(index, "bathrooms", e.target.value)} /></div>
+                          <div><label>Vagas</label><input type="number" min={0} value={unit.parkingSpaces} onChange={(e) => updateAiUnitType(index, "parkingSpaces", e.target.value)} /></div>
+                          <div><label>Área privativa (m²)</label><input type="number" min={0} step="0.01" value={unit.areaPrivateM2} onChange={(e) => updateAiUnitType(index, "areaPrivateM2", e.target.value)} /></div>
+                          <div><label>Área total (m²)</label><input type="number" min={0} step="0.01" value={unit.areaTotalM2} onChange={(e) => updateAiUnitType(index, "areaTotalM2", e.target.value)} /></div>
+                          <div><label>Preço inicial</label><input type="number" min={0} value={unit.initialPrice} onChange={(e) => updateAiUnitType(index, "initialPrice", e.target.value)} /></div>
+                          <div><label>Ordem</label><input type="number" min={0} value={unit.position} onChange={(e) => updateAiUnitType(index, "position", e.target.value)} /></div>
+                          <div style={{ gridColumn: "1 / -1" }}><label>Descrição</label><textarea value={unit.description} onChange={(e) => updateAiUnitType(index, "description", e.target.value)} /></div>
+                          <label style={{ display: "flex", gap: 8, alignItems: "center" }}><input type="checkbox" checked={unit.isAvailable} onChange={(e) => updateAiUnitType(index, "isAvailable", e.target.checked)} style={{ width: 16, height: 16 }} /><span className="text-card">Disponível</span></label>
+                          <div style={{ alignSelf: "end" }}>
+                            <button type="button" className="button button-ghost" onClick={() => removeAiUnitType(index)}>
+                              Remover
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-card" style={{ margin: 0, color: "var(--text-muted)" }}>
+                    Nenhuma planta sugerida no rascunho atual.
+                  </p>
+                )}
+              </div>
             </>
           ) : null}
 
