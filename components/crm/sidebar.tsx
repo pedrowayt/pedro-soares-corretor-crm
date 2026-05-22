@@ -19,24 +19,22 @@ const crmMenu = [
 export function CrmSidebar() {
   return (
     <aside className="crm-sidebar">
-      <p className="badge">CRM Pedro Soares</p>
-      <h2 style={{ marginTop: 12, marginBottom: 14 }}>Operação comercial</h2>
-      <nav style={{ display: "grid", gap: 8 }}>
+      <div>
+        <p className="badge">CRM Pedro Soares</p>
+        <h2>Operação comercial</h2>
+      </div>
+
+      <nav className="crm-sidebar-nav" aria-label="Menu do CRM">
         {crmMenu.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            style={{
-              border: "1px solid rgba(242,194,122,.2)",
-              borderRadius: 12,
-              padding: "9px 11px",
-              fontSize: "var(--fs-14)"
-            }}
-          >
+          <Link key={item.href} href={item.href} className="crm-sidebar-link">
             {item.label}
           </Link>
         ))}
       </nav>
+
+      <Link href="/admin/logout" className="crm-sidebar-logout">
+        Sair do CRM
+      </Link>
     </aside>
   );
 }

@@ -8,9 +8,7 @@ async function postJson(url: string, payload: unknown) {
   const response = await fetch(url, {
     method: "POST",
     headers: {
-      "Content-Type": "application/json",
-      "x-user-id": "dev-user",
-      "x-user-role": "ADMIN"
+      "Content-Type": "application/json"
     },
     body: JSON.stringify(payload)
   });

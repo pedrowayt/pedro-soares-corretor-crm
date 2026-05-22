@@ -23,9 +23,7 @@ async function requestJson(url: string, method: "POST" | "PATCH", payload?: unkn
   const response = await fetch(url, {
     method,
     headers: {
-      "Content-Type": "application/json",
-      "x-user-id": "dev-user",
-      "x-user-role": "ADMIN"
+      "Content-Type": "application/json"
     },
     body: payload ? JSON.stringify(payload) : undefined
   });

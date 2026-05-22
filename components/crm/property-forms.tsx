@@ -46,9 +46,7 @@ async function postJson(url: string, payload: unknown, method: "POST" | "PATCH" 
   const response = await fetch(url, {
     method,
     headers: {
-      "Content-Type": "application/json",
-      "x-user-id": "dev-user",
-      "x-user-role": "ADMIN"
+      "Content-Type": "application/json"
     },
     body: JSON.stringify(payload)
   });

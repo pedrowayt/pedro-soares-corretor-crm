@@ -246,13 +246,50 @@ model User {
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
-  ownedLeads   Lead[]                 @relation("LeadOwnerUser")
-  interactions LeadInteraction[]      @relation("InteractionUser")
-  stageChanges PipelineStageHistory[] @relation("StageChangedByUser")
-  tasks        Task[]                 @relation("TaskAssignedUser")
-  visits       Visit[]                @relation("VisitAssignedUser")
-  proposals    Proposal[]             @relation("ProposalCreatedUser")
-  auditLogs    AuditLog[]
+  ownedLeads    Lead[]                 @relation("LeadOwnerUser")
+  interactions  LeadInteraction[]      @relation("InteractionUser")
+  stageChanges  PipelineStageHistory[] @relation("StageChangedByUser")
+  tasks         Task[]                 @relation("TaskAssignedUser")
+  visits        Visit[]                @relation("VisitAssignedUser")
+  proposals     Proposal[]             @relation("ProposalCreatedUser")
+  auditLogs     AuditLog[]
+  crmSessions   CrmSession[]
+  loginAttempts LoginAttempt[]
+}
+
+model CrmSession {
+  id         String    @id @default(cuid())
+  tokenHash  String    @unique
+  userId     String
+  expiresAt  DateTime
+  lastSeenAt DateTime?
+  revokedAt  DateTime?
+  ipHash     String?
+  userAgent  String?
+  createdAt  DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@index([revokedAt])
+}
+
+model LoginAttempt {
+  id        String   @id @default(cuid())
+  email     String
+  success   Boolean
+  reason    String?
+  ipHash    String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  userId    String?
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([email, createdAt])
+  @@index([ipHash, createdAt])
+  @@index([userId, createdAt])
 }
 
 model Lead {

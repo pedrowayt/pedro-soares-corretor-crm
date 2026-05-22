@@ -35,9 +35,7 @@ export function LeadDevelopmentStatusControl({
       const response = await fetch(`/api/crm/leads/${leadId}/development-status`, {
         method: "PATCH",
         headers: {
-          "Content-Type": "application/json",
-          "x-user-id": "dev-user",
-          "x-user-role": "ADMIN"
+          "Content-Type": "application/json"
         },
         body: JSON.stringify({ developmentLeadStatus: value })
       });

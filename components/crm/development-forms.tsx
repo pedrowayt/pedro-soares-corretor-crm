@@ -274,9 +274,7 @@ async function fetchJson(url: string, method: "POST" | "PATCH", payload?: unknow
   const response = await fetch(url, {
     method,
     headers: {
-      "Content-Type": "application/json",
-      "x-user-id": "dev-user",
-      "x-user-role": "ADMIN"
+      "Content-Type": "application/json"
     },
     body: payload ? JSON.stringify(payload) : undefined
   });
@@ -596,9 +594,7 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
       const directUploadResponse = await fetch("/api/media/images/direct-upload", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
-          "x-user-id": "dev-user",
-          "x-user-role": "ADMIN"
+          "Content-Type": "application/json"
         },
         body: JSON.stringify({
           metadata: {

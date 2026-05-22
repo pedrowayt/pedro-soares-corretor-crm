@@ -35,6 +35,7 @@ export function SiteFooter() {
               <Link href="/sobre">Sobre</Link>
               <Link href="/venda-seu-imovel">Anunciar</Link>
               <Link href="/contato">Contato</Link>
+              <Link href="/admin/login">Área admin</Link>
             </nav>
           </section>
         </div>

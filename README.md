@@ -122,10 +122,19 @@ O upload direto de imagens retorna uma URL pública com a variante `public` quan
 
 ## Segurança e governança
 
-- RBAC básico em endpoints CRM (`ADMIN`/`CORRETOR`)
-- Middleware para proteger `/crm` e `/api/crm` em produção
-- Logs de auditoria em ações de lead
+- Login próprio no banco pela tabela `User`, com senha armazenada em hash `scrypt`
+- Sessões CRM em banco (`CrmSession`) com cookie `httpOnly`, `secure` em produção, `sameSite=strict` e assinatura HMAC
+- Rate limit de login por usuário e IP, com registro em `LoginAttempt`
+- RBAC em endpoints CRM (`ADMIN`/`CORRETOR`; `PARCEIRO` sem permissão de escrita)
+- Middleware para proteger `/crm` e `/api/crm`
+- Logs de auditoria em ações de CRM
 - Campos de consentimento LGPD em formulários públicos
+
+Para definir ou trocar senha de acesso ao CRM:
+
+```bash
+npm run crm:set-password -- --email=pedro@pedrosoares.com.br
+```
 
 ## Deploy (Railway + Cloudflare)
 
