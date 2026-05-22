@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { PDFParse } from "pdf-parse";
+import * as cheerio from "cheerio";
 import sharp from "sharp";
 import { fail, ok, parseJsonSafely } from "@/lib/api/http";
 import { requireCrmWriteAccess } from "@/lib/auth/permissions";
@@ -12,9 +13,13 @@ const MAX_PDF_BYTES = 20 * 1024 * 1024;
 const MAX_PDF_PAGES = 40;
 const MAX_VISUAL_PDF_PAGES = 6;
 const MAX_MEDIA_CANDIDATES = 8;
+const MAX_WEB_IMAGE_CANDIDATES = 24;
+const MAX_SCRAPE_HTML_BYTES = 2 * 1024 * 1024;
+const MAX_SCRAPED_IMAGE_BYTES = 5 * 1024 * 1024;
 const MIN_CROP_PIXELS = 96;
 const CROP_PADDING_RATIO = 0.015;
 const MIN_PDF_TEXT_CHARS = 80;
+const SCRAPE_TIMEOUT_MS = 12_000;
 const OPENAI_MODEL = process.env.OPENAI_AUTOFILL_MODEL || process.env.OPENAI_MODEL || "gpt-5.4-mini";
 
 const propertyTypeValues = ["APARTAMENTO", "CASA", "LOTE", "SALA_COMERCIAL", "STUDIO", "COBERTURA"] as const;
@@ -141,6 +146,7 @@ const aiAutofillUnitTypeSchema = z.object({
 
 const aiAutofillMediaCandidateSchema = z.object({
   page: nullableNumber,
+  imageUrl: nullableString,
   kind: z.enum(mediaKindValues).nullable(),
   category: z.enum(mediaCategoryValues).nullable(),
   title: nullableString,
@@ -303,6 +309,7 @@ const aiOutputJsonSchema = {
         additionalProperties: false,
         properties: {
           page: { type: ["number", "null"] },
+          imageUrl: { type: ["string", "null"] },
           kind: { type: ["string", "null"], enum: [...mediaKindValues, null] },
           category: { type: ["string", "null"], enum: [...mediaCategoryValues, null] },
           title: { type: ["string", "null"] },
@@ -316,6 +323,7 @@ const aiOutputJsonSchema = {
         },
         required: [
           "page",
+          "imageUrl",
           "kind",
           "category",
           "title",
@@ -344,9 +352,20 @@ type VisualPdfPage = {
   height: number;
 };
 
+type WebImageCandidate = {
+  url: string;
+  alt: string;
+  title: string;
+  width: number | null;
+  height: number | null;
+  source: string;
+};
+
 type AiSourceContent = {
   text: string;
   visualPages: VisualPdfPage[];
+  webImages: WebImageCandidate[];
+  sourceUrl: string | null;
 };
 
 function normalizeSourceText(input: string) {
@@ -359,6 +378,242 @@ function isPdfFile(file: File, fileName: string) {
 
 function isTextFile(file: File, fileName: string) {
   return file.type.startsWith("text/") || fileName.endsWith(".txt");
+}
+
+function isPrivateHost(hostname: string) {
+  const host = hostname.toLowerCase();
+  if (
+    host === "localhost" ||
+    host.endsWith(".localhost") ||
+    host === "0.0.0.0" ||
+    host === "::1" ||
+    host.startsWith("127.") ||
+    host.startsWith("10.") ||
+    host.startsWith("192.168.")
+  ) {
+    return true;
+  }
+
+  const parts = host.split(".").map((part) => Number(part));
+  return parts.length === 4 && parts.every(Number.isInteger) && parts[0] === 172 && parts[1] >= 16 && parts[1] <= 31;
+}
+
+function parsePublicHttpUrl(value: string) {
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+
+  let url: URL;
+  try {
+    url = new URL(trimmed);
+  } catch {
+    throw new Error("URL do empreendimento inválida.");
+  }
+
+  if (!["http:", "https:"].includes(url.protocol)) {
+    throw new Error("Use uma URL iniciando com http:// ou https://.");
+  }
+
+  if (isPrivateHost(url.hostname)) {
+    throw new Error("Essa URL não pode ser acessada pelo scraper por segurança.");
+  }
+
+  return url;
+}
+
+function firstSrcFromSrcset(value: string) {
+  return value
+    .split(",")
+    .map((item) => item.trim().split(/\s+/)[0])
+    .find(Boolean) ?? "";
+}
+
+function resolvePageUrl(value: string | undefined, baseUrl: URL) {
+  if (!value) return "";
+  if (value.startsWith("data:") || value.startsWith("blob:")) return "";
+
+  try {
+    return new URL(value, baseUrl).toString();
+  } catch {
+    return "";
+  }
+}
+
+function parseDimension(value: string | undefined) {
+  if (!value) return null;
+  const parsed = Number(String(value).replace(/[^\d.]/g, ""));
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+}
+
+function cleanScrapedText(value: string) {
+  return value
+    .replace(/\s+/g, " ")
+    .replace(/(\.|\?|!)\s+/g, "$1\n")
+    .trim();
+}
+
+async function readLimitedText(response: Response, maxBytes: number) {
+  if (!response.body) return response.text();
+
+  const reader = response.body.getReader();
+  const chunks: Uint8Array[] = [];
+  let total = 0;
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    if (!value) continue;
+
+    total += value.byteLength;
+    if (total > maxBytes) {
+      await reader.cancel();
+      throw new Error("A página é grande demais para leitura automática.");
+    }
+
+    chunks.push(value);
+  }
+
+  return new TextDecoder("utf-8").decode(Buffer.concat(chunks));
+}
+
+function collectImageCandidate(
+  candidates: Map<string, WebImageCandidate>,
+  url: string,
+  data: Partial<Omit<WebImageCandidate, "url">>
+) {
+  if (!url || candidates.has(url)) return;
+  if (/\.(svg|ico)(\?|#|$)/i.test(url)) return;
+
+  candidates.set(url, {
+    url,
+    alt: data.alt?.trim() ?? "",
+    title: data.title?.trim() ?? "",
+    width: data.width ?? null,
+    height: data.height ?? null,
+    source: data.source?.trim() ?? "html"
+  });
+}
+
+async function scrapeDevelopmentPage(sourceUrlValue: string) {
+  const sourceUrl = parsePublicHttpUrl(sourceUrlValue);
+  if (!sourceUrl) {
+    return { text: "", images: [] as WebImageCandidate[], finalUrl: null as string | null };
+  }
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), SCRAPE_TIMEOUT_MS);
+
+  try {
+    const response = await fetch(sourceUrl, {
+      signal: controller.signal,
+      headers: {
+        Accept: "text/html,application/xhtml+xml",
+        "User-Agent": "PedroSoaresCRM/1.0 (+https://www.pedrosoaresimoveis.com.br)"
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`Não consegui ler a página informada. Status ${response.status}.`);
+    }
+
+    const contentType = response.headers.get("content-type") ?? "";
+    if (contentType && !contentType.includes("text/html") && !contentType.includes("application/xhtml+xml")) {
+      throw new Error("A URL informada não retornou uma página HTML.");
+    }
+
+    const finalUrl = new URL(response.url || sourceUrl.toString());
+    if (isPrivateHost(finalUrl.hostname)) {
+      throw new Error("A página redirecionou para uma URL bloqueada por segurança.");
+    }
+
+    const html = await readLimitedText(response, MAX_SCRAPE_HTML_BYTES);
+    const $ = cheerio.load(html);
+    const images = new Map<string, WebImageCandidate>();
+
+    const title = $("title").first().text().trim();
+    const h1 = $("h1").first().text().trim();
+    const metaDescription = $('meta[name="description"]').attr("content")?.trim() ?? "";
+    const ogTitle = $('meta[property="og:title"]').attr("content")?.trim() ?? "";
+    const ogDescription = $('meta[property="og:description"]').attr("content")?.trim() ?? "";
+    const ogImage = resolvePageUrl($('meta[property="og:image"]').attr("content"), finalUrl);
+    collectImageCandidate(images, ogImage, { alt: ogTitle || title || h1, source: "og:image" });
+
+    $("script[type='application/ld+json']").each((_, element) => {
+      const scriptText = $(element).text().trim();
+      if (scriptText.length > 30) {
+        $(element).replaceWith(`\nJSON-LD: ${scriptText}\n`);
+      }
+    });
+
+    $("img").each((_, element) => {
+      const node = $(element);
+      const rawSrc =
+        node.attr("src") ||
+        node.attr("data-src") ||
+        node.attr("data-lazy-src") ||
+        node.attr("data-original") ||
+        firstSrcFromSrcset(node.attr("srcset") ?? node.attr("data-srcset") ?? "");
+      const imageUrl = resolvePageUrl(rawSrc, finalUrl);
+      collectImageCandidate(images, imageUrl, {
+        alt: node.attr("alt") ?? "",
+        title: node.attr("title") ?? "",
+        width: parseDimension(node.attr("width")),
+        height: parseDimension(node.attr("height")),
+        source: "img"
+      });
+    });
+
+    $("source").each((_, element) => {
+      const node = $(element);
+      const imageUrl = resolvePageUrl(firstSrcFromSrcset(node.attr("srcset") ?? ""), finalUrl);
+      collectImageCandidate(images, imageUrl, {
+        alt: node.closest("picture").find("img").attr("alt") ?? "",
+        title: "",
+        width: null,
+        height: null,
+        source: "picture"
+      });
+    });
+
+    $("script, style, noscript, iframe, svg, form, nav, footer").remove();
+    const bodyText = cleanScrapedText($("body").text());
+    const imageList = Array.from(images.values())
+      .slice(0, MAX_WEB_IMAGE_CANDIDATES)
+      .map((image, index) => {
+        const label = [image.alt, image.title].filter(Boolean).join(" | ");
+        const size = image.width || image.height ? ` | ${image.width ?? "?"}x${image.height ?? "?"}` : "";
+        return `${index + 1}. ${image.url}${label ? ` | ${label}` : ""}${size}`;
+      })
+      .join("\n");
+
+    const text = normalizeSourceText(
+      [
+        `Fonte web: ${finalUrl.toString()}`,
+        h1 ? `H1: ${h1}` : "",
+        title ? `Title: ${title}` : "",
+        metaDescription ? `Meta description: ${metaDescription}` : "",
+        ogTitle ? `OG title: ${ogTitle}` : "",
+        ogDescription ? `OG description: ${ogDescription}` : "",
+        bodyText ? `Texto da pagina:\n${bodyText}` : "",
+        imageList ? `Imagens candidatas da pagina:\n${imageList}` : ""
+      ]
+        .filter(Boolean)
+        .join("\n\n")
+    );
+
+    return {
+      text,
+      images: Array.from(images.values()).slice(0, MAX_WEB_IMAGE_CANDIDATES),
+      finalUrl: finalUrl.toString()
+    };
+  } catch (error) {
+    if (error instanceof Error && error.name === "AbortError") {
+      throw new Error("Tempo esgotado ao ler a página do empreendimento.");
+    }
+
+    throw error;
+  } finally {
+    clearTimeout(timeout);
+  }
 }
 
 function extractResponseText(payload: unknown) {
@@ -410,6 +665,9 @@ Regras:
 - Use cropWidth/cropHeight null somente quando a pagina inteira for o proprio elemento visual.
 - Retorne shouldAttach false para paginas sem valor comercial, puramente textuais, sumarios, disclaimers, tabelas pouco legiveis ou quando nao houver recorte util.
 - A pagina em mediaCandidates deve ser o numero da pagina renderizada no PDF.
+- Quando o material vier de uma pagina web, use as imagens listadas em "Imagens candidatas da pagina".
+- Para imagens de pagina web, page deve ser null, imageUrl deve copiar exatamente a URL candidata, e cropX/cropY/cropWidth/cropHeight devem ser null.
+- Nao invente URLs de imagem. Se nenhuma imagem candidata for claramente util, retorne mediaCandidates vazio.
 
 Paginas visuais enviadas: ${visualPageCount}.
 
@@ -475,6 +733,10 @@ async function readSourceContent(request: Request): Promise<AiSourceContent> {
   if (contentType.includes("multipart/form-data")) {
     const formData = await request.formData();
     const pastedText = normalizeSourceText(String(formData.get("text") ?? ""));
+    const sourceUrlValue = String(formData.get("sourceUrl") ?? "");
+    const scrapedPage = sourceUrlValue.trim()
+      ? await scrapeDevelopmentPage(sourceUrlValue)
+      : { text: "", images: [] as WebImageCandidate[], finalUrl: null };
     const uploaded = formData.get("file");
     let fileText = "";
 
@@ -496,26 +758,37 @@ async function readSourceContent(request: Request): Promise<AiSourceContent> {
         }
 
         return {
-          text: normalizeSourceText([pastedText, fileText].filter(Boolean).join("\n\n")),
-          visualPages
+          text: normalizeSourceText([pastedText, scrapedPage.text, fileText].filter(Boolean).join("\n\n")),
+          visualPages,
+          webImages: scrapedPage.images,
+          sourceUrl: scrapedPage.finalUrl
         };
       } else if (isTextFile(uploaded, fileName)) {
         fileText = normalizeSourceText(await uploaded.text());
       } else {
-        throw new Error("Envie um arquivo .txt, .pdf textual ou cole o texto do material.");
+        throw new Error("Envie um arquivo .txt, .pdf textual, URL ou cole o texto do material.");
       }
     }
 
     return {
-      text: normalizeSourceText([pastedText, fileText].filter(Boolean).join("\n\n")),
-      visualPages: []
+      text: normalizeSourceText([pastedText, scrapedPage.text, fileText].filter(Boolean).join("\n\n")),
+      visualPages: [],
+      webImages: scrapedPage.images,
+      sourceUrl: scrapedPage.finalUrl
     };
   }
 
   const body = await request.json().catch(() => null);
+  const sourceUrlValue = typeof body?.sourceUrl === "string" ? body.sourceUrl : "";
+  const scrapedPage = sourceUrlValue.trim()
+    ? await scrapeDevelopmentPage(sourceUrlValue)
+    : { text: "", images: [] as WebImageCandidate[], finalUrl: null };
+
   return {
-    text: normalizeSourceText(typeof body?.text === "string" ? body.text : ""),
-    visualPages: []
+    text: normalizeSourceText([typeof body?.text === "string" ? body.text : "", scrapedPage.text].filter(Boolean).join("\n\n")),
+    visualPages: [],
+    webImages: scrapedPage.images,
+    sourceUrl: scrapedPage.finalUrl
   };
 }
 
@@ -545,6 +818,52 @@ function dataUrlToBuffer(dataUrl: string) {
 
 function pngDataUrl(buffer: Buffer) {
   return `data:image/png;base64,${buffer.toString("base64")}`;
+}
+
+async function fetchImageAsDataUrl(imageUrl: string) {
+  const parsed = parsePublicHttpUrl(imageUrl);
+  if (!parsed) throw new Error("URL de imagem inválida.");
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), SCRAPE_TIMEOUT_MS);
+
+  try {
+    const response = await fetch(parsed, {
+      signal: controller.signal,
+      headers: {
+        Accept: "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
+        "User-Agent": "PedroSoaresCRM/1.0 (+https://www.pedrosoaresimoveis.com.br)"
+      }
+    });
+
+    if (!response.ok) throw new Error("Imagem indisponível.");
+
+    const contentType = response.headers.get("content-type")?.split(";")[0]?.trim() || "image/jpeg";
+    if (!contentType.startsWith("image/") || contentType.includes("svg")) {
+      throw new Error("Formato de imagem não suportado.");
+    }
+
+    const length = Number(response.headers.get("content-length") ?? 0);
+    if (length > MAX_SCRAPED_IMAGE_BYTES) {
+      throw new Error("Imagem muito grande.");
+    }
+
+    const arrayBuffer = await response.arrayBuffer();
+    if (arrayBuffer.byteLength > MAX_SCRAPED_IMAGE_BYTES) {
+      throw new Error("Imagem muito grande.");
+    }
+
+    const buffer = Buffer.from(arrayBuffer);
+    const metadata = await sharp(buffer).metadata().catch(() => null);
+
+    return {
+      dataUrl: `data:${contentType};base64,${buffer.toString("base64")}`,
+      width: metadata?.width ?? null,
+      height: metadata?.height ?? null
+    };
+  } finally {
+    clearTimeout(timeout);
+  }
 }
 
 function getCropRect(candidate: z.infer<typeof aiAutofillMediaCandidateSchema>, page: VisualPdfPage) {
@@ -646,27 +965,48 @@ async function cropVisualPage(
 
 async function attachMediaCandidateDataUrls(
   candidates: z.infer<typeof aiAutofillMediaCandidateSchema>[],
-  visualPages: VisualPdfPage[]
+  visualPages: VisualPdfPage[],
+  webImages: WebImageCandidate[]
 ) {
   const pageMap = new Map(visualPages.map((page) => [page.pageNumber, page]));
+  const webImageMap = new Map(webImages.map((image) => [image.url, image]));
   const hydratedCandidates = await Promise.all(
     candidates
-      .filter((candidate) => candidate.shouldAttach !== false && candidate.page !== null)
+      .filter((candidate) => candidate.shouldAttach !== false && (candidate.page !== null || candidate.imageUrl))
       .slice(0, MAX_MEDIA_CANDIDATES)
       .map(async (candidate) => {
-        const page = pageMap.get(Number(candidate.page));
-        if (!page) return null;
+        if (candidate.page !== null) {
+          const page = pageMap.get(Number(candidate.page));
+          if (!page) return null;
 
-        const image = await cropVisualPage(candidate, page);
+          const image = await cropVisualPage(candidate, page);
+          return {
+            ...candidate,
+            kind: candidate.kind ?? "GALLERY",
+            category: candidate.category ?? "OUTROS",
+            dataUrl: image.dataUrl,
+            width: image.width,
+            height: image.height,
+            cropApplied: image.cropApplied,
+            crop: image.crop
+          };
+        }
+
+        const imageUrl = candidate.imageUrl ? webImageMap.get(candidate.imageUrl)?.url : null;
+        if (!imageUrl) return null;
+
+        const image = await fetchImageAsDataUrl(imageUrl).catch(() => null);
+        if (!image) return null;
+
         return {
           ...candidate,
           kind: candidate.kind ?? "GALLERY",
           category: candidate.category ?? "OUTROS",
           dataUrl: image.dataUrl,
-          width: image.width,
-          height: image.height,
-          cropApplied: image.cropApplied,
-          crop: image.crop
+          width: image.width ?? webImageMap.get(imageUrl)?.width ?? null,
+          height: image.height ?? webImageMap.get(imageUrl)?.height ?? null,
+          cropApplied: false,
+          crop: null
         };
       })
   );
@@ -690,7 +1030,7 @@ export async function POST(request: Request) {
   }
 
   if (!source.text && !source.visualPages.length) {
-    return fail("Envie um texto ou arquivo .txt/.pdf para preenchimento.", 400);
+    return fail("Envie uma URL, texto ou arquivo .txt/.pdf para preenchimento.", 400);
   }
 
   if (source.text.length > MAX_SOURCE_CHARS) {
@@ -753,7 +1093,7 @@ export async function POST(request: Request) {
   return ok({
     autofill: {
       ...parsed.data,
-      mediaCandidates: await attachMediaCandidateDataUrls(parsed.data.mediaCandidates, source.visualPages)
+      mediaCandidates: await attachMediaCandidateDataUrls(parsed.data.mediaCandidates, source.visualPages, source.webImages)
     }
   });
 }
