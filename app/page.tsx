@@ -1,7 +1,7 @@
 import { PropertyPurpose, PropertyType } from "@prisma/client";
 import Link from "next/link";
-import { listHighlightedDevelopments } from "@/lib/data/developments";
-import { developmentStageOptions, getDevelopmentStageLabel } from "@/lib/development-investment";
+import { developmentPublicStageLabels, listHighlightedDevelopments } from "@/lib/data/developments";
+import { getDevelopmentStageLabel } from "@/lib/development-investment";
 import { listPublicProperties } from "@/lib/data/properties";
 import { formatCurrencyBRL } from "@/lib/utils";
 
@@ -17,8 +17,12 @@ type HomePropertyCard = {
   bedrooms: number | null;
   bathrooms: number | null;
   areaM2: number | null;
+  purpose: PropertyPurpose;
+  type: PropertyType;
   purposeLabel: string;
   typeLabel: string;
+  isAuctionOpportunity: boolean;
+  hasAuctionCase: boolean;
   imageUrl: string;
 };
 
@@ -34,7 +38,13 @@ type FeaturedArea = {
   district: string;
   city: string;
   aliases: string[];
-  fallbackCount: number;
+  imageUrl: string;
+};
+
+type CategoryCard = {
+  label: string;
+  type: PropertyType;
+  count: number;
   imageUrl: string;
 };
 
@@ -54,137 +64,46 @@ const typeLabelMap: Record<PropertyType, string> = {
   RURAL: "Rural"
 };
 
-const fallbackPropertyCards: HomePropertyCard[] = [
-  {
-    id: "fallback-1",
-    href: "/imoveis/prontos",
-    title: "Casa de alto padrão no Plano Diretor Sul",
-    city: "Palmas",
-    district: "Plano Diretor Sul",
-    price: 1850000,
-    bedrooms: 4,
-    bathrooms: 5,
-    areaM2: 320,
-    purposeLabel: "Venda",
-    typeLabel: "Casa",
-    imageUrl: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=1600&auto=format&fit=crop"
-  },
-  {
-    id: "fallback-2",
-    href: "/imoveis/prontos",
-    title: "Apartamento com vista e varanda gourmet",
-    city: "Palmas",
-    district: "Plano Diretor Norte",
-    price: 980000,
-    bedrooms: 3,
-    bathrooms: 3,
-    areaM2: 142,
-    purposeLabel: "Venda",
-    typeLabel: "Apartamento",
-    imageUrl: "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?q=80&w=1600&auto=format&fit=crop"
-  },
-  {
-    id: "fallback-3",
-    href: "/imoveis/prontos",
-    title: "Cobertura duplex para moradia premium",
-    city: "Palmas",
-    district: "Jardins",
-    price: 1290000,
-    bedrooms: 3,
-    bathrooms: 4,
-    areaM2: 188,
-    purposeLabel: "Venda",
-    typeLabel: "Apartamento",
-    imageUrl: "https://images.unsplash.com/photo-1600210492493-0946911123ea?q=80&w=1600&auto=format&fit=crop"
-  },
-  {
-    id: "fallback-4",
-    href: "/imoveis/prontos?purpose=LOCACAO",
-    title: "Apartamento mobiliado próximo ao centro",
-    city: "Palmas",
-    district: "Centro",
-    price: 4200,
-    bedrooms: 2,
-    bathrooms: 2,
-    areaM2: 86,
-    purposeLabel: "Locação",
-    typeLabel: "Apartamento",
-    imageUrl: "https://images.unsplash.com/photo-1494526585095-c41746248156?q=80&w=1600&auto=format&fit=crop"
-  },
-  {
-    id: "fallback-5",
-    href: "/imoveis/leilao",
-    title: "Oportunidade em leilão com margem estimada",
-    city: "Palmas",
-    district: "Taquaralto",
-    price: 310000,
-    bedrooms: 3,
-    bathrooms: 2,
-    areaM2: 144,
-    purposeLabel: "Leilão",
-    typeLabel: "Casa",
-    imageUrl: "https://images.unsplash.com/photo-1568605114967-8130f3a36994?q=80&w=1600&auto=format&fit=crop"
-  },
-  {
-    id: "fallback-6",
-    href: "/imoveis/prontos?purpose=LOCACAO",
-    title: "Casa compacta para locação residencial",
-    city: "Palmas",
-    district: "Aureny III",
-    price: 3200,
-    bedrooms: 3,
-    bathrooms: 2,
-    areaM2: 120,
-    purposeLabel: "Locação",
-    typeLabel: "Casa",
-    imageUrl: "https://images.unsplash.com/photo-1600566752355-35792bedcfea?q=80&w=1600&auto=format&fit=crop"
-  }
-];
-
 const featuredAreas: FeaturedArea[] = [
   {
     district: "Plano Diretor Sul",
     city: "Palmas",
     aliases: ["plano diretor sul", "plano diretor expansao sul"],
-    fallbackCount: 12,
     imageUrl: "/brand/areas/plano-diretor-sul.png"
   },
   {
     district: "Plano Diretor Norte",
     city: "Palmas",
     aliases: ["plano diretor norte", "103 norte", "104 norte"],
-    fallbackCount: 9,
     imageUrl: "/brand/areas/plano-diretor-norte.png"
   },
   {
     district: "Centro",
     city: "Palmas",
     aliases: ["centro"],
-    fallbackCount: 7,
     imageUrl: "/brand/areas/centro.png"
   },
   {
     district: "Taquaralto",
     city: "Palmas",
     aliases: ["taquaralto", "taquari"],
-    fallbackCount: 8,
     imageUrl: "/brand/areas/taquaralto-aureny.png"
   },
   {
     district: "Orla da Graciosa",
     city: "Palmas",
     aliases: ["orla da graciosa", "graciosa", "praia graciosa"],
-    fallbackCount: 6,
     imageUrl: "/brand/areas/orla-graciosa.png"
   },
   {
-    district: "Jardim Aurenny",
+    district: "Jardim Aureny",
     city: "Palmas",
     aliases: ["jardim aureny", "aureny", "aureny iii", "aureny iv"],
-    fallbackCount: 8,
     imageUrl: "/brand/areas/taquaralto-aureny.png"
   }
 ];
+
+const propertyTypeOrder: PropertyType[] = ["CASA", "APARTAMENTO", "LOTE", "COMERCIAL", "RURAL"];
 
 function normalizePropertyCard(property: {
   id: string;
@@ -198,6 +117,8 @@ function normalizePropertyCard(property: {
   areaM2Value: number | null;
   purpose: PropertyPurpose;
   type: PropertyType;
+  isAuctionOpportunity?: boolean | null;
+  auctionCase?: unknown | null;
   media?: ReadonlyArray<{ url: string }>;
 }) {
   return {
@@ -210,35 +131,20 @@ function normalizePropertyCard(property: {
     bedrooms: property.bedrooms,
     bathrooms: property.bathrooms,
     areaM2: property.areaM2Value,
+    purpose: property.purpose,
+    type: property.type,
     purposeLabel: purposeLabelMap[property.purpose],
     typeLabel: typeLabelMap[property.type],
+    isAuctionOpportunity: Boolean(property.isAuctionOpportunity),
+    hasAuctionCase: Boolean(property.auctionCase),
     imageUrl:
       property.media?.[0]?.url ??
-      "https://images.unsplash.com/photo-1600607687644-c7f34b5e7885?q=80&w=1600&auto=format&fit=crop"
+      "/brand/logo-light-bg.png"
   } satisfies HomePropertyCard;
 }
 
-function withFallback(cards: HomePropertyCard[], minLength: number) {
-  return withFallbackFrom(cards, minLength, fallbackPropertyCards);
-}
-
-function withFallbackFrom(cards: HomePropertyCard[], minLength: number, pool: HomePropertyCard[]) {
-  if (cards.length >= minLength) return cards;
-
-  const merged = [...cards];
-  const source = pool.length ? pool : fallbackPropertyCards;
-  let index = 0;
-  while (merged.length < minLength) {
-    const item = source[index % source.length];
-    merged.push({ ...item, id: `${item.id}-clone-${merged.length}` });
-    index += 1;
-  }
-
-  return merged;
-}
-
 function districtKey(city: string, district: string) {
-  return `${city}-${district}`.toLowerCase().replace(/\s+/g, "-");
+  return `${normalizeLocation(city)}-${normalizeLocation(district)}`.replace(/\s+/g, "-");
 }
 
 function normalizeLocation(value: string) {
@@ -254,38 +160,82 @@ function matchesDistrict(district: string, aliases: string[]) {
   return aliases.some((alias) => normalizedDistrict.includes(normalizeLocation(alias)));
 }
 
-function buildAreaCards(
-  properties: Array<{
-    district: string;
-    city: string;
-  }>,
-  developments: Array<{
-    district: string;
-    city: string;
-  }>
-) {
-  const allLocations = [...properties, ...developments];
-
-  return featuredAreas.map((area) => {
-    const count = allLocations.filter((location) => {
-      const sameCity = normalizeLocation(location.city) === normalizeLocation(area.city);
-      return sameCity && matchesDistrict(location.district, area.aliases);
-    }).length;
-
-    return {
-      key: districtKey(area.city, area.district),
-      district: area.district,
-      city: area.city,
-      count: count || area.fallbackCount,
-      imageUrl: area.imageUrl
-    } satisfies AreaCard;
+function getFeaturedArea(city: string, district: string) {
+  return featuredAreas.find((area) => {
+    const sameCity = normalizeLocation(city) === normalizeLocation(area.city);
+    return sameCity && matchesDistrict(district, area.aliases);
   });
+}
+
+function isAuctionCard(property: HomePropertyCard) {
+  return property.purpose === "LEILAO" || property.isAuctionOpportunity || property.hasAuctionCase;
+}
+
+function buildAreaCards(properties: HomePropertyCard[]) {
+  const groups = new Map<string, AreaCard & { rank: number }>();
+
+  for (const property of properties) {
+    const key = districtKey(property.city, property.district);
+    const featuredArea = getFeaturedArea(property.city, property.district);
+    const existing = groups.get(key);
+
+    if (existing) {
+      existing.count += 1;
+      continue;
+    }
+
+    groups.set(key, {
+      key,
+      district: property.district,
+      city: property.city,
+      count: 1,
+      imageUrl: featuredArea?.imageUrl ?? property.imageUrl,
+      rank: featuredArea ? featuredAreas.indexOf(featuredArea) : Number.MAX_SAFE_INTEGER
+    });
+  }
+
+  return [...groups.values()]
+    .sort((a, b) => {
+      if (a.rank !== b.rank) return a.rank - b.rank;
+      if (a.count !== b.count) return b.count - a.count;
+      return `${a.city} ${a.district}`.localeCompare(`${b.city} ${b.district}`);
+    })
+    .slice(0, 6)
+    .map(({ key, district, city, count, imageUrl }) => ({ key, district, city, count, imageUrl }));
+}
+
+function buildCategoryCards(properties: HomePropertyCard[]) {
+  const categoryMap = new Map<PropertyType, CategoryCard>();
+
+  for (const property of properties) {
+    const existing = categoryMap.get(property.type);
+
+    if (existing) {
+      existing.count += 1;
+      continue;
+    }
+
+    categoryMap.set(property.type, {
+      label: property.typeLabel,
+      type: property.type,
+      count: 1,
+      imageUrl: property.imageUrl
+    });
+  }
+
+  return [...categoryMap.values()].sort(
+    (a, b) => propertyTypeOrder.indexOf(a.type) - propertyTypeOrder.indexOf(b.type)
+  );
 }
 
 function getSearchMode(modeInput: string | string[] | undefined): SearchMode {
   if (modeInput === "planta") return "planta";
   if (modeInput === "leilao") return "leilao";
   return "prontos";
+}
+
+function formatCountLabel(count: number, singular: string, plural: string) {
+  return `${count} ${count === 1 ? singular : plural}`;
 }
 
 export default async function HomePage({
@@ -302,78 +252,16 @@ export default async function HomePage({
   ]);
 
   const allCards = propertiesRaw.map(normalizePropertyCard);
+  const readySaleCards = allCards.filter((card) => card.purpose === "VENDA" && !isAuctionCard(card));
 
-  const latestProperties = withFallback(allCards, 6).slice(0, 6);
-
-  const rentalFallback = fallbackPropertyCards.filter((card) => card.purposeLabel === "Locação");
-  const auctionFallback = fallbackPropertyCards.filter((card) => card.purposeLabel === "Leilão");
-
-  const rentalProperties = withFallbackFrom(
-    allCards.filter((card) => card.purposeLabel === "Locação"),
-    3,
-    rentalFallback
-  ).slice(0, 3);
-
-  const auctionCards = withFallbackFrom(
-    allCards.filter((card) => card.purposeLabel === "Leilão"),
-    3,
-    auctionFallback
-  ).slice(0, 3);
+  const latestProperties = allCards.slice(0, 6);
+  const rentalProperties = allCards.filter((card) => card.purpose === "LOCACAO").slice(0, 3);
+  const auctionCards = allCards.filter(isAuctionCard).slice(0, 3);
 
   const developmentCards = developmentsRaw.slice(0, 3);
 
-  const categoryMap = new Map<string, { label: string; count: number; imageUrl: string }>();
-  for (const card of latestProperties) {
-    const key = card.typeLabel;
-    const existing = categoryMap.get(key);
-    if (existing) {
-      existing.count += 1;
-    } else {
-      categoryMap.set(key, {
-        label: key,
-        count: 1,
-        imageUrl: card.imageUrl
-      });
-    }
-  }
-
-  const categoryCards = [...categoryMap.values()];
-  const fallbackCategories = [
-    {
-      label: "Casa",
-      count: 10,
-      imageUrl: "https://images.unsplash.com/photo-1600607687644-c7f34b5e7885?q=80&w=1400&auto=format&fit=crop"
-    },
-    {
-      label: "Apartamento",
-      count: 15,
-      imageUrl: "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?q=80&w=1400&auto=format&fit=crop"
-    },
-    {
-      label: "Comercial",
-      count: 4,
-      imageUrl: "https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=1400&auto=format&fit=crop"
-    },
-    {
-      label: "Lote",
-      count: 8,
-      imageUrl: "https://images.unsplash.com/photo-1505691938895-1758d7feb511?q=80&w=1400&auto=format&fit=crop"
-    },
-    {
-      label: "Rural",
-      count: 3,
-      imageUrl: "https://images.unsplash.com/photo-1467987506553-8f3916508521?q=80&w=1400&auto=format&fit=crop"
-    }
-  ];
-
-  for (const category of fallbackCategories) {
-    if (categoryCards.length >= 5) break;
-    if (!categoryCards.find((item) => item.label === category.label)) {
-      categoryCards.push(category);
-    }
-  }
-
-  const areaCards = buildAreaCards(propertiesRaw, developmentsRaw);
+  const categoryCards = buildCategoryCards(readySaleCards);
+  const areaCards = buildAreaCards(readySaleCards);
 
   const modeTabs: Array<{ key: SearchMode; label: string }> = [
     { key: "prontos", label: "Imóveis prontos" },
@@ -420,12 +308,12 @@ export default async function HomePage({
                 <summary>Mais filtros</summary>
                 <div className="wp-search-advanced-content">
                   <div>
-                    <label htmlFor="stage">Etapa</label>
-                    <select id="stage" name="stage" defaultValue="">
+                    <label htmlFor="publicStage">Status</label>
+                    <select id="publicStage" name="publicStage" defaultValue="">
                       <option value="">Todos</option>
-                      {developmentStageOptions.map((option) => (
-                        <option key={option.value} value={option.value}>
-                          {option.label}
+                      {Object.entries(developmentPublicStageLabels).map(([value, label]) => (
+                        <option key={value} value={value}>
+                          {label}
                         </option>
                       ))}
                     </select>
@@ -493,20 +381,28 @@ export default async function HomePage({
               Selecione bairros com maior oferta e oportunidades de negociação em Palmas.
             </p>
           </div>
-          <div className="wp-area-grid">
-            {areaCards.map((area) => (
-              <Link
-                key={area.key}
-                href={`/imoveis/prontos?city=${encodeURIComponent(area.city)}&district=${encodeURIComponent(area.district)}`}
-                className="wp-area-card"
-                style={{ backgroundImage: `linear-gradient(180deg, rgba(7, 13, 24, 0.08), rgba(7, 13, 24, 0.68)), url(${area.imageUrl})` }}
-              >
-                <span>{area.city}</span>
-                <h3>{area.district}</h3>
-                <strong>{area.count} imóveis</strong>
-              </Link>
-            ))}
-          </div>
+          {areaCards.length ? (
+            <div className="wp-area-grid">
+              {areaCards.map((area) => (
+                <Link
+                  key={area.key}
+                  href={`/imoveis/prontos?city=${encodeURIComponent(area.city)}&district=${encodeURIComponent(area.district)}`}
+                  className="wp-area-card"
+                  style={{ backgroundImage: `linear-gradient(180deg, rgba(7, 13, 24, 0.08), rgba(7, 13, 24, 0.68)), url(${area.imageUrl})` }}
+                >
+                  <span>{area.city}</span>
+                  <h3>{area.district}</h3>
+                  <strong>{formatCountLabel(area.count, "imóvel", "imóveis")}</strong>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <article className="card" style={{ padding: 16 }}>
+              <p className="text-card" style={{ margin: 0, color: "var(--text-muted)" }}>
+                Nenhuma região com imóveis disponíveis no backend.
+              </p>
+            </article>
+          )}
         </div>
       </section>
 
@@ -551,36 +447,44 @@ export default async function HomePage({
             </Link>
           </div>
 
-          <div className="wp-property-grid" style={{ marginTop: 20 }}>
-            {latestProperties.map((property) => (
-              <article key={property.id} className="wp-property-card">
-                <div
-                  className="wp-property-media"
-                  style={{
-                    backgroundImage: `linear-gradient(180deg, rgba(7, 13, 24, 0.06), rgba(7, 13, 24, 0.62)), url(${property.imageUrl})`
-                  }}
-                >
-                  <div className="wp-media-badges">
-                    <span className="badge">{property.purposeLabel}</span>
-                    <span className="badge">{property.typeLabel}</span>
+          {latestProperties.length ? (
+            <div className="wp-property-grid" style={{ marginTop: 20 }}>
+              {latestProperties.map((property) => (
+                <article key={property.id} className="wp-property-card">
+                  <div
+                    className="wp-property-media"
+                    style={{
+                      backgroundImage: `linear-gradient(180deg, rgba(7, 13, 24, 0.06), rgba(7, 13, 24, 0.62)), url(${property.imageUrl})`
+                    }}
+                  >
+                    <div className="wp-media-badges">
+                      <span className="badge">{property.purposeLabel}</span>
+                      <span className="badge">{property.typeLabel}</span>
+                    </div>
+                    <p>{property.city} • {property.district}</p>
                   </div>
-                  <p>{property.city} • {property.district}</p>
-                </div>
-                <div className="wp-property-body">
-                  <h3>{property.title}</h3>
-                  <p className="wp-price">{formatCurrencyBRL(property.price)}</p>
-                  <div className="wp-spec-row">
-                    <span>{property.bedrooms ?? "-"} quartos</span>
-                    <span>{property.bathrooms ?? "-"} banheiros</span>
-                    <span>{property.areaM2 ?? "-"} m²</span>
+                  <div className="wp-property-body">
+                    <h3>{property.title}</h3>
+                    <p className="wp-price">{formatCurrencyBRL(property.price)}</p>
+                    <div className="wp-spec-row">
+                      <span>{property.bedrooms ?? "-"} quartos</span>
+                      <span>{property.bathrooms ?? "-"} banheiros</span>
+                      <span>{property.areaM2 ?? "-"} m²</span>
+                    </div>
+                    <Link href={property.href} className="button button-primary" style={{ width: "100%" }}>
+                      Ver imóvel
+                    </Link>
                   </div>
-                  <Link href={property.href} className="button button-primary" style={{ width: "100%" }}>
-                    Ver imóvel
-                  </Link>
-                </div>
-              </article>
-            ))}
-          </div>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <article className="card" style={{ padding: 16, marginTop: 20 }}>
+              <p className="text-card" style={{ margin: 0, color: "var(--text-muted)" }}>
+                Nenhum imóvel disponível no backend.
+              </p>
+            </article>
+          )}
         </div>
       </section>
 
@@ -590,31 +494,29 @@ export default async function HomePage({
             <h2 className="section-title">Imóveis por categorias</h2>
             <p className="section-subtitle text-card">Explore o portfólio por tipo de ativo e perfil de compra.</p>
           </div>
-          <div className="wp-category-grid">
-            {categoryCards.slice(0, 5).map((category, index) => (
-              <Link
-                key={category.label}
-                href={`/imoveis/prontos?type=${encodeURIComponent(
-                  category.label === "Casa"
-                    ? "CASA"
-                    : category.label === "Apartamento"
-                      ? "APARTAMENTO"
-                      : category.label === "Lote"
-                        ? "LOTE"
-                        : category.label === "Comercial"
-                          ? "COMERCIAL"
-                          : "RURAL"
-                )}`}
-                className={`wp-category-card ${index === 0 ? "large" : ""}`}
-                style={{
-                  backgroundImage: `linear-gradient(180deg, rgba(7, 13, 24, 0.08), rgba(7, 13, 24, 0.66)), url(${category.imageUrl})`
-                }}
-              >
-                <h3>{category.label}</h3>
-                <p>{category.count} listagens</p>
-              </Link>
-            ))}
-          </div>
+          {categoryCards.length ? (
+            <div className="wp-category-grid">
+              {categoryCards.slice(0, 5).map((category, index) => (
+                <Link
+                  key={category.type}
+                  href={`/imoveis/prontos?type=${encodeURIComponent(category.type)}`}
+                  className={`wp-category-card ${index === 0 ? "large" : ""}`}
+                  style={{
+                    backgroundImage: `linear-gradient(180deg, rgba(7, 13, 24, 0.08), rgba(7, 13, 24, 0.66)), url(${category.imageUrl})`
+                  }}
+                >
+                  <h3>{category.label}</h3>
+                  <p>{formatCountLabel(category.count, "listagem", "listagens")}</p>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <article className="card" style={{ padding: 16 }}>
+              <p className="text-card" style={{ margin: 0, color: "var(--text-muted)" }}>
+                Nenhuma categoria com imóveis prontos à venda no backend.
+              </p>
+            </article>
+          )}
         </div>
       </section>
 
@@ -624,35 +526,43 @@ export default async function HomePage({
             <h2 className="section-title">Aluguel</h2>
             <p className="section-subtitle text-card">Ativos residenciais e comerciais com locação ativa.</p>
           </div>
-          <div className="wp-property-grid wp-property-grid-3" style={{ marginTop: 20 }}>
-            {rentalProperties.map((property) => (
-              <article key={property.id} className="wp-property-card compact">
-                <div
-                  className="wp-property-media"
-                  style={{
-                    backgroundImage: `linear-gradient(180deg, rgba(7, 13, 24, 0.06), rgba(7, 13, 24, 0.62)), url(${property.imageUrl})`
-                  }}
-                >
-                  <div className="wp-media-badges">
-                    <span className="badge">Locação</span>
+          {rentalProperties.length ? (
+            <div className="wp-property-grid wp-property-grid-3" style={{ marginTop: 20 }}>
+              {rentalProperties.map((property) => (
+                <article key={property.id} className="wp-property-card compact">
+                  <div
+                    className="wp-property-media"
+                    style={{
+                      backgroundImage: `linear-gradient(180deg, rgba(7, 13, 24, 0.06), rgba(7, 13, 24, 0.62)), url(${property.imageUrl})`
+                    }}
+                  >
+                    <div className="wp-media-badges">
+                      <span className="badge">Locação</span>
+                    </div>
+                    <p>{property.city} • {property.district}</p>
                   </div>
-                  <p>{property.city} • {property.district}</p>
-                </div>
-                <div className="wp-property-body">
-                  <h3>{property.title}</h3>
-                  <p className="wp-price">{formatCurrencyBRL(property.price)} / mês</p>
-                  <div className="wp-spec-row">
-                    <span>{property.bedrooms ?? "-"} quartos</span>
-                    <span>{property.bathrooms ?? "-"} banheiros</span>
-                    <span>{property.areaM2 ?? "-"} m²</span>
+                  <div className="wp-property-body">
+                    <h3>{property.title}</h3>
+                    <p className="wp-price">{formatCurrencyBRL(property.price)} / mês</p>
+                    <div className="wp-spec-row">
+                      <span>{property.bedrooms ?? "-"} quartos</span>
+                      <span>{property.bathrooms ?? "-"} banheiros</span>
+                      <span>{property.areaM2 ?? "-"} m²</span>
+                    </div>
+                    <Link href={property.href} className="button button-ghost" style={{ width: "100%" }}>
+                      Ver detalhes
+                    </Link>
                   </div>
-                  <Link href={property.href} className="button button-ghost" style={{ width: "100%" }}>
-                    Ver detalhes
-                  </Link>
-                </div>
-              </article>
-            ))}
-          </div>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <article className="card" style={{ padding: 16, marginTop: 20 }}>
+              <p className="text-card" style={{ margin: 0, color: "var(--text-muted)" }}>
+                Nenhum imóvel de locação disponível no backend.
+              </p>
+            </article>
+          )}
         </div>
       </section>
 
@@ -664,47 +574,56 @@ export default async function HomePage({
               Lançamentos com ficha técnica completa, cronograma, FAQ e captação de lead por empreendimento.
             </p>
           </div>
-          <div className="wp-property-grid wp-property-grid-3" style={{ marginTop: 20 }}>
-            {developmentCards.map((development) => {
-              const media =
-                development.media.find((item) => item.kind === "HERO")?.url ??
-                development.media.find((item) => item.kind === "GALLERY")?.url ??
-                "https://images.unsplash.com/photo-1460317442991-0ec209397118?q=80&w=1600&auto=format&fit=crop";
+          {developmentCards.length ? (
+            <div className="wp-property-grid wp-property-grid-3" style={{ marginTop: 20 }}>
+              {developmentCards.map((development) => {
+                const media =
+                  development.media.find((item) => item.isPrimary)?.url ??
+                  development.media.find((item) => item.kind === "HERO")?.url ??
+                  development.media.find((item) => item.kind === "GALLERY")?.url ??
+                  "/brand/logo-light-bg.png";
 
-              return (
-                <article key={development.id} className="wp-property-card compact">
-                  <div
-                    className="wp-property-media"
-                    style={{
-                      backgroundImage: `linear-gradient(180deg, rgba(7, 13, 24, 0.1), rgba(7, 13, 24, 0.68)), url(${media})`
-                    }}
-                  >
-                    <div className="wp-media-badges">
-                      <span className="badge">Lançamento</span>
-                      <span className="badge">{getDevelopmentStageLabel(development.stage)}</span>
+                return (
+                  <article key={development.id} className="wp-property-card compact">
+                    <div
+                      className="wp-property-media"
+                      style={{
+                        backgroundImage: `linear-gradient(180deg, rgba(7, 13, 24, 0.1), rgba(7, 13, 24, 0.68)), url(${media})`
+                      }}
+                    >
+                      <div className="wp-media-badges">
+                        <span className="badge">Lançamento</span>
+                        <span className="badge">{getDevelopmentStageLabel(development.stage)}</span>
+                      </div>
+                      <p>{development.city} • {development.district}</p>
                     </div>
-                    <p>{development.city} • {development.district}</p>
-                  </div>
-                  <div className="wp-property-body">
-                    <h3>{development.title}</h3>
-                    <p className="wp-price">
-                      A partir de{" "}
-                      {development.startingPriceNumber
-                        ? formatCurrencyBRL(development.startingPriceNumber)
-                        : "Sob consulta"}
-                    </p>
-                    <div className="wp-spec-row">
-                      <span>{development.bedroomsFrom ?? "-"} a {development.bedroomsTo ?? "-"} quartos</span>
-                      <span>{development.areaFromM2Number ?? "-"} a {development.areaToM2Number ?? "-"} m²</span>
+                    <div className="wp-property-body">
+                      <h3>{development.title}</h3>
+                      <p className="wp-price">
+                        A partir de{" "}
+                        {development.startingPriceNumber
+                          ? formatCurrencyBRL(development.startingPriceNumber)
+                          : "Sob consulta"}
+                      </p>
+                      <div className="wp-spec-row">
+                        <span>{development.bedroomsFrom ?? "-"} a {development.bedroomsTo ?? "-"} quartos</span>
+                        <span>{development.areaFromM2Number ?? "-"} a {development.areaToM2Number ?? "-"} m²</span>
+                      </div>
+                      <Link href={`/lancamentos/${development.slug}`} className="button button-primary" style={{ width: "100%" }}>
+                        Ver empreendimento
+                      </Link>
                     </div>
-                    <Link href={`/lancamentos/${development.slug}`} className="button button-primary" style={{ width: "100%" }}>
-                      Ver empreendimento
-                    </Link>
-                  </div>
-                </article>
-              );
-            })}
-          </div>
+                  </article>
+                );
+              })}
+            </div>
+          ) : (
+            <article className="card" style={{ padding: 16, marginTop: 20 }}>
+              <p className="text-card" style={{ margin: 0, color: "var(--text-muted)" }}>
+                Nenhum lançamento publicado no backend.
+              </p>
+            </article>
+          )}
         </div>
       </section>
 
@@ -717,36 +636,44 @@ export default async function HomePage({
             </p>
           </div>
 
-          <div className="wp-property-grid wp-property-grid-3" style={{ marginTop: 20 }}>
-            {auctionCards.map((property) => (
-              <article key={property.id} className="wp-property-card compact">
-                <div
-                  className="wp-property-media"
-                  style={{
-                    backgroundImage: `linear-gradient(180deg, rgba(7, 13, 24, 0.08), rgba(7, 13, 24, 0.7)), url(${property.imageUrl})`
-                  }}
-                >
-                  <div className="wp-media-badges">
-                    <span className="badge">Leilão</span>
-                    <span className="badge">Oportunidade</span>
+          {auctionCards.length ? (
+            <div className="wp-property-grid wp-property-grid-3" style={{ marginTop: 20 }}>
+              {auctionCards.map((property) => (
+                <article key={property.id} className="wp-property-card compact">
+                  <div
+                    className="wp-property-media"
+                    style={{
+                      backgroundImage: `linear-gradient(180deg, rgba(7, 13, 24, 0.08), rgba(7, 13, 24, 0.7)), url(${property.imageUrl})`
+                    }}
+                  >
+                    <div className="wp-media-badges">
+                      <span className="badge">Leilão</span>
+                      <span className="badge">Oportunidade</span>
+                    </div>
+                    <p>{property.city} • {property.district}</p>
                   </div>
-                  <p>{property.city} • {property.district}</p>
-                </div>
-                <div className="wp-property-body">
-                  <h3>{property.title}</h3>
-                  <p className="wp-price">{formatCurrencyBRL(property.price)}</p>
-                  <div className="wp-spec-row">
-                    <span>{property.bedrooms ?? "-"} quartos</span>
-                    <span>{property.bathrooms ?? "-"} banheiros</span>
-                    <span>{property.areaM2 ?? "-"} m²</span>
+                  <div className="wp-property-body">
+                    <h3>{property.title}</h3>
+                    <p className="wp-price">{formatCurrencyBRL(property.price)}</p>
+                    <div className="wp-spec-row">
+                      <span>{property.bedrooms ?? "-"} quartos</span>
+                      <span>{property.bathrooms ?? "-"} banheiros</span>
+                      <span>{property.areaM2 ?? "-"} m²</span>
+                    </div>
+                    <Link href={property.href} className="button button-ghost" style={{ width: "100%" }}>
+                      Analisar oportunidade
+                    </Link>
                   </div>
-                  <Link href={property.href} className="button button-ghost" style={{ width: "100%" }}>
-                    Analisar oportunidade
-                  </Link>
-                </div>
-              </article>
-            ))}
-          </div>
+                </article>
+              ))}
+            </div>
+          ) : (
+            <article className="card" style={{ padding: 16, marginTop: 20 }}>
+              <p className="text-card" style={{ margin: 0, color: "var(--text-muted)" }}>
+                Nenhuma oportunidade de leilão disponível no backend.
+              </p>
+            </article>
+          )}
         </div>
       </section>
 
