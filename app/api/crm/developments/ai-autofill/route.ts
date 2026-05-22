@@ -9,6 +9,8 @@ export const maxDuration = 60;
 const MAX_SOURCE_CHARS = 120_000;
 const MAX_PDF_BYTES = 20 * 1024 * 1024;
 const MAX_PDF_PAGES = 40;
+const MAX_VISUAL_PDF_PAGES = 6;
+const MAX_MEDIA_CANDIDATES = 8;
 const MIN_PDF_TEXT_CHARS = 80;
 const OPENAI_MODEL = process.env.OPENAI_AUTOFILL_MODEL || process.env.OPENAI_MODEL || "gpt-5.4-mini";
 
@@ -25,6 +27,8 @@ const stageValues = [
   "DELIVERED"
 ] as const;
 const publicationStatusValues = ["DRAFT", "REVIEW", "PUBLISHED", "ARCHIVED"] as const;
+const mediaKindValues = ["HERO", "GALLERY", "FLOORPLAN", "VIDEO", "PDF"] as const;
+const mediaCategoryValues = ["HERO", "FACHADA", "LAZER", "DECORADO", "PLANTA", "LOCALIZACAO", "OBRA", "OUTROS"] as const;
 const unitCategoryValues = [
   "STUDIO",
   "UM_QUARTO",
@@ -132,9 +136,20 @@ const aiAutofillUnitTypeSchema = z.object({
   position: nullableNumber
 });
 
+const aiAutofillMediaCandidateSchema = z.object({
+  page: nullableNumber,
+  kind: z.enum(mediaKindValues).nullable(),
+  category: z.enum(mediaCategoryValues).nullable(),
+  title: nullableString,
+  caption: nullableString,
+  confidence: nullableNumber,
+  shouldAttach: nullableBoolean
+});
+
 const aiAutofillResultSchema = z.object({
   fields: aiAutofillFieldsSchema,
   unitTypes: z.array(aiAutofillUnitTypeSchema),
+  mediaCandidates: z.array(aiAutofillMediaCandidateSchema),
   notes: z.array(z.string())
 });
 
@@ -274,13 +289,42 @@ const aiOutputJsonSchema = {
         ]
       }
     },
+    mediaCandidates: {
+      type: "array",
+      items: {
+        type: "object",
+        additionalProperties: false,
+        properties: {
+          page: { type: ["number", "null"] },
+          kind: { type: ["string", "null"], enum: [...mediaKindValues, null] },
+          category: { type: ["string", "null"], enum: [...mediaCategoryValues, null] },
+          title: { type: ["string", "null"] },
+          caption: { type: ["string", "null"] },
+          confidence: { type: ["number", "null"] },
+          shouldAttach: { type: ["boolean", "null"] }
+        },
+        required: ["page", "kind", "category", "title", "caption", "confidence", "shouldAttach"]
+      }
+    },
     notes: {
       type: "array",
       items: { type: "string" }
     }
   },
-  required: ["fields", "unitTypes", "notes"]
+  required: ["fields", "unitTypes", "mediaCandidates", "notes"]
 } as const;
+
+type VisualPdfPage = {
+  pageNumber: number;
+  dataUrl: string;
+  width: number;
+  height: number;
+};
+
+type AiSourceContent = {
+  text: string;
+  visualPages: VisualPdfPage[];
+};
 
 function normalizeSourceText(input: string) {
   return input.replace(/\r\n/g, "\n").trim();
@@ -318,7 +362,7 @@ function extractResponseText(payload: unknown) {
   return "";
 }
 
-function buildPrompt(sourceText: string) {
+function buildPrompt(sourceText: string, visualPageCount: number) {
   return `
 Extraia e normalize os dados de um empreendimento imobiliario a partir do texto abaixo.
 
@@ -335,19 +379,21 @@ Regras:
 - status deve ser "DRAFT" e isPublished deve ser false, salvo se o texto pedir publicacao imediata de forma explicita.
 - builderId deve ser null; a interface tentara vincular pelo nome da construtora.
 - Em unitTypes, inclua plantas, tipologias e faixas de preco detectadas. Se nao houver planta clara, retorne array vazio.
+- Em mediaCandidates, quando houver paginas renderizadas do PDF, indique paginas que valem anexar como imagem do empreendimento.
+- Para mediaCandidates, use kind HERO para capa/fachada forte, GALLERY para imagens gerais, FLOORPLAN para plantas, e category conforme o conteudo visual.
+- Retorne shouldAttach false para paginas sem valor comercial, puramente textuais, sumarios, disclaimers ou tabelas pouco legiveis.
+- A pagina em mediaCandidates deve ser o numero da pagina renderizada no PDF.
+
+Paginas visuais enviadas: ${visualPageCount}.
 
 Texto:
-${sourceText}
+${sourceText || "Sem texto extraido. Use as imagens das paginas enviadas para OCR visual e classificacao."}
 `.trim();
 }
 
-async function extractPdfText(file: File) {
-  if (file.size > MAX_PDF_BYTES) {
-    throw new Error("O PDF é muito grande para este preenchimento. Envie um arquivo de até 20 MB.");
-  }
-
+async function extractPdfTextFromBuffer(pdfBuffer: ArrayBuffer) {
   const parser = new PDFParse({
-    data: new Uint8Array(await file.arrayBuffer())
+    data: new Uint8Array(pdfBuffer.slice(0))
   });
 
   try {
@@ -372,7 +418,31 @@ async function extractPdfText(file: File) {
   }
 }
 
-async function readSourceText(request: Request) {
+async function renderPdfPagesForVision(pdfBuffer: ArrayBuffer) {
+  const parser = new PDFParse({
+    data: new Uint8Array(pdfBuffer.slice(0))
+  });
+
+  try {
+    const result = await parser.getScreenshot({
+      first: MAX_VISUAL_PDF_PAGES,
+      desiredWidth: 1024,
+      imageBuffer: false,
+      imageDataUrl: true
+    });
+
+    return result.pages.map((page) => ({
+      pageNumber: page.pageNumber,
+      dataUrl: page.dataUrl,
+      width: page.width,
+      height: page.height
+    }));
+  } finally {
+    await parser.destroy();
+  }
+}
+
+async function readSourceContent(request: Request): Promise<AiSourceContent> {
   const contentType = request.headers.get("content-type") || "";
 
   if (contentType.includes("multipart/form-data")) {
@@ -385,7 +455,23 @@ async function readSourceText(request: Request) {
       const fileName = uploaded.name.toLowerCase();
 
       if (isPdfFile(uploaded, fileName)) {
-        fileText = await extractPdfText(uploaded);
+        if (uploaded.size > MAX_PDF_BYTES) {
+          throw new Error("O PDF é muito grande para este preenchimento. Envie um arquivo de até 20 MB.");
+        }
+
+        const pdfBuffer = await uploaded.arrayBuffer();
+        const visualPages = await renderPdfPagesForVision(pdfBuffer);
+
+        try {
+          fileText = await extractPdfTextFromBuffer(pdfBuffer);
+        } catch (error) {
+          fileText = error instanceof Error ? `Observacao sobre o PDF: ${error.message}` : "";
+        }
+
+        return {
+          text: normalizeSourceText([pastedText, fileText].filter(Boolean).join("\n\n")),
+          visualPages
+        };
       } else if (isTextFile(uploaded, fileName)) {
         fileText = normalizeSourceText(await uploaded.text());
       } else {
@@ -393,11 +479,56 @@ async function readSourceText(request: Request) {
       }
     }
 
-    return normalizeSourceText([pastedText, fileText].filter(Boolean).join("\n\n"));
+    return {
+      text: normalizeSourceText([pastedText, fileText].filter(Boolean).join("\n\n")),
+      visualPages: []
+    };
   }
 
   const body = await request.json().catch(() => null);
-  return normalizeSourceText(typeof body?.text === "string" ? body.text : "");
+  return {
+    text: normalizeSourceText(typeof body?.text === "string" ? body.text : ""),
+    visualPages: []
+  };
+}
+
+function buildInputContent(source: AiSourceContent) {
+  return [
+    {
+      type: "input_text",
+      text: buildPrompt(source.text, source.visualPages.length)
+    },
+    ...source.visualPages.map((page) => ({
+      type: "input_image",
+      image_url: page.dataUrl,
+      detail: "low"
+    }))
+  ];
+}
+
+function attachMediaCandidateDataUrls(
+  candidates: z.infer<typeof aiAutofillMediaCandidateSchema>[],
+  visualPages: VisualPdfPage[]
+) {
+  const pageMap = new Map(visualPages.map((page) => [page.pageNumber, page]));
+
+  return candidates
+    .filter((candidate) => candidate.shouldAttach !== false && candidate.page !== null)
+    .map((candidate) => {
+      const page = pageMap.get(Number(candidate.page));
+      if (!page) return null;
+
+      return {
+        ...candidate,
+        kind: candidate.kind ?? "GALLERY",
+        category: candidate.category ?? "OUTROS",
+        dataUrl: page.dataUrl,
+        width: page.width,
+        height: page.height
+      };
+    })
+    .filter((candidate): candidate is NonNullable<typeof candidate> => Boolean(candidate))
+    .slice(0, MAX_MEDIA_CANDIDATES);
 }
 
 export async function POST(request: Request) {
@@ -408,18 +539,18 @@ export async function POST(request: Request) {
     return fail("OPENAI_API_KEY não configurada no ambiente do servidor.", 500);
   }
 
-  let sourceText = "";
+  let source: AiSourceContent;
   try {
-    sourceText = await readSourceText(request);
+    source = await readSourceContent(request);
   } catch (error) {
     return fail(error instanceof Error ? error.message : "Arquivo inválido.", 400);
   }
 
-  if (!sourceText) {
-    return fail("Envie um texto ou arquivo .txt para preenchimento.", 400);
+  if (!source.text && !source.visualPages.length) {
+    return fail("Envie um texto ou arquivo .txt/.pdf para preenchimento.", 400);
   }
 
-  if (sourceText.length > MAX_SOURCE_CHARS) {
+  if (source.text.length > MAX_SOURCE_CHARS) {
     return fail("O texto é muito grande para este preenchimento. Envie um arquivo menor ou divida o material.", 413);
   }
 
@@ -439,7 +570,7 @@ export async function POST(request: Request) {
         },
         {
           role: "user",
-          content: buildPrompt(sourceText)
+          content: buildInputContent(source)
         }
       ],
       text: {
@@ -476,5 +607,10 @@ export async function POST(request: Request) {
     return fail("A IA retornou campos fora do formato esperado.", 502, parsed.error.flatten());
   }
 
-  return ok({ autofill: parsed.data });
+  return ok({
+    autofill: {
+      ...parsed.data,
+      mediaCandidates: attachMediaCandidateDataUrls(parsed.data.mediaCandidates, source.visualPages)
+    }
+  });
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useMemo, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import { slugify } from "@/lib/crm/slug";
@@ -118,9 +119,23 @@ type AiAutofillUnitType = {
   position: number | null;
 };
 
+type AiAutofillMediaCandidate = {
+  page: number | null;
+  kind: string | null;
+  category: string | null;
+  title: string | null;
+  caption: string | null;
+  confidence: number | null;
+  shouldAttach: boolean | null;
+  dataUrl?: string;
+  width?: number;
+  height?: number;
+};
+
 type AiAutofillResponse = {
   fields: Record<string, string | number | boolean | null>;
   unitTypes: AiAutofillUnitType[];
+  mediaCandidates: AiAutofillMediaCandidate[];
   notes: string[];
 };
 
@@ -137,6 +152,19 @@ type AiUnitTypeDraft = {
   isAvailable: boolean;
   description: string;
   position: string;
+};
+
+type AiMediaCandidateDraft = {
+  page: number;
+  kind: string;
+  category: string;
+  title: string;
+  caption: string;
+  confidence: string;
+  dataUrl: string;
+  width: number | null;
+  height: number | null;
+  attached: boolean;
 };
 
 type SaveStatus = "idle" | "saving" | "success" | "error";
@@ -159,6 +187,25 @@ const unitCategoryOptions = [
   { value: "COBERTURA", label: "Cobertura" },
   { value: "DUPLEX", label: "Duplex" },
   { value: "SALA_COMERCIAL", label: "Sala comercial" }
+];
+
+const mediaKindOptions = [
+  { value: "HERO", label: "Hero" },
+  { value: "GALLERY", label: "Galeria" },
+  { value: "FLOORPLAN", label: "Planta" },
+  { value: "VIDEO", label: "Vídeo" },
+  { value: "PDF", label: "PDF" }
+];
+
+const mediaCategoryOptions = [
+  { value: "HERO", label: "Hero" },
+  { value: "FACHADA", label: "Fachada" },
+  { value: "LAZER", label: "Lazer" },
+  { value: "DECORADO", label: "Decorado" },
+  { value: "PLANTA", label: "Planta" },
+  { value: "LOCALIZACAO", label: "Localização" },
+  { value: "OBRA", label: "Obra" },
+  { value: "OUTROS", label: "Outros" }
 ];
 
 const tabs = [
@@ -365,6 +412,35 @@ function unitTypeDraftFromAi(unit: AiAutofillUnitType, index: number): AiUnitTyp
   };
 }
 
+function mediaCandidateDraftFromAi(candidate: AiAutofillMediaCandidate): AiMediaCandidateDraft | null {
+  if (!candidate.dataUrl || !candidate.page) return null;
+
+  const kind = candidate.kind && mediaKindOptions.some((item) => item.value === candidate.kind)
+    ? candidate.kind
+    : "GALLERY";
+  const category = candidate.category && mediaCategoryOptions.some((item) => item.value === candidate.category)
+    ? candidate.category
+    : "OUTROS";
+
+  return {
+    page: candidate.page,
+    kind,
+    category,
+    title: candidate.title ?? `Página ${candidate.page}`,
+    caption: candidate.caption ?? "",
+    confidence: numberToInput(candidate.confidence),
+    dataUrl: candidate.dataUrl,
+    width: candidate.width ?? null,
+    height: candidate.height ?? null,
+    attached: false
+  };
+}
+
+async function dataUrlToBlob(dataUrl: string) {
+  const response = await fetch(dataUrl);
+  return response.blob();
+}
+
 async function fetchJson(url: string, method: "POST" | "PATCH", payload?: unknown) {
   const response = await fetch(url, {
     method,
@@ -397,6 +473,8 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
   const [aiStatus, setAiStatus] = useState<AiStatus>("idle");
   const [aiMessage, setAiMessage] = useState("");
   const [aiUnitTypes, setAiUnitTypes] = useState<AiUnitTypeDraft[]>([]);
+  const [aiMediaCandidates, setAiMediaCandidates] = useState<AiMediaCandidateDraft[]>([]);
+  const [aiMediaUploadingIndex, setAiMediaUploadingIndex] = useState<number | null>(null);
   const aiFileRef = useRef<HTMLInputElement | null>(null);
   const uploadFileRef = useRef<HTMLInputElement | null>(null);
 
@@ -412,6 +490,8 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
     setAiStatus("idle");
     setAiMessage("");
     setAiUnitTypes([]);
+    setAiMediaCandidates([]);
+    setAiMediaUploadingIndex(null);
   }
 
   function resetCreate() {
@@ -423,6 +503,8 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
     setAiStatus("idle");
     setAiMessage("");
     setAiUnitTypes([]);
+    setAiMediaCandidates([]);
+    setAiMediaUploadingIndex(null);
     setActiveTab("basic");
   }
 
@@ -504,13 +586,18 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
       }
 
       const autofill = data.data.autofill as AiAutofillResponse;
+      const mediaCandidates = autofill.mediaCandidates
+        .map(mediaCandidateDraftFromAi)
+        .filter((candidate): candidate is AiMediaCandidateDraft => Boolean(candidate));
+
       applyAiAutofillFields(autofill.fields);
       setAiUnitTypes(autofill.unitTypes.map(unitTypeDraftFromAi).filter((unit) => unit.name.trim()));
+      setAiMediaCandidates(mediaCandidates);
       setActiveTab("basic");
       setAiStatus("success");
       setAiMessage(
-        autofill.unitTypes.length
-          ? `Rascunho preenchido. ${autofill.unitTypes.length} planta(s) foram colocadas na aba Plantas e preços.`
+        autofill.unitTypes.length || mediaCandidates.length
+          ? `Rascunho preenchido. ${autofill.unitTypes.length} planta(s) e ${mediaCandidates.length} imagem(ns) sugeridas foram colocadas para revisão.`
           : "Rascunho preenchido. Revise os campos antes de salvar."
       );
     } catch (error) {
@@ -559,6 +646,108 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
     );
 
     return validUnitTypes.length;
+  }
+
+  function updateAiMediaCandidate<K extends keyof AiMediaCandidateDraft>(
+    index: number,
+    key: K,
+    value: AiMediaCandidateDraft[K]
+  ) {
+    setAiMediaCandidates((prev) =>
+      prev.map((candidate, itemIndex) => (itemIndex === index ? { ...candidate, [key]: value } : candidate))
+    );
+  }
+
+  function removeAiMediaCandidate(index: number) {
+    setAiMediaCandidates((prev) => prev.filter((_, itemIndex) => itemIndex !== index));
+  }
+
+  async function attachAiMediaCandidate(index: number) {
+    if (!selectedId) {
+      setSaveStatus("error");
+      setSaveMessage("Salve o empreendimento antes de anexar a imagem sugerida.");
+      return;
+    }
+
+    const candidate = aiMediaCandidates[index];
+    if (!candidate || candidate.attached) return;
+
+    setAiMediaUploadingIndex(index);
+    setSaveStatus("saving");
+    setSaveMessage("");
+
+    try {
+      const directUploadResponse = await fetch("/api/media/images/direct-upload", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          metadata: {
+            module: "development",
+            developmentId: selectedId,
+            source: "ai-pdf",
+            page: candidate.page,
+            category: candidate.category,
+            kind: candidate.kind
+          }
+        })
+      });
+
+      const directUploadData = await directUploadResponse.json();
+      if (!directUploadResponse.ok || !directUploadData.success) {
+        throw new Error(directUploadData?.error?.message ?? "Falha ao gerar upload direto.");
+      }
+
+      const uploadUrl = directUploadData.data.directUpload.uploadURL as string;
+      const imageDeliveryUrl = directUploadData.data.imageDeliveryUrl as string | null | undefined;
+      const blob = await dataUrlToBlob(candidate.dataUrl);
+      const body = new FormData();
+      body.append("file", blob, `pagina-${candidate.page}.png`);
+
+      const uploadResponse = await fetch(uploadUrl, {
+        method: "POST",
+        body
+      });
+
+      const uploadPayload = await uploadResponse.json();
+      if (!uploadResponse.ok || !uploadPayload.success) {
+        throw new Error(uploadPayload?.errors?.[0]?.message ?? "Falha no upload da imagem.");
+      }
+
+      const variants = uploadPayload?.result?.variants as string[] | undefined;
+      const imageUrl = imageDeliveryUrl || variants?.[0];
+      if (!imageUrl) {
+        throw new Error("Upload concluído, mas a URL da imagem não foi retornada.");
+      }
+
+      await fetchJson(`/api/crm/developments/${selectedId}/media`, "POST", {
+        kind: candidate.kind,
+        category: candidate.category,
+        url: imageUrl,
+        title: optionalString(candidate.title),
+        caption: optionalString(candidate.caption),
+        isPrimary: candidate.kind === "HERO",
+        position: (selected?.media.length ?? 0) + index,
+        status: "PRONTO",
+        metadata: {
+          source: "ai-pdf",
+          page: candidate.page,
+          confidence: parseNumber(candidate.confidence),
+          width: candidate.width,
+          height: candidate.height
+        }
+      });
+
+      updateAiMediaCandidate(index, "attached", true);
+      setSaveStatus("success");
+      setSaveMessage("Imagem sugerida anexada ao empreendimento.");
+    } catch (error) {
+      setSaveStatus("error");
+      setSaveMessage(error instanceof Error ? error.message : "Falha ao anexar imagem sugerida.");
+    } finally {
+      setAiMediaUploadingIndex(null);
+    }
   }
 
   function buildPayload() {
@@ -982,6 +1171,8 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
                 setAiFileName("");
                 setAiStatus("idle");
                 setAiMessage("");
+                setAiUnitTypes([]);
+                setAiMediaCandidates([]);
                 if (aiFileRef.current) aiFileRef.current.value = "";
               }}
             >
@@ -1092,6 +1283,85 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
               <div style={{ gridColumn: "1 / -1" }}><label>Observações de liquidez</label><textarea value={form.regionLiquidityNotes} onChange={(e) => updateField("regionLiquidityNotes", e.target.value)} /></div>
               <div><label>Template WhatsApp</label><input value={form.whatsappMessageTemplate} onChange={(e) => updateField("whatsappMessageTemplate", e.target.value)} /></div>
               <div><label>PDF tabela</label><input value={form.tablePdfUrl} onChange={(e) => updateField("tablePdfUrl", e.target.value)} /></div>
+            </>
+          ) : null}
+
+          {activeTab === "media" ? (
+            <>
+              <div style={{ gridColumn: "1 / -1", display: "grid", gap: 12 }}>
+                <div style={{ display: "flex", justifyContent: "space-between", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+                  <strong className="text-card">Imagens sugeridas pela IA</strong>
+                  {!selectedId && aiMediaCandidates.length ? (
+                    <span className="text-card" style={{ color: "var(--text-muted)", fontSize: "var(--fs-12)" }}>
+                      Salve o empreendimento para anexar.
+                    </span>
+                  ) : null}
+                </div>
+
+                {aiMediaCandidates.length ? (
+                  <div style={{ display: "grid", gap: 12 }}>
+                    {aiMediaCandidates.map((candidate, index) => (
+                      <div
+                        key={`${candidate.page}-${index}`}
+                        style={{
+                          border: "1px solid var(--border)",
+                          borderRadius: 8,
+                          overflow: "hidden",
+                          display: "grid",
+                          gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))"
+                        }}
+                      >
+                        <Image
+                          src={candidate.dataUrl}
+                          alt={candidate.title || `Página ${candidate.page}`}
+                          width={candidate.width ?? 1024}
+                          height={candidate.height ?? 1400}
+                          unoptimized
+                          style={{ width: "100%", height: "100%", minHeight: 180, objectFit: "cover", background: "#eef2f7" }}
+                        />
+                        <div className="form-grid" style={{ padding: 12 }}>
+                          <div>
+                            <label>Tipo</label>
+                            <select value={candidate.kind} onChange={(e) => updateAiMediaCandidate(index, "kind", e.target.value)}>
+                              {mediaKindOptions.map((item) => (
+                                <option key={item.value} value={item.value}>{item.label}</option>
+                              ))}
+                            </select>
+                          </div>
+                          <div>
+                            <label>Categoria</label>
+                            <select value={candidate.category} onChange={(e) => updateAiMediaCandidate(index, "category", e.target.value)}>
+                              {mediaCategoryOptions.map((item) => (
+                                <option key={item.value} value={item.value}>{item.label}</option>
+                              ))}
+                            </select>
+                          </div>
+                          <div><label>Título</label><input value={candidate.title} onChange={(e) => updateAiMediaCandidate(index, "title", e.target.value)} /></div>
+                          <div><label>Página</label><input value={String(candidate.page)} readOnly /></div>
+                          <div style={{ gridColumn: "1 / -1" }}><label>Legenda</label><input value={candidate.caption} onChange={(e) => updateAiMediaCandidate(index, "caption", e.target.value)} /></div>
+                          <div style={{ gridColumn: "1 / -1", display: "flex", gap: 8, flexWrap: "wrap" }}>
+                            <button
+                              type="button"
+                              className="button button-primary"
+                              onClick={() => attachAiMediaCandidate(index)}
+                              disabled={!selectedId || candidate.attached || aiMediaUploadingIndex === index}
+                            >
+                              {candidate.attached ? "Anexada" : aiMediaUploadingIndex === index ? "Anexando..." : "Anexar imagem"}
+                            </button>
+                            <button type="button" className="button button-ghost" onClick={() => removeAiMediaCandidate(index)} disabled={aiMediaUploadingIndex === index}>
+                              Remover
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-card" style={{ margin: 0, color: "var(--text-muted)" }}>
+                    Nenhuma imagem sugerida no rascunho atual.
+                  </p>
+                )}
+              </div>
             </>
           ) : null}
 
