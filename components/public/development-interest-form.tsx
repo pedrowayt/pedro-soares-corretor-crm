@@ -19,6 +19,13 @@ type UnitTypeOption = {
   name: string;
 };
 
+type UnitOption = {
+  id: string;
+  unitTypeId: string | null;
+  label: string;
+  displayName: string;
+};
+
 type Props = {
   developmentId: string;
   developmentSlug: string;
@@ -26,6 +33,7 @@ type Props = {
   whatsappMessage?: string;
   tablePdfUrl?: string | null;
   unitTypes?: UnitTypeOption[];
+  units?: UnitOption[];
 };
 
 export function DevelopmentInterestForm({
@@ -34,21 +42,31 @@ export function DevelopmentInterestForm({
   developmentName,
   whatsappMessage,
   tablePdfUrl,
-  unitTypes = []
+  unitTypes = [],
+  units = []
 }: Props) {
   const [status, setStatus] = useState<Status>({ type: "idle" });
   const [busyTable, setBusyTable] = useState(false);
   const [selectedUnitTypeId, setSelectedUnitTypeId] = useState("");
+  const [selectedUnitId, setSelectedUnitId] = useState("");
   const formRef = useRef<HTMLFormElement>(null);
 
+  const selectedUnit = useMemo(
+    () => units.find((unit) => unit.id === selectedUnitId) ?? null,
+    [selectedUnitId, units]
+  );
   const selectedUnitType = useMemo(
-    () => unitTypes.find((unit) => unit.id === selectedUnitTypeId) ?? null,
-    [selectedUnitTypeId, unitTypes]
+    () => unitTypes.find((unit) => unit.id === (selectedUnit?.unitTypeId ?? selectedUnitTypeId)) ?? null,
+    [selectedUnit?.unitTypeId, selectedUnitTypeId, unitTypes]
   );
 
   function getCurrentMessage(context: "development" | "unit_type" | "schedule") {
     if (context === "schedule") {
       return buildDevelopmentScheduleMessage(developmentName);
+    }
+
+    if (selectedUnit) {
+      return buildDevelopmentUnitMessage(developmentName, selectedUnit.displayName || selectedUnit.label);
     }
 
     if (selectedUnitType) {
@@ -70,6 +88,7 @@ export function DevelopmentInterestForm({
       developmentSlug,
       developmentId,
       unitTypeId: selectedUnitType?.id,
+      unitId: selectedUnit?.id,
       requestTable: Boolean(formData.get("requestTable")),
       lgpdConsent: true
     };
@@ -92,6 +111,7 @@ export function DevelopmentInterestForm({
       setStatus({ type: "success", message: "Interesse enviado. Vamos retornar com as condições atualizadas." });
       event.currentTarget.reset();
       setSelectedUnitTypeId("");
+      setSelectedUnitId("");
     } catch (error) {
       setStatus({
         type: "error",
@@ -115,7 +135,9 @@ export function DevelopmentInterestForm({
           whatsapp: formData.get("whatsapp"),
           email: formData.get("email"),
           unitTypeId: selectedUnitType?.id,
-          unitTypeName: selectedUnitType?.name
+          unitTypeName: selectedUnitType?.name,
+          unitId: selectedUnit?.id,
+          unitLabel: selectedUnit?.displayName ?? selectedUnit?.label
         })
       });
 
@@ -150,6 +172,8 @@ export function DevelopmentInterestForm({
         developmentSlug,
         unitTypeId: selectedUnitType?.id,
         unitTypeName: selectedUnitType?.name,
+        unitId: selectedUnit?.id,
+        unitLabel: selectedUnit?.displayName ?? selectedUnit?.label,
         leadName: formData.get("name"),
         leadPhone: formData.get("whatsapp"),
         leadEmail: formData.get("email"),
@@ -196,7 +220,27 @@ export function DevelopmentInterestForm({
             <input id="dev-email" type="email" name="email" />
           </div>
 
-          {unitTypes.length ? (
+          {units.length ? (
+            <div>
+              <label htmlFor="dev-unit">Unidade de interesse</label>
+              <select
+                id="dev-unit"
+                name="unitId"
+                value={selectedUnitId}
+                onChange={(event) => {
+                  setSelectedUnitId(event.target.value);
+                  setSelectedUnitTypeId("");
+                }}
+              >
+                <option value="">Selecione uma unidade</option>
+                {units.map((unit) => (
+                  <option key={unit.id} value={unit.id}>
+                    {unit.displayName || unit.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          ) : unitTypes.length ? (
             <div>
               <label htmlFor="dev-unit-type">Planta de interesse</label>
               <select

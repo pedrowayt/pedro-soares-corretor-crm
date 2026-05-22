@@ -92,8 +92,23 @@ export default async function CrmEmpreendimentosPage() {
               category: media.category ?? "OUTROS",
               position: typeof media.position === "number" ? media.position : mediaIndex
             })),
+            towers: item.towers.map((tower) => ({
+              id: tower.id,
+              name: tower.name,
+              slug: tower.slug ?? null,
+              propertyType: tower.propertyType ?? null,
+              floorsCount: tower.floorsCount ?? null,
+              elevatorsCount: tower.elevatorsCount ?? null,
+              totalUnits: tower.totalUnits ?? null,
+              availableUnits: tower.availableUnits ?? null,
+              deliveryDate: tower.deliveryDate ? new Date(tower.deliveryDate).toISOString() : null,
+              incorporationRegistry: tower.incorporationRegistry ?? null,
+              position: tower.position
+            })),
             unitTypes: item.unitTypes.map((unit) => ({
               id: unit.id,
+              towerId: unit.towerId ?? null,
+              towerName: unit.towerName ?? null,
               name: unit.name,
               unitCategory: unit.unitCategory ?? null,
               bedrooms: unit.bedrooms ?? null,
@@ -104,6 +119,24 @@ export default async function CrmEmpreendimentosPage() {
               areaTotalM2Number: unit.areaTotalM2Number,
               initialPriceNumber: unit.initialPriceNumber,
               isAvailable: unit.isAvailable
+            })),
+            units: item.units.map((unit) => ({
+              id: unit.id,
+              towerId: unit.towerId ?? null,
+              unitTypeId: unit.unitTypeId ?? null,
+              towerName: unit.towerName ?? null,
+              unitTypeName: unit.unitTypeName ?? null,
+              label: unit.label,
+              unitNumber: unit.unitNumber ?? null,
+              floor: unit.floor ?? null,
+              status: unit.status,
+              priceNumber: unit.priceNumber,
+              areaPrivateM2Number: unit.areaPrivateM2Number,
+              areaTotalM2Number: unit.areaTotalM2Number,
+              parkingSpaces: unit.parkingSpaces ?? null,
+              orientation: unit.orientation ?? null,
+              notes: unit.notes ?? null,
+              position: unit.position
             })),
             milestones: item.milestones.map((milestone) => ({
               id: milestone.id,

@@ -26,6 +26,7 @@ export async function POST(request: Request) {
     developmentSlug,
     developmentId,
     unitTypeId,
+    unitId,
     requestTable,
     lgpdConsent
   } = parsed.data;
@@ -41,6 +42,15 @@ export async function POST(request: Request) {
       ? await prisma.developmentUnitType.findFirst({
           where: {
             id: unitTypeId,
+            developmentId: development.id
+          }
+      })
+      : null;
+  const unit =
+    development && unitId
+      ? await prisma.developmentUnit.findFirst({
+          where: {
+            id: unitId,
             developmentId: development.id
           }
         })
@@ -70,6 +80,7 @@ export async function POST(request: Request) {
           desiredPurpose: PropertyPurpose.LANCAMENTO,
           linkedDevelopmentId: development?.id ?? existingLead.linkedDevelopmentId,
           linkedDevelopmentUnitTypeId: unitType?.id ?? existingLead.linkedDevelopmentUnitTypeId,
+          linkedDevelopmentUnitId: unit?.id ?? existingLead.linkedDevelopmentUnitId,
           developmentLeadStatus: requestTable
             ? DevelopmentLeadStatus.RECEBEU_TABELA
             : existingLead.developmentLeadStatus,
@@ -87,6 +98,7 @@ export async function POST(request: Request) {
           desiredPurpose: PropertyPurpose.LANCAMENTO,
           linkedDevelopmentId: development?.id,
           linkedDevelopmentUnitTypeId: unitType?.id ?? undefined,
+          linkedDevelopmentUnitId: unit?.id ?? undefined,
           developmentLeadStatus: requestTable
             ? DevelopmentLeadStatus.RECEBEU_TABELA
             : DevelopmentLeadStatus.NOVO,
@@ -100,6 +112,7 @@ export async function POST(request: Request) {
       leadId: lead.id,
       developmentId: development?.id,
       unitTypeId: unitType?.id,
+      unitId: unit?.id,
       type: InteractionType.FORM_SUBMISSION,
       channel: InteractionChannel.SITE,
       message: message || "Interesse via página de empreendimento",
@@ -108,10 +121,12 @@ export async function POST(request: Request) {
         developmentId,
         unitTypeId,
         unitTypeName: unitType?.name,
+        unitId,
+        unitLabel: unit?.label,
         requestTable
       }
     }
   });
 
-  return ok({ leadId: lead.id, developmentId: development?.id ?? null }, { status: 201 });
+  return ok({ leadId: lead.id, developmentId: development?.id ?? null, unitId: unit?.id ?? null }, { status: 201 });
 }

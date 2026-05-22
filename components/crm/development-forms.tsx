@@ -1,10 +1,12 @@
 "use client";
 
 import Image from "next/image";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import { slugify } from "@/lib/crm/slug";
 import { appreciationPotentialOptions, developmentStageOptions } from "@/lib/development-investment";
+
+const MAX_AI_UPLOAD_BYTES = 20 * 1024 * 1024;
 
 type DevelopmentItem = {
   id: string;
@@ -81,8 +83,23 @@ type DevelopmentItem = {
   showWhatsappButton: boolean;
   isPublished: boolean;
   media: Array<{ id: string; url: string; title: string | null; kind: string; category: string; position: number }>;
+  towers: Array<{
+    id: string;
+    name: string;
+    slug: string | null;
+    propertyType: string | null;
+    floorsCount: number | null;
+    elevatorsCount: number | null;
+    totalUnits: number | null;
+    availableUnits: number | null;
+    deliveryDate: Date | string | null;
+    incorporationRegistry: string | null;
+    position: number;
+  }>;
   unitTypes: Array<{
     id: string;
+    towerId: string | null;
+    towerName: string | null;
     name: string;
     unitCategory: string | null;
     bedrooms: number | null;
@@ -93,6 +110,24 @@ type DevelopmentItem = {
     areaTotalM2Number: number | null;
     initialPriceNumber: number | null;
     isAvailable: boolean;
+  }>;
+  units: Array<{
+    id: string;
+    towerId: string | null;
+    unitTypeId: string | null;
+    towerName: string | null;
+    unitTypeName: string | null;
+    label: string;
+    unitNumber: string | null;
+    floor: number | null;
+    status: string;
+    priceNumber: number | null;
+    areaPrivateM2Number: number | null;
+    areaTotalM2Number: number | null;
+    parkingSpaces: number | null;
+    orientation: string | null;
+    notes: string | null;
+    position: number;
   }>;
   milestones: Array<{ id: string; title: string; status: string; progressPct: number | null }>;
   faqs: Array<{ id: string; question: string; answer: string }>;
@@ -121,6 +156,7 @@ type AiAutofillUnitType = {
 
 type AiAutofillMediaCandidate = {
   page: number | null;
+  imageUrl: string | null;
   kind: string | null;
   category: string | null;
   title: string | null;
@@ -161,7 +197,8 @@ type AiUnitTypeDraft = {
 };
 
 type AiMediaCandidateDraft = {
-  page: number;
+  page: number | null;
+  imageUrl: string | null;
   kind: string;
   category: string;
   title: string;
@@ -177,6 +214,12 @@ type AiMediaCandidateDraft = {
 
 type SaveStatus = "idle" | "saving" | "success" | "error";
 type AiStatus = "idle" | "loading" | "success" | "error";
+
+type AiProgressState = {
+  percent: number;
+  label: string;
+  detail: string;
+};
 
 const publicationOptions = [
   { value: "DRAFT", label: "Rascunho" },
@@ -195,6 +238,22 @@ const unitCategoryOptions = [
   { value: "COBERTURA", label: "Cobertura" },
   { value: "DUPLEX", label: "Duplex" },
   { value: "SALA_COMERCIAL", label: "Sala comercial" }
+];
+
+const unitStatusOptions = [
+  { value: "DISPONIVEL", label: "Disponível" },
+  { value: "RESERVADA", label: "Reservada" },
+  { value: "VENDIDA", label: "Vendida" },
+  { value: "BLOQUEADA", label: "Bloqueada" }
+];
+
+const developmentPropertyTypeOptions = [
+  { value: "APARTAMENTO", label: "Apartamento" },
+  { value: "CASA", label: "Casa" },
+  { value: "LOTE", label: "Lote" },
+  { value: "SALA_COMERCIAL", label: "Sala comercial" },
+  { value: "STUDIO", label: "Studio" },
+  { value: "COBERTURA", label: "Cobertura" }
 ];
 
 const mediaKindOptions = [
@@ -278,6 +337,14 @@ function parseReferencePointLines(value: string) {
 
 function optionalString(value: string) {
   return value.trim() ? value.trim() : undefined;
+}
+
+function formatFileSize(bytes: number) {
+  if (bytes >= 1024 * 1024) {
+    return `${(bytes / (1024 * 1024)).toLocaleString("pt-BR", { maximumFractionDigits: 1 })} MB`;
+  }
+
+  return `${Math.ceil(bytes / 1024).toLocaleString("pt-BR")} KB`;
 }
 
 function nullableString(value: string) {
@@ -382,6 +449,12 @@ function numberToInput(value: number | null | undefined) {
   return String(value);
 }
 
+function apiNumber(value: unknown) {
+  if (value === null || value === undefined || value === "") return null;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
 function emptyUnitTypeDraft(position = 0): AiUnitTypeDraft {
   return {
     name: "",
@@ -421,7 +494,7 @@ function unitTypeDraftFromAi(unit: AiAutofillUnitType, index: number): AiUnitTyp
 }
 
 function mediaCandidateDraftFromAi(candidate: AiAutofillMediaCandidate): AiMediaCandidateDraft | null {
-  if (!candidate.dataUrl || !candidate.page) return null;
+  if (!candidate.dataUrl || (!candidate.page && !candidate.imageUrl)) return null;
 
   const kind = candidate.kind && mediaKindOptions.some((item) => item.value === candidate.kind)
     ? candidate.kind
@@ -431,10 +504,11 @@ function mediaCandidateDraftFromAi(candidate: AiAutofillMediaCandidate): AiMedia
     : "OUTROS";
 
   return {
-    page: candidate.page,
+    page: candidate.page ?? null,
+    imageUrl: candidate.imageUrl ?? null,
     kind,
     category,
-    title: candidate.title ?? `Página ${candidate.page}`,
+    title: candidate.title ?? (candidate.page ? `Página ${candidate.page}` : "Imagem da página"),
     caption: candidate.caption ?? "",
     confidence: numberToInput(candidate.confidence),
     dataUrl: candidate.dataUrl,
@@ -479,9 +553,15 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
   const [mediaUrl, setMediaUrl] = useState("");
   const [mediaFileUploading, setMediaFileUploading] = useState(false);
   const [aiText, setAiText] = useState("");
+  const [aiSourceUrl, setAiSourceUrl] = useState("");
   const [aiFileName, setAiFileName] = useState("");
   const [aiStatus, setAiStatus] = useState<AiStatus>("idle");
   const [aiMessage, setAiMessage] = useState("");
+  const [aiProgress, setAiProgress] = useState<AiProgressState>({
+    percent: 0,
+    label: "",
+    detail: ""
+  });
   const [aiUnitTypes, setAiUnitTypes] = useState<AiUnitTypeDraft[]>([]);
   const [aiMediaCandidates, setAiMediaCandidates] = useState<AiMediaCandidateDraft[]>([]);
   const [aiMediaUploadingIndex, setAiMediaUploadingIndex] = useState<number | null>(null);
@@ -489,6 +569,60 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
   const uploadFileRef = useRef<HTMLInputElement | null>(null);
 
   const selected = useMemo(() => items.find((item) => item.id === selectedId) ?? null, [items, selectedId]);
+
+  useEffect(() => {
+    if (aiStatus !== "loading") return;
+
+    const file = aiFileRef.current?.files?.[0] ?? null;
+    const hasUrl = Boolean(aiSourceUrl.trim());
+    const isPdf = Boolean(file?.name.toLowerCase().endsWith(".pdf") || file?.type === "application/pdf");
+
+    const interval = window.setInterval(() => {
+      setAiProgress((prev) => {
+        const nextPercent = Math.min(prev.percent + (isPdf ? 3 : 5), 94);
+
+        if (nextPercent < 20) {
+          return {
+            percent: nextPercent,
+            label: "Preparando material",
+            detail: file ? `Validando ${file.name}` : hasUrl ? "Validando URL informada" : "Preparando texto colado"
+          };
+        }
+
+        if (nextPercent < 48) {
+          return {
+            percent: nextPercent,
+            label: isPdf ? "Lendo PDF" : hasUrl ? "Lendo página" : "Lendo texto",
+            detail: isPdf
+              ? "Extraindo texto, renderizando páginas e procurando imagens."
+              : hasUrl
+                ? "Extraindo HTML, metadados, textos e imagens da página."
+                : "Organizando o conteúdo para análise."
+          };
+        }
+
+        if (nextPercent < 78) {
+          return {
+            percent: nextPercent,
+            label: "Analisando com IA",
+            detail: "Identificando informações, localização, preços, plantas e SEO."
+          };
+        }
+
+        return {
+          percent: nextPercent,
+          label: isPdf ? "Recortando imagens" : hasUrl ? "Selecionando imagens" : "Finalizando rascunho",
+          detail: isPdf
+            ? "Separando fachadas, plantas e imagens úteis para anexar."
+            : hasUrl
+              ? "Escolhendo imagens comerciais encontradas no site."
+              : "Aplicando os campos encontrados ao formulário."
+        };
+      });
+    }, 700);
+
+    return () => window.clearInterval(interval);
+  }, [aiSourceUrl, aiStatus]);
 
   function selectDevelopment(id: string) {
     const next = items.find((item) => item.id === id) ?? null;
@@ -499,6 +633,8 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
     setSaveMessage("");
     setAiStatus("idle");
     setAiMessage("");
+    setAiSourceUrl("");
+    setAiProgress({ percent: 0, label: "", detail: "" });
     setAiUnitTypes([]);
     setAiMediaCandidates([]);
     setAiMediaUploadingIndex(null);
@@ -512,6 +648,8 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
     setSaveMessage("");
     setAiStatus("idle");
     setAiMessage("");
+    setAiSourceUrl("");
+    setAiProgress({ percent: 0, label: "", detail: "" });
     setAiUnitTypes([]);
     setAiMediaCandidates([]);
     setAiMediaUploadingIndex(null);
@@ -564,25 +702,49 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
   function handleAiFileChange(event: React.ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0] ?? null;
     setAiFileName(file?.name ?? "");
+    setAiProgress({ percent: 0, label: "", detail: "" });
     setAiStatus("idle");
     setAiMessage("");
+
+    if (file && file.size > MAX_AI_UPLOAD_BYTES) {
+      setAiStatus("error");
+      setAiMessage(
+        `Esse arquivo tem ${formatFileSize(file.size)}. O limite atual para preenchimento com IA é ${formatFileSize(MAX_AI_UPLOAD_BYTES)}. Compacte o PDF ou envie uma versão menor.`
+      );
+    }
   }
 
   async function runAiAutofill() {
     const file = aiFileRef.current?.files?.[0] ?? null;
+    const sourceUrl = aiSourceUrl.trim();
 
-    if (!file && !aiText.trim()) {
+    if (!file && !aiText.trim() && !sourceUrl) {
       setAiStatus("error");
-      setAiMessage("Envie um arquivo .txt, .pdf textual ou cole o texto do material.");
+      setAiMessage("Informe uma URL, envie um arquivo .txt/.pdf ou cole o texto do material.");
+      return;
+    }
+
+    if (file && file.size > MAX_AI_UPLOAD_BYTES) {
+      setAiStatus("error");
+      setAiProgress({ percent: 0, label: "", detail: "" });
+      setAiMessage(
+        `Esse arquivo tem ${formatFileSize(file.size)}. O limite atual para preenchimento com IA é ${formatFileSize(MAX_AI_UPLOAD_BYTES)}. Compacte o PDF ou divida o material antes de enviar.`
+      );
       return;
     }
 
     setAiStatus("loading");
-    setAiMessage("");
+    setAiMessage("Lendo arquivo e analisando com IA. Isso pode levar alguns instantes.");
+    setAiProgress({
+      percent: 8,
+      label: file ? "Preparando material" : sourceUrl ? "Preparando página" : "Preparando texto",
+      detail: file ? `Validando ${file.name}` : sourceUrl ? "Validando URL informada" : "Organizando texto colado"
+    });
 
     try {
       const body = new FormData();
       if (aiText.trim()) body.append("text", aiText.trim());
+      if (sourceUrl) body.append("sourceUrl", sourceUrl);
       if (file) body.append("file", file);
 
       const response = await fetch("/api/crm/developments/ai-autofill", {
@@ -592,6 +754,10 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
 
       const data = await response.json().catch(() => ({}));
       if (!response.ok || !data.success) {
+        if (response.status === 401 || response.status === 403) {
+          throw new Error("Sessão expirada ou usuário sem permissão para preencher com IA. Entre no CRM novamente e tente outra vez.");
+        }
+
         throw new Error(data?.error?.message ?? "Falha ao preencher com IA.");
       }
 
@@ -605,6 +771,11 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
       setAiMediaCandidates(mediaCandidates);
       setActiveTab("basic");
       setAiStatus("success");
+      setAiProgress({
+        percent: 100,
+        label: "Rascunho pronto",
+        detail: "Campos preenchidos para revisão."
+      });
       setAiMessage(
         autofill.unitTypes.length || mediaCandidates.length
           ? `Rascunho preenchido. ${autofill.unitTypes.length} planta(s) e ${mediaCandidates.length} imagem(ns) sugeridas foram colocadas para revisão.`
@@ -612,6 +783,11 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
       );
     } catch (error) {
       setAiStatus("error");
+      setAiProgress({
+        percent: 0,
+        label: "",
+        detail: ""
+      });
       setAiMessage(error instanceof Error ? error.message : "Erro ao preencher com IA.");
     }
   }
@@ -696,8 +872,9 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
           metadata: {
             module: "development",
             developmentId: selectedId,
-            source: "ai-pdf",
+            source: candidate.imageUrl ? "ai-web-scrape" : "ai-pdf",
             page: candidate.page,
+            imageUrl: candidate.imageUrl,
             category: candidate.category,
             kind: candidate.kind
           }
@@ -713,7 +890,7 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
       const imageDeliveryUrl = directUploadData.data.imageDeliveryUrl as string | null | undefined;
       const blob = await dataUrlToBlob(candidate.dataUrl);
       const body = new FormData();
-      body.append("file", blob, `${candidate.cropApplied ? "recorte" : "pagina"}-${candidate.page}.png`);
+      body.append("file", blob, `${candidate.cropApplied ? "recorte" : candidate.imageUrl ? "site" : "pagina"}-${candidate.page ?? index + 1}.png`);
 
       const uploadResponse = await fetch(uploadUrl, {
         method: "POST",
@@ -741,8 +918,9 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
         position: (selected?.media.length ?? 0) + index,
         status: "PRONTO",
         metadata: {
-          source: "ai-pdf",
+          source: candidate.imageUrl ? "ai-web-scrape" : "ai-pdf",
           page: candidate.page,
+          imageUrl: candidate.imageUrl,
           confidence: parseNumber(candidate.confidence),
           cropApplied: candidate.cropApplied,
           crop: candidate.crop,
@@ -851,7 +1029,7 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
       if (mode === "create") {
         const data = await fetchJson("/api/crm/developments", "POST", payload);
         const created = data.data.development as DevelopmentItem;
-        setItems((prev) => [{ ...created, media: [], unitTypes: [], milestones: [], faqs: [] }, ...prev]);
+        setItems((prev) => [{ ...created, media: [], towers: [], unitTypes: [], units: [], milestones: [], faqs: [] }, ...prev]);
         setSelectedId(created.id);
         setMode("edit");
         targetDevelopmentId = created.id;
@@ -931,6 +1109,47 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
     }
   }
 
+  async function createTower(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!selectedId) return;
+
+    const fd = new FormData(event.currentTarget);
+
+    try {
+      const data = await fetchJson(`/api/crm/developments/${selectedId}/towers`, "POST", {
+        name: fd.get("name"),
+        slug: optionalString(String(fd.get("slug") ?? "")),
+        propertyType: fd.get("propertyType") || undefined,
+        description: optionalString(String(fd.get("description") ?? "")),
+        floorsCount: parseNumber(String(fd.get("floorsCount") ?? "")),
+        elevatorsCount: parseNumber(String(fd.get("elevatorsCount") ?? "")),
+        totalUnits: parseNumber(String(fd.get("totalUnits") ?? "")),
+        availableUnits: parseNumber(String(fd.get("availableUnits") ?? "")),
+        deliveryDate: monthInputToIso(String(fd.get("deliveryDate") ?? "")),
+        incorporationRegistry: optionalString(String(fd.get("incorporationRegistry") ?? "")),
+        position: parseNumber(String(fd.get("position") ?? ""))
+      });
+
+      const tower = data.data.tower as DevelopmentItem["towers"][number];
+      setItems((prev) =>
+        prev.map((item) =>
+          item.id === selectedId
+            ? {
+                ...item,
+                towers: [...item.towers, tower].sort((a, b) => a.position - b.position)
+              }
+            : item
+        )
+      );
+      setSaveStatus("success");
+      setSaveMessage("Torre/bloco adicionado.");
+      event.currentTarget.reset();
+    } catch (error) {
+      setSaveStatus("error");
+      setSaveMessage(error instanceof Error ? error.message : "Falha ao criar torre/bloco.");
+    }
+  }
+
   async function createUnitType(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!selectedId) return;
@@ -938,7 +1157,8 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
     const fd = new FormData(event.currentTarget);
 
     try {
-      await fetchJson(`/api/crm/developments/${selectedId}/unit-types`, "POST", {
+      const data = await fetchJson(`/api/crm/developments/${selectedId}/unit-types`, "POST", {
+        towerId: fd.get("towerId") || undefined,
         name: fd.get("name"),
         unitCategory: fd.get("unitCategory") || undefined,
         bedrooms: parseNumber(String(fd.get("bedrooms") ?? "")),
@@ -954,12 +1174,131 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
         position: parseNumber(String(fd.get("position") ?? ""))
       });
 
+      const rawUnitType = data.data.unitType as {
+        id: string;
+        towerId: string | null;
+        name: string;
+        unitCategory: string | null;
+        bedrooms: number | null;
+        suites: number | null;
+        bathrooms: number | null;
+        parkingSpaces: number | null;
+        areaPrivateM2?: unknown;
+        areaTotalM2?: unknown;
+        initialPrice?: unknown;
+        isAvailable: boolean;
+      };
+      const towerName = selected?.towers.find((tower) => tower.id === rawUnitType.towerId)?.name ?? null;
+      const unitType: DevelopmentItem["unitTypes"][number] = {
+        id: rawUnitType.id,
+        towerId: rawUnitType.towerId ?? null,
+        towerName,
+        name: rawUnitType.name,
+        unitCategory: rawUnitType.unitCategory ?? null,
+        bedrooms: rawUnitType.bedrooms ?? null,
+        suites: rawUnitType.suites ?? null,
+        bathrooms: rawUnitType.bathrooms ?? null,
+        parkingSpaces: rawUnitType.parkingSpaces ?? null,
+        areaPrivateM2Number: apiNumber(rawUnitType.areaPrivateM2),
+        areaTotalM2Number: apiNumber(rawUnitType.areaTotalM2),
+        initialPriceNumber: apiNumber(rawUnitType.initialPrice),
+        isAvailable: rawUnitType.isAvailable
+      };
+      setItems((prev) =>
+        prev.map((item) =>
+          item.id === selectedId
+            ? {
+                ...item,
+                unitTypes: [...item.unitTypes, unitType]
+              }
+            : item
+        )
+      );
       setSaveStatus("success");
-      setSaveMessage("Tipologia adicionada. Atualize a página para ver na lista.");
+      setSaveMessage("Tipologia adicionada.");
       event.currentTarget.reset();
     } catch (error) {
       setSaveStatus("error");
       setSaveMessage(error instanceof Error ? error.message : "Falha ao criar tipologia.");
+    }
+  }
+
+  async function createUnit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!selectedId) return;
+
+    const fd = new FormData(event.currentTarget);
+
+    try {
+      const data = await fetchJson(`/api/crm/developments/${selectedId}/units`, "POST", {
+        towerId: fd.get("towerId") || undefined,
+        unitTypeId: fd.get("unitTypeId") || undefined,
+        label: fd.get("label"),
+        unitNumber: optionalString(String(fd.get("unitNumber") ?? "")),
+        floor: parseNumber(String(fd.get("floor") ?? "")),
+        status: fd.get("status") || "DISPONIVEL",
+        price: parseNumber(String(fd.get("price") ?? "")),
+        areaPrivateM2: parseNumber(String(fd.get("areaPrivateM2") ?? "")),
+        areaTotalM2: parseNumber(String(fd.get("areaTotalM2") ?? "")),
+        parkingSpaces: parseNumber(String(fd.get("parkingSpaces") ?? "")),
+        orientation: optionalString(String(fd.get("orientation") ?? "")),
+        notes: optionalString(String(fd.get("notes") ?? "")),
+        position: parseNumber(String(fd.get("position") ?? ""))
+      });
+
+      const rawUnit = data.data.unit as {
+        id: string;
+        towerId: string | null;
+        unitTypeId: string | null;
+        label: string;
+        unitNumber: string | null;
+        floor: number | null;
+        status: string;
+        price?: unknown;
+        areaPrivateM2?: unknown;
+        areaTotalM2?: unknown;
+        parkingSpaces: number | null;
+        orientation: string | null;
+        notes: string | null;
+        position: number;
+      };
+      const towerName = selected?.towers.find((tower) => tower.id === rawUnit.towerId)?.name ?? null;
+      const unitTypeName = selected?.unitTypes.find((unitType) => unitType.id === rawUnit.unitTypeId)?.name ?? null;
+      const unit: DevelopmentItem["units"][number] = {
+        id: rawUnit.id,
+        towerId: rawUnit.towerId ?? null,
+        unitTypeId: rawUnit.unitTypeId ?? null,
+        towerName,
+        unitTypeName,
+        label: rawUnit.label,
+        unitNumber: rawUnit.unitNumber ?? null,
+        floor: rawUnit.floor ?? null,
+        status: rawUnit.status,
+        priceNumber: apiNumber(rawUnit.price),
+        areaPrivateM2Number: apiNumber(rawUnit.areaPrivateM2),
+        areaTotalM2Number: apiNumber(rawUnit.areaTotalM2),
+        parkingSpaces: rawUnit.parkingSpaces ?? null,
+        orientation: rawUnit.orientation ?? null,
+        notes: rawUnit.notes ?? null,
+        position: rawUnit.position
+      };
+
+      setItems((prev) =>
+        prev.map((item) =>
+          item.id === selectedId
+            ? {
+                ...item,
+                units: [...item.units, unit].sort((a, b) => a.position - b.position)
+              }
+            : item
+        )
+      );
+      setSaveStatus("success");
+      setSaveMessage("Unidade adicionada.");
+      event.currentTarget.reset();
+    } catch (error) {
+      setSaveStatus("error");
+      setSaveMessage(error instanceof Error ? error.message : "Falha ao criar unidade.");
     }
   }
 
@@ -1167,6 +1506,21 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
             <label>Arquivo de texto ou PDF</label>
             <input ref={aiFileRef} type="file" accept=".txt,.pdf,text/plain,application/pdf" onChange={handleAiFileChange} />
           </div>
+          <div>
+            <label>URL do empreendimento</label>
+            <input
+              value={aiSourceUrl}
+              onChange={(event) => {
+                setAiSourceUrl(event.target.value);
+                setAiProgress({ percent: 0, label: "", detail: "" });
+                if (aiStatus !== "loading") {
+                  setAiStatus("idle");
+                  setAiMessage("");
+                }
+              }}
+              placeholder="https://site.com/empreendimento"
+            />
+          </div>
           <div style={{ gridColumn: "1 / -1" }}>
             <label>Texto do material</label>
             <textarea value={aiText} onChange={(event) => setAiText(event.target.value)} />
@@ -1180,9 +1534,11 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
               className="button button-ghost"
               onClick={() => {
                 setAiText("");
+                setAiSourceUrl("");
                 setAiFileName("");
                 setAiStatus("idle");
                 setAiMessage("");
+                setAiProgress({ percent: 0, label: "", detail: "" });
                 setAiUnitTypes([]);
                 setAiMediaCandidates([]);
                 if (aiFileRef.current) aiFileRef.current.value = "";
@@ -1191,6 +1547,46 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
               Limpar
             </button>
           </div>
+
+          {aiStatus === "loading" || aiProgress.percent > 0 ? (
+            <div style={{ gridColumn: "1 / -1", display: "grid", gap: 8 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", gap: 8, alignItems: "center" }}>
+                <strong className="text-card" style={{ fontSize: "var(--fs-12)" }}>
+                  {aiProgress.label || "Processando"}
+                </strong>
+                <span className="text-card" style={{ color: "var(--text-muted)", fontSize: "var(--fs-12)" }}>
+                  {aiProgress.percent}%
+                </span>
+              </div>
+              <div
+                role="progressbar"
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-valuenow={aiProgress.percent}
+                style={{
+                  height: 8,
+                  borderRadius: 999,
+                  background: "rgba(15, 23, 42, 0.08)",
+                  overflow: "hidden"
+                }}
+              >
+                <div
+                  style={{
+                    width: `${aiProgress.percent}%`,
+                    height: "100%",
+                    borderRadius: 999,
+                    background: "linear-gradient(90deg, #0f766e, #d4a017)",
+                    transition: "width 500ms ease"
+                  }}
+                />
+              </div>
+              {aiProgress.detail ? (
+                <span className="text-card" style={{ color: "var(--text-muted)", fontSize: "var(--fs-12)" }}>
+                  {aiProgress.detail}
+                </span>
+              ) : null}
+            </div>
+          ) : null}
         </div>
 
         {aiMessage ? (
@@ -1314,7 +1710,7 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
                   <div style={{ display: "grid", gap: 12 }}>
                     {aiMediaCandidates.map((candidate, index) => (
                       <div
-                        key={`${candidate.page}-${index}`}
+                        key={`${candidate.page ?? candidate.imageUrl ?? "media"}-${index}`}
                         style={{
                           border: "1px solid var(--border)",
                           borderRadius: 8,
@@ -1325,7 +1721,7 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
                       >
                         <Image
                           src={candidate.dataUrl}
-                          alt={candidate.title || `Página ${candidate.page}`}
+                          alt={candidate.title || (candidate.page ? `Página ${candidate.page}` : "Imagem da página")}
                           width={candidate.width ?? 1024}
                           height={candidate.height ?? 1400}
                           unoptimized
@@ -1349,7 +1745,7 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
                             </select>
                           </div>
                           <div><label>Título</label><input value={candidate.title} onChange={(e) => updateAiMediaCandidate(index, "title", e.target.value)} /></div>
-                          <div><label>Página</label><input value={String(candidate.page)} readOnly /></div>
+                          <div><label>Origem</label><input value={candidate.page ? `PDF página ${candidate.page}` : "Página web"} readOnly /></div>
                           <div style={{ gridColumn: "1 / -1" }}>
                             <span className="text-card" style={{ color: "var(--text-muted)", fontSize: "var(--fs-12)" }}>
                               {candidate.cropApplied ? "Preview recortado automaticamente pela IA." : "Preview usando a página inteira do PDF."}
@@ -1385,6 +1781,36 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
           {activeTab === "plants" ? (
             <>
               <div style={{ gridColumn: "1 / -1", display: "grid", gap: 12 }}>
+                {selected?.towers.length ? (
+                  <div style={{ display: "grid", gap: 8 }}>
+                    <strong className="text-card">Torres e blocos cadastrados</strong>
+                    <div style={{ overflowX: "auto" }}>
+                      <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                        <thead>
+                          <tr>
+                            <th style={thStyle}>Nome</th>
+                            <th style={thStyle}>Tipo</th>
+                            <th style={thStyle}>Pavimentos</th>
+                            <th style={thStyle}>Unidades</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {selected.towers.map((tower) => (
+                            <tr key={tower.id}>
+                              <td style={tdStyle}>{tower.name}</td>
+                              <td style={tdStyle}>{tower.propertyType ?? "-"}</td>
+                              <td style={tdStyle}>{tower.floorsCount ?? "-"}</td>
+                              <td style={tdStyle}>
+                                {tower.availableUnits ?? "-"} / {tower.totalUnits ?? "-"}
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                ) : null}
+
                 {selected?.unitTypes.length ? (
                   <div style={{ display: "grid", gap: 8 }}>
                     <strong className="text-card">Tipologias cadastradas</strong>
@@ -1392,6 +1818,7 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
                       <table style={{ width: "100%", borderCollapse: "collapse" }}>
                         <thead>
                           <tr>
+                            <th style={thStyle}>Torre/bloco</th>
                             <th style={thStyle}>Nome</th>
                             <th style={thStyle}>Quartos</th>
                             <th style={thStyle}>Área privativa</th>
@@ -1401,10 +1828,43 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
                         <tbody>
                           {selected.unitTypes.map((unit) => (
                             <tr key={unit.id}>
+                              <td style={tdStyle}>{unit.towerName ?? "-"}</td>
                               <td style={tdStyle}>{unit.name}</td>
                               <td style={tdStyle}>{unit.bedrooms ?? "-"}</td>
                               <td style={tdStyle}>{unit.areaPrivateM2Number ? `${unit.areaPrivateM2Number} m²` : "-"}</td>
                               <td style={tdStyle}>{unit.initialPriceNumber ? `R$ ${unit.initialPriceNumber.toLocaleString("pt-BR")}` : "-"}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                ) : null}
+
+                {selected?.units.length ? (
+                  <div style={{ display: "grid", gap: 8 }}>
+                    <strong className="text-card">Unidades individuais</strong>
+                    <div style={{ overflowX: "auto" }}>
+                      <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                        <thead>
+                          <tr>
+                            <th style={thStyle}>Unidade</th>
+                            <th style={thStyle}>Torre/bloco</th>
+                            <th style={thStyle}>Tipologia</th>
+                            <th style={thStyle}>Andar</th>
+                            <th style={thStyle}>Status</th>
+                            <th style={thStyle}>Preço</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {selected.units.map((unit) => (
+                            <tr key={unit.id}>
+                              <td style={tdStyle}>{unit.label}</td>
+                              <td style={tdStyle}>{unit.towerName ?? "-"}</td>
+                              <td style={tdStyle}>{unit.unitTypeName ?? "-"}</td>
+                              <td style={tdStyle}>{unit.floor ?? "-"}</td>
+                              <td style={tdStyle}>{unitStatusOptions.find((item) => item.value === unit.status)?.label ?? unit.status}</td>
+                              <td style={tdStyle}>{unit.priceNumber ? `R$ ${unit.priceNumber.toLocaleString("pt-BR")}` : "-"}</td>
                             </tr>
                           ))}
                         </tbody>
@@ -1574,8 +2034,43 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
             </div>
 
             <div className="card" style={{ padding: 12 }}>
+              <h4 style={{ marginTop: 0 }}>Adicionar torre/bloco</h4>
+              <form className="form-grid" onSubmit={createTower}>
+                <div><label>Nome da torre/bloco</label><input name="name" placeholder="Torre A, Bloco Loft, Comercial" required /></div>
+                <div><label>Slug interno</label><input name="slug" placeholder="torre-a" /></div>
+                <div>
+                  <label>Tipo predominante</label>
+                  <select name="propertyType" defaultValue="">
+                    <option value="">Selecionar</option>
+                    {developmentPropertyTypeOptions.map((item) => (
+                      <option key={item.value} value={item.value}>{item.label}</option>
+                    ))}
+                  </select>
+                </div>
+                <div><label>Previsão de entrega</label><input name="deliveryDate" type="month" /></div>
+                <div><label>Pavimentos</label><input name="floorsCount" type="number" min={0} /></div>
+                <div><label>Elevadores</label><input name="elevatorsCount" type="number" min={0} /></div>
+                <div><label>Unidades totais</label><input name="totalUnits" type="number" min={0} /></div>
+                <div><label>Unidades disponíveis</label><input name="availableUnits" type="number" min={0} /></div>
+                <div><label>Registro de incorporação</label><input name="incorporationRegistry" /></div>
+                <div><label>Ordem</label><input name="position" type="number" min={0} defaultValue={selected?.towers.length ?? 0} /></div>
+                <div style={{ gridColumn: "1 / -1" }}><label>Descrição</label><textarea name="description" /></div>
+                <div style={{ gridColumn: "1 / -1" }}><button type="submit" className="button button-primary">Adicionar torre/bloco</button></div>
+              </form>
+            </div>
+
+            <div className="card" style={{ padding: 12 }}>
               <h4 style={{ marginTop: 0 }}>Adicionar planta/tipologia</h4>
               <form className="form-grid" onSubmit={createUnitType}>
+                <div>
+                  <label>Torre/bloco</label>
+                  <select name="towerId" defaultValue="">
+                    <option value="">Geral do empreendimento</option>
+                    {selected.towers.map((tower) => (
+                      <option key={tower.id} value={tower.id}>{tower.name}</option>
+                    ))}
+                  </select>
+                </div>
                 <div><label>Nome da planta</label><input name="name" required /></div>
                 <div><label>Categoria</label><select name="unitCategory" defaultValue="DOIS_QUARTOS"><option value="STUDIO">Studio</option><option value="UM_QUARTO">1 quarto</option><option value="DOIS_QUARTOS">2 quartos</option><option value="TRES_QUARTOS">3 quartos</option><option value="QUATRO_QUARTOS">4 quartos</option><option value="GARDEN">Garden</option><option value="COBERTURA">Cobertura</option><option value="DUPLEX">Duplex</option><option value="SALA_COMERCIAL">Sala comercial</option></select></div>
                 <div><label>Quartos</label><input name="bedrooms" type="number" min={0} /></div>
@@ -1590,6 +2085,51 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
                 <label style={{ display: "flex", gap: 8, alignItems: "center" }}><input type="checkbox" name="isAvailable" defaultChecked style={{ width: 16, height: 16 }} /><span className="text-card">Disponível</span></label>
                 <div><label>Ordem</label><input name="position" type="number" min={0} defaultValue={0} /></div>
                 <div style={{ gridColumn: "1 / -1" }}><button type="submit" className="button button-primary">Adicionar tipologia</button></div>
+              </form>
+            </div>
+
+            <div className="card" style={{ padding: 12 }}>
+              <h4 style={{ marginTop: 0 }}>Adicionar unidade individual</h4>
+              <form className="form-grid" onSubmit={createUnit}>
+                <div>
+                  <label>Torre/bloco</label>
+                  <select name="towerId" defaultValue="">
+                    <option value="">Sem torre</option>
+                    {selected.towers.map((tower) => (
+                      <option key={tower.id} value={tower.id}>{tower.name}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label>Tipologia/planta</label>
+                  <select name="unitTypeId" defaultValue="">
+                    <option value="">Sem tipologia</option>
+                    {selected.unitTypes.map((unitType) => (
+                      <option key={unitType.id} value={unitType.id}>
+                        {unitType.towerName ? `${unitType.towerName} • ` : ""}{unitType.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div><label>Nome da unidade</label><input name="label" placeholder="Apto 1204, Loft 308, Sala 514" required /></div>
+                <div><label>Número</label><input name="unitNumber" /></div>
+                <div><label>Andar</label><input name="floor" type="number" /></div>
+                <div>
+                  <label>Status</label>
+                  <select name="status" defaultValue="DISPONIVEL">
+                    {unitStatusOptions.map((item) => (
+                      <option key={item.value} value={item.value}>{item.label}</option>
+                    ))}
+                  </select>
+                </div>
+                <div><label>Preço</label><input name="price" type="number" min={0} /></div>
+                <div><label>Área privativa (m²)</label><input name="areaPrivateM2" type="number" min={0} step="0.01" /></div>
+                <div><label>Área total (m²)</label><input name="areaTotalM2" type="number" min={0} step="0.01" /></div>
+                <div><label>Vagas</label><input name="parkingSpaces" type="number" min={0} /></div>
+                <div><label>Orientação/posição</label><input name="orientation" placeholder="Nascente, vista parque..." /></div>
+                <div><label>Ordem</label><input name="position" type="number" min={0} defaultValue={selected?.units.length ?? 0} /></div>
+                <div style={{ gridColumn: "1 / -1" }}><label>Observações internas</label><textarea name="notes" /></div>
+                <div style={{ gridColumn: "1 / -1" }}><button type="submit" className="button button-primary">Adicionar unidade</button></div>
               </form>
             </div>
 

@@ -18,7 +18,15 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
   const source = await prisma.development.findUnique({
     where: { id },
     include: {
-      unitTypes: true,
+      towers: {
+        orderBy: { position: "asc" }
+      },
+      unitTypes: {
+        orderBy: [{ isAvailable: "desc" }, { position: "asc" }]
+      },
+      units: {
+        orderBy: [{ position: "asc" }, { floor: "asc" }, { unitNumber: "asc" }]
+      },
       media: true,
       milestones: true,
       faqs: true
@@ -105,6 +113,21 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
       status: "DRAFT",
       publishedAt: null,
       archivedAt: null,
+      towers: {
+        create: source.towers.map((item) => ({
+          name: item.name,
+          slug: item.slug,
+          propertyType: item.propertyType,
+          description: item.description,
+          floorsCount: item.floorsCount,
+          elevatorsCount: item.elevatorsCount,
+          totalUnits: item.totalUnits,
+          availableUnits: item.availableUnits,
+          deliveryDate: item.deliveryDate,
+          incorporationRegistry: item.incorporationRegistry,
+          position: item.position
+        }))
+      },
       unitTypes: {
         create: source.unitTypes.map((item) => ({
           name: item.name,
@@ -162,6 +185,63 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
       }
     }
   });
+
+  const [duplicatedTowers, duplicatedUnitTypes] = await Promise.all([
+    prisma.developmentTower.findMany({
+      where: { developmentId: duplicated.id },
+      orderBy: { position: "asc" }
+    }),
+    prisma.developmentUnitType.findMany({
+      where: { developmentId: duplicated.id },
+      orderBy: [{ isAvailable: "desc" }, { position: "asc" }]
+    })
+  ]);
+
+  const towerIdMap = new Map(
+    source.towers
+      .map((tower, index) => [tower.id, duplicatedTowers[index]?.id] as const)
+      .filter((entry): entry is readonly [string, string] => Boolean(entry[1]))
+  );
+  const unitTypeIdMap = new Map(
+    source.unitTypes
+      .map((unitType, index) => [unitType.id, duplicatedUnitTypes[index]?.id] as const)
+      .filter((entry): entry is readonly [string, string] => Boolean(entry[1]))
+  );
+
+  await Promise.all(
+    source.unitTypes.map((unitType) => {
+      const duplicatedUnitTypeId = unitTypeIdMap.get(unitType.id);
+      const duplicatedTowerId = unitType.towerId ? towerIdMap.get(unitType.towerId) : null;
+
+      if (!duplicatedUnitTypeId || !duplicatedTowerId) return Promise.resolve(null);
+
+      return prisma.developmentUnitType.update({
+        where: { id: duplicatedUnitTypeId },
+        data: { towerId: duplicatedTowerId }
+      });
+    })
+  );
+
+  if (source.units.length) {
+    await prisma.developmentUnit.createMany({
+      data: source.units.map((unit) => ({
+        developmentId: duplicated.id,
+        towerId: unit.towerId ? towerIdMap.get(unit.towerId) : null,
+        unitTypeId: unit.unitTypeId ? unitTypeIdMap.get(unit.unitTypeId) : null,
+        label: unit.label,
+        unitNumber: unit.unitNumber,
+        floor: unit.floor,
+        status: unit.status,
+        price: unit.price,
+        areaPrivateM2: unit.areaPrivateM2,
+        areaTotalM2: unit.areaTotalM2,
+        parkingSpaces: unit.parkingSpaces,
+        orientation: unit.orientation,
+        notes: unit.notes,
+        position: unit.position
+      }))
+    });
+  }
 
   await prisma.auditLog.create({
     data: {

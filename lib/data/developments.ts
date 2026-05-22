@@ -4,11 +4,7 @@ import {
   DevelopmentStage,
   Prisma,
   type Builder,
-  type Development,
-  type DevelopmentFaq,
-  type DevelopmentMedia,
-  type DevelopmentMilestone,
-  type DevelopmentUnitType
+  type DevelopmentTower
 } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import {
@@ -23,6 +19,19 @@ import {
 import { mockDevelopments } from "@/lib/data/mock";
 
 const hasDatabase = Boolean(process.env.DATABASE_URL);
+
+const developmentInclude = {
+  builder: true,
+  towers: { orderBy: { position: "asc" } },
+  media: { orderBy: [{ isPrimary: "desc" }, { position: "asc" }] },
+  unitTypes: { orderBy: [{ isAvailable: "desc" }, { position: "asc" }] },
+  units: {
+    include: { tower: true, unitType: true },
+    orderBy: [{ position: "asc" }, { floor: "asc" }, { unitNumber: "asc" }]
+  },
+  milestones: { orderBy: { position: "asc" } },
+  faqs: { orderBy: { position: "asc" } }
+} satisfies Prisma.DevelopmentInclude;
 
 export type { PublicDevelopmentStage };
 
@@ -45,13 +54,7 @@ export type PublicDevelopmentFilters = {
   feature?: string;
 };
 
-type DevelopmentWithRelations = Development & {
-  builder: Builder | null;
-  media: DevelopmentMedia[];
-  unitTypes: DevelopmentUnitType[];
-  milestones: DevelopmentMilestone[];
-  faqs: DevelopmentFaq[];
-};
+type DevelopmentWithRelations = Prisma.DevelopmentGetPayload<{ include: typeof developmentInclude }>;
 
 function toNumber(value: Prisma.Decimal | number | null | undefined) {
   if (value === null || value === undefined) return null;
@@ -135,8 +138,10 @@ function normalizeDevelopment(development: DevelopmentWithRelations) {
     longitudeNumber: toNumber(development.longitude),
     builder: normalizedBuilder,
     displayBuilderName: normalizedBuilder?.name ?? null,
+    towers: development.towers.map((tower) => ({ ...tower })),
     unitTypes: development.unitTypes.map((unit) => ({
       ...unit,
+      towerName: development.towers.find((tower) => tower.id === unit.towerId)?.name ?? null,
       areaFromM2Number: toNumber(unit.areaFromM2),
       areaToM2Number: toNumber(unit.areaToM2),
       areaPrivateM2Number: toNumber(unit.areaPrivateM2),
@@ -144,6 +149,14 @@ function normalizeDevelopment(development: DevelopmentWithRelations) {
       priceFromNumber: toNumber(unit.priceFrom),
       priceToNumber: toNumber(unit.priceTo),
       initialPriceNumber: toNumber(unit.initialPrice)
+    })),
+    units: development.units.map((unit) => ({
+      ...unit,
+      towerName: unit.tower?.name ?? null,
+      unitTypeName: unit.unitType?.name ?? null,
+      priceNumber: toNumber(unit.price),
+      areaPrivateM2Number: toNumber(unit.areaPrivateM2),
+      areaTotalM2Number: toNumber(unit.areaTotalM2)
     }))
   };
 }
@@ -268,8 +281,11 @@ function normalizeMockDevelopment(development: (typeof mockDevelopments)[number]
           institutionalText: null
         }
       : null,
+    towers: "towers" in development ? (development.towers as DevelopmentTower[]) : [],
     unitTypes: development.unitTypes.map((unit) => ({
       ...unit,
+      towerId: ("towerId" in unit ? (unit.towerId as string | null | undefined) : null) ?? null,
+      towerName: ("towerName" in unit ? (unit.towerName as string | null | undefined) : null) ?? null,
       unitCategory: ("unitCategory" in unit ? (unit.unitCategory as string | null | undefined) : null) ?? null,
       areaFromM2Number: unit.areaFromM2 ?? null,
       areaToM2Number: unit.areaToM2 ?? null,
@@ -281,6 +297,21 @@ function normalizeMockDevelopment(development: (typeof mockDevelopments)[number]
       imageUrl: ("imageUrl" in unit ? (unit.imageUrl as string | null | undefined) : null) ?? null,
       isAvailable: ("isAvailable" in unit ? Boolean(unit.isAvailable) : true)
     })),
+    units:
+      "units" in development && Array.isArray(development.units)
+        ? development.units.map((unit) => ({
+            ...unit,
+            towerId: ("towerId" in unit ? (unit.towerId as string | null | undefined) : null) ?? null,
+            unitTypeId: ("unitTypeId" in unit ? (unit.unitTypeId as string | null | undefined) : null) ?? null,
+            towerName: ("towerName" in unit ? (unit.towerName as string | null | undefined) : null) ?? null,
+            unitTypeName: ("unitTypeName" in unit ? (unit.unitTypeName as string | null | undefined) : null) ?? null,
+            priceNumber: ("price" in unit ? (unit.price as number | null | undefined) : null) ?? null,
+            areaPrivateM2Number:
+              ("areaPrivateM2" in unit ? (unit.areaPrivateM2 as number | null | undefined) : null) ?? null,
+            areaTotalM2Number:
+              ("areaTotalM2" in unit ? (unit.areaTotalM2 as number | null | undefined) : null) ?? null
+          }))
+        : [],
     media: development.media.map((media, index) => ({
       ...media,
       category: ("category" in media ? (media.category as string | null | undefined) : null) ?? null,
@@ -433,13 +464,7 @@ export async function listPublicDevelopments(filters: PublicDevelopmentFilters =
 
     const data = await prisma.development.findMany({
       where,
-      include: {
-        builder: true,
-        media: { orderBy: [{ isPrimary: "desc" }, { position: "asc" }] },
-        unitTypes: { orderBy: [{ isAvailable: "desc" }, { position: "asc" }] },
-        milestones: { orderBy: { position: "asc" } },
-        faqs: { orderBy: { position: "asc" } }
-      },
+      include: developmentInclude,
       orderBy: [{ isFeatured: "desc" }, { displayOrder: "asc" }, { updatedAt: "desc" }]
     });
 
@@ -467,21 +492,7 @@ export async function getPublicDevelopmentBySlug(slug: string) {
         status: DevelopmentPublicationStatus.PUBLISHED,
         archivedAt: null
       },
-      include: {
-        builder: true,
-        media: {
-          orderBy: [{ isPrimary: "desc" }, { position: "asc" }]
-        },
-        unitTypes: {
-          orderBy: [{ isAvailable: "desc" }, { position: "asc" }]
-        },
-        milestones: {
-          orderBy: { position: "asc" }
-        },
-        faqs: {
-          orderBy: { position: "asc" }
-        }
-      }
+      include: developmentInclude
     });
 
     if (!development) return null;
@@ -500,21 +511,7 @@ export async function listCrmDevelopments(options?: { includeArchived?: boolean 
   try {
     const developments = await prisma.development.findMany({
       where: options?.includeArchived ? undefined : { archivedAt: null },
-      include: {
-        builder: true,
-        media: {
-          orderBy: [{ isPrimary: "desc" }, { position: "asc" }]
-        },
-        unitTypes: {
-          orderBy: [{ isAvailable: "desc" }, { position: "asc" }]
-        },
-        milestones: {
-          orderBy: { position: "asc" }
-        },
-        faqs: {
-          orderBy: { position: "asc" }
-        }
-      },
+      include: developmentInclude,
       orderBy: [{ isFeatured: "desc" }, { displayOrder: "asc" }, { updatedAt: "desc" }]
     });
 
@@ -533,21 +530,7 @@ export async function getCrmDevelopmentById(id: string) {
   try {
     const development = await prisma.development.findUnique({
       where: { id },
-      include: {
-        builder: true,
-        media: {
-          orderBy: [{ isPrimary: "desc" }, { position: "asc" }]
-        },
-        unitTypes: {
-          orderBy: [{ isAvailable: "desc" }, { position: "asc" }]
-        },
-        milestones: {
-          orderBy: { position: "asc" }
-        },
-        faqs: {
-          orderBy: { position: "asc" }
-        }
-      }
+      include: developmentInclude
     });
 
     if (!development) return null;
@@ -583,13 +566,7 @@ export async function listPublicBuilders() {
             status: DevelopmentPublicationStatus.PUBLISHED,
             archivedAt: null
           },
-          include: {
-            builder: true,
-            media: { orderBy: [{ isPrimary: "desc" }, { position: "asc" }] },
-            unitTypes: { orderBy: [{ isAvailable: "desc" }, { position: "asc" }] },
-            milestones: { orderBy: { position: "asc" } },
-            faqs: { orderBy: { position: "asc" } }
-          },
+          include: developmentInclude,
           orderBy: [{ isFeatured: "desc" }, { displayOrder: "asc" }, { updatedAt: "desc" }]
         }
       },
@@ -635,13 +612,7 @@ export async function getPublicBuilderBySlug(slug: string) {
             status: DevelopmentPublicationStatus.PUBLISHED,
             archivedAt: null
           },
-          include: {
-            builder: true,
-            media: { orderBy: [{ isPrimary: "desc" }, { position: "asc" }] },
-            unitTypes: { orderBy: [{ isAvailable: "desc" }, { position: "asc" }] },
-            milestones: { orderBy: { position: "asc" } },
-            faqs: { orderBy: { position: "asc" } }
-          },
+          include: developmentInclude,
           orderBy: [{ isFeatured: "desc" }, { displayOrder: "asc" }, { updatedAt: "desc" }]
         }
       }

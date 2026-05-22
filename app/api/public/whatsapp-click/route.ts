@@ -24,6 +24,8 @@ export async function POST(request: Request) {
     developmentSlug,
     unitTypeId,
     unitTypeName,
+    unitId,
+    unitLabel,
     leadPhone,
     leadName,
     leadEmail,
@@ -50,6 +52,15 @@ export async function POST(request: Request) {
             id: unitTypeId,
             developmentId: development.id
           }
+      })
+      : null;
+  const unit =
+    development && unitId
+      ? await prisma.developmentUnit.findFirst({
+          where: {
+            id: unitId,
+            developmentId: development.id
+          }
         })
       : null;
 
@@ -61,6 +72,7 @@ export async function POST(request: Request) {
           linkedPropertyId: property?.id,
           linkedDevelopmentId: development?.id,
           linkedDevelopmentUnitTypeId: unitType?.id,
+          linkedDevelopmentUnitId: unit?.id,
           email: leadEmail || undefined,
           developmentLeadStatus:
             context === "schedule"
@@ -77,6 +89,7 @@ export async function POST(request: Request) {
           linkedPropertyId: property?.id,
           linkedDevelopmentId: development?.id,
           linkedDevelopmentUnitTypeId: unitType?.id,
+          linkedDevelopmentUnitId: unit?.id,
           developmentLeadStatus:
             context === "schedule"
               ? DevelopmentLeadStatus.AGENDOU_APRESENTACAO
@@ -93,6 +106,7 @@ export async function POST(request: Request) {
         propertyId: property?.id,
         developmentId: development?.id,
         unitTypeId: unitType?.id,
+        unitId: unit?.id,
         type: InteractionType.WHATSAPP_CLICK,
         channel: InteractionChannel.WHATSAPP,
         message: "Clique em botão WhatsApp",
@@ -104,7 +118,9 @@ export async function POST(request: Request) {
           developmentSlug,
           developmentId,
           unitTypeId,
-          unitTypeName: unitType?.name ?? unitTypeName
+          unitTypeName: unitType?.name ?? unitTypeName,
+          unitId,
+          unitLabel: unit?.label ?? unitLabel
         }
       }
     });
@@ -115,6 +131,7 @@ export async function POST(request: Request) {
     leadId: lead?.id ?? null,
     propertyId: property?.id ?? null,
     developmentId: development?.id ?? null,
-    unitTypeId: unitType?.id ?? null
+    unitTypeId: unitType?.id ?? null,
+    unitId: unit?.id ?? null
   });
 }

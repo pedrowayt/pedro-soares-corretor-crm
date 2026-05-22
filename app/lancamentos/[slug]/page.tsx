@@ -117,6 +117,13 @@ function numberRange(from: number | null | undefined, to: number | null | undefi
   return "-";
 }
 
+const unitStatusLabels: Record<string, string> = {
+  DISPONIVEL: "Disponível",
+  RESERVADA: "Reservada",
+  VENDIDA: "Vendida",
+  BLOQUEADA: "Bloqueada"
+};
+
 function getInitials(value: string) {
   const cleaned = value.trim();
   if (!cleaned) return "PS";
@@ -204,6 +211,23 @@ export default async function LancamentoDetailsPage({ params }: { params: Promis
   const publicStage = investmentAnalysis.stage;
   const currentStageIndex = publicDevelopmentStageOrder.indexOf(publicStage);
   const investmentWhatsappMessage = `Olá, Pedro. Quero entender o potencial de valorização do empreendimento ${development.title} pela etapa atual da obra.`;
+  type DevelopmentUnit = (typeof development.units)[number];
+  type UnitAvailabilityGroup = { towerName: string; units: DevelopmentUnit[] };
+  const unitsByTower = development.units.reduce<Record<string, UnitAvailabilityGroup>>(
+    (acc, unit) => {
+      const key = unit.towerId ?? "general";
+      if (!acc[key]) {
+        acc[key] = {
+          towerName: unit.towerName ?? "Unidades do empreendimento",
+          units: []
+        };
+      }
+      acc[key].units.push(unit);
+      return acc;
+    },
+    {}
+  );
+  const unitGroups = Object.entries(unitsByTower);
 
   const breadcrumbSchema = {
     "@context": "https://schema.org",
@@ -439,7 +463,7 @@ export default async function LancamentoDetailsPage({ params }: { params: Promis
                 {development.unitTypes.map((unit) => (
                   <div key={unit.id} className="card" style={{ padding: 12 }}>
                     <div style={{ display: "flex", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
-                      <strong>{unit.name}</strong>
+                      <strong>{unit.towerName ? `${unit.towerName} • ${unit.name}` : unit.name}</strong>
                       <span className="badge">{unit.isAvailable ? "Disponível" : "Indisponível"}</span>
                     </div>
                     <p className="text-card" style={{ margin: "6px 0", color: "var(--text-muted)" }}>
@@ -470,6 +494,59 @@ export default async function LancamentoDetailsPage({ params }: { params: Promis
               </div>
             </article>
 
+            {development.units.length ? (
+              <article className="card" style={{ padding: 18 }}>
+                <h2 className="title-luxury" style={{ marginTop: 0 }}>Disponibilidade por unidade</h2>
+                <div style={{ display: "grid", gap: 14 }}>
+                  {unitGroups.map(([towerKey, group]) => (
+                    <div key={towerKey} style={{ display: "grid", gap: 8 }}>
+                      <strong>{group.towerName}</strong>
+                      <div style={{ overflowX: "auto" }}>
+                        <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                          <thead>
+                            <tr>
+                              <th style={tableHeadStyle}>Unidade</th>
+                              <th style={tableHeadStyle}>Planta</th>
+                              <th style={tableHeadStyle}>Andar</th>
+                              <th style={tableHeadStyle}>Área</th>
+                              <th style={tableHeadStyle}>Status</th>
+                              <th style={tableHeadStyle}>Valor</th>
+                              <th style={tableHeadStyle}>Ação</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {group.units.map((unit) => {
+                              const unitInterestLabel = [unit.label, unit.unitTypeName].filter(Boolean).join(" - ");
+                              return (
+                                <tr key={unit.id}>
+                                  <td style={tableCellStyle}>{unit.label}</td>
+                                  <td style={tableCellStyle}>{unit.unitTypeName ?? "-"}</td>
+                                  <td style={tableCellStyle}>{unit.floor ?? "-"}</td>
+                                  <td style={tableCellStyle}>{unit.areaPrivateM2Number ? `${unit.areaPrivateM2Number} m²` : "-"}</td>
+                                  <td style={tableCellStyle}>{unitStatusLabels[unit.status] ?? unit.status}</td>
+                                  <td style={tableCellStyle}>{unit.priceNumber ? formatCurrencyBRL(unit.priceNumber) : "Sob consulta"}</td>
+                                  <td style={tableCellStyle}>
+                                    <a
+                                      className="button button-ghost"
+                                      href={buildWhatsAppUrl(buildDevelopmentUnitMessage(development.title, unitInterestLabel || unit.label))}
+                                      target="_blank"
+                                      rel="noreferrer"
+                                    >
+                                      Contatar
+                                    </a>
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </article>
+            ) : null}
+
             {development.showFloorplanTable ? (
               <article className="card" style={{ padding: 18 }}>
                 <h2 className="title-luxury" style={{ marginTop: 0 }}>Quadro de áreas e preços</h2>
@@ -477,6 +554,7 @@ export default async function LancamentoDetailsPage({ params }: { params: Promis
                   <table style={{ width: "100%", borderCollapse: "collapse" }}>
                     <thead>
                       <tr>
+                        <th style={tableHeadStyle}>Torre/bloco</th>
                         <th style={tableHeadStyle}>A partir de</th>
                         <th style={tableHeadStyle}>Planta</th>
                         <th style={tableHeadStyle}>Área</th>
@@ -490,6 +568,7 @@ export default async function LancamentoDetailsPage({ params }: { params: Promis
                     <tbody>
                       {development.unitTypes.map((unit) => (
                         <tr key={unit.id}>
+                          <td style={tableCellStyle}>{unit.towerName ?? "-"}</td>
                           <td style={tableCellStyle}>
                             {unit.initialPriceNumber
                               ? formatCurrencyBRL(unit.initialPriceNumber)
@@ -726,7 +805,16 @@ export default async function LancamentoDetailsPage({ params }: { params: Promis
             developmentName={development.title}
             whatsappMessage={development.whatsappMessageTemplate || buildDevelopmentMessage(development.title)}
             tablePdfUrl={development.tablePdfUrl}
-            unitTypes={development.unitTypes.map((unit) => ({ id: unit.id, name: unit.name }))}
+            unitTypes={development.unitTypes.map((unit) => ({
+              id: unit.id,
+              name: unit.towerName ? `${unit.towerName} • ${unit.name}` : unit.name
+            }))}
+            units={development.units.map((unit) => ({
+              id: unit.id,
+              unitTypeId: unit.unitTypeId,
+              label: unit.label,
+              displayName: [unit.towerName, unit.label, unit.unitTypeName].filter(Boolean).join(" • ")
+            }))}
           />
         </div>
       </div>

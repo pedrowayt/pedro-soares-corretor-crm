@@ -26,12 +26,22 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
     email?: string;
     unitTypeId?: string;
     unitTypeName?: string;
+    unitId?: string;
+    unitLabel?: string;
   };
 
   const unitType = body.unitTypeId
     ? await prisma.developmentUnitType.findFirst({
         where: {
           id: body.unitTypeId,
+          developmentId: development.id
+        }
+      })
+    : null;
+  const unit = body.unitId
+    ? await prisma.developmentUnit.findFirst({
+        where: {
+          id: body.unitId,
           developmentId: development.id
         }
       })
@@ -58,6 +68,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
             desiredPurpose: PropertyPurpose.LANCAMENTO,
             linkedDevelopmentId: development.id,
             linkedDevelopmentUnitTypeId: unitType?.id ?? existingLead.linkedDevelopmentUnitTypeId,
+            linkedDevelopmentUnitId: unit?.id ?? existingLead.linkedDevelopmentUnitId,
             developmentLeadStatus: DevelopmentLeadStatus.RECEBEU_TABELA
           }
         })
@@ -71,6 +82,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
             desiredPurpose: PropertyPurpose.LANCAMENTO,
             linkedDevelopmentId: development.id,
             linkedDevelopmentUnitTypeId: unitType?.id,
+            linkedDevelopmentUnitId: unit?.id,
             developmentLeadStatus: DevelopmentLeadStatus.RECEBEU_TABELA
           }
         });
@@ -82,6 +94,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
         leadId: lead.id,
         developmentId: development.id,
         unitTypeId: unitType?.id,
+        unitId: unit?.id,
         type: InteractionType.TABLE_DOWNLOAD,
         channel: InteractionChannel.SITE,
         message: "Solicitou tabela PDF",
@@ -89,7 +102,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
           developmentId: development.id,
           tablePdfUrl: development.tablePdfUrl,
           unitTypeId: unitType?.id,
-          unitTypeName: unitType?.name ?? body.unitTypeName
+          unitTypeName: unitType?.name ?? body.unitTypeName,
+          unitId: unit?.id,
+          unitLabel: unit?.label ?? body.unitLabel
         }
       }
     });
@@ -98,6 +113,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
   return ok({
     downloadUrl: development.tablePdfUrl,
     leadId,
-    unitTypeId: unitType?.id ?? null
+    unitTypeId: unitType?.id ?? null,
+    unitId: unit?.id ?? null
   });
 }
