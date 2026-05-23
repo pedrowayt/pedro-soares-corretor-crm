@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useMemo, useState } from "react";
 import type { CSSProperties } from "react";
 
@@ -22,6 +23,18 @@ type BuilderItem = {
 };
 
 type SaveStatus = "idle" | "saving" | "success" | "error";
+type ScrapeStatus = "idle" | "loading" | "success" | "error";
+
+type BuilderFormState = ReturnType<typeof toFormState>;
+
+type BuilderScrapeFields = Partial<Record<keyof BuilderFormState, string | number | null>>;
+
+type LogoCandidate = {
+  url: string;
+  label: string;
+  source: string;
+  score: number;
+};
 
 async function requestJson(url: string, method: "POST" | "PATCH", payload?: unknown) {
   const response = await fetch(url, {
@@ -62,6 +75,15 @@ function optionalNumber(value: string) {
   return value.trim() ? Number(value) : null;
 }
 
+function isHttpUrl(value: string) {
+  try {
+    const url = new URL(value);
+    return url.protocol === "http:" || url.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
 export function BuilderForms({ builders }: { builders: BuilderItem[] }) {
   const [items, setItems] = useState(builders);
   const [selectedId, setSelectedId] = useState<string>(builders[0]?.id ?? "");
@@ -70,12 +92,19 @@ export function BuilderForms({ builders }: { builders: BuilderItem[] }) {
   const [form, setForm] = useState(() => toFormState(null));
   const [status, setStatus] = useState<SaveStatus>("idle");
   const [statusMessage, setStatusMessage] = useState("");
+  const [scrapeUrl, setScrapeUrl] = useState("");
+  const [scrapeStatus, setScrapeStatus] = useState<ScrapeStatus>("idle");
+  const [scrapeMessage, setScrapeMessage] = useState("");
+  const [logoCandidates, setLogoCandidates] = useState<LogoCandidate[]>([]);
 
   function handleSelect(id: string) {
     setSelectedId(id);
     setMode("edit");
     const found = items.find((item) => item.id === id) ?? null;
     setForm(toFormState(found));
+    setScrapeStatus("idle");
+    setScrapeMessage("");
+    setLogoCandidates([]);
   }
 
   function switchToCreate() {
@@ -84,6 +113,60 @@ export function BuilderForms({ builders }: { builders: BuilderItem[] }) {
     setForm(toFormState(null));
     setStatus("idle");
     setStatusMessage("");
+    setScrapeStatus("idle");
+    setScrapeMessage("");
+    setLogoCandidates([]);
+  }
+
+  function mergeScrapedFields(fields: BuilderScrapeFields) {
+    setForm((prev) => {
+      const next = { ...prev };
+      const keys = Object.keys(next) as Array<keyof BuilderFormState>;
+
+      for (const key of keys) {
+        const value = fields[key];
+        if (value === null || value === undefined) continue;
+
+        const stringValue = String(value).trim();
+        if (!stringValue) continue;
+        next[key] = stringValue;
+      }
+
+      return next;
+    });
+  }
+
+  async function scrapeBuilder() {
+    const sourceUrl = scrapeUrl.trim();
+    if (!sourceUrl) {
+      setScrapeStatus("error");
+      setScrapeMessage("Informe a URL da construtora.");
+      return;
+    }
+
+    setScrapeStatus("loading");
+    setScrapeMessage("Buscando dados da construtora...");
+    setLogoCandidates([]);
+
+    try {
+      const data = await requestJson("/api/crm/builders/scrape", "POST", { sourceUrl });
+      const scrapedBuilder = data.data.builder as BuilderScrapeFields;
+      const scrapedLogoCandidates = Array.isArray(data.data.logoCandidates)
+        ? (data.data.logoCandidates as LogoCandidate[])
+        : [];
+
+      mergeScrapedFields(scrapedBuilder);
+      setLogoCandidates(scrapedLogoCandidates.filter((candidate) => candidate.url).slice(0, 6));
+      setScrapeStatus("success");
+      setScrapeMessage(
+        scrapedBuilder.logoUrl
+          ? "Dados preenchidos. Revise os campos e salve."
+          : "Dados preenchidos. Nenhuma logo confiável foi aplicada automaticamente."
+      );
+    } catch (error) {
+      setScrapeStatus("error");
+      setScrapeMessage(error instanceof Error ? error.message : "Erro ao buscar dados da construtora.");
+    }
   }
 
   async function saveBuilder(event: React.FormEvent<HTMLFormElement>) {
@@ -194,6 +277,107 @@ export function BuilderForms({ builders }: { builders: BuilderItem[] }) {
 
       <article className="card" style={{ padding: 16 }}>
         <h3 className="title-luxury" style={{ marginTop: 0 }}>
+          Preencher por link
+        </h3>
+
+        <div className="form-grid">
+          <div style={{ gridColumn: "1 / -1" }}>
+            <label>URL da construtora</label>
+            <input
+              value={scrapeUrl}
+              onChange={(event) => {
+                setScrapeUrl(event.target.value);
+                if (scrapeStatus !== "loading") {
+                  setScrapeStatus("idle");
+                  setScrapeMessage("");
+                }
+              }}
+              placeholder="https://site-da-construtora.com.br"
+            />
+          </div>
+
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", gridColumn: "1 / -1" }}>
+            <button type="button" className="button button-primary" onClick={scrapeBuilder} disabled={scrapeStatus === "loading"}>
+              {scrapeStatus === "loading" ? "Buscando..." : "Buscar dados"}
+            </button>
+            <button
+              type="button"
+              className="button button-ghost"
+              onClick={() => {
+                setScrapeUrl("");
+                setScrapeStatus("idle");
+                setScrapeMessage("");
+                setLogoCandidates([]);
+              }}
+            >
+              Limpar
+            </button>
+          </div>
+
+          {logoCandidates.length ? (
+            <div style={{ gridColumn: "1 / -1", display: "grid", gap: 10 }}>
+              <strong className="text-card" style={{ fontSize: "var(--fs-12)" }}>
+                Logos encontradas
+              </strong>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 8 }}>
+                {logoCandidates.map((candidate) => (
+                  <button
+                    key={candidate.url}
+                    type="button"
+                    className="button button-ghost"
+                    style={{
+                      minHeight: 108,
+                      padding: 10,
+                      display: "grid",
+                      gap: 6,
+                      alignContent: "center",
+                      justifyItems: "center",
+                      overflow: "hidden"
+                    }}
+                    onClick={() => setForm((prev) => ({ ...prev, logoUrl: candidate.url }))}
+                  >
+                    <Image
+                      src={candidate.url}
+                      alt={candidate.label || "Logo da construtora"}
+                      width={180}
+                      height={72}
+                      unoptimized
+                      style={{ maxWidth: "100%", maxHeight: 54, objectFit: "contain" }}
+                    />
+                    <span
+                      className="text-card"
+                      style={{
+                        color: "var(--text-muted)",
+                        fontSize: "var(--fs-12)",
+                        maxWidth: "100%",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                        whiteSpace: "nowrap"
+                      }}
+                    >
+                      Usar {candidate.source}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          ) : null}
+        </div>
+
+        {scrapeMessage ? (
+          <p
+            style={{
+              marginBottom: 0,
+              color: scrapeStatus === "error" ? "#c92a2a" : scrapeStatus === "success" ? "#0a7a56" : "var(--text-muted)"
+            }}
+          >
+            {scrapeMessage}
+          </p>
+        ) : null}
+      </article>
+
+      <article className="card" style={{ padding: 16 }}>
+        <h3 className="title-luxury" style={{ marginTop: 0 }}>
           {mode === "create" ? "Nova construtora" : `Editar construtora${selectedBuilder ? ` • ${selectedBuilder.name}` : ""}`}
         </h3>
 
@@ -227,6 +411,18 @@ export function BuilderForms({ builders }: { builders: BuilderItem[] }) {
           <div>
             <label>Logo (URL)</label>
             <input value={form.logoUrl} onChange={(event) => setForm((prev) => ({ ...prev, logoUrl: event.target.value }))} />
+            {isHttpUrl(form.logoUrl) ? (
+              <div style={{ marginTop: 8, minHeight: 58, display: "flex", alignItems: "center" }}>
+                <Image
+                  src={form.logoUrl}
+                  alt="Preview da logo"
+                  width={160}
+                  height={54}
+                  unoptimized
+                  style={{ maxWidth: 160, maxHeight: 54, objectFit: "contain" }}
+                />
+              </div>
+            ) : null}
           </div>
           <div>
             <label>Website</label>
