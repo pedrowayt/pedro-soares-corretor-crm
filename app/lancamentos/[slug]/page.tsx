@@ -131,6 +131,21 @@ function getInitials(value: string) {
   return `${parts[0][0] ?? ""}${parts[parts.length - 1][0] ?? ""}`.toUpperCase();
 }
 
+function summarizeBuilderAbout(value: string, maxChars = 280) {
+  const normalized = value.replace(/\s+/g, " ").trim();
+  if (normalized.length <= maxChars) return { text: normalized, isTruncated: false };
+
+  const window = normalized.slice(0, maxChars);
+  const sentenceEnd = Math.max(window.lastIndexOf(". "), window.lastIndexOf("! "), window.lastIndexOf("? "));
+  if (sentenceEnd >= maxChars * 0.6) {
+    return { text: `${window.slice(0, sentenceEnd + 1).trim()}`, isTruncated: true };
+  }
+
+  const wordEnd = window.lastIndexOf(" ");
+  const cut = wordEnd > 0 ? window.slice(0, wordEnd) : window;
+  return { text: `${cut.trim()}…`, isTruncated: true };
+}
+
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const development = await getPublicDevelopmentBySlug(slug);
@@ -203,9 +218,11 @@ export default async function LancamentoDetailsPage({ params }: { params: Promis
   const builderName = development.displayBuilderName ?? "A confirmar";
   const builderLogoUrl = development.builder?.logoUrl ?? null;
   const builderInitials = getInitials(builderName);
-  const builderAbout =
+  const builderAboutFull =
     development.builder?.description?.trim() ||
     "Construtora parceira deste empreendimento.";
+  const builderAboutSummary = summarizeBuilderAbout(builderAboutFull);
+  const builderSlug = development.builder?.slug ?? null;
   const investmentAnalysis = getInvestmentPotentialAnalysis(development);
   const publicStage = investmentAnalysis.stage;
   const currentStageIndex = publicDevelopmentStageOrder.indexOf(publicStage);
@@ -744,7 +761,20 @@ export default async function LancamentoDetailsPage({ params }: { params: Promis
                   </div>
                 </div>
 
-                <p className="development-builder-detail-description text-card">{builderAbout}</p>
+                <p className="development-builder-detail-description text-card">
+                  {builderAboutSummary.text}
+                  {builderAboutSummary.isTruncated && builderSlug ? (
+                    <>
+                      {" "}
+                      <Link
+                        className="development-builder-detail-readmore"
+                        href={`/construtoras/${builderSlug}`}
+                      >
+                        Ler mais
+                      </Link>
+                    </>
+                  ) : null}
+                </p>
 
                 {development.builder ? (
                   <>
