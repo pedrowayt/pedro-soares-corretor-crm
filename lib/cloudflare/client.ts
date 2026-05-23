@@ -59,11 +59,31 @@ export async function createImageDirectUpload(input: {
   requireSignedURLs?: boolean;
   expiry?: string;
 }) {
-  const { accountId } = getCloudflareEnv();
-  return callCloudflare<{ id: string; uploadURL: string }>(`/accounts/${accountId}/images/v2/direct_upload`, {
+  const { accountId, token } = getCloudflareEnv();
+
+  const form = new FormData();
+  if (input.id) form.append("id", input.id);
+  if (input.creator) form.append("creator", input.creator);
+  if (input.expiry) form.append("expiry", input.expiry);
+  if (typeof input.requireSignedURLs === "boolean") {
+    form.append("requireSignedURLs", String(input.requireSignedURLs));
+  }
+  if (input.metadata) form.append("metadata", JSON.stringify(input.metadata));
+
+  const response = await fetch(`${API_BASE}/accounts/${accountId}/images/v2/direct_upload`, {
     method: "POST",
-    body: JSON.stringify(input)
+    headers: { Authorization: `Bearer ${token}` },
+    body: form,
+    cache: "no-store"
   });
+
+  const payload = (await response.json()) as CloudflareResult<{ id: string; uploadURL: string }>;
+
+  if (!response.ok || !payload.success) {
+    throw new Error(payload.errors?.[0]?.message ?? "Falha ao gerar upload de imagem.");
+  }
+
+  return payload.result;
 }
 
 export async function createStreamDirectUpload(input: {
