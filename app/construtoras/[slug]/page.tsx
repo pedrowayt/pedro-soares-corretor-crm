@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowRight, AtSign, ExternalLink, Globe2, MessageCircle } from "lucide-react";
+import { ArrowRight, AtSign, Building2, Calendar, ExternalLink, Globe2, MapPin, MessageCircle, Trophy } from "lucide-react";
 import { DevelopmentCard } from "@/components/public/development-card";
 import { getPublicBuilderBySlug } from "@/lib/data/developments";
 import { buildWhatsAppUrl } from "@/lib/integrations/whatsapp-links";
@@ -107,10 +107,22 @@ export default async function BuilderPublicPage({ params }: { params: Promise<{ 
       .map((development) => [development.district, development.city].filter(Boolean).join(", "))
       .filter(Boolean)
   );
+  const districtRegionsAreRedundant =
+    districtRegions.length > 0 &&
+    districtRegions.every(([row]) => cityRegions.some(([city]) => row.endsWith(city)));
   const activeProjects = builder.activeProjectsCount ?? builder.developments.length;
   const summary =
     builder.description ||
     `Conheça os empreendimentos publicados da ${builder.name} e fale com Pedro Soares para receber tabela, plantas e condições.`;
+  const locationLabel = formatLocation(builder.city, builder.state);
+  const heroChips = [
+    builder.city || builder.state ? { icon: MapPin, label: locationLabel } : null,
+    builder.foundedYear ? { icon: Calendar, label: `Fundada em ${builder.foundedYear}` } : null,
+    activeProjects ? { icon: Building2, label: `${activeProjects} obra${activeProjects === 1 ? "" : "s"} ativa${activeProjects === 1 ? "" : "s"}` } : null,
+    builder.deliveredDevelopmentsCount
+      ? { icon: Trophy, label: `${builder.deliveredDevelopmentsCount} entregue${builder.deliveredDevelopmentsCount === 1 ? "" : "s"}` }
+      : null
+  ].filter(Boolean) as Array<{ icon: typeof MapPin; label: string }>;
   const pageUrl = `${baseUrl}/construtoras/${builder.slug}`;
 
   const organizationSchema = {
@@ -158,9 +170,33 @@ export default async function BuilderPublicPage({ params }: { params: Promise<{ 
       <section className="section builder-profile-section" style={{ paddingBottom: 28 }}>
         <div className="container">
           <div className="builder-profile-hero">
+            <aside className="builder-profile-brand" aria-label={`Logo da construtora ${builder.name}`}>
+              <div className="builder-logo-frame">
+                {builder.logoUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={builder.logoUrl} alt={`Logo da construtora ${builder.name}`} className="builder-logo-image" />
+                ) : (
+                  <div className="builder-logo-fallback" role="img" aria-label={`Iniciais da construtora ${builder.name}`}>
+                    {getInitials(builder.name)}
+                  </div>
+                )}
+              </div>
+            </aside>
+
             <div className="builder-profile-copy">
-              <p className="wp-hero-eyebrow">Construtora</p>
+              <p className="wp-hero-eyebrow">Construtora parceira</p>
               <h1 className="section-title builder-profile-title">{builder.name}</h1>
+
+              {heroChips.length ? (
+                <ul className="builder-profile-chips" aria-label={`Resumo da ${builder.name}`}>
+                  {heroChips.map(({ icon: Icon, label }) => (
+                    <li key={label}>
+                      <Icon size={14} aria-hidden /> {label}
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+
               <p className="section-subtitle text-card builder-profile-summary">{summary}</p>
 
               <div className="builder-profile-actions">
@@ -177,21 +213,6 @@ export default async function BuilderPublicPage({ params }: { params: Promise<{ 
                 </Link>
               </div>
             </div>
-
-            <aside className="builder-profile-brand" aria-label={`Dados da construtora ${builder.name}`}>
-              <div className="builder-logo-frame">
-                {builder.logoUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={builder.logoUrl} alt={`Logo da construtora ${builder.name}`} className="builder-logo-image" />
-                ) : (
-                  <div className="builder-logo-fallback" role="img" aria-label={`Iniciais da construtora ${builder.name}`}>
-                    {getInitials(builder.name)}
-                  </div>
-                )}
-              </div>
-              <p className="title-luxury builder-profile-brand-name">{builder.name}</p>
-              <p className="text-card builder-profile-location">{formatLocation(builder.city, builder.state)}</p>
-            </aside>
           </div>
         </div>
       </section>
@@ -199,25 +220,33 @@ export default async function BuilderPublicPage({ params }: { params: Promise<{ 
       <section className="section" style={{ paddingTop: 0 }}>
         <div className="container builder-profile-layout">
           <div className="builder-profile-main">
-            <article className="card builder-content-card">
+            <article className="card builder-content-card builder-about-card">
+              <p className="wp-hero-eyebrow">Quem é a construtora</p>
               <h2 className="title-luxury">Sobre a {builder.name}</h2>
-              {aboutParagraphs.length ? (
-                aboutParagraphs.map((paragraph) => (
-                  <p key={paragraph} className="text-card">
-                    {paragraph}
+
+              <div className="builder-about-body">
+                {aboutParagraphs.length ? (
+                  aboutParagraphs.map((paragraph, index) => (
+                    <p
+                      key={paragraph}
+                      className={`text-card${index === 0 ? " builder-about-lede" : ""}`}
+                    >
+                      {paragraph}
+                    </p>
+                  ))
+                ) : (
+                  <p className="text-card builder-about-lede">
+                    A história institucional desta construtora ainda não foi preenchida no CRM. Enquanto isso, veja os empreendimentos publicados e as regiões de atuação abaixo.
                   </p>
-                ))
-              ) : (
-                <p className="text-card">
-                  A história institucional desta construtora ainda não foi preenchida no CRM. Enquanto isso, veja os empreendimentos publicados e as regiões de atuação abaixo.
-                </p>
-              )}
+                )}
+              </div>
             </article>
 
-            <article className="card builder-content-card">
-              <h2 className="title-luxury">Principais regiões da {builder.name}</h2>
-              {cityRegions.length || districtRegions.length ? (
-                <div className="builder-region-grid">
+            {cityRegions.length ? (
+              <article className="card builder-content-card">
+                <p className="wp-hero-eyebrow">Onde atua</p>
+                <h2 className="title-luxury">Principais regiões da {builder.name}</h2>
+                <div className={`builder-region-grid${districtRegionsAreRedundant || !districtRegions.length ? " builder-region-grid--single" : ""}`}>
                   <div>
                     <h3 className="builder-region-title">Cidades</h3>
                     <div className="builder-region-list">
@@ -229,27 +258,32 @@ export default async function BuilderPublicPage({ params }: { params: Promise<{ 
                       ))}
                     </div>
                   </div>
-                  <div>
-                    <h3 className="builder-region-title">Bairros</h3>
-                    <div className="builder-region-list">
-                      {districtRegions.slice(0, 6).map(([region, count]) => (
-                        <p key={region} className="text-card">
-                          <span>{region}</span>
-                          <strong>{count} empreendimento{count === 1 ? "" : "s"}</strong>
-                        </p>
-                      ))}
+
+                  {!districtRegionsAreRedundant && districtRegions.length ? (
+                    <div>
+                      <h3 className="builder-region-title">Bairros</h3>
+                      <div className="builder-region-list">
+                        {districtRegions.slice(0, 6).map(([region, count]) => (
+                          <p key={region} className="text-card">
+                            <span>{region}</span>
+                            <strong>{count} empreendimento{count === 1 ? "" : "s"}</strong>
+                          </p>
+                        ))}
+                      </div>
                     </div>
-                  </div>
+                  ) : null}
                 </div>
-              ) : (
-                <p className="text-card">
-                  Nenhuma região publicada para esta construtora no momento.
-                </p>
-              )}
-            </article>
+              </article>
+            ) : null}
 
             <article className="card builder-content-card">
-              <h2 className="title-luxury">Empreendimentos da {builder.name}</h2>
+              <p className="wp-hero-eyebrow">Portfólio publicado</p>
+              <h2 className="title-luxury">
+                Empreendimentos da {builder.name}
+                {builder.developments.length ? (
+                  <span className="builder-section-count"> · {builder.developments.length}</span>
+                ) : null}
+              </h2>
               {builder.developments.length ? (
                 <div className="grid-3">
                   {builder.developments.map((development) => (
@@ -285,14 +319,18 @@ export default async function BuilderPublicPage({ params }: { params: Promise<{ 
 
           <aside className="builder-profile-sidebar">
             <article className="card builder-content-card">
-              <h2 className="title-luxury">Resumo</h2>
-              <div className="builder-profile-stats">
+              <h2 className="title-luxury">Números da construtora</h2>
+              <div className="builder-profile-stats builder-profile-stats--grid">
                 <p>
                   <span>Fundação</span>
-                  <strong>{builder.foundedYear ?? "Não informado"}</strong>
+                  <strong>{builder.foundedYear ?? "—"}</strong>
                 </p>
                 <p>
-                  <span>Empreendimentos no site</span>
+                  <span>Sede</span>
+                  <strong>{locationLabel}</strong>
+                </p>
+                <p>
+                  <span>No site</span>
                   <strong>{formatCount(builder.developments.length)}</strong>
                 </p>
                 <p>
@@ -300,11 +338,11 @@ export default async function BuilderPublicPage({ params }: { params: Promise<{ 
                   <strong>{formatCount(activeProjects)}</strong>
                 </p>
                 <p>
-                  <span>Empreendimentos entregues</span>
+                  <span>Entregues</span>
                   <strong>{formatCount(builder.deliveredDevelopmentsCount)}</strong>
                 </p>
                 <p>
-                  <span>Unidades entregues</span>
+                  <span>Unidades</span>
                   <strong>{formatCount(builder.deliveredUnitsCount)}</strong>
                 </p>
               </div>

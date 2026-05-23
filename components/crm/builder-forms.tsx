@@ -2,7 +2,6 @@
 
 import Image from "next/image";
 import { useMemo, useState } from "react";
-import type { CSSProperties } from "react";
 
 type BuilderItem = {
   id: string;
@@ -230,74 +229,109 @@ export function BuilderForms({ builders }: { builders: BuilderItem[] }) {
     }
   }
 
+  const totalCount = items.length;
+  const activeCount = items.filter((item) => !item.archivedAt).length;
+  const archivedCount = totalCount - activeCount;
+
   return (
-    <div style={{ display: "grid", gap: 18 }}>
-      <article className="card" style={{ padding: 16 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
-          <h2 className="title-luxury" style={{ margin: 0 }}>
-            Construtoras cadastradas
-          </h2>
+    <div className="crm-builders-page">
+      <article className="card crm-builders-list">
+        <header className="crm-builders-list-head">
+          <div>
+            <h2 className="title-luxury" style={{ margin: 0 }}>
+              Construtoras cadastradas
+            </h2>
+            <p className="text-card crm-builders-list-meta">
+              {totalCount} cadastrada{totalCount === 1 ? "" : "s"}
+              {totalCount ? ` · ${activeCount} ativa${activeCount === 1 ? "" : "s"} · ${archivedCount} arquivada${archivedCount === 1 ? "" : "s"}` : ""}
+            </p>
+          </div>
           <button type="button" className="button button-primary" onClick={switchToCreate}>
             Nova construtora
           </button>
-        </div>
+        </header>
 
-        <div style={{ marginTop: 12, overflowX: "auto" }}>
-          <table style={{ width: "100%", borderCollapse: "collapse" }}>
+        <div className="crm-builders-table-wrap">
+          <table className="crm-builders-table">
             <thead>
               <tr>
-                <th style={thStyle}>Nome</th>
-                <th style={thStyle}>Cidade</th>
-                <th style={thStyle}>Status</th>
-                <th style={thStyle}>Ações</th>
+                <th>Nome</th>
+                <th>Cidade</th>
+                <th>Status</th>
+                <th aria-label="Ações" />
               </tr>
             </thead>
             <tbody>
-              {items.map((item) => (
-                <tr key={item.id}>
-                  <td style={tdStyle}>{item.name}</td>
-                  <td style={tdStyle}>{item.city ?? "-"}</td>
-                  <td style={tdStyle}>{item.archivedAt ? "Arquivada" : "Ativa"}</td>
-                  <td style={tdStyle}>
-                    <button
-                      type="button"
-                      className="button button-ghost"
-                      style={{ padding: "0.45rem 0.72rem" }}
-                      onClick={() => handleSelect(item.id)}
-                    >
-                      Editar
-                    </button>
+              {items.length ? (
+                items.map((item) => {
+                  const isSelected = item.id === selectedId && mode === "edit";
+                  return (
+                    <tr key={item.id} className={isSelected ? "is-selected" : undefined}>
+                      <td>{item.name}</td>
+                      <td>{item.city ?? "—"}</td>
+                      <td>
+                        <span
+                          className={`crm-builder-status${item.archivedAt ? " is-archived" : ""}`}
+                        >
+                          {item.archivedAt ? "Arquivada" : "Ativa"}
+                        </span>
+                      </td>
+                      <td>
+                        <button
+                          type="button"
+                          className="button button-ghost"
+                          style={{ padding: "0.45rem 0.72rem" }}
+                          onClick={() => handleSelect(item.id)}
+                        >
+                          {isSelected ? "Editando" : "Editar"}
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })
+              ) : (
+                <tr>
+                  <td colSpan={4} className="crm-builders-empty">
+                    Nenhuma construtora cadastrada. Clique em <strong>Nova construtora</strong> para começar.
                   </td>
                 </tr>
-              ))}
+              )}
             </tbody>
           </table>
         </div>
       </article>
 
-      <article className="card" style={{ padding: 16 }}>
-        <h3 className="title-luxury" style={{ marginTop: 0 }}>
-          Preencher por link
-        </h3>
-
-        <div className="form-grid">
-          <div style={{ gridColumn: "1 / -1" }}>
-            <label>URL da construtora</label>
-            <input
-              value={scrapeUrl}
-              onChange={(event) => {
-                setScrapeUrl(event.target.value);
-                if (scrapeStatus !== "loading") {
-                  setScrapeStatus("idle");
-                  setScrapeMessage("");
-                }
-              }}
-              placeholder="https://site-da-construtora.com.br"
-            />
+      <article className="card crm-builders-scrape">
+        <header className="crm-builders-section-head">
+          <div>
+            <h3 className="title-luxury" style={{ margin: 0 }}>
+              Preencher por link
+            </h3>
+            <p className="text-card crm-builders-section-meta">
+              Cole o site da construtora e a IA preenche os campos para você revisar.
+            </p>
           </div>
+        </header>
 
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", gridColumn: "1 / -1" }}>
-            <button type="button" className="button button-primary" onClick={scrapeBuilder} disabled={scrapeStatus === "loading"}>
+        <div className="crm-builders-scrape-row">
+          <input
+            value={scrapeUrl}
+            onChange={(event) => {
+              setScrapeUrl(event.target.value);
+              if (scrapeStatus !== "loading") {
+                setScrapeStatus("idle");
+                setScrapeMessage("");
+              }
+            }}
+            placeholder="https://site-da-construtora.com.br"
+          />
+          <div className="crm-builders-scrape-actions">
+            <button
+              type="button"
+              className="button button-primary"
+              onClick={scrapeBuilder}
+              disabled={scrapeStatus === "loading"}
+            >
               {scrapeStatus === "loading" ? "Buscando..." : "Buscar dados"}
             </button>
             <button
@@ -313,164 +347,228 @@ export function BuilderForms({ builders }: { builders: BuilderItem[] }) {
               Limpar
             </button>
           </div>
-
-          {logoCandidates.length ? (
-            <div style={{ gridColumn: "1 / -1", display: "grid", gap: 10 }}>
-              <strong className="text-card" style={{ fontSize: "var(--fs-12)" }}>
-                Logos encontradas
-              </strong>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 8 }}>
-                {logoCandidates.map((candidate) => (
-                  <button
-                    key={candidate.url}
-                    type="button"
-                    className="button button-ghost"
-                    style={{
-                      minHeight: 108,
-                      padding: 10,
-                      display: "grid",
-                      gap: 6,
-                      alignContent: "center",
-                      justifyItems: "center",
-                      overflow: "hidden"
-                    }}
-                    onClick={() => setForm((prev) => ({ ...prev, logoUrl: candidate.url }))}
-                  >
-                    <Image
-                      src={candidate.url}
-                      alt={candidate.label || "Logo da construtora"}
-                      width={180}
-                      height={72}
-                      unoptimized
-                      style={{ maxWidth: "100%", maxHeight: 54, objectFit: "contain" }}
-                    />
-                    <span
-                      className="text-card"
-                      style={{
-                        color: "var(--text-muted)",
-                        fontSize: "var(--fs-12)",
-                        maxWidth: "100%",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        whiteSpace: "nowrap"
-                      }}
-                    >
-                      Usar {candidate.source}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            </div>
-          ) : null}
         </div>
+
+        {logoCandidates.length ? (
+          <div className="crm-builders-logo-candidates">
+            <strong className="text-card" style={{ fontSize: "var(--fs-12)" }}>
+              Logos encontradas
+            </strong>
+            <div className="crm-builders-logo-grid">
+              {logoCandidates.map((candidate) => (
+                <button
+                  key={candidate.url}
+                  type="button"
+                  className="button button-ghost crm-builders-logo-option"
+                  onClick={() => setForm((prev) => ({ ...prev, logoUrl: candidate.url }))}
+                >
+                  <Image
+                    src={candidate.url}
+                    alt={candidate.label || "Logo da construtora"}
+                    width={180}
+                    height={72}
+                    unoptimized
+                    style={{ maxWidth: "100%", maxHeight: 54, objectFit: "contain" }}
+                  />
+                  <span
+                    className="text-card"
+                    style={{
+                      color: "var(--text-muted)",
+                      fontSize: "var(--fs-12)",
+                      maxWidth: "100%",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap"
+                    }}
+                  >
+                    Usar {candidate.source}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+        ) : null}
 
         {scrapeMessage ? (
           <p
-            style={{
-              marginBottom: 0,
-              color: scrapeStatus === "error" ? "#c92a2a" : scrapeStatus === "success" ? "#0a7a56" : "var(--text-muted)"
-            }}
+            className="crm-builders-feedback"
+            data-tone={scrapeStatus === "error" ? "error" : scrapeStatus === "success" ? "success" : "muted"}
           >
             {scrapeMessage}
           </p>
         ) : null}
       </article>
 
-      <article className="card" style={{ padding: 16 }}>
-        <h3 className="title-luxury" style={{ marginTop: 0 }}>
-          {mode === "create" ? "Nova construtora" : `Editar construtora${selectedBuilder ? ` • ${selectedBuilder.name}` : ""}`}
-        </h3>
+      <article className="card crm-builders-form-card">
+        <header className="crm-builders-section-head">
+          <div>
+            <h3 className="title-luxury" style={{ margin: 0 }}>
+              {mode === "create" ? "Nova construtora" : `Editar construtora${selectedBuilder ? ` • ${selectedBuilder.name}` : ""}`}
+            </h3>
+            <p className="text-card crm-builders-section-meta">
+              {mode === "create"
+                ? "Preencha os dados ou use o preenchimento por link acima."
+                : "Atualize os campos e salve. O conteúdo aparece na página pública da construtora."}
+            </p>
+          </div>
+        </header>
 
-        <form className="form-grid" onSubmit={saveBuilder}>
-          <div>
-            <label>Nome</label>
-            <input value={form.name} onChange={(event) => setForm((prev) => ({ ...prev, name: event.target.value }))} required />
-          </div>
-          <div>
-            <label>Slug</label>
-            <input value={form.slug} onChange={(event) => setForm((prev) => ({ ...prev, slug: event.target.value }))} required />
-          </div>
-          <div>
-            <label>Cidade</label>
-            <input value={form.city} onChange={(event) => setForm((prev) => ({ ...prev, city: event.target.value }))} />
-          </div>
-          <div>
-            <label>Estado</label>
-            <input value={form.state} onChange={(event) => setForm((prev) => ({ ...prev, state: event.target.value }))} />
-          </div>
-          <div>
-            <label>Ano de fundação</label>
-            <input
-              type="number"
-              min={1800}
-              max={2100}
-              value={form.foundedYear}
-              onChange={(event) => setForm((prev) => ({ ...prev, foundedYear: event.target.value }))}
-            />
-          </div>
-          <div>
-            <label>Logo (URL)</label>
-            <input value={form.logoUrl} onChange={(event) => setForm((prev) => ({ ...prev, logoUrl: event.target.value }))} />
-            {isHttpUrl(form.logoUrl) ? (
-              <div style={{ marginTop: 8, minHeight: 58, display: "flex", alignItems: "center" }}>
-                <Image
-                  src={form.logoUrl}
-                  alt="Preview da logo"
-                  width={160}
-                  height={54}
-                  unoptimized
-                  style={{ maxWidth: 160, maxHeight: 54, objectFit: "contain" }}
+        <form onSubmit={saveBuilder} className="crm-builders-form">
+          <fieldset className="crm-builders-fieldset">
+            <legend>Identidade</legend>
+            <div className="form-grid">
+              <div>
+                <label>Nome</label>
+                <input
+                  value={form.name}
+                  onChange={(event) => setForm((prev) => ({ ...prev, name: event.target.value }))}
+                  required
                 />
               </div>
-            ) : null}
-          </div>
-          <div>
-            <label>Website</label>
-            <input value={form.website} onChange={(event) => setForm((prev) => ({ ...prev, website: event.target.value }))} />
-          </div>
-          <div>
-            <label>Instagram</label>
-            <input value={form.instagram} onChange={(event) => setForm((prev) => ({ ...prev, instagram: event.target.value }))} />
-          </div>
-          <div>
-            <label>Empreendimentos entregues</label>
-            <input
-              type="number"
-              min={0}
-              value={form.deliveredDevelopmentsCount}
-              onChange={(event) => setForm((prev) => ({ ...prev, deliveredDevelopmentsCount: event.target.value }))}
-            />
-          </div>
-          <div>
-            <label>Unidades entregues</label>
-            <input
-              type="number"
-              min={0}
-              value={form.deliveredUnitsCount}
-              onChange={(event) => setForm((prev) => ({ ...prev, deliveredUnitsCount: event.target.value }))}
-            />
-          </div>
-          <div>
-            <label>Obras ativas</label>
-            <input
-              type="number"
-              min={0}
-              value={form.activeProjectsCount}
-              onChange={(event) => setForm((prev) => ({ ...prev, activeProjectsCount: event.target.value }))}
-            />
-          </div>
-          <div style={{ gridColumn: "1 / -1" }}>
-            <label>Descrição</label>
-            <textarea value={form.description} onChange={(event) => setForm((prev) => ({ ...prev, description: event.target.value }))} />
-          </div>
-          <div style={{ gridColumn: "1 / -1" }}>
-            <label>Texto institucional</label>
-            <textarea
-              value={form.institutionalText}
-              onChange={(event) => setForm((prev) => ({ ...prev, institutionalText: event.target.value }))}
-            />
-          </div>
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", gridColumn: "1 / -1" }}>
+              <div>
+                <label>Slug</label>
+                <input
+                  value={form.slug}
+                  onChange={(event) => setForm((prev) => ({ ...prev, slug: event.target.value }))}
+                  required
+                />
+              </div>
+              <div style={{ gridColumn: "1 / -1" }}>
+                <label>Logo (URL)</label>
+                <input
+                  value={form.logoUrl}
+                  onChange={(event) => setForm((prev) => ({ ...prev, logoUrl: event.target.value }))}
+                />
+                {isHttpUrl(form.logoUrl) ? (
+                  <div className="crm-builders-logo-preview">
+                    <Image
+                      src={form.logoUrl}
+                      alt="Preview da logo"
+                      width={160}
+                      height={54}
+                      unoptimized
+                      style={{ maxWidth: 160, maxHeight: 54, objectFit: "contain" }}
+                    />
+                  </div>
+                ) : null}
+              </div>
+            </div>
+          </fieldset>
+
+          <fieldset className="crm-builders-fieldset">
+            <legend>Localização &amp; fundação</legend>
+            <div className="form-grid">
+              <div>
+                <label>Cidade</label>
+                <input
+                  value={form.city}
+                  onChange={(event) => setForm((prev) => ({ ...prev, city: event.target.value }))}
+                />
+              </div>
+              <div>
+                <label>Estado</label>
+                <input
+                  value={form.state}
+                  onChange={(event) => setForm((prev) => ({ ...prev, state: event.target.value }))}
+                />
+              </div>
+              <div>
+                <label>Ano de fundação</label>
+                <input
+                  type="number"
+                  min={1800}
+                  max={2100}
+                  value={form.foundedYear}
+                  onChange={(event) => setForm((prev) => ({ ...prev, foundedYear: event.target.value }))}
+                />
+              </div>
+            </div>
+          </fieldset>
+
+          <fieldset className="crm-builders-fieldset">
+            <legend>Canais oficiais</legend>
+            <div className="form-grid">
+              <div>
+                <label>Website</label>
+                <input
+                  value={form.website}
+                  onChange={(event) => setForm((prev) => ({ ...prev, website: event.target.value }))}
+                  placeholder="https://"
+                />
+              </div>
+              <div>
+                <label>Instagram</label>
+                <input
+                  value={form.instagram}
+                  onChange={(event) => setForm((prev) => ({ ...prev, instagram: event.target.value }))}
+                  placeholder="@perfil ou URL"
+                />
+              </div>
+            </div>
+          </fieldset>
+
+          <fieldset className="crm-builders-fieldset">
+            <legend>Números &amp; portfólio</legend>
+            <div className="form-grid">
+              <div>
+                <label>Empreendimentos entregues</label>
+                <input
+                  type="number"
+                  min={0}
+                  value={form.deliveredDevelopmentsCount}
+                  onChange={(event) => setForm((prev) => ({ ...prev, deliveredDevelopmentsCount: event.target.value }))}
+                />
+              </div>
+              <div>
+                <label>Unidades entregues</label>
+                <input
+                  type="number"
+                  min={0}
+                  value={form.deliveredUnitsCount}
+                  onChange={(event) => setForm((prev) => ({ ...prev, deliveredUnitsCount: event.target.value }))}
+                />
+              </div>
+              <div>
+                <label>Obras ativas</label>
+                <input
+                  type="number"
+                  min={0}
+                  value={form.activeProjectsCount}
+                  onChange={(event) => setForm((prev) => ({ ...prev, activeProjectsCount: event.target.value }))}
+                />
+              </div>
+            </div>
+          </fieldset>
+
+          <fieldset className="crm-builders-fieldset">
+            <legend>Conteúdo público</legend>
+            <div className="form-grid">
+              <div style={{ gridColumn: "1 / -1" }}>
+                <label>
+                  Descrição curta
+                  <span className="crm-builders-hint">Aparece como resumo no topo da página pública.</span>
+                </label>
+                <textarea
+                  value={form.description}
+                  onChange={(event) => setForm((prev) => ({ ...prev, description: event.target.value }))}
+                  rows={3}
+                />
+              </div>
+              <div style={{ gridColumn: "1 / -1" }}>
+                <label>
+                  Texto institucional
+                  <span className="crm-builders-hint">Conteúdo completo do bloco &quot;Sobre&quot;. Use parágrafos separados por linha em branco.</span>
+                </label>
+                <textarea
+                  value={form.institutionalText}
+                  onChange={(event) => setForm((prev) => ({ ...prev, institutionalText: event.target.value }))}
+                  rows={8}
+                />
+              </div>
+            </div>
+          </fieldset>
+
+          <div className="crm-builders-form-actions">
             <button type="submit" className="button button-primary" disabled={status === "saving"}>
               {status === "saving" ? "Salvando..." : mode === "create" ? "Criar construtora" : "Salvar alterações"}
             </button>
@@ -484,10 +582,8 @@ export function BuilderForms({ builders }: { builders: BuilderItem[] }) {
 
         {statusMessage ? (
           <p
-            style={{
-              marginBottom: 0,
-              color: status === "error" ? "#c92a2a" : status === "success" ? "#0a7a56" : "var(--text-muted)"
-            }}
+            className="crm-builders-feedback"
+            data-tone={status === "error" ? "error" : status === "success" ? "success" : "muted"}
           >
             {statusMessage}
           </p>
@@ -496,17 +592,3 @@ export function BuilderForms({ builders }: { builders: BuilderItem[] }) {
     </div>
   );
 }
-
-const thStyle: CSSProperties = {
-  textAlign: "left",
-  padding: "10px 12px",
-  borderBottom: "1px solid rgba(15,34,61,.1)",
-  color: "var(--text-muted)",
-  fontSize: "var(--fs-12)"
-};
-
-const tdStyle: CSSProperties = {
-  padding: "10px 12px",
-  borderBottom: "1px solid rgba(15,34,61,.08)",
-  fontSize: "var(--fs-14)"
-};
