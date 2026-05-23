@@ -1600,10 +1600,58 @@ body:has(.admin-login-page) .cookie-consent-banner {
 }
 
 .builder-directory-card {
-  padding: 16px;
-  display: grid;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
   gap: 14px;
-  align-content: start;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.builder-directory-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--sophistication-gold-500);
+  box-shadow: 0 8px 24px -12px rgba(15, 34, 61, 0.18);
+}
+
+.builder-directory-card-logo {
+  height: 112px;
+  display: grid;
+  place-items: center;
+  padding: 18px 22px;
+  background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+  border-bottom: 1px solid rgba(15, 34, 61, 0.06);
+}
+
+.builder-directory-card-logo-img {
+  max-width: 80%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  display: block;
+}
+
+.builder-directory-card-logo-fallback {
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #f3f6fb;
+  color: #172035;
+  font-size: var(--fs-22);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.builder-directory-card-body {
+  padding: 0 18px;
+  display: grid;
+  gap: 8px;
+  flex: 1;
 }
 
 .builder-directory-card-head {
@@ -1650,7 +1698,10 @@ body:has(.admin-login-page) .cookie-consent-banner {
 }
 
 .builder-card-kicker {
-  margin: 0 0 4px;
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   color: #64748b;
   font-size: var(--fs-12);
   font-weight: 700;
@@ -1658,18 +1709,31 @@ body:has(.admin-login-page) .cookie-consent-banner {
   letter-spacing: 0.06em;
 }
 
+.builder-card-kicker svg {
+  color: var(--sophistication-gold-500);
+}
+
 .builder-card-title {
   margin: 0;
   font-size: var(--fs-22);
-  line-height: 1.12;
+  line-height: 1.15;
+  color: #172035;
+  overflow-wrap: anywhere;
 }
 
 .builder-card-summary {
-  margin: 0;
+  margin: 4px 0 0;
   color: var(--text-muted);
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .builder-mini-stats {
+  margin: 0 18px;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
@@ -1707,6 +1771,16 @@ body:has(.admin-login-page) .cookie-consent-banner {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
+}
+
+.builder-directory-card .builder-card-actions {
+  margin: 0 18px 18px;
+  padding-top: 4px;
+}
+
+.builder-directory-card .builder-card-actions .button {
+  flex: 1;
+  min-width: 0;
 }
 
 .builder-card-actions .button,
@@ -3292,13 +3366,17 @@ body:has(.admin-login-page) .cookie-consent-banner {
   }
 
   .builder-directory-grid,
-  .builder-mini-stats,
   .builder-region-grid {
     grid-template-columns: 1fr;
   }
 
   .builder-directory-card-head {
     grid-template-columns: 1fr;
+  }
+
+  .builder-directory-card-logo {
+    height: 96px;
+    padding: 14px 18px;
   }
 
   .builder-logo-frame-small {

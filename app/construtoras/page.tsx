@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, Building2, MessageCircle } from "lucide-react";
+import { ArrowRight, Building2, MapPin, MessageCircle } from "lucide-react";
 import { listPublicBuilders } from "@/lib/data/developments";
 import { buildWhatsAppUrl } from "@/lib/integrations/whatsapp-links";
 
@@ -37,7 +37,7 @@ function formatLocation(city: string | null, state: string | null) {
   return city ?? state ?? "Atuação regional";
 }
 
-function formatCount(value: number | null | undefined, fallback = "Não informado") {
+function formatCount(value: number | null | undefined, fallback = "—") {
   return typeof value === "number" ? value.toLocaleString("pt-BR") : fallback;
 }
 
@@ -91,26 +91,33 @@ export default async function BuildersIndexPage() {
 
                 return (
                   <article key={builder.id} className="card builder-directory-card">
-                    <div className="builder-directory-card-head">
-                      <div className="builder-logo-frame builder-logo-frame-small">
-                        {builder.logoUrl ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img src={builder.logoUrl} alt={`Logo da construtora ${builder.name}`} className="builder-logo-image" />
-                        ) : (
-                          <div className="builder-logo-fallback" role="img" aria-label={`Iniciais da construtora ${builder.name}`}>
-                            {getInitials(builder.name)}
-                          </div>
-                        )}
-                      </div>
-                      <div>
-                        <p className="text-card builder-card-kicker">
-                          {formatLocation(builder.city, builder.state)}
-                        </p>
-                        <h2 className="title-luxury builder-card-title">{builder.name}</h2>
-                      </div>
+                    <div className="builder-directory-card-logo">
+                      {builder.logoUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={builder.logoUrl}
+                          alt={`Logo da construtora ${builder.name}`}
+                          className="builder-directory-card-logo-img"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <div
+                          className="builder-directory-card-logo-fallback"
+                          role="img"
+                          aria-label={`Iniciais da construtora ${builder.name}`}
+                        >
+                          {getInitials(builder.name)}
+                        </div>
+                      )}
                     </div>
 
-                    <p className="text-card builder-card-summary">{summary}</p>
+                    <div className="builder-directory-card-body">
+                      <p className="builder-card-kicker">
+                        <MapPin size={12} aria-hidden /> {formatLocation(builder.city, builder.state)}
+                      </p>
+                      <h2 className="title-luxury builder-card-title">{builder.name}</h2>
+                      <p className="text-card builder-card-summary">{summary}</p>
+                    </div>
 
                     <div className="builder-mini-stats">
                       <p>
