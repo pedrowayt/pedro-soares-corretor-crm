@@ -26,6 +26,7 @@ export function SiteFooter() {
               <Link href="/imoveis/prontos">Imóveis prontos</Link>
               <Link href="/lancamentos">Imóveis na planta</Link>
               <Link href="/imoveis/leilao">Imóveis leilão</Link>
+              <Link href="/construtoras">Construtoras</Link>
             </nav>
           </section>
 
