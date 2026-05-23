@@ -6,6 +6,9 @@ import { buildWhatsAppUrl } from "@/lib/integrations/whatsapp-links";
 
 const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export const metadata: Metadata = {
   title: "Construtoras em Palmas TO | Pedro Soares",
   description:

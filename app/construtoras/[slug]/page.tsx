@@ -8,6 +8,9 @@ import { buildWhatsAppUrl } from "@/lib/integrations/whatsapp-links";
 
 const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 function getInitials(value: string) {
   const parts = value.trim().split(/\s+/).filter(Boolean);
   if (parts.length === 0) return "PS";
