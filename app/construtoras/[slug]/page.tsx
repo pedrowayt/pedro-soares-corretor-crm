@@ -2,9 +2,24 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowRight, AtSign, Building2, Calendar, ExternalLink, Globe2, MapPin, MessageCircle, Trophy } from "lucide-react";
+import { Marked } from "marked";
 import { DevelopmentCard } from "@/components/public/development-card";
 import { getPublicBuilderBySlug } from "@/lib/data/developments";
 import { buildWhatsAppUrl } from "@/lib/integrations/whatsapp-links";
+
+const builderMarkdownRenderer = new Marked({
+  async: false,
+  gfm: true,
+  breaks: false
+});
+
+function renderBuilderMarkdown(value: string | null | undefined) {
+  if (!value) return "";
+  const trimmed = value.trim();
+  if (!trimmed) return "";
+  // marked escapes unknown HTML by default; institutional text only comes from authenticated CRM input
+  return builderMarkdownRenderer.parse(trimmed) as string;
+}
 
 const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 
@@ -25,14 +40,6 @@ function formatCount(value: number | null | undefined, fallback = "Não informad
 function formatLocation(city: string | null, state: string | null) {
   if (city && state) return `${city}, ${state}`;
   return city ?? state ?? "Atuação regional";
-}
-
-function splitParagraphs(value: string | null | undefined) {
-  if (!value) return [];
-  return value
-    .split(/\n{2,}/)
-    .map((paragraph) => paragraph.trim())
-    .filter(Boolean);
 }
 
 function countBy(values: string[]) {
@@ -100,7 +107,7 @@ export default async function BuilderPublicPage({ params }: { params: Promise<{ 
 
   const instagramHref = getInstagramHref(builder.instagram);
   const sameAs = [builder.website, instagramHref].filter(Boolean);
-  const aboutParagraphs = splitParagraphs(builder.institutionalText);
+  const aboutHtml = renderBuilderMarkdown(builder.institutionalText);
   const cityRegions = countBy(builder.developments.map((development) => development.city).filter(Boolean));
   const districtRegions = countBy(
     builder.developments
@@ -224,22 +231,18 @@ export default async function BuilderPublicPage({ params }: { params: Promise<{ 
               <p className="wp-hero-eyebrow">Quem é a construtora</p>
               <h2 className="title-luxury">Sobre a {builder.name}</h2>
 
-              <div className="builder-about-body">
-                {aboutParagraphs.length ? (
-                  aboutParagraphs.map((paragraph, index) => (
-                    <p
-                      key={paragraph}
-                      className={`text-card${index === 0 ? " builder-about-lede" : ""}`}
-                    >
-                      {paragraph}
-                    </p>
-                  ))
-                ) : (
+              {aboutHtml ? (
+                <div
+                  className="builder-about-body builder-about-rich"
+                  dangerouslySetInnerHTML={{ __html: aboutHtml }}
+                />
+              ) : (
+                <div className="builder-about-body">
                   <p className="text-card builder-about-lede">
                     A história institucional desta construtora ainda não foi preenchida no CRM. Enquanto isso, veja os empreendimentos publicados e as regiões de atuação abaixo.
                   </p>
-                )}
-              </div>
+                </div>
+              )}
             </article>
 
             {cityRegions.length ? (

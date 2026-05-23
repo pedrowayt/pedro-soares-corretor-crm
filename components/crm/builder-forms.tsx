@@ -557,12 +557,15 @@ export function BuilderForms({ builders }: { builders: BuilderItem[] }) {
               <div style={{ gridColumn: "1 / -1" }}>
                 <label>
                   Texto institucional
-                  <span className="crm-builders-hint">Conteúdo completo do bloco &quot;Sobre&quot;. Use parágrafos separados por linha em branco.</span>
+                  <span className="crm-builders-hint">
+                    Conteúdo completo do bloco &quot;Sobre&quot;. Aceita markdown: <code>##</code> para subtítulo,{" "}
+                    <code>###</code> para sub-subtítulo, <code>-</code> para listas, <code>**negrito**</code> e linha em branco entre parágrafos.
+                  </span>
                 </label>
                 <textarea
                   value={form.institutionalText}
                   onChange={(event) => setForm((prev) => ({ ...prev, institutionalText: event.target.value }))}
-                  rows={8}
+                  rows={10}
                 />
               </div>
             </div>

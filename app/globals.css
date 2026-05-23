@@ -1849,7 +1849,7 @@ body:has(.admin-login-page) .cookie-consent-banner {
 .builder-about-body {
   display: grid;
   gap: 14px;
-  max-width: 70ch;
+  max-width: 72ch;
 }
 
 .builder-about-body .text-card {
@@ -1861,6 +1861,105 @@ body:has(.admin-login-page) .cookie-consent-banner {
   font-size: var(--fs-16);
   color: #172035 !important;
   font-weight: 500;
+}
+
+/* Rich markdown rendering inside Sobre card */
+.builder-about-rich > * {
+  margin: 0;
+}
+
+.builder-about-rich p {
+  margin: 0;
+  color: var(--text-muted);
+  line-height: 1.65;
+}
+
+.builder-about-rich p strong,
+.builder-about-rich p b {
+  color: #172035;
+  font-weight: 600;
+}
+
+.builder-about-rich p:first-of-type {
+  font-size: var(--fs-16);
+  color: #172035;
+  font-weight: 500;
+}
+
+.builder-about-rich h2,
+.builder-about-rich h3,
+.builder-about-rich h4 {
+  margin: 14px 0 0;
+  color: #172035;
+  letter-spacing: -0.005em;
+  line-height: 1.25;
+}
+
+.builder-about-rich h2 {
+  font-size: var(--fs-22, 1.375rem);
+  font-weight: 700;
+}
+
+.builder-about-rich h3 {
+  font-size: var(--fs-20, 1.25rem);
+  font-weight: 700;
+}
+
+.builder-about-rich h4 {
+  font-size: var(--fs-16);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--sophistication-gold-500);
+}
+
+.builder-about-rich h2:first-child,
+.builder-about-rich h3:first-child,
+.builder-about-rich h4:first-child {
+  margin-top: 0;
+}
+
+.builder-about-rich ul,
+.builder-about-rich ol {
+  margin: 0;
+  padding-left: 1.2rem;
+  display: grid;
+  gap: 6px;
+  color: var(--text-muted);
+}
+
+.builder-about-rich ul li::marker {
+  color: var(--sophistication-gold-500);
+}
+
+.builder-about-rich li {
+  line-height: 1.5;
+}
+
+.builder-about-rich li strong,
+.builder-about-rich li b {
+  color: #172035;
+  font-weight: 600;
+}
+
+.builder-about-rich a {
+  color: var(--sophistication-gold-500);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.builder-about-rich blockquote {
+  margin: 0;
+  padding: 8px 0 8px 14px;
+  border-left: 3px solid var(--sophistication-gold-500);
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+.builder-about-rich hr {
+  border: none;
+  border-top: 1px solid rgba(15, 34, 61, 0.08);
+  margin: 6px 0;
 }
 
 .builder-region-grid {
