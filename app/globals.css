@@ -2249,6 +2249,153 @@ body:has(.admin-login-page) .cookie-consent-banner {
   align-items: center;
 }
 
+.crm-builders-logo-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.crm-builders-logo-option-actions {
+  display: flex;
+  gap: 6px;
+  width: 100%;
+  justify-content: center;
+}
+
+.crm-builders-logo-option-actions .button {
+  padding: 0.35rem 0.7rem;
+  font-size: var(--fs-12);
+}
+
+.logo-cropper-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(7, 13, 24, 0.55);
+  backdrop-filter: blur(2px);
+  z-index: 80;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.logo-cropper-modal {
+  background: var(--surface);
+  border-radius: 14px;
+  padding: 20px;
+  width: min(560px, 100%);
+  display: grid;
+  gap: 14px;
+  box-shadow: 0 30px 60px rgba(7, 13, 24, 0.25);
+}
+
+.logo-cropper-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.logo-cropper-stage {
+  position: relative;
+  margin: 0 auto;
+  border-radius: 10px;
+  overflow: hidden;
+  touch-action: none;
+  cursor: grab;
+  background:
+    linear-gradient(45deg, #d8dde6 25%, transparent 25%) 0 0/16px 16px,
+    linear-gradient(-45deg, #d8dde6 25%, transparent 25%) 0 8px/16px 16px,
+    linear-gradient(45deg, transparent 75%, #d8dde6 75%) 8px -8px/16px 16px,
+    linear-gradient(-45deg, transparent 75%, #d8dde6 75%) -8px 0/16px 16px,
+    #eef2f7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo-cropper-stage[data-bg="white"] {
+  background: #fff;
+}
+
+.logo-cropper-stage:active {
+  cursor: grabbing;
+}
+
+.logo-cropper-stage img {
+  flex-shrink: 0;
+  max-width: none;
+  max-height: none;
+  will-change: transform;
+  user-select: none;
+}
+
+.logo-cropper-frame {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border: 2px dashed rgba(216, 154, 59, 0.85);
+  box-shadow: 0 0 0 9999px rgba(7, 13, 24, 0.15) inset;
+  border-radius: 6px;
+}
+
+.logo-cropper-msg {
+  position: absolute;
+  margin: 0;
+  padding: 6px 10px;
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 6px;
+  font-size: var(--fs-12);
+  color: var(--text-muted);
+}
+
+.logo-cropper-msg[data-tone="error"] {
+  color: #b42318;
+}
+
+.logo-cropper-controls {
+  display: grid;
+  gap: 10px;
+}
+
+.logo-cropper-slider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: var(--fs-14);
+}
+
+.logo-cropper-slider input[type="range"] {
+  flex: 1;
+}
+
+.logo-cropper-slider-value {
+  min-width: 48px;
+  text-align: right;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.logo-cropper-bg-toggle {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.logo-cropper-bg-toggle .button.is-active {
+  background: var(--sophistication-gold-500);
+  color: #1f1306;
+}
+
+.logo-cropper-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
 .crm-builders-form {
   margin-top: 14px;
   display: grid;

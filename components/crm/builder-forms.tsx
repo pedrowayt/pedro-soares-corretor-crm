@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
+import { LogoCropper } from "./logo-cropper";
 
 type BuilderItem = {
   id: string;
@@ -23,6 +24,10 @@ type BuilderItem = {
 
 type SaveStatus = "idle" | "saving" | "success" | "error";
 type ScrapeStatus = "idle" | "loading" | "success" | "error";
+type LogoUploadStatus = "idle" | "preparing" | "uploading" | "error";
+
+const MAX_LOGO_BYTES = 8 * 1024 * 1024;
+const ACCEPTED_LOGO_MIME = ["image/png", "image/jpeg", "image/webp", "image/svg+xml"];
 
 type BuilderFormState = ReturnType<typeof toFormState>;
 
@@ -95,6 +100,10 @@ export function BuilderForms({ builders }: { builders: BuilderItem[] }) {
   const [scrapeStatus, setScrapeStatus] = useState<ScrapeStatus>("idle");
   const [scrapeMessage, setScrapeMessage] = useState("");
   const [logoCandidates, setLogoCandidates] = useState<LogoCandidate[]>([]);
+  const [cropSource, setCropSource] = useState<string | null>(null);
+  const [logoUploadStatus, setLogoUploadStatus] = useState<LogoUploadStatus>("idle");
+  const [logoUploadMessage, setLogoUploadMessage] = useState("");
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   function handleSelect(id: string) {
     setSelectedId(id);
@@ -229,6 +238,106 @@ export function BuilderForms({ builders }: { builders: BuilderItem[] }) {
     }
   }
 
+  function readFileAsDataUrl(file: File) {
+    return new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result ?? ""));
+      reader.onerror = () => reject(new Error("Não foi possível ler o arquivo."));
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function handleFileSelected(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!ACCEPTED_LOGO_MIME.includes(file.type)) {
+      setLogoUploadStatus("error");
+      setLogoUploadMessage("Formato não suportado. Use PNG, JPG, WEBP ou SVG.");
+      event.target.value = "";
+      return;
+    }
+
+    if (file.size > MAX_LOGO_BYTES) {
+      setLogoUploadStatus("error");
+      setLogoUploadMessage("Arquivo maior que 8MB. Comprima a imagem antes de enviar.");
+      event.target.value = "";
+      return;
+    }
+
+    try {
+      setLogoUploadStatus("preparing");
+      setLogoUploadMessage("");
+      const dataUrl = await readFileAsDataUrl(file);
+      setCropSource(dataUrl);
+    } catch (error) {
+      setLogoUploadStatus("error");
+      setLogoUploadMessage(error instanceof Error ? error.message : "Erro ao ler o arquivo.");
+    } finally {
+      event.target.value = "";
+    }
+  }
+
+  function openCropForUrl(rawUrl: string) {
+    const url = rawUrl.trim();
+    if (!url) return;
+    setLogoUploadMessage("");
+    setLogoUploadStatus("preparing");
+    const proxied = url.startsWith("data:")
+      ? url
+      : `/api/media/images/proxy?url=${encodeURIComponent(url)}`;
+    setCropSource(proxied);
+  }
+
+  async function handleCropConfirm(blob: Blob) {
+    setCropSource(null);
+    setLogoUploadStatus("uploading");
+    setLogoUploadMessage("Enviando logo recortada...");
+
+    try {
+      const directUploadResponse = await fetch("/api/media/images/direct-upload", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          metadata: {
+            module: "builder",
+            builderId: selectedId || undefined,
+            source: "logo-crop"
+          }
+        })
+      });
+
+      const directUploadData = await directUploadResponse.json().catch(() => ({}));
+      if (!directUploadResponse.ok || !directUploadData.success) {
+        throw new Error(directUploadData?.error?.message ?? "Falha ao gerar upload direto.");
+      }
+
+      const uploadUrl = directUploadData.data.directUpload.uploadURL as string;
+      const imageDeliveryUrl = directUploadData.data.imageDeliveryUrl as string | null | undefined;
+      const body = new FormData();
+      body.append("file", blob, "logo.png");
+
+      const uploadResponse = await fetch(uploadUrl, { method: "POST", body });
+      const uploadPayload = await uploadResponse.json().catch(() => ({}));
+      if (!uploadResponse.ok || !uploadPayload.success) {
+        throw new Error(uploadPayload?.errors?.[0]?.message ?? "Falha no upload da imagem.");
+      }
+
+      const variants = uploadPayload?.result?.variants as string[] | undefined;
+      const finalUrl = imageDeliveryUrl || variants?.[0];
+      if (!finalUrl) {
+        throw new Error("Upload concluído, mas a URL da imagem não foi retornada.");
+      }
+
+      setForm((prev) => ({ ...prev, logoUrl: finalUrl }));
+      setLogoUploadStatus("idle");
+      setLogoUploadMessage("Logo atualizada. Lembre-se de salvar.");
+    } catch (error) {
+      setLogoUploadStatus("error");
+      setLogoUploadMessage(error instanceof Error ? error.message : "Erro ao enviar a logo.");
+    }
+  }
+
   const totalCount = items.length;
   const activeCount = items.filter((item) => !item.archivedAt).length;
   const archivedCount = totalCount - activeCount;
@@ -356,12 +465,7 @@ export function BuilderForms({ builders }: { builders: BuilderItem[] }) {
             </strong>
             <div className="crm-builders-logo-grid">
               {logoCandidates.map((candidate) => (
-                <button
-                  key={candidate.url}
-                  type="button"
-                  className="button button-ghost crm-builders-logo-option"
-                  onClick={() => setForm((prev) => ({ ...prev, logoUrl: candidate.url }))}
-                >
+                <div key={candidate.url} className="crm-builders-logo-option">
                   <Image
                     src={candidate.url}
                     alt={candidate.label || "Logo da construtora"}
@@ -381,9 +485,25 @@ export function BuilderForms({ builders }: { builders: BuilderItem[] }) {
                       whiteSpace: "nowrap"
                     }}
                   >
-                    Usar {candidate.source}
+                    {candidate.source}
                   </span>
-                </button>
+                  <div className="crm-builders-logo-option-actions">
+                    <button
+                      type="button"
+                      className="button button-ghost"
+                      onClick={() => setForm((prev) => ({ ...prev, logoUrl: candidate.url }))}
+                    >
+                      Usar
+                    </button>
+                    <button
+                      type="button"
+                      className="button button-ghost"
+                      onClick={() => openCropForUrl(candidate.url)}
+                    >
+                      Ajustar
+                    </button>
+                  </div>
+                </div>
               ))}
             </div>
           </div>
@@ -434,11 +554,39 @@ export function BuilderForms({ builders }: { builders: BuilderItem[] }) {
                 />
               </div>
               <div style={{ gridColumn: "1 / -1" }}>
-                <label>Logo (URL)</label>
+                <label>Logo</label>
                 <input
                   value={form.logoUrl}
                   onChange={(event) => setForm((prev) => ({ ...prev, logoUrl: event.target.value }))}
+                  placeholder="URL da logo ou envie um arquivo abaixo"
                 />
+                <div className="crm-builders-logo-actions">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept={ACCEPTED_LOGO_MIME.join(",")}
+                    onChange={handleFileSelected}
+                    style={{ display: "none" }}
+                  />
+                  <button
+                    type="button"
+                    className="button button-ghost"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={logoUploadStatus === "uploading" || logoUploadStatus === "preparing"}
+                  >
+                    {logoUploadStatus === "uploading" ? "Enviando..." : "Enviar arquivo"}
+                  </button>
+                  {isHttpUrl(form.logoUrl) ? (
+                    <button
+                      type="button"
+                      className="button button-ghost"
+                      onClick={() => openCropForUrl(form.logoUrl)}
+                      disabled={logoUploadStatus === "uploading" || logoUploadStatus === "preparing"}
+                    >
+                      Ajustar / Recortar
+                    </button>
+                  ) : null}
+                </div>
                 {isHttpUrl(form.logoUrl) ? (
                   <div className="crm-builders-logo-preview">
                     <Image
@@ -450,6 +598,14 @@ export function BuilderForms({ builders }: { builders: BuilderItem[] }) {
                       style={{ maxWidth: 160, maxHeight: 54, objectFit: "contain" }}
                     />
                   </div>
+                ) : null}
+                {logoUploadMessage ? (
+                  <p
+                    className="crm-builders-feedback"
+                    data-tone={logoUploadStatus === "error" ? "error" : "muted"}
+                  >
+                    {logoUploadMessage}
+                  </p>
                 ) : null}
               </div>
             </div>
@@ -592,6 +748,17 @@ export function BuilderForms({ builders }: { builders: BuilderItem[] }) {
           </p>
         ) : null}
       </article>
+
+      {cropSource ? (
+        <LogoCropper
+          source={cropSource}
+          onCancel={() => {
+            setCropSource(null);
+            setLogoUploadStatus("idle");
+          }}
+          onConfirm={handleCropConfirm}
+        />
+      ) : null}
     </div>
   );
 }
