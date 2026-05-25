@@ -872,6 +872,11 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
   const [saveMessage, setSaveMessage] = useState("");
   const [mediaUrl, setMediaUrl] = useState("");
   const [mediaFileUploading, setMediaFileUploading] = useState(false);
+  const [mediaError, setMediaError] = useState("");
+  const [mediaInfo, setMediaInfo] = useState("");
+  const [mediaLocalPreview, setMediaLocalPreview] = useState<{ name: string; sizeKb: number; url: string } | null>(null);
+  const [mediaShowManualUrl, setMediaShowManualUrl] = useState(false);
+  const [mediaSubmitting, setMediaSubmitting] = useState(false);
   const [aiText, setAiText] = useState("");
   const [aiSourceUrl, setAiSourceUrl] = useState("");
   const [aiFileName, setAiFileName] = useState("");
@@ -889,6 +894,14 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
   const uploadFileRef = useRef<HTMLInputElement | null>(null);
 
   const selected = useMemo(() => items.find((item) => item.id === selectedId) ?? null, [items, selectedId]);
+
+  useEffect(() => {
+    return () => {
+      if (mediaLocalPreview?.url) {
+        URL.revokeObjectURL(mediaLocalPreview.url);
+      }
+    };
+  }, [mediaLocalPreview?.url]);
 
   useEffect(() => {
     if (aiStatus !== "loading") return;
@@ -1688,17 +1701,74 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
     }
   }
 
+  function resetMediaForm(form?: HTMLFormElement | null) {
+    if (form) form.reset();
+    if (uploadFileRef.current) uploadFileRef.current.value = "";
+    if (mediaLocalPreview?.url) URL.revokeObjectURL(mediaLocalPreview.url);
+    setMediaLocalPreview(null);
+    setMediaUrl("");
+    setMediaShowManualUrl(false);
+    setMediaInfo("");
+    setMediaError("");
+  }
+
+  function handleMediaFileSelect(event: React.ChangeEvent<HTMLInputElement>) {
+    setMediaError("");
+    setMediaInfo("");
+    const file = event.target.files?.[0];
+    if (mediaLocalPreview?.url) URL.revokeObjectURL(mediaLocalPreview.url);
+
+    if (!file) {
+      setMediaLocalPreview(null);
+      return;
+    }
+
+    const MAX_BYTES = 10 * 1024 * 1024;
+    if (!file.type.startsWith("image/")) {
+      setMediaError("Arquivo inválido. Selecione uma imagem (JPG, PNG, WEBP).");
+      setMediaLocalPreview(null);
+      event.target.value = "";
+      return;
+    }
+    if (file.size > MAX_BYTES) {
+      setMediaError(`Imagem acima do limite de 10 MB (tamanho atual: ${(file.size / 1024 / 1024).toFixed(1)} MB).`);
+      setMediaLocalPreview(null);
+      event.target.value = "";
+      return;
+    }
+
+    setMediaLocalPreview({
+      name: file.name,
+      sizeKb: Math.round(file.size / 1024),
+      url: URL.createObjectURL(file)
+    });
+    // URL anterior fica obsoleta com o novo arquivo selecionado
+    setMediaUrl("");
+  }
+
   async function createMedia(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!selectedId) return;
 
-    const fd = new FormData(event.currentTarget);
+    const form = event.currentTarget;
+    const fd = new FormData(form);
+    const url = mediaUrl.trim();
+
+    if (!url) {
+      setMediaError("Envie uma imagem ou informe uma URL externa antes de adicionar a mídia.");
+      return;
+    }
+
+    setMediaError("");
+    setMediaInfo("");
+    setMediaSubmitting(true);
+    setSaveStatus("saving");
 
     try {
       await fetchJson(`/api/crm/developments/${selectedId}/media`, "POST", {
         kind: fd.get("kind"),
         category: fd.get("category"),
-        url: fd.get("url"),
+        url,
         title: optionalString(String(fd.get("title") ?? "")),
         caption: optionalString(String(fd.get("caption") ?? "")),
         isPrimary: fd.get("isPrimary") === "on",
@@ -1707,24 +1777,28 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
 
       setSaveStatus("success");
       setSaveMessage("Mídia adicionada.");
-      event.currentTarget.reset();
-      setMediaUrl("");
+      setMediaInfo("Mídia adicionada com sucesso.");
+      resetMediaForm(form);
     } catch (error) {
+      const message = error instanceof Error ? error.message : "Falha ao adicionar mídia.";
       setSaveStatus("error");
-      setSaveMessage(error instanceof Error ? error.message : "Falha ao adicionar mídia.");
+      setSaveMessage(message);
+      setMediaError(message);
+    } finally {
+      setMediaSubmitting(false);
     }
   }
 
   async function handleDirectUpload() {
-    if (!uploadFileRef.current?.files?.[0]) {
-      setSaveStatus("error");
-      setSaveMessage("Selecione um arquivo de imagem para upload.");
+    const file = uploadFileRef.current?.files?.[0];
+    if (!file) {
+      setMediaError("Selecione um arquivo de imagem antes de enviar.");
       return;
     }
 
-    const file = uploadFileRef.current.files[0];
+    setMediaError("");
+    setMediaInfo("Enviando imagem para a CDN...");
     setMediaFileUploading(true);
-    setSaveStatus("saving");
 
     try {
       const directUploadResponse = await fetch("/api/media/images/direct-upload", {
@@ -1740,9 +1814,9 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
         })
       });
 
-      const directUploadData = await directUploadResponse.json();
-      if (!directUploadResponse.ok || !directUploadData.success) {
-        throw new Error(directUploadData?.error?.message ?? "Falha ao gerar upload direto.");
+      const directUploadData = await directUploadResponse.json().catch(() => null);
+      if (!directUploadResponse.ok || !directUploadData?.success) {
+        throw new Error(directUploadData?.error?.message ?? "Não foi possível gerar o link de upload. Verifique as credenciais do Cloudflare.");
       }
 
       const uploadUrl = directUploadData.data.directUpload.uploadURL as string;
@@ -1756,25 +1830,26 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
         body
       });
 
-      const uploadPayload = await uploadResponse.json();
-      if (!uploadResponse.ok || !uploadPayload.success) {
-        throw new Error(uploadPayload?.errors?.[0]?.message ?? "Falha no upload da imagem.");
+      const uploadPayload = await uploadResponse.json().catch(() => null);
+      if (!uploadResponse.ok || !uploadPayload?.success) {
+        const cfMessage = uploadPayload?.errors?.[0]?.message as string | undefined;
+        throw new Error(cfMessage ?? `Falha no upload (HTTP ${uploadResponse.status}).`);
       }
 
       const variants = uploadPayload?.result?.variants as string[] | undefined;
       const uploadResultUrl = variants?.[0];
+      const finalUrl = imageDeliveryUrl ?? uploadResultUrl ?? "";
 
-      if (imageDeliveryUrl) {
-        setMediaUrl(imageDeliveryUrl);
-      } else if (uploadResultUrl) {
-        setMediaUrl(uploadResultUrl);
+      if (!finalUrl) {
+        throw new Error("Upload concluído, mas a URL pública não foi retornada. Verifique CLOUDFLARE_IMAGES_ACCOUNT_HASH.");
       }
 
-      setSaveStatus("success");
-      setSaveMessage("Upload concluído. URL preenchida no campo de mídia.");
+      setMediaUrl(finalUrl);
+      setMediaInfo("Imagem enviada com sucesso. Já pode adicionar a mídia.");
     } catch (error) {
-      setSaveStatus("error");
-      setSaveMessage(error instanceof Error ? error.message : "Erro no upload.");
+      const message = error instanceof Error ? error.message : "Erro inesperado no upload.";
+      setMediaError(message);
+      setMediaInfo("");
     } finally {
       setMediaFileUploading(false);
     }
@@ -2330,7 +2405,7 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
           <div style={{ display: "grid", gap: 12 }}>
             <div className="card" style={{ padding: 12 }}>
               <h4 style={{ marginTop: 0 }}>Adicionar mídia</h4>
-              <div style={{ display: "grid", gap: 10 }}>
+              <div style={{ display: "grid", gap: 12 }}>
                 <div
                   style={{
                     border: "1px solid #dbe4f0",
@@ -2348,24 +2423,191 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
                   </p>
                   <p style={{ margin: 0, color: "#526174", fontSize: "var(--fs-12)" }}>
                     Dimensão recomendada: <strong>2400x1350</strong> (mínimo 1920x1080), formato horizontal, foco principal no
-                    centro da imagem para funcionar bem no desktop e no mobile.
+                    centro da imagem para funcionar bem no desktop e no mobile. Máx. 10 MB por arquivo.
                   </p>
                 </div>
-                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                  <input ref={uploadFileRef} type="file" accept="image/*" style={{ maxWidth: 320 }} />
-                  <button type="button" className="button button-ghost" onClick={handleDirectUpload} disabled={mediaFileUploading}>
-                    {mediaFileUploading ? "Enviando..." : "Enviar imagem"}
-                  </button>
+
+                <div
+                  style={{
+                    border: "1px dashed #c7d2e1",
+                    borderRadius: 12,
+                    padding: 14,
+                    display: "grid",
+                    gap: 12,
+                    background: "#fcfdff"
+                  }}
+                >
+                  <div style={{ display: "grid", gap: 6 }}>
+                    <strong style={{ fontSize: "var(--fs-13)", color: "#1f3149" }}>1. Envie o arquivo</strong>
+                    <p style={{ margin: 0, color: "#64748b", fontSize: "var(--fs-12)" }}>
+                      A URL pública é preenchida automaticamente após o envio.
+                    </p>
+                  </div>
+
+                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+                    <input
+                      ref={uploadFileRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleMediaFileSelect}
+                      style={{ maxWidth: 320 }}
+                      disabled={mediaFileUploading}
+                    />
+                    <button
+                      type="button"
+                      className="button button-primary"
+                      onClick={handleDirectUpload}
+                      disabled={mediaFileUploading || !mediaLocalPreview}
+                    >
+                      {mediaFileUploading ? "Enviando..." : "Enviar imagem"}
+                    </button>
+                    {(mediaLocalPreview || mediaUrl) && !mediaFileUploading ? (
+                      <button
+                        type="button"
+                        className="button button-ghost"
+                        onClick={() => resetMediaForm()}
+                      >
+                        Limpar
+                      </button>
+                    ) : null}
+                  </div>
+
+                  {(mediaLocalPreview || mediaUrl) ? (
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: 12,
+                        alignItems: "center",
+                        padding: 10,
+                        borderRadius: 10,
+                        background: "#ffffff",
+                        border: "1px solid #e2e8f0"
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: 96,
+                          height: 72,
+                          borderRadius: 8,
+                          overflow: "hidden",
+                          background: "#f1f5f9",
+                          flex: "0 0 auto",
+                          display: "grid",
+                          placeItems: "center"
+                        }}
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={mediaUrl || mediaLocalPreview?.url}
+                          alt="Pré-visualização da mídia"
+                          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                        />
+                      </div>
+                      <div style={{ display: "grid", gap: 2, minWidth: 0, flex: 1 }}>
+                        <strong style={{ fontSize: "var(--fs-13)", color: "#1f3149" }}>
+                          {mediaUrl ? "Imagem enviada à CDN" : "Aguardando envio"}
+                        </strong>
+                        {mediaLocalPreview ? (
+                          <span style={{ fontSize: "var(--fs-12)", color: "#64748b" }}>
+                            {mediaLocalPreview.name} · {mediaLocalPreview.sizeKb} KB
+                          </span>
+                        ) : null}
+                        {mediaUrl ? (
+                          <span
+                            style={{
+                              fontSize: "var(--fs-11)",
+                              color: "#64748b",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                              whiteSpace: "nowrap"
+                            }}
+                            title={mediaUrl}
+                          >
+                            {mediaUrl}
+                          </span>
+                        ) : null}
+                      </div>
+                    </div>
+                  ) : null}
+
+                  {mediaError ? (
+                    <div
+                      role="alert"
+                      style={{
+                        padding: 10,
+                        borderRadius: 8,
+                        background: "#fef2f2",
+                        border: "1px solid #fecaca",
+                        color: "#991b1b",
+                        fontSize: "var(--fs-12)"
+                      }}
+                    >
+                      {mediaError}
+                    </div>
+                  ) : null}
+
+                  {mediaInfo && !mediaError ? (
+                    <div
+                      role="status"
+                      style={{
+                        padding: 10,
+                        borderRadius: 8,
+                        background: "#ecfdf5",
+                        border: "1px solid #a7f3d0",
+                        color: "#065f46",
+                        fontSize: "var(--fs-12)"
+                      }}
+                    >
+                      {mediaInfo}
+                    </div>
+                  ) : null}
+
+                  <div style={{ borderTop: "1px dashed #e2e8f0", paddingTop: 10 }}>
+                    <button
+                      type="button"
+                      className="button button-ghost"
+                      style={{ padding: "0.35rem 0.7rem", fontSize: "var(--fs-12)" }}
+                      onClick={() => setMediaShowManualUrl((prev) => !prev)}
+                    >
+                      {mediaShowManualUrl ? "Ocultar URL externa" : "Usar URL externa (vídeo/PDF)"}
+                    </button>
+                    {mediaShowManualUrl ? (
+                      <div style={{ marginTop: 8, display: "grid", gap: 4 }}>
+                        <label style={{ fontSize: "var(--fs-12)", color: "#64748b" }}>URL pública da mídia</label>
+                        <input
+                          type="url"
+                          placeholder="https://..."
+                          value={mediaUrl}
+                          onChange={(event) => {
+                            setMediaUrl(event.target.value);
+                            setMediaError("");
+                          }}
+                        />
+                      </div>
+                    ) : null}
+                  </div>
                 </div>
+
                 <form className="form-grid" onSubmit={createMedia}>
+                  <div style={{ gridColumn: "1 / -1" }}>
+                    <strong style={{ fontSize: "var(--fs-13)", color: "#1f3149" }}>2. Detalhes da mídia</strong>
+                  </div>
                   <div><label>Tipo</label><select name="kind" defaultValue="GALLERY"><option value="HERO">Hero</option><option value="GALLERY">Galeria</option><option value="FLOORPLAN">Planta</option><option value="VIDEO">Vídeo</option><option value="PDF">PDF</option></select></div>
                   <div><label>Categoria</label><select name="category" defaultValue="FACHADA"><option value="HERO">Hero</option><option value="FACHADA">Fachada</option><option value="LAZER">Lazer</option><option value="DECORADO">Decorado</option><option value="PLANTA">Planta</option><option value="LOCALIZACAO">Localização</option><option value="OBRA">Obra</option><option value="OUTROS">Outros</option></select></div>
-                  <div style={{ gridColumn: "1 / -1" }}><label>URL da mídia</label><input name="url" value={mediaUrl} onChange={(e) => setMediaUrl(e.target.value)} required /></div>
                   <div><label>Título</label><input name="title" /></div>
                   <div><label>Legenda</label><input name="caption" /></div>
                   <div><label>Ordem</label><input name="position" type="number" min={0} defaultValue={0} /></div>
                   <label style={{ display: "flex", gap: 8, alignItems: "center" }}><input type="checkbox" name="isPrimary" style={{ width: 16, height: 16 }} /><span className="text-card">Imagem principal</span></label>
-                  <div style={{ gridColumn: "1 / -1" }}><button type="submit" className="button button-primary">Adicionar mídia</button></div>
+                  <div style={{ gridColumn: "1 / -1" }}>
+                    <button
+                      type="submit"
+                      className="button button-primary"
+                      disabled={mediaSubmitting || !mediaUrl}
+                      title={!mediaUrl ? "Envie a imagem ou informe uma URL externa primeiro." : undefined}
+                    >
+                      {mediaSubmitting ? "Adicionando..." : "Adicionar mídia"}
+                    </button>
+                  </div>
                 </form>
               </div>
             </div>
