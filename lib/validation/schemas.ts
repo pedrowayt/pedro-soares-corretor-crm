@@ -113,10 +113,30 @@ export const crmCreatePropertySchema = z.object({
   features: z.array(z.string()).default([]),
   legalNotes: z.string().optional(),
   internalNotes: z.string().optional(),
-  commissionPct: z.coerce.number().min(0).max(100).optional()
+  commissionPct: z.coerce.number().min(0).max(100).optional(),
+  marketAskingValue: z.coerce.number().optional(),
+  marketEstimatedValue: z.coerce.number().optional(),
+  marketOpportunity: z.coerce.number().optional(),
+  marketComparableLinks: z.array(z.string()).default([]),
+  marketLiquidityNotes: z.string().optional(),
+  isInvestorHighlight: z.boolean().optional(),
+  isAuctionOpportunity: z.boolean().optional()
 });
 
 export const crmUpdatePropertySchema = crmCreatePropertySchema.partial();
+
+export const crmCreatePropertyMediaSchema = z.object({
+  kind: z.enum(["IMAGE", "VIDEO", "TOUR"]).default("IMAGE"),
+  url: z.string().url(),
+  cloudflareMediaId: z.string().optional(),
+  position: z.coerce.number().int().min(0).optional(),
+  metadata: z.record(z.string(), z.unknown()).optional()
+});
+
+export const crmUpdatePropertyMediaSchema = z.object({
+  position: z.coerce.number().int().min(0).optional(),
+  makePrimary: z.boolean().optional()
+});
 
 export const crmUpdateStageSchema = z.object({
   toStage: z.nativeEnum(LeadStage),

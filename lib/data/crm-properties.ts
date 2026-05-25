@@ -1,4 +1,4 @@
-import { Prisma, type AuctionCase, type InvestorOpportunity, type Owner, type Property } from "@prisma/client";
+import { Prisma, type AuctionCase, type InvestorOpportunity, type Owner, type Property, type PropertyMedia } from "@prisma/client";
 import { mockProperties } from "@/lib/data/mock";
 import { slugify } from "@/lib/crm/slug";
 import { prisma } from "@/lib/prisma";
@@ -31,6 +31,26 @@ export type CrmPropertyPayload = {
   legalNotes?: string | null;
   internalNotes?: string | null;
   commissionPct?: number | null;
+  marketAskingValue?: number | null;
+  marketEstimatedValue?: number | null;
+  marketOpportunity?: number | null;
+  marketComparableLinks?: string[];
+  marketLiquidityNotes?: string | null;
+  isInvestorHighlight?: boolean;
+  isAuctionOpportunity?: boolean;
+};
+
+type MemoryMedia = {
+  id: string;
+  propertyId: string;
+  kind: PropertyMedia["kind"];
+  status: PropertyMedia["status"];
+  cloudflareMediaId: string | null;
+  url: string;
+  variant: string | null;
+  position: number;
+  metadata: Prisma.JsonValue | null;
+  createdAt: Date;
 };
 
 type MemoryProperty = {
@@ -69,6 +89,7 @@ type MemoryProperty = {
   owner: Owner | null;
   investorOpportunity: InvestorOpportunity | null;
   auctionCase: AuctionCase | null;
+  media: MemoryMedia[];
   createdAt: Date;
   updatedAt: Date;
 };
@@ -118,6 +139,7 @@ type DbPropertyWithRelations = Property & {
   owner: Owner | null;
   investorOpportunity: InvestorOpportunity | null;
   auctionCase: AuctionCase | null;
+  media?: PropertyMedia[];
 };
 
 function normalizeDbProperty(property: DbPropertyWithRelations) {
@@ -131,6 +153,7 @@ function normalizeDbProperty(property: DbPropertyWithRelations) {
     marketAskingValue: toNumber(property.marketAskingValue),
     marketEstimatedValue: toNumber(property.marketEstimatedValue),
     marketOpportunity: toNumber(property.marketOpportunity),
+    media: property.media ?? [],
     googleMapsUrl:
       property.googleMapsUrl ??
       buildGoogleMapsSearchUrl({
@@ -180,6 +203,7 @@ function fromMockProperty(property: (typeof mockProperties)[number], index: numb
     owner: null,
     investorOpportunity: null,
     auctionCase: null,
+    media: [],
     createdAt: new Date(now.getTime() - index * 60_000),
     updatedAt: now
   };
@@ -206,15 +230,22 @@ function normalizeForCreate(input: CrmPropertyPayload): CrmPropertyPayload {
     googleMapsUrl: optionalString(input.googleMapsUrl),
     legalNotes: optionalString(input.legalNotes),
     internalNotes: optionalString(input.internalNotes),
+    marketLiquidityNotes: optionalString(input.marketLiquidityNotes),
     latitude: optionalNumber(input.latitude),
     longitude: optionalNumber(input.longitude),
     areaM2: optionalNumber(input.areaM2),
     commissionPct: optionalNumber(input.commissionPct),
+    marketAskingValue: optionalNumber(input.marketAskingValue),
+    marketEstimatedValue: optionalNumber(input.marketEstimatedValue),
+    marketOpportunity: optionalNumber(input.marketOpportunity),
     bedrooms: input.bedrooms ?? null,
     suites: input.suites ?? null,
     bathrooms: input.bathrooms ?? null,
     parkingSpaces: input.parkingSpaces ?? null,
-    features: normalizeFeatureList(input.features)
+    features: normalizeFeatureList(input.features),
+    marketComparableLinks: input.marketComparableLinks
+      ? normalizeFeatureList(input.marketComparableLinks)
+      : []
   };
 }
 
@@ -229,7 +260,10 @@ export async function listCrmProperties() {
       include: {
         owner: true,
         investorOpportunity: true,
-        auctionCase: true
+        auctionCase: true,
+        media: {
+          orderBy: { position: "asc" }
+        }
       }
     });
 
@@ -276,7 +310,15 @@ export async function createCrmProperty(payload: CrmPropertyPayload) {
           features: normalized.features,
           legalNotes: normalized.legalNotes,
           internalNotes: normalized.internalNotes,
-          commissionPct: normalized.commissionPct
+          commissionPct: normalized.commissionPct,
+          marketAskingValue: normalized.marketAskingValue ?? undefined,
+          marketEstimatedValue: normalized.marketEstimatedValue ?? undefined,
+          marketOpportunity: normalized.marketOpportunity ?? undefined,
+          marketComparableLinks: normalized.marketComparableLinks ?? [],
+          marketLiquidityNotes: normalized.marketLiquidityNotes ?? undefined,
+          isInvestorHighlight: normalized.isInvestorHighlight ?? false,
+          isAuctionOpportunity:
+            normalized.isAuctionOpportunity ?? normalized.purpose === "LEILAO"
         },
         include: {
           owner: true,
@@ -324,17 +366,19 @@ export async function createCrmProperty(payload: CrmPropertyPayload) {
     legalNotes: normalized.legalNotes ?? null,
     internalNotes: normalized.internalNotes ?? null,
     commissionPct: normalized.commissionPct ?? null,
-    isInvestorHighlight: false,
-    isAuctionOpportunity: normalized.purpose === "LEILAO",
-    marketAskingValue: null,
-    marketEstimatedValue: null,
-    marketOpportunity: null,
-    marketComparableLinks: [],
-    marketLiquidityNotes: null,
+    isInvestorHighlight: normalized.isInvestorHighlight ?? false,
+    isAuctionOpportunity:
+      normalized.isAuctionOpportunity ?? normalized.purpose === "LEILAO",
+    marketAskingValue: normalized.marketAskingValue ?? null,
+    marketEstimatedValue: normalized.marketEstimatedValue ?? null,
+    marketOpportunity: normalized.marketOpportunity ?? null,
+    marketComparableLinks: normalized.marketComparableLinks ?? [],
+    marketLiquidityNotes: normalized.marketLiquidityNotes ?? null,
     ownerId: null,
     owner: null,
     investorOpportunity: null,
     auctionCase: null,
+    media: [],
     createdAt: now,
     updatedAt: now
   };
@@ -356,11 +400,18 @@ export async function updateCrmProperty(id: string, payload: Partial<CrmProperty
     googleMapsUrl: optionalString(payload.googleMapsUrl),
     legalNotes: optionalString(payload.legalNotes),
     internalNotes: optionalString(payload.internalNotes),
+    marketLiquidityNotes: optionalString(payload.marketLiquidityNotes),
     latitude: optionalNumber(payload.latitude),
     longitude: optionalNumber(payload.longitude),
     areaM2: optionalNumber(payload.areaM2),
     commissionPct: optionalNumber(payload.commissionPct),
-    features: payload.features ? normalizeFeatureList(payload.features) : undefined
+    marketAskingValue: optionalNumber(payload.marketAskingValue),
+    marketEstimatedValue: optionalNumber(payload.marketEstimatedValue),
+    marketOpportunity: optionalNumber(payload.marketOpportunity),
+    features: payload.features ? normalizeFeatureList(payload.features) : undefined,
+    marketComparableLinks: payload.marketComparableLinks
+      ? normalizeFeatureList(payload.marketComparableLinks)
+      : undefined
   };
 
   if (hasDatabase) {
@@ -421,6 +472,23 @@ export async function updateCrmProperty(id: string, payload: Partial<CrmProperty
     legalNotes: partial.legalNotes === undefined ? current.legalNotes : partial.legalNotes,
     internalNotes: partial.internalNotes === undefined ? current.internalNotes : partial.internalNotes,
     commissionPct: partial.commissionPct === undefined ? current.commissionPct : partial.commissionPct,
+    marketAskingValue:
+      partial.marketAskingValue === undefined ? current.marketAskingValue : partial.marketAskingValue,
+    marketEstimatedValue:
+      partial.marketEstimatedValue === undefined
+        ? current.marketEstimatedValue
+        : partial.marketEstimatedValue,
+    marketOpportunity:
+      partial.marketOpportunity === undefined ? current.marketOpportunity : partial.marketOpportunity,
+    marketComparableLinks: partial.marketComparableLinks ?? current.marketComparableLinks,
+    marketLiquidityNotes:
+      partial.marketLiquidityNotes === undefined
+        ? current.marketLiquidityNotes
+        : partial.marketLiquidityNotes,
+    isInvestorHighlight:
+      partial.isInvestorHighlight === undefined ? current.isInvestorHighlight : partial.isInvestorHighlight,
+    isAuctionOpportunity:
+      partial.isAuctionOpportunity === undefined ? current.isAuctionOpportunity : partial.isAuctionOpportunity,
     googleMapsUrl:
       partial.googleMapsUrl === undefined
         ? current.googleMapsUrl
@@ -448,7 +516,10 @@ export async function findCrmPropertyById(id: string) {
       include: {
         owner: true,
         investorOpportunity: true,
-        auctionCase: true
+        auctionCase: true,
+        media: {
+          orderBy: { position: "asc" }
+        }
       }
     });
 
@@ -457,6 +528,150 @@ export async function findCrmPropertyById(id: string) {
   } catch {
     return getMemoryStore().find((item) => item.id === id) ?? null;
   }
+}
+
+export type PropertyMediaPayload = {
+  kind: PropertyMedia["kind"];
+  url: string;
+  cloudflareMediaId?: string | null;
+  position?: number | null;
+  metadata?: Prisma.JsonValue | null;
+};
+
+export async function addPropertyMedia(propertyId: string, payload: PropertyMediaPayload) {
+  if (hasDatabase) {
+    try {
+      const existing = await prisma.propertyMedia.findMany({
+        where: { propertyId },
+        select: { position: true }
+      });
+      const nextPosition =
+        payload.position ?? (existing.length ? Math.max(...existing.map((m) => m.position)) + 1 : 0);
+
+      const media = await prisma.propertyMedia.create({
+        data: {
+          propertyId,
+          kind: payload.kind,
+          url: payload.url,
+          cloudflareMediaId: payload.cloudflareMediaId ?? undefined,
+          position: nextPosition,
+          metadata: (payload.metadata ?? undefined) as Prisma.InputJsonValue | undefined
+        }
+      });
+      return media;
+    } catch {
+      // fallback below
+    }
+  }
+
+  const store = getMemoryStore();
+  const property = store.find((item) => item.id === propertyId);
+  if (!property) return null;
+
+  const nextPosition =
+    payload.position ?? (property.media.length ? Math.max(...property.media.map((m) => m.position)) + 1 : 0);
+
+  const media: MemoryMedia = {
+    id: `mem-media-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`,
+    propertyId,
+    kind: payload.kind,
+    status: "PRONTO",
+    cloudflareMediaId: payload.cloudflareMediaId ?? null,
+    url: payload.url,
+    variant: null,
+    position: nextPosition,
+    metadata: payload.metadata ?? null,
+    createdAt: new Date()
+  };
+
+  property.media.push(media);
+  property.media.sort((a, b) => a.position - b.position);
+  property.updatedAt = new Date();
+  return media;
+}
+
+export async function reorderPropertyMedia(propertyId: string, mediaId: string, position: number) {
+  if (hasDatabase) {
+    try {
+      const updated = await prisma.propertyMedia.update({
+        where: { id: mediaId },
+        data: { position }
+      });
+      return updated;
+    } catch {
+      // fallback below
+    }
+  }
+
+  const store = getMemoryStore();
+  const property = store.find((item) => item.id === propertyId);
+  if (!property) return null;
+  const media = property.media.find((item) => item.id === mediaId);
+  if (!media) return null;
+  media.position = position;
+  property.media.sort((a, b) => a.position - b.position);
+  property.updatedAt = new Date();
+  return media;
+}
+
+export async function makePropertyMediaPrimary(propertyId: string, mediaId: string) {
+  if (hasDatabase) {
+    try {
+      const all = await prisma.propertyMedia.findMany({
+        where: { propertyId },
+        orderBy: { position: "asc" }
+      });
+      const target = all.find((item) => item.id === mediaId);
+      if (!target) return null;
+
+      const reordered = [target, ...all.filter((item) => item.id !== mediaId)];
+      await prisma.$transaction(
+        reordered.map((item, index) =>
+          prisma.propertyMedia.update({
+            where: { id: item.id },
+            data: { position: index }
+          })
+        )
+      );
+      return target;
+    } catch {
+      // fallback below
+    }
+  }
+
+  const store = getMemoryStore();
+  const property = store.find((item) => item.id === propertyId);
+  if (!property) return null;
+  const target = property.media.find((item) => item.id === mediaId);
+  if (!target) return null;
+  property.media = [target, ...property.media.filter((item) => item.id !== mediaId)];
+  property.media.forEach((item, index) => {
+    item.position = index;
+  });
+  property.updatedAt = new Date();
+  return target;
+}
+
+export async function deletePropertyMedia(propertyId: string, mediaId: string) {
+  if (hasDatabase) {
+    try {
+      await prisma.propertyMedia.delete({ where: { id: mediaId } });
+      return true;
+    } catch {
+      // fallback below
+    }
+  }
+
+  const store = getMemoryStore();
+  const property = store.find((item) => item.id === propertyId);
+  if (!property) return false;
+  const before = property.media.length;
+  property.media = property.media.filter((item) => item.id !== mediaId);
+  property.media.forEach((item, index) => {
+    item.position = index;
+  });
+  property.updatedAt = new Date();
+  return property.media.length < before;
 }
 
 export async function createPropertyAuditLog(input: {

@@ -1,4 +1,4 @@
-import { PropertyPurpose, PropertyType } from "@prisma/client";
+import { PropertyPurpose, PropertyStatus, PropertyType } from "@prisma/client";
 import Link from "next/link";
 import { developmentPublicStageLabels, listHighlightedDevelopments } from "@/lib/data/developments";
 import { getDevelopmentStageLabel } from "@/lib/development-investment";
@@ -19,6 +19,7 @@ type HomePropertyCard = {
   areaM2: number | null;
   purpose: PropertyPurpose;
   type: PropertyType;
+  status: PropertyStatus;
   purposeLabel: string;
   typeLabel: string;
   isAuctionOpportunity: boolean;
@@ -117,6 +118,7 @@ function normalizePropertyCard(property: {
   areaM2Value: number | null;
   purpose: PropertyPurpose;
   type: PropertyType;
+  status: PropertyStatus;
   isAuctionOpportunity?: boolean | null;
   auctionCase?: unknown | null;
   media?: ReadonlyArray<{ url: string }>;
@@ -133,6 +135,7 @@ function normalizePropertyCard(property: {
     areaM2: property.areaM2Value,
     purpose: property.purpose,
     type: property.type,
+    status: property.status,
     purposeLabel: purposeLabelMap[property.purpose],
     typeLabel: typeLabelMap[property.type],
     isAuctionOpportunity: Boolean(property.isAuctionOpportunity),
@@ -252,7 +255,9 @@ export default async function HomePage({
   ]);
 
   const allCards = propertiesRaw.map(normalizePropertyCard);
-  const readySaleCards = allCards.filter((card) => card.purpose === "VENDA" && !isAuctionCard(card));
+  const readySaleCards = allCards.filter(
+    (card) => card.purpose === "VENDA" && !isAuctionCard(card) && card.status === "DISPONIVEL"
+  );
 
   const latestProperties = allCards.slice(0, 6);
   const rentalProperties = allCards.filter((card) => card.purpose === "LOCACAO").slice(0, 3);
@@ -449,34 +454,42 @@ export default async function HomePage({
 
           {latestProperties.length ? (
             <div className="wp-property-grid" style={{ marginTop: 20 }}>
-              {latestProperties.map((property) => (
-                <article key={property.id} className="wp-property-card">
-                  <div
-                    className="wp-property-media"
-                    style={{
-                      backgroundImage: `linear-gradient(180deg, rgba(7, 13, 24, 0.06), rgba(7, 13, 24, 0.62)), url(${property.imageUrl})`
-                    }}
-                  >
-                    <div className="wp-media-badges">
-                      <span className="badge">{property.purposeLabel}</span>
-                      <span className="badge">{property.typeLabel}</span>
+              {latestProperties.map((property) => {
+                const isSold = property.status === "VENDIDO";
+                return (
+                  <article key={property.id} className={`wp-property-card ${isSold ? "is-sold" : ""}`}>
+                    <div
+                      className="wp-property-media"
+                      style={{
+                        backgroundImage: `linear-gradient(180deg, rgba(7, 13, 24, 0.06), rgba(7, 13, 24, 0.62)), url(${property.imageUrl})`
+                      }}
+                    >
+                      <div className="wp-media-badges">
+                        {isSold ? <span className="badge badge-tone-sold">Vendido</span> : null}
+                        <span className="badge">{property.purposeLabel}</span>
+                        <span className="badge">{property.typeLabel}</span>
+                      </div>
+                      <p>{property.city} • {property.district}</p>
                     </div>
-                    <p>{property.city} • {property.district}</p>
-                  </div>
-                  <div className="wp-property-body">
-                    <h3>{property.title}</h3>
-                    <p className="wp-price">{formatCurrencyBRL(property.price)}</p>
-                    <div className="wp-spec-row">
-                      <span>{property.bedrooms ?? "-"} quartos</span>
-                      <span>{property.bathrooms ?? "-"} banheiros</span>
-                      <span>{property.areaM2 ?? "-"} m²</span>
+                    <div className="wp-property-body">
+                      <h3>{property.title}</h3>
+                      <p className="wp-price">{formatCurrencyBRL(property.price)}</p>
+                      <div className="wp-spec-row">
+                        <span>{property.bedrooms ?? "-"} quartos</span>
+                        <span>{property.bathrooms ?? "-"} banheiros</span>
+                        <span>{property.areaM2 ?? "-"} m²</span>
+                      </div>
+                      <Link
+                        href={property.href}
+                        className={isSold ? "button button-ghost" : "button button-primary"}
+                        style={{ width: "100%" }}
+                      >
+                        {isSold ? "Ver imóvel vendido" : "Ver imóvel"}
+                      </Link>
                     </div>
-                    <Link href={property.href} className="button button-primary" style={{ width: "100%" }}>
-                      Ver imóvel
-                    </Link>
-                  </div>
-                </article>
-              ))}
+                  </article>
+                );
+              })}
             </div>
           ) : (
             <article className="card" style={{ padding: 16, marginTop: 20 }}>
@@ -528,33 +541,37 @@ export default async function HomePage({
           </div>
           {rentalProperties.length ? (
             <div className="wp-property-grid wp-property-grid-3" style={{ marginTop: 20 }}>
-              {rentalProperties.map((property) => (
-                <article key={property.id} className="wp-property-card compact">
-                  <div
-                    className="wp-property-media"
-                    style={{
-                      backgroundImage: `linear-gradient(180deg, rgba(7, 13, 24, 0.06), rgba(7, 13, 24, 0.62)), url(${property.imageUrl})`
-                    }}
-                  >
-                    <div className="wp-media-badges">
-                      <span className="badge">Locação</span>
+              {rentalProperties.map((property) => {
+                const isRented = property.status === "ALUGADO";
+                return (
+                  <article key={property.id} className={`wp-property-card compact ${isRented ? "is-sold" : ""}`}>
+                    <div
+                      className="wp-property-media"
+                      style={{
+                        backgroundImage: `linear-gradient(180deg, rgba(7, 13, 24, 0.06), rgba(7, 13, 24, 0.62)), url(${property.imageUrl})`
+                      }}
+                    >
+                      <div className="wp-media-badges">
+                        {isRented ? <span className="badge badge-tone-rented">Alugado</span> : null}
+                        <span className="badge">Locação</span>
+                      </div>
+                      <p>{property.city} • {property.district}</p>
                     </div>
-                    <p>{property.city} • {property.district}</p>
-                  </div>
-                  <div className="wp-property-body">
-                    <h3>{property.title}</h3>
-                    <p className="wp-price">{formatCurrencyBRL(property.price)} / mês</p>
-                    <div className="wp-spec-row">
-                      <span>{property.bedrooms ?? "-"} quartos</span>
-                      <span>{property.bathrooms ?? "-"} banheiros</span>
-                      <span>{property.areaM2 ?? "-"} m²</span>
+                    <div className="wp-property-body">
+                      <h3>{property.title}</h3>
+                      <p className="wp-price">{formatCurrencyBRL(property.price)} / mês</p>
+                      <div className="wp-spec-row">
+                        <span>{property.bedrooms ?? "-"} quartos</span>
+                        <span>{property.bathrooms ?? "-"} banheiros</span>
+                        <span>{property.areaM2 ?? "-"} m²</span>
+                      </div>
+                      <Link href={property.href} className="button button-ghost" style={{ width: "100%" }}>
+                        Ver detalhes
+                      </Link>
                     </div>
-                    <Link href={property.href} className="button button-ghost" style={{ width: "100%" }}>
-                      Ver detalhes
-                    </Link>
-                  </div>
-                </article>
-              ))}
+                  </article>
+                );
+              })}
             </div>
           ) : (
             <article className="card" style={{ padding: 16, marginTop: 20 }}>
@@ -638,34 +655,38 @@ export default async function HomePage({
 
           {auctionCards.length ? (
             <div className="wp-property-grid wp-property-grid-3" style={{ marginTop: 20 }}>
-              {auctionCards.map((property) => (
-                <article key={property.id} className="wp-property-card compact">
-                  <div
-                    className="wp-property-media"
-                    style={{
-                      backgroundImage: `linear-gradient(180deg, rgba(7, 13, 24, 0.08), rgba(7, 13, 24, 0.7)), url(${property.imageUrl})`
-                    }}
-                  >
-                    <div className="wp-media-badges">
-                      <span className="badge">Leilão</span>
-                      <span className="badge">Oportunidade</span>
+              {auctionCards.map((property) => {
+                const isSold = property.status === "VENDIDO";
+                return (
+                  <article key={property.id} className={`wp-property-card compact ${isSold ? "is-sold" : ""}`}>
+                    <div
+                      className="wp-property-media"
+                      style={{
+                        backgroundImage: `linear-gradient(180deg, rgba(7, 13, 24, 0.08), rgba(7, 13, 24, 0.7)), url(${property.imageUrl})`
+                      }}
+                    >
+                      <div className="wp-media-badges">
+                        {isSold ? <span className="badge badge-tone-sold">Vendido</span> : null}
+                        <span className="badge">Leilão</span>
+                        <span className="badge">Oportunidade</span>
+                      </div>
+                      <p>{property.city} • {property.district}</p>
                     </div>
-                    <p>{property.city} • {property.district}</p>
-                  </div>
-                  <div className="wp-property-body">
-                    <h3>{property.title}</h3>
-                    <p className="wp-price">{formatCurrencyBRL(property.price)}</p>
-                    <div className="wp-spec-row">
-                      <span>{property.bedrooms ?? "-"} quartos</span>
-                      <span>{property.bathrooms ?? "-"} banheiros</span>
-                      <span>{property.areaM2 ?? "-"} m²</span>
+                    <div className="wp-property-body">
+                      <h3>{property.title}</h3>
+                      <p className="wp-price">{formatCurrencyBRL(property.price)}</p>
+                      <div className="wp-spec-row">
+                        <span>{property.bedrooms ?? "-"} quartos</span>
+                        <span>{property.bathrooms ?? "-"} banheiros</span>
+                        <span>{property.areaM2 ?? "-"} m²</span>
+                      </div>
+                      <Link href={property.href} className="button button-ghost" style={{ width: "100%" }}>
+                        {isSold ? "Ver imóvel vendido" : "Analisar oportunidade"}
+                      </Link>
                     </div>
-                    <Link href={property.href} className="button button-ghost" style={{ width: "100%" }}>
-                      Analisar oportunidade
-                    </Link>
-                  </div>
-                </article>
-              ))}
+                  </article>
+                );
+              })}
             </div>
           ) : (
             <article className="card" style={{ padding: 16, marginTop: 20 }}>

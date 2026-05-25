@@ -101,7 +101,14 @@ export async function listPublicProperties(filters: PublicPropertyFilters = {}) 
   try {
     const properties = await prisma.property.findMany({
       where: {
-        status: PropertyStatus.DISPONIVEL,
+        status: {
+          in: [
+            PropertyStatus.DISPONIVEL,
+            PropertyStatus.RESERVADO,
+            PropertyStatus.VENDIDO,
+            PropertyStatus.ALUGADO
+          ]
+        },
         city: filters.city,
         district: filters.district,
         type: filters.type,

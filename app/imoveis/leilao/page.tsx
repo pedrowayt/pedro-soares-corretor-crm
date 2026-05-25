@@ -167,6 +167,7 @@ export default async function ImoveisLeilaoPage({
                   bedrooms={property.bedrooms}
                   areaM2={property.areaM2Value}
                   imageUrl={property.media?.[0]?.url}
+                  status={property.status}
                 />
               ))}
             </div>

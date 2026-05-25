@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { PropertyForms } from "@/components/crm/property-forms";
+import { PropertyStatusActions } from "@/components/crm/property-status-actions";
 import { listCrmProperties } from "@/lib/data/crm-properties";
 import { formatCurrencyBRL } from "@/lib/utils";
 
@@ -14,8 +15,8 @@ export default async function CrmImoveisPage() {
       <div style={{ marginTop: 16, marginBottom: 20 }} className="grid-3">
         {properties.map((property) => (
           <article className="card" key={property.id} style={{ padding: 14 }}>
-            <p className="badge">{property.status}</p>
-            <h3>{property.title}</h3>
+            <PropertyStatusActions propertyId={property.id} currentStatus={property.status} />
+            <h3 style={{ marginTop: 10 }}>{property.title}</h3>
             <p style={{ margin: "6px 0", color: "var(--sophistication-gold-300)", fontWeight: 700 }}>
               {formatCurrencyBRL(Number(property.price))}
             </p>
@@ -26,6 +27,9 @@ export default async function CrmImoveisPage() {
               Proprietário: {(property.owner as { name?: string } | null | undefined)?.name ?? "Não vinculado"}
             </p>
             <div style={{ marginTop: 8, display: "flex", gap: 8, flexWrap: "wrap" }}>
+              <Link className="button button-primary" href={`/crm/imoveis/${property.id}`}>
+                Editar
+              </Link>
               <Link className="button button-ghost" href={`/imoveis/${property.slug}`} target="_blank">
                 Ver no site
               </Link>
@@ -34,21 +38,7 @@ export default async function CrmImoveisPage() {
         ))}
       </div>
 
-      <PropertyForms
-        properties={properties.map((item) => ({
-          id: item.id,
-          title: item.title,
-          slug: item.slug,
-          type: item.type,
-          purpose: item.purpose,
-          status: item.status,
-          city: item.city,
-          district: item.district,
-          price: Number(item.price),
-          address: item.address ?? null,
-          googleMapsUrl: item.googleMapsUrl ?? null
-        }))}
-      />
+      <PropertyForms />
     </>
   );
 }

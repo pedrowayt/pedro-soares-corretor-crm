@@ -10,6 +10,13 @@ type PropertyCardProps = {
   imageUrl?: string;
   bedrooms?: number | null;
   areaM2?: number | null;
+  status?: string | null;
+};
+
+const STATUS_BADGE: Record<string, { label: string; tone: string }> = {
+  VENDIDO: { label: "Vendido", tone: "tone-sold" },
+  RESERVADO: { label: "Reservado", tone: "tone-reserved" },
+  ALUGADO: { label: "Alugado", tone: "tone-rented" }
 };
 
 export function PropertyCard({
@@ -20,18 +27,27 @@ export function PropertyCard({
   price,
   imageUrl,
   bedrooms,
-  areaM2
+  areaM2,
+  status
 }: PropertyCardProps) {
+  const statusBadge = status ? STATUS_BADGE[status] : undefined;
+  const isSold = status === "VENDIDO";
+
   return (
-    <article className="card">
-      <div
-        style={{
-          aspectRatio: "16 / 10",
-          backgroundImage: `url(${imageUrl ?? "/brand/logo-light-bg.png"})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center"
-        }}
-      />
+    <article className={`card property-listing-card ${isSold ? "is-sold" : ""}`}>
+      <div className="property-listing-media-wrap">
+        <div
+          className="property-listing-media"
+          style={{
+            backgroundImage: `url(${imageUrl ?? "/brand/logo-light-bg.png"})`
+          }}
+        />
+        {statusBadge ? (
+          <span className={`badge badge-${statusBadge.tone} property-listing-status`}>
+            {statusBadge.label}
+          </span>
+        ) : null}
+      </div>
       <div style={{ padding: 16 }}>
         <p className="badge" style={{ margin: 0 }}>
           {city} • {district}
@@ -43,8 +59,11 @@ export function PropertyCard({
         <p style={{ margin: "8px 0 14px", color: "var(--text-muted)", fontSize: "var(--fs-14)" }}>
           {bedrooms ? `${bedrooms} quartos` : "-"} • {areaM2 ? `${areaM2} m²` : "-"}
         </p>
-        <Link href={`/imoveis/${slug}`} className="button button-primary">
-          Ver imóvel
+        <Link
+          href={`/imoveis/${slug}`}
+          className={isSold ? "button button-ghost" : "button button-primary"}
+        >
+          {isSold ? "Ver imóvel vendido" : "Ver imóvel"}
         </Link>
       </div>
     </article>

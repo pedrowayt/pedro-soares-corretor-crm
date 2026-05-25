@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 const PROPERTY_TYPE_OPTIONS = [
   { value: "CASA", label: "Casa" },
@@ -28,20 +29,6 @@ const PROPERTY_STATUS_OPTIONS = [
 
 type Status = { type: "idle" | "success" | "error"; message?: string };
 
-type PropertyItem = {
-  id: string;
-  title: string;
-  slug: string;
-  type: string;
-  purpose: string;
-  status: string;
-  city: string;
-  district: string;
-  price: number;
-  address?: string | null;
-  googleMapsUrl?: string | null;
-};
-
 async function postJson(url: string, payload: unknown, method: "POST" | "PATCH" = "POST") {
   const response = await fetch(url, {
     method,
@@ -68,21 +55,18 @@ function toOptionalNumber(input: FormDataEntryValue | null) {
   return Number.isFinite(parsed) ? parsed : undefined;
 }
 
-export function PropertyForms({ properties }: { properties: PropertyItem[] }) {
+export function PropertyForms() {
+  const router = useRouter();
   const [status, setStatus] = useState<Status>({ type: "idle" });
-  const [selectedPropertyId, setSelectedPropertyId] = useState<string>(properties[0]?.id ?? "");
-
-  const selectedProperty = useMemo(
-    () => properties.find((item) => item.id === selectedPropertyId),
-    [properties, selectedPropertyId]
-  );
 
   return (
     <div style={{ display: "grid", gap: 14 }}>
       <article className="card" style={{ padding: 16 }}>
         <h3 className="title-luxury" style={{ marginTop: 0 }}>Novo imóvel</h3>
+        <p className="section-subtitle" style={{ marginTop: 0 }}>
+          Crie o registro básico aqui. Após salvar, você é redirecionado para a página do imóvel onde adiciona fotos e demais detalhes.
+        </p>
         <form
-          key={selectedPropertyId || "no-property"}
           className="form-grid"
           onSubmit={async (event) => {
             event.preventDefault();
@@ -94,7 +78,7 @@ export function PropertyForms({ properties }: { properties: PropertyItem[] }) {
               .filter(Boolean);
 
             try {
-              await postJson("/api/crm/properties", {
+              const result = await postJson("/api/crm/properties", {
                 title: formData.get("title"),
                 slug: formData.get("slug"),
                 type: formData.get("type"),
@@ -116,8 +100,13 @@ export function PropertyForms({ properties }: { properties: PropertyItem[] }) {
                 commissionPct: toOptionalNumber(formData.get("commissionPct"))
               });
 
-              setStatus({ type: "success", message: "Imóvel criado. Atualize a página para ver na lista." });
-              event.currentTarget.reset();
+              setStatus({ type: "success", message: "Imóvel criado. Redirecionando para adicionar fotos..." });
+              const newId = result?.data?.property?.id as string | undefined;
+              if (newId) {
+                router.push(`/crm/imoveis/${newId}`);
+              } else {
+                router.refresh();
+              }
             } catch (error) {
               setStatus({ type: "error", message: error instanceof Error ? error.message : "Erro ao criar imóvel." });
             }
@@ -217,89 +206,6 @@ export function PropertyForms({ properties }: { properties: PropertyItem[] }) {
 
           <div style={{ gridColumn: "1 / -1" }}>
             <button className="button button-primary" type="submit">Criar imóvel</button>
-          </div>
-        </form>
-      </article>
-
-      <article className="card" style={{ padding: 16 }}>
-        <h3 className="title-luxury" style={{ marginTop: 0 }}>Atualizar imóvel existente</h3>
-
-        <form
-          className="form-grid"
-          onSubmit={async (event) => {
-            event.preventDefault();
-            if (!selectedPropertyId) return;
-
-            const formData = new FormData(event.currentTarget);
-
-            try {
-              await postJson(
-                `/api/crm/properties/${selectedPropertyId}`,
-                {
-                  status: formData.get("status"),
-                  purpose: formData.get("purpose"),
-                  googleMapsUrl: formData.get("googleMapsUrl"),
-                  city: formData.get("city"),
-                  district: formData.get("district"),
-                  address: formData.get("address")
-                },
-                "PATCH"
-              );
-
-              setStatus({ type: "success", message: "Imóvel atualizado. Atualize a página para refletir as mudanças." });
-            } catch (error) {
-              setStatus({ type: "error", message: error instanceof Error ? error.message : "Erro ao atualizar imóvel." });
-            }
-          }}
-        >
-          <div>
-            <label>Imóvel</label>
-            <select value={selectedPropertyId} onChange={(event) => setSelectedPropertyId(event.target.value)}>
-              {properties.map((item) => (
-                <option key={item.id} value={item.id}>
-                  {item.title} ({item.city} • {item.district})
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label>Finalidade</label>
-            <select name="purpose" defaultValue={selectedProperty?.purpose ?? "VENDA"}>
-              {PROPERTY_PURPOSE_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value}>{option.label}</option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label>Status</label>
-            <select name="status" defaultValue={selectedProperty?.status ?? "DISPONIVEL"}>
-              {PROPERTY_STATUS_OPTIONS.map((option) => (
-                <option key={option.value} value={option.value}>{option.label}</option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label>Cidade</label>
-            <input name="city" defaultValue={selectedProperty?.city ?? "Palmas"} />
-          </div>
-          <div>
-            <label>Bairro</label>
-            <input name="district" defaultValue={selectedProperty?.district ?? ""} />
-          </div>
-          <div>
-            <label>Endereço</label>
-            <input name="address" defaultValue={selectedProperty?.address ?? ""} />
-          </div>
-          <div style={{ gridColumn: "1 / -1" }}>
-            <label>Link do Google Maps</label>
-            <input
-              name="googleMapsUrl"
-              defaultValue={selectedProperty?.googleMapsUrl ?? ""}
-              placeholder="https://www.google.com/maps?q=..."
-            />
-          </div>
-          <div style={{ gridColumn: "1 / -1" }}>
-            <button className="button button-primary" type="submit">Salvar atualização</button>
           </div>
         </form>
       </article>

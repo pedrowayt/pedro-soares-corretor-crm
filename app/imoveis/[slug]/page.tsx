@@ -152,7 +152,10 @@ export default async function PropertyDetailsPage({ params }: { params: Promise<
       "@type": "Offer",
       price: property.priceValue,
       priceCurrency: "BRL",
-      availability: "https://schema.org/InStock",
+      availability:
+        property.status === "VENDIDO"
+          ? "https://schema.org/SoldOut"
+          : "https://schema.org/InStock",
       url: propertyUrl
     },
     address: {
@@ -199,15 +202,32 @@ export default async function PropertyDetailsPage({ params }: { params: Promise<
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
 
       <div className="container">
-        <p className="badge">
-          {property.city} • {property.district}
-        </p>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+          <p className="badge" style={{ margin: 0 }}>
+            {property.city} • {property.district}
+          </p>
+          {property.status === "VENDIDO" ? (
+            <span className="badge badge-tone-sold">Vendido</span>
+          ) : property.status === "RESERVADO" ? (
+            <span className="badge badge-tone-reserved">Reservado</span>
+          ) : property.status === "ALUGADO" ? (
+            <span className="badge badge-tone-rented">Alugado</span>
+          ) : null}
+        </div>
         <h1 className="section-title title-luxury" style={{ marginTop: 10 }}>
           {property.title}
         </h1>
         <p style={{ color: "var(--sophistication-gold-300)", fontWeight: 700, fontSize: "var(--fs-20)", marginTop: 0 }}>
           {formatCurrencyBRL(property.priceValue)}
         </p>
+        {property.status === "VENDIDO" ? (
+          <p
+            className="card"
+            style={{ padding: "10px 14px", marginTop: 10, background: "rgba(220, 38, 38, 0.08)", borderColor: "rgba(220, 38, 38, 0.3)", color: "#7f1d1d" }}
+          >
+            Este imóvel já foi vendido. Posso te apresentar oportunidades semelhantes — fale comigo no WhatsApp.
+          </p>
+        ) : null}
 
         <div className="grid-3 property-detail-gallery" style={{ marginBottom: 18 }}>
           {(property.media ?? []).slice(0, 3).map((media) => (

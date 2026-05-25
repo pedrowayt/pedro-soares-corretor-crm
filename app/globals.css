@@ -171,6 +171,177 @@ main {
   background: rgba(15, 34, 61, 0.7);
 }
 
+.badge-tone-sold {
+  background: #dc2626;
+  border-color: #dc2626;
+  color: #ffffff;
+}
+
+.badge-tone-reserved {
+  background: #f59e0b;
+  border-color: #f59e0b;
+  color: #1f1306;
+}
+
+.badge-tone-rented {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: #ffffff;
+}
+
+.badge-tone-available {
+  background: #16a34a;
+  border-color: #16a34a;
+  color: #ffffff;
+}
+
+.badge-tone-pending {
+  background: #64748b;
+  border-color: #64748b;
+  color: #ffffff;
+}
+
+.property-status-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.property-status-actions__buttons {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.property-status-chip {
+  appearance: none;
+  border: 1px solid #d0d7e2;
+  background: #ffffff;
+  color: #344054;
+  border-radius: 999px;
+  padding: 0.3rem 0.7rem;
+  font-size: var(--fs-12);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.property-status-chip:hover:not(:disabled) {
+  border-color: #94a3b8;
+  background: #f8fafc;
+}
+
+.property-status-chip.is-active {
+  background: #0f223d;
+  color: #ffffff;
+  border-color: #0f223d;
+  cursor: default;
+}
+
+.property-status-chip:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.property-status-actions__error {
+  margin: 0;
+  font-size: var(--fs-12);
+  color: #b91c1c;
+}
+
+.property-status-chip--danger {
+  border-color: #fca5a5;
+  color: #b91c1c;
+}
+
+.property-status-chip--danger:hover:not(:disabled) {
+  background: #fef2f2;
+  border-color: #f87171;
+}
+
+.property-editor {
+  display: grid;
+  gap: 18px;
+}
+
+.property-editor__form {
+  display: grid;
+  gap: 18px;
+}
+
+.property-editor__gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 14px;
+  margin-top: 14px;
+}
+
+.property-editor__media {
+  border: 1px solid #dbe3ee;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+}
+
+.property-editor__thumb {
+  aspect-ratio: 4 / 3;
+  background-size: cover;
+  background-position: center;
+  position: relative;
+  padding: 8px;
+  display: flex;
+  align-items: flex-start;
+}
+
+.property-editor__media-actions {
+  padding: 8px;
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+}
+
+.property-editor__media-actions .property-status-chip {
+  padding: 0.25rem 0.55rem;
+  font-size: var(--fs-12);
+}
+
+.property-listing-card.is-sold .property-listing-media {
+  filter: grayscale(0.6);
+  opacity: 0.85;
+}
+
+.property-listing-media-wrap {
+  position: relative;
+}
+
+.property-listing-media {
+  aspect-ratio: 16 / 10;
+  background-size: cover;
+  background-position: center;
+}
+
+.property-listing-status {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 1;
+}
+
+.wp-property-card.is-sold .wp-property-media {
+  filter: grayscale(0.55);
+}
+
+.wp-property-card.is-sold .wp-price {
+  text-decoration: line-through;
+  color: #94a3b8;
+}
+
 .form-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
