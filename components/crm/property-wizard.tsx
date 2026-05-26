@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState, useTransition } from "react";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { applyWatermarkToImage } from "@/lib/media/watermark";
 
@@ -230,6 +230,14 @@ export function PropertyWizard({ mode, initial }: Props) {
   const [showMarketing, setShowMarketing] = useState(false);
   const [showNotes, setShowNotes] = useState(false);
   const [slugTouched, setSlugTouched] = useState(Boolean(initial?.slug));
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const hash = window.location.hash.replace("#", "").toLowerCase();
+    if (!hash) return;
+    const target = STEPS.findIndex((step) => step.id === hash);
+    if (target >= 0) setStepIndex(target);
+  }, []);
 
   const stepId = STEPS[stepIndex].id;
   const isLast = stepIndex === STEPS.length - 1;

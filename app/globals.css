@@ -301,8 +301,8 @@ a.property-instagram-button:hover {
 }
 
 .badge-tone-sold {
-  background: #dc2626;
-  border-color: #dc2626;
+  background: #475569;
+  border-color: #475569;
   color: #ffffff;
 }
 
@@ -519,6 +519,31 @@ a.property-instagram-button:hover {
   color: #667085;
   font-size: var(--fs-12);
   font-weight: 700;
+}
+
+.crm-property-thumb__add {
+  border-style: dashed;
+  border-color: #b8c3d2;
+  background: #f8fafc;
+  text-decoration: none;
+  transition: border-color 160ms ease, background 160ms ease, transform 160ms ease;
+}
+
+.crm-property-thumb__add:hover {
+  border-color: var(--gold, #d89a3b);
+  background: rgba(216, 154, 59, 0.08);
+  transform: translateY(-1px);
+}
+
+.crm-property-thumb__add span {
+  color: #475569;
+  font-size: var(--fs-12);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.crm-property-thumb__add:hover span {
+  color: #9a681f;
 }
 
 .crm-property-row-copy {

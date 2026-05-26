@@ -222,17 +222,22 @@ export function PropertyListManager({ properties }: { properties: PropertyListIt
                   <tr key={property.id}>
                     <td>
                       <div className="crm-property-row-main">
-                        <div
-                          className={`crm-property-thumb ${property.thumbnailUrl ? "" : "is-empty"}`}
-                          style={
-                            property.thumbnailUrl
-                              ? { backgroundImage: `url(${property.thumbnailUrl})` }
-                              : undefined
-                          }
-                          aria-hidden="true"
-                        >
-                          {!property.thumbnailUrl ? <span>Sem foto</span> : null}
-                        </div>
+                        {property.thumbnailUrl ? (
+                          <div
+                            className="crm-property-thumb"
+                            style={{ backgroundImage: `url(${property.thumbnailUrl})` }}
+                            aria-hidden="true"
+                          />
+                        ) : (
+                          <Link
+                            href={`/crm/imoveis/${property.id}#fotos`}
+                            className="crm-property-thumb is-empty crm-property-thumb__add"
+                            aria-label={`Adicionar foto para ${property.title}`}
+                            title="Adicionar foto"
+                          >
+                            <span aria-hidden="true">+ Foto</span>
+                          </Link>
+                        )}
                         <div className="crm-property-row-copy">
                           <Link href={`/crm/imoveis/${property.id}`} className="crm-property-title">
                             {property.title}
