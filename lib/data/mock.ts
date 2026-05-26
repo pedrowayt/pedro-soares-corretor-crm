@@ -62,6 +62,7 @@ export const mockDevelopments = [
     city: "Palmas",
     address: "Quadra ARSO 42, Alameda 12",
     postalCode: "77015-450",
+    propertyType: DevelopmentPropertyType.COMPLEXO,
     developerName: "Acqua Urbanismo",
     builderName: "Construtora Atlântica",
     stage: DevelopmentStage.ADVANCED_STRUCTURE,

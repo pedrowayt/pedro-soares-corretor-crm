@@ -268,6 +268,7 @@ const unitStatusOptions = [
 ];
 
 const developmentPropertyTypeOptions = [
+  { value: "COMPLEXO", label: "Complexo" },
   { value: "APARTAMENTO", label: "Apartamento" },
   { value: "CASA", label: "Casa" },
   { value: "LOTE", label: "Lote" },
@@ -2218,7 +2219,14 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
             <>
               <div><label>Nome do empreendimento</label><input value={form.title} onChange={(e) => updateField("title", e.target.value)} required /></div>
               <div><label>Slug</label><input value={form.slug} onChange={(e) => updateField("slug", e.target.value)} required /></div>
-              <div><label>Tipo</label><select value={form.propertyType} onChange={(e) => updateField("propertyType", e.target.value)}><option value="APARTAMENTO">Apartamento</option><option value="CASA">Casa</option><option value="LOTE">Lote</option><option value="SALA_COMERCIAL">Sala comercial</option><option value="STUDIO">Studio</option><option value="COBERTURA">Cobertura</option></select></div>
+              <div>
+                <label>Tipo</label>
+                <select value={form.propertyType} onChange={(e) => updateField("propertyType", e.target.value)}>
+                  {developmentPropertyTypeOptions.map((item) => (
+                    <option key={item.value} value={item.value}>{item.label}</option>
+                  ))}
+                </select>
+              </div>
               <div><label>Etapa atual do empreendimento</label><select value={form.stage} onChange={(e) => updateField("stage", e.target.value)}>{developmentStageOptions.map((item)=><option key={item.value} value={item.value}>{item.label}</option>)}</select></div>
               <div><label>Status editorial</label><select value={form.status} onChange={(e) => updateField("status", e.target.value)}>{publicationOptions.map((item)=><option key={item.value} value={item.value}>{item.label}</option>)}</select></div>
               <div><label>Frase curta</label><input value={form.summary} onChange={(e) => updateField("summary", e.target.value)} required /></div>

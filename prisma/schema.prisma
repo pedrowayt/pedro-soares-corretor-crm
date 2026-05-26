@@ -167,6 +167,7 @@ enum DevelopmentStage {
 }
 
 enum DevelopmentPropertyType {
+  COMPLEXO
   APARTAMENTO
   CASA
   LOTE

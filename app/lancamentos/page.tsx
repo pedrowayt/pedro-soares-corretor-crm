@@ -7,6 +7,7 @@ import { developmentPublicStageLabels, listPublicDevelopments, type PublicDevelo
 const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 
 const propertyTypeOptions: Array<{ value: DevelopmentPropertyType; label: string }> = [
+  { value: "COMPLEXO", label: "Complexo" },
   { value: "APARTAMENTO", label: "Apartamento" },
   { value: "CASA", label: "Casa" },
   { value: "LOTE", label: "Lote" },
