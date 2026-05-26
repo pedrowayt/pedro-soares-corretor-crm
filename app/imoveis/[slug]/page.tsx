@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { PropertyInterestForm } from "@/components/public/lead-forms";
 import { WhatsAppPropertyButton } from "@/components/public/whatsapp-property-button";
@@ -14,6 +15,13 @@ const purposeLabelMap: Record<string, string> = {
   INVESTIMENTO: "investimento",
   LEILAO: "leilão",
   LANCAMENTO: "lançamento"
+};
+
+const broker = {
+  name: "Pedro Soares",
+  creci: "CRECI 5861-TO",
+  photo: "/brand/pedro-portrait-5.png",
+  phone: "(63) 98484-5101"
 };
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
@@ -98,6 +106,19 @@ export default async function PropertyDetailsPage({ params }: { params: Promise<
     district: property.district,
     city: property.city
   });
+  const propertyImages = (property.media ?? [])
+    .slice()
+    .sort((a, b) => ("position" in a ? a.position : 0) - ("position" in b ? b.position : 0))
+    .map((media) => ({
+      id: media.id,
+      url: media.url
+    }));
+  const fallbackImage = "https://images.unsplash.com/photo-1600585154340-be6161a56a0c";
+  const coverImage = propertyImages[0]?.url ?? fallbackImage;
+  const galleryImages = propertyImages.length
+    ? propertyImages
+    : [{ id: "fallback-property-image", url: fallbackImage }];
+  const heroThumbs = galleryImages.slice(1, 5);
 
   const faqItems = [
     {
@@ -201,51 +222,81 @@ export default async function PropertyDetailsPage({ params }: { params: Promise<
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(listingSchema) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
 
-      <div className="container">
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
-          <p className="badge" style={{ margin: 0 }}>
-            {property.city} • {property.district}
-          </p>
-          {property.status === "VENDIDO" ? (
-            <span className="badge badge-tone-sold">Vendido</span>
-          ) : property.status === "RESERVADO" ? (
-            <span className="badge badge-tone-reserved">Reservado</span>
-          ) : property.status === "ALUGADO" ? (
-            <span className="badge badge-tone-rented">Alugado</span>
-          ) : null}
+      <div className="container property-detail-shell">
+        <div className="property-detail-heading">
+          <div>
+            <div className="property-detail-badges">
+              <p className="badge">
+                {property.city} • {property.district}
+              </p>
+              {property.status === "VENDIDO" ? (
+                <span className="badge badge-tone-sold">Vendido</span>
+              ) : property.status === "RESERVADO" ? (
+                <span className="badge badge-tone-reserved">Reservado</span>
+              ) : property.status === "ALUGADO" ? (
+                <span className="badge badge-tone-rented">Alugado</span>
+              ) : null}
+            </div>
+            <h1 className="section-title title-luxury">
+              {property.title}
+            </h1>
+          </div>
+          <div className="property-detail-price-box">
+            <span>{purposeLabel}</span>
+            <strong>{formatCurrencyBRL(property.priceValue)}</strong>
+          </div>
         </div>
-        <h1 className="section-title title-luxury" style={{ marginTop: 10 }}>
-          {property.title}
-        </h1>
-        <p style={{ color: "var(--sophistication-gold-300)", fontWeight: 700, fontSize: "var(--fs-20)", marginTop: 0 }}>
-          {formatCurrencyBRL(property.priceValue)}
-        </p>
         {property.status === "VENDIDO" ? (
-          <p
-            className="card"
-            style={{ padding: "10px 14px", marginTop: 10, background: "rgba(220, 38, 38, 0.08)", borderColor: "rgba(220, 38, 38, 0.3)", color: "#7f1d1d" }}
-          >
+          <p className="property-sold-alert">
             Este imóvel já foi vendido. Posso te apresentar oportunidades semelhantes — fale comigo no WhatsApp.
           </p>
         ) : null}
 
-        <div className="grid-3 property-detail-gallery" style={{ marginBottom: 18 }}>
-          {(property.media ?? []).slice(0, 3).map((media) => (
-            <div
-              key={media.id}
-              className="card"
-              style={{
-                aspectRatio: "4 / 3",
-                backgroundImage: `url(${media.url})`,
-                backgroundPosition: "center",
-                backgroundSize: "cover"
-              }}
+        <div className="property-media-showcase">
+          <a className="property-media-showcase__main" href={coverImage} target="_blank" rel="noreferrer">
+            <Image
+              src={coverImage}
+              alt={`Foto principal do imóvel ${property.title}`}
+              fill
+              sizes="(max-width: 960px) 100vw, 68vw"
+              priority
             />
+            <span>Ampliar imagem</span>
+          </a>
+          <div className="property-media-showcase__thumbs">
+            {heroThumbs.map((image, index) => (
+              <a key={image.id} href={image.url} target="_blank" rel="noreferrer">
+                <Image
+                  src={image.url}
+                  alt={`Foto ${index + 2} do imóvel ${property.title}`}
+                  fill
+                  sizes="(max-width: 960px) 50vw, 18vw"
+                />
+              </a>
+            ))}
+            {!heroThumbs.length ? (
+              <div className="property-media-showcase__empty">
+                <span>Mais fotos serão adicionadas em breve.</span>
+              </div>
+            ) : null}
+          </div>
+        </div>
+
+        <div className="property-image-strip" aria-label="Galeria do imóvel">
+          {galleryImages.map((image, index) => (
+            <a key={image.id} href={image.url} target="_blank" rel="noreferrer">
+              <Image
+                src={image.url}
+                alt={`Imagem ${index + 1} do imóvel ${property.title}`}
+                fill
+                sizes="210px"
+              />
+            </a>
           ))}
         </div>
 
         <div className="grid-3 property-main-grid" style={{ alignItems: "start" }}>
-          <article className="card property-detail-content" style={{ padding: 16, gridColumn: "span 2" }}>
+          <article className="card property-detail-content" style={{ padding: 16 }}>
             <h2 className="title-luxury" style={{ marginTop: 0 }}>
               Descrição completa
             </h2>
@@ -346,7 +397,35 @@ export default async function PropertyDetailsPage({ params }: { params: Promise<
             </div>
           </article>
 
-          <PropertyInterestForm propertySlug={property.slug} />
+          <aside className="property-contact-panel">
+            <div className="property-broker-card">
+              <Image src={broker.photo} alt={broker.name} width={88} height={104} className="property-broker-photo" />
+              <div className="property-broker-copy">
+                <span>Atendimento direto</span>
+                <strong>{broker.name}</strong>
+                <small>{broker.creci}</small>
+              </div>
+            </div>
+
+            <div className="property-contact-actions">
+              <WhatsAppPropertyButton
+                propertyId={property.id}
+                propertySlug={property.slug}
+                message={whatsappMessage}
+                label="Chamar Pedro no WhatsApp"
+              />
+              <a className="button button-ghost" href="tel:+5563984845101">
+                Ligar {broker.phone}
+              </a>
+            </div>
+
+            <div className="property-contact-points">
+              <p>Agendamento de visita com orientação sobre documentação, região e potencial de negociação.</p>
+              <p>Resposta rápida para disponibilidade, proposta e simulação de financiamento.</p>
+            </div>
+
+            <PropertyInterestForm propertySlug={property.slug} embedded />
+          </aside>
         </div>
       </div>
 

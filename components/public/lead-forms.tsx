@@ -23,8 +23,21 @@ async function postJson(url: string, data: unknown) {
   return payload;
 }
 
-export function PropertyInterestForm({ propertySlug }: { propertySlug: string }) {
+export function PropertyInterestForm({
+  propertySlug,
+  embedded = false
+}: {
+  propertySlug: string;
+  embedded?: boolean;
+}) {
   const [status, setStatus] = useState<FormStatus>({ type: "idle" });
+  const statusColor = embedded
+    ? status.type === "success"
+      ? "#0a7a56"
+      : "#c92a2a"
+    : status.type === "success"
+      ? "#8df0b9"
+      : "#ffb3ad";
 
   return (
     <form
@@ -49,8 +62,8 @@ export function PropertyInterestForm({ propertySlug }: { propertySlug: string })
           });
         }
       }}
-      className="card"
-      style={{ padding: 16 }}
+      className={embedded ? "property-contact-form" : "card"}
+      style={embedded ? undefined : { padding: 16 }}
     >
       <h3 style={{ marginTop: 0 }}>Tenho interesse neste imóvel</h3>
       <div className="form-grid">
@@ -75,7 +88,9 @@ export function PropertyInterestForm({ propertySlug }: { propertySlug: string })
         Enviar Interesse
       </button>
       {status.type !== "idle" ? (
-        <p style={{ marginTop: 10, color: status.type === "success" ? "#8df0b9" : "#ffb3ad" }}>{status.message}</p>
+        <p style={{ marginTop: 10, color: statusColor }}>
+          {status.message}
+        </p>
       ) : null}
     </form>
   );
