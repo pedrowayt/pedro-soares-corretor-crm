@@ -2392,20 +2392,70 @@ body:has(.admin-login-page) .cookie-consent-banner {
 }
 
 .builder-directory-hero {
-  padding-bottom: 28px;
+  padding: 54px 0 28px;
+}
+
+.builder-directory-hero-inner {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 420px);
+  gap: 28px;
+  align-items: end;
+}
+
+.builder-directory-hero-copy {
+  max-width: 900px;
+}
+
+.builder-directory-summary {
+  border: 1px solid #dbe4f0;
+  border-radius: 12px;
+  background: #ffffff;
+  padding: 12px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  box-shadow: 0 10px 28px -22px rgba(15, 34, 61, 0.28);
+}
+
+.builder-directory-summary p {
+  margin: 0;
+  min-width: 0;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #f8fafc;
+  padding: 10px;
+  display: grid;
+  gap: 4px;
+}
+
+.builder-directory-summary span {
+  color: #64748b;
+  font-size: var(--fs-12);
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.builder-directory-summary strong {
+  color: #172035;
+  font-size: var(--fs-22);
+  line-height: 1;
 }
 
 .builder-directory-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
 }
 
 .builder-directory-card {
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
+  padding: 14px;
+  display: grid;
+  grid-template-columns: 178px minmax(0, 1fr);
+  grid-template-areas:
+    "logo body"
+    "logo stats"
+    "logo actions";
+  gap: 12px 16px;
   overflow: hidden;
   border: 1px solid #e2e8f0;
   background: #ffffff;
@@ -2419,19 +2469,24 @@ body:has(.admin-login-page) .cookie-consent-banner {
 }
 
 .builder-directory-card-logo {
-  height: 112px;
+  grid-area: logo;
+  align-self: stretch;
+  min-height: 184px;
+  position: relative;
   display: grid;
   place-items: center;
-  padding: 18px 22px;
-  background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
-  border-bottom: 1px solid rgba(15, 34, 61, 0.06);
+  padding: 18px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  background: #f8fafc;
+  overflow: hidden;
 }
 
 .builder-directory-card-logo-img {
-  max-width: 80%;
-  max-height: 100%;
-  width: auto;
-  height: auto;
+  position: absolute;
+  inset: 18px;
+  width: calc(100% - 36px);
+  height: calc(100% - 36px);
   object-fit: contain;
   display: block;
 }
@@ -2450,10 +2505,11 @@ body:has(.admin-login-page) .cookie-consent-banner {
 }
 
 .builder-directory-card-body {
-  padding: 0 18px;
+  grid-area: body;
+  padding: 2px 0 0;
   display: grid;
-  gap: 8px;
-  flex: 1;
+  gap: 7px;
+  align-content: start;
 }
 
 .builder-directory-card-head {
@@ -2524,18 +2580,19 @@ body:has(.admin-login-page) .cookie-consent-banner {
 }
 
 .builder-card-summary {
-  margin: 4px 0 0;
+  margin: 2px 0 0;
   color: var(--text-muted);
-  line-height: 1.5;
+  line-height: 1.45;
   display: -webkit-box;
-  -webkit-line-clamp: 3;
-  line-clamp: 3;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
 
 .builder-mini-stats {
-  margin: 0 18px;
+  grid-area: stats;
+  margin: 0;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
@@ -2548,9 +2605,9 @@ body:has(.admin-login-page) .cookie-consent-banner {
   border: 1px solid #dbe4f0;
   border-radius: 8px;
   background: #f8fafc;
-  padding: 10px;
+  padding: 9px;
   display: grid;
-  gap: 4px;
+  gap: 3px;
 }
 
 .builder-mini-stats span,
@@ -2576,13 +2633,17 @@ body:has(.admin-login-page) .cookie-consent-banner {
 }
 
 .builder-directory-card .builder-card-actions {
-  margin: 0 18px 18px;
-  padding-top: 4px;
+  grid-area: actions;
+  margin: 0;
+  padding-top: 0;
 }
 
 .builder-directory-card .builder-card-actions .button {
-  flex: 1;
+  flex: 0 0 auto;
   min-width: 0;
+  width: fit-content;
+  min-height: 44px;
+  padding-inline: 18px;
 }
 
 .builder-card-actions .button,
@@ -4170,6 +4231,15 @@ body:has(.admin-login-page) .cookie-consent-banner {
 }
 
 @media (max-width: 960px) {
+  .builder-directory-hero-inner {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
+  .builder-directory-card {
+    grid-template-columns: 150px minmax(0, 1fr);
+  }
+
   .grid-3,
   .metric-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -4699,13 +4769,36 @@ body:has(.admin-login-page) .cookie-consent-banner {
     grid-template-columns: 1fr;
   }
 
+  .builder-directory-hero {
+    padding-top: 34px;
+  }
+
+  .builder-directory-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .builder-directory-card {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "logo"
+      "body"
+      "stats"
+      "actions";
+  }
+
   .builder-directory-card-head {
     grid-template-columns: 1fr;
   }
 
   .builder-directory-card-logo {
-    height: 96px;
-    padding: 14px 18px;
+    min-height: 136px;
+    padding: 16px 18px;
+  }
+
+  .builder-directory-card-logo-img {
+    inset: 16px 18px;
+    width: calc(100% - 36px);
+    height: calc(100% - 32px);
   }
 
   .builder-logo-frame-small {
@@ -4730,6 +4823,7 @@ body:has(.admin-login-page) .cookie-consent-banner {
     grid-template-columns: 1fr;
   }
 
+  .builder-directory-card .builder-card-actions .button,
   .builder-card-actions .button,
   .builder-profile-actions .button,
   .builder-sidebar-cta .button {

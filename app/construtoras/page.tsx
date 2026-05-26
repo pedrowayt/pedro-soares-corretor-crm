@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, Building2, MapPin, MessageCircle } from "lucide-react";
+import { ArrowRight, Building2, MapPin } from "lucide-react";
 import { listPublicBuilders } from "@/lib/data/developments";
-import { buildWhatsAppUrl } from "@/lib/integrations/whatsapp-links";
 
 const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 
@@ -43,6 +42,8 @@ function formatCount(value: number | null | undefined, fallback = "—") {
 
 export default async function BuildersIndexPage() {
   const builders = await listPublicBuilders();
+  const publishedDevelopmentsCount = builders.reduce((total, builder) => total + builder.developments.length, 0);
+  const deliveredCount = builders.reduce((total, builder) => total + (builder.deliveredDevelopmentsCount ?? 0), 0);
   const collectionSchema = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
@@ -66,16 +67,32 @@ export default async function BuildersIndexPage() {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionSchema) }} />
 
       <section className="section builder-directory-hero">
-        <div className="container">
-          <p className="wp-hero-eyebrow" style={{ marginBottom: 12 }}>
-            Pedro Soares • Construtoras
-          </p>
-          <h1 className="section-title" style={{ marginTop: 0 }}>
-            Construtoras com empreendimentos em Palmas - TO
-          </h1>
-          <p className="section-subtitle text-card">
-            Compare construtoras, conheça o histórico disponível no CRM e veja os empreendimentos publicados para compra ou investimento.
-          </p>
+        <div className="container builder-directory-hero-inner">
+          <div className="builder-directory-hero-copy">
+            <p className="wp-hero-eyebrow" style={{ marginBottom: 12 }}>
+              Pedro Soares • Construtoras
+            </p>
+            <h1 className="section-title" style={{ marginTop: 0 }}>
+              Construtoras com empreendimentos em Palmas - TO
+            </h1>
+            <p className="section-subtitle text-card">
+              Consulte construtoras cadastradas, histórico disponível e empreendimentos publicados para compra ou investimento.
+            </p>
+          </div>
+          <div className="builder-directory-summary" aria-label="Resumo das construtoras">
+            <p>
+              <span>Construtoras</span>
+              <strong>{formatCount(builders.length)}</strong>
+            </p>
+            <p>
+              <span>Empreendimentos no site</span>
+              <strong>{formatCount(publishedDevelopmentsCount)}</strong>
+            </p>
+            <p>
+              <span>Entregues informados</span>
+              <strong>{formatCount(deliveredCount)}</strong>
+            </p>
+          </div>
         </div>
       </section>
 
@@ -138,14 +155,6 @@ export default async function BuildersIndexPage() {
                       <Link className="button button-primary" href={`/construtoras/${builder.slug}`}>
                         Ver perfil <ArrowRight size={16} />
                       </Link>
-                      <a
-                        className="button button-whatsapp"
-                        href={buildWhatsAppUrl(`Olá, Pedro. Quero conhecer os empreendimentos da construtora ${builder.name}.`)}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        WhatsApp <MessageCircle size={16} />
-                      </a>
                     </div>
                   </article>
                 );
