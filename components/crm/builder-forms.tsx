@@ -50,6 +50,11 @@ async function requestJson(url: string, method: "POST" | "PATCH" | "DELETE", pay
   });
 
   const data = await response.json().catch(() => ({}));
+  if (response.status === 401 && typeof window !== "undefined") {
+    const next = encodeURIComponent(window.location.pathname + window.location.search);
+    window.location.assign(`/admin/login?next=${next}`);
+    throw new Error("Sessão expirada. Redirecionando para o login...");
+  }
   if (!response.ok || !data.success) {
     throw new Error(data?.error?.message ?? "Falha na operação.");
   }

@@ -8,7 +8,7 @@ function withSecurityHeaders(response: NextResponse) {
   return response;
 }
 
-export async function proxy(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   if (pathname === "/imoveis/na-planta" || pathname.startsWith("/imoveis/na-planta/")) {

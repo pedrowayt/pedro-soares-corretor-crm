@@ -875,6 +875,11 @@ async function fetchJson(url: string, method: "POST" | "PATCH" | "DELETE", paylo
   });
 
   const data = (await response.json().catch(() => ({}))) as unknown;
+  if (response.status === 401 && typeof window !== "undefined") {
+    const next = encodeURIComponent(window.location.pathname + window.location.search);
+    window.location.assign(`/admin/login?next=${next}`);
+    throw new Error("Sessão expirada. Redirecionando para o login...");
+  }
   if (!response.ok || !isRecord(data) || data.success !== true) {
     throw new Error(formatApiError(data));
   }
