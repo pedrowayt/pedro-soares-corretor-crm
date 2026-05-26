@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { PropertyEditor, type EditorMedia, type EditorProperty } from "@/components/crm/property-editor";
+import { PropertyWizard, type WizardMedia, type WizardProperty } from "@/components/crm/property-wizard";
 import { findCrmPropertyById } from "@/lib/data/crm-properties";
 import { formatCurrencyBRL } from "@/lib/utils";
 
@@ -12,17 +12,16 @@ export default async function CrmImovelEditPage({ params }: { params: Promise<{ 
     notFound();
   }
 
-  const media: EditorMedia[] = (property.media ?? [])
+  const media: WizardMedia[] = (property.media ?? [])
     .slice()
     .sort((a, b) => a.position - b.position)
     .map((item) => ({
       id: item.id,
       url: item.url,
-      position: item.position,
-      kind: String(item.kind)
+      position: item.position
     }));
 
-  const editorProperty: EditorProperty = {
+  const wizardProperty: WizardProperty = {
     id: property.id,
     title: property.title,
     slug: property.slug,
@@ -72,7 +71,7 @@ export default async function CrmImovelEditPage({ params }: { params: Promise<{ 
       </p>
 
       <div style={{ marginTop: 18 }}>
-        <PropertyEditor property={editorProperty} />
+        <PropertyWizard mode="edit" initial={wizardProperty} />
       </div>
     </>
   );

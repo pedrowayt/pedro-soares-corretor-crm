@@ -30,6 +30,7 @@ export function LogoCropper({ source, initialBackground = "transparent", onCance
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   const [background, setBackground] = useState<"transparent" | "white">(initialBackground);
   const [exporting, setExporting] = useState(false);
+  const [naturalSize, setNaturalSize] = useState({ width: 0, height: 0 });
 
   const imageRef = useRef<HTMLImageElement | null>(null);
   const pointerRef = useRef<PointerState | null>(null);
@@ -49,6 +50,7 @@ export function LogoCropper({ source, initialBackground = "transparent", onCance
     imageRef.current = img;
     const fit = Math.min(FRAME_WIDTH / img.naturalWidth, FRAME_HEIGHT / img.naturalHeight);
     const safeFit = Number.isFinite(fit) && fit > 0 ? fit : 1;
+    setNaturalSize({ width: img.naturalWidth, height: img.naturalHeight });
     setBaseScale(safeFit);
     setScale(1);
     setOffset({ x: 0, y: 0 });
@@ -62,14 +64,14 @@ export function LogoCropper({ source, initialBackground = "transparent", onCance
   }, []);
 
   const displayedWidth = useMemo(() => {
-    if (!imageRef.current) return 0;
-    return imageRef.current.naturalWidth * baseScale * scale;
-  }, [baseScale, scale]);
+    if (!naturalSize.width) return 0;
+    return naturalSize.width * baseScale * scale;
+  }, [baseScale, naturalSize.width, scale]);
 
   const displayedHeight = useMemo(() => {
-    if (!imageRef.current) return 0;
-    return imageRef.current.naturalHeight * baseScale * scale;
-  }, [baseScale, scale]);
+    if (!naturalSize.height) return 0;
+    return naturalSize.height * baseScale * scale;
+  }, [baseScale, naturalSize.height, scale]);
 
   function handlePointerDown(event: React.PointerEvent<HTMLDivElement>) {
     if (!loaded) return;

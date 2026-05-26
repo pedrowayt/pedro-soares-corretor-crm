@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { PropertyForms } from "@/components/crm/property-forms";
 import { PropertyStatusActions } from "@/components/crm/property-status-actions";
+import { PropertyWizard } from "@/components/crm/property-wizard";
 import { listCrmProperties } from "@/lib/data/crm-properties";
 import { formatCurrencyBRL } from "@/lib/utils";
 
@@ -38,7 +38,7 @@ export default async function CrmImoveisPage() {
         ))}
       </div>
 
-      <PropertyForms />
+      <PropertyWizard mode="create" />
     </>
   );
 }
