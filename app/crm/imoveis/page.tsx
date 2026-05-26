@@ -1,44 +1,30 @@
-import Link from "next/link";
-import { PropertyStatusActions } from "@/components/crm/property-status-actions";
-import { PropertyWizard } from "@/components/crm/property-wizard";
+import { PropertyListManager, type PropertyListItem } from "@/components/crm/property-list-manager";
 import { listCrmProperties } from "@/lib/data/crm-properties";
-import { formatCurrencyBRL } from "@/lib/utils";
 
 export default async function CrmImoveisPage() {
   const properties = await listCrmProperties();
+  const propertyItems: PropertyListItem[] = properties.map((property) => {
+    const media = (property.media ?? []).slice().sort((a, b) => a.position - b.position);
+    const owner = property.owner as { name?: string } | null | undefined;
 
-  return (
-    <>
-      <h1 className="section-title" style={{ marginTop: 0 }}>Imóveis</h1>
-      <p className="section-subtitle">Gestão de carteira, status comercial e avaliação mercadológica simplificada.</p>
+    return {
+      id: property.id,
+      title: property.title,
+      slug: property.slug,
+      status: String(property.status),
+      purpose: String(property.purpose),
+      type: String(property.type),
+      price: Number(property.price),
+      city: property.city,
+      district: property.district,
+      bedrooms: property.bedrooms ?? null,
+      suites: property.suites ?? null,
+      bathrooms: property.bathrooms ?? null,
+      parkingSpaces: property.parkingSpaces ?? null,
+      ownerName: owner?.name ?? null,
+      thumbnailUrl: media[0]?.url ?? null
+    };
+  });
 
-      <div style={{ marginTop: 16, marginBottom: 20 }} className="grid-3">
-        {properties.map((property) => (
-          <article className="card" key={property.id} style={{ padding: 14 }}>
-            <PropertyStatusActions propertyId={property.id} currentStatus={property.status} />
-            <h3 style={{ marginTop: 10 }}>{property.title}</h3>
-            <p style={{ margin: "6px 0", color: "var(--sophistication-gold-300)", fontWeight: 700 }}>
-              {formatCurrencyBRL(Number(property.price))}
-            </p>
-            <p style={{ margin: "6px 0", color: "var(--text-muted)" }}>
-              {property.city} • {property.district}
-            </p>
-            <p style={{ margin: "6px 0", color: "var(--text-muted)", fontSize: "var(--fs-14)" }}>
-              Proprietário: {(property.owner as { name?: string } | null | undefined)?.name ?? "Não vinculado"}
-            </p>
-            <div style={{ marginTop: 8, display: "flex", gap: 8, flexWrap: "wrap" }}>
-              <Link className="button button-primary" href={`/crm/imoveis/${property.id}`}>
-                Editar
-              </Link>
-              <Link className="button button-ghost" href={`/imoveis/${property.slug}`} target="_blank">
-                Ver no site
-              </Link>
-            </div>
-          </article>
-        ))}
-      </div>
-
-      <PropertyWizard mode="create" />
-    </>
-  );
+  return <PropertyListManager properties={propertyItems} />;
 }

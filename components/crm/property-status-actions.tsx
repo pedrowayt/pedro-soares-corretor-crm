@@ -22,9 +22,10 @@ const STATUS_TONE: Record<string, string> = {
 type Props = {
   propertyId: string;
   currentStatus: string;
+  compact?: boolean;
 };
 
-export function PropertyStatusActions({ propertyId, currentStatus }: Props) {
+export function PropertyStatusActions({ propertyId, currentStatus, compact = false }: Props) {
   const router = useRouter();
   const [status, setStatus] = useState(currentStatus);
   const [error, setError] = useState<string | null>(null);
@@ -59,7 +60,7 @@ export function PropertyStatusActions({ propertyId, currentStatus }: Props) {
   const options = ["DISPONIVEL", "RESERVADO", "VENDIDO"] as const;
 
   return (
-    <div className="property-status-actions">
+    <div className={`property-status-actions ${compact ? "property-status-actions--compact" : ""}`}>
       <span className={`badge badge-${STATUS_TONE[status] ?? "tone-pending"}`}>
         {STATUS_LABELS[status] ?? status}
       </span>
