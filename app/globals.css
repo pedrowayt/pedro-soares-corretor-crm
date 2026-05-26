@@ -577,6 +577,60 @@ a.property-instagram-button:hover {
   background: rgba(179, 38, 30, 0.08);
 }
 
+.crm-property-actions {
+  position: relative;
+}
+
+.crm-property-actions__kebab {
+  min-width: 38px;
+  padding: 0.4rem 0.6rem;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.crm-property-actions__menu {
+  z-index: 50;
+  min-width: 180px;
+  background: #ffffff;
+  border: 1px solid rgba(15, 34, 61, 0.12);
+  border-radius: 10px;
+  box-shadow: 0 18px 38px rgba(7, 13, 24, 0.16);
+  padding: 6px;
+  display: grid;
+  gap: 2px;
+}
+
+.crm-property-actions__menu-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 0;
+  background: transparent;
+  color: #1f3149;
+  font-size: var(--fs-13);
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.crm-property-actions__menu-item:hover:not(:disabled) {
+  background: rgba(15, 34, 61, 0.05);
+}
+
+.crm-property-actions__menu-item:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.crm-property-actions__menu-item--danger {
+  color: #b3261e;
+}
+
+.crm-property-actions__menu-item--danger:hover:not(:disabled) {
+  background: rgba(179, 38, 30, 0.08);
+}
+
 .crm-property-list__error {
   margin: 8px 14px 0;
   padding: 8px 12px;

@@ -155,6 +155,19 @@ function makeInitialState(initial?: WizardProperty): FormState {
   };
 }
 
+function describeValidationErrors(details: unknown): string | null {
+  if (!details || typeof details !== "object") return null;
+  const flat = details as { fieldErrors?: Record<string, string[]>; formErrors?: string[] };
+  const parts: string[] = [];
+  if (flat.fieldErrors) {
+    for (const [field, msgs] of Object.entries(flat.fieldErrors)) {
+      if (msgs && msgs.length) parts.push(`${field}: ${msgs.join(", ")}`);
+    }
+  }
+  if (flat.formErrors?.length) parts.push(flat.formErrors.join(", "));
+  return parts.length ? parts.join(" · ") : null;
+}
+
 async function fetchJson(url: string, method: string, body?: unknown) {
   const response = await fetch(url, {
     method,
@@ -168,7 +181,9 @@ async function fetchJson(url: string, method: string, body?: unknown) {
   }
   const data = await response.json().catch(() => null);
   if (!response.ok || !data?.success) {
-    throw new Error(data?.error?.message ?? "Falha na operação.");
+    const detail = describeValidationErrors(data?.error?.details);
+    const baseMessage = data?.error?.message ?? "Falha na operação.";
+    throw new Error(detail ? `${baseMessage} (${detail})` : baseMessage);
   }
   return data;
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { PropertyStatusActions } from "@/components/crm/property-status-actions";
 import { PropertyWizard } from "@/components/crm/property-wizard";
@@ -66,7 +66,45 @@ export function PropertyListManager({ properties }: { properties: PropertyListIt
   const [showWizard, setShowWizard] = useState(false);
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
+  const [openMenu, setOpenMenu] = useState<{ id: string; top: number; right: number } | null>(null);
   const wizardRef = useRef<HTMLDivElement | null>(null);
+
+  function toggleMenu(propertyId: string, anchor: HTMLElement) {
+    if (openMenu?.id === propertyId) {
+      setOpenMenu(null);
+      return;
+    }
+    const rect = anchor.getBoundingClientRect();
+    setOpenMenu({
+      id: propertyId,
+      top: rect.bottom + 6,
+      right: Math.max(8, window.innerWidth - rect.right)
+    });
+  }
+
+  useEffect(() => {
+    if (!openMenu) return;
+    function onDocClick(event: MouseEvent) {
+      const target = event.target as HTMLElement | null;
+      if (!target?.closest("[data-row-menu]")) setOpenMenu(null);
+    }
+    function onKey(event: KeyboardEvent) {
+      if (event.key === "Escape") setOpenMenu(null);
+    }
+    function onScroll() {
+      setOpenMenu(null);
+    }
+    document.addEventListener("click", onDocClick);
+    document.addEventListener("keydown", onKey);
+    window.addEventListener("scroll", onScroll, true);
+    window.addEventListener("resize", onScroll);
+    return () => {
+      document.removeEventListener("click", onDocClick);
+      document.removeEventListener("keydown", onKey);
+      window.removeEventListener("scroll", onScroll, true);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, [openMenu]);
 
   function openWizard() {
     setShowWizard(true);
@@ -235,28 +273,20 @@ export function PropertyListManager({ properties }: { properties: PropertyListIt
                       />
                     </td>
                     <td>
-                      <div className="crm-property-actions">
+                      <div className="crm-property-actions" data-row-menu>
                         <Link className="button button-primary" href={`/crm/imoveis/${property.id}`}>
                           Editar
                         </Link>
-                        <Link className="button button-ghost" href={`/imoveis/${property.slug}`} target="_blank">
-                          Ver no site
-                        </Link>
                         <button
                           type="button"
-                          className="button button-ghost"
-                          onClick={() => unpublishProperty(property)}
+                          className="button button-ghost crm-property-actions__kebab"
+                          onClick={(event) => toggleMenu(property.id, event.currentTarget)}
+                          aria-haspopup="menu"
+                          aria-expanded={openMenu?.id === property.id}
+                          aria-label="Mais ações"
                           disabled={pendingId === property.id}
                         >
-                          Tirar da página
-                        </button>
-                        <button
-                          type="button"
-                          className="button button-ghost crm-property-actions__delete"
-                          onClick={() => deleteProperty(property)}
-                          disabled={pendingId === property.id}
-                        >
-                          Excluir
+                          <span aria-hidden="true">⋯</span>
                         </button>
                       </div>
                     </td>
@@ -274,6 +304,55 @@ export function PropertyListManager({ properties }: { properties: PropertyListIt
           </div>
         )}
       </section>
+
+      {openMenu
+        ? (() => {
+            const property = properties.find((p) => p.id === openMenu.id);
+            if (!property) return null;
+            return (
+              <div
+                className="crm-property-actions__menu"
+                role="menu"
+                data-row-menu
+                style={{ position: "fixed", top: openMenu.top, right: openMenu.right }}
+              >
+                <Link
+                  className="crm-property-actions__menu-item"
+                  href={`/imoveis/${property.slug}`}
+                  target="_blank"
+                  role="menuitem"
+                  onClick={() => setOpenMenu(null)}
+                >
+                  Ver no site
+                </Link>
+                <button
+                  type="button"
+                  role="menuitem"
+                  className="crm-property-actions__menu-item"
+                  onClick={() => {
+                    setOpenMenu(null);
+                    unpublishProperty(property);
+                  }}
+                  disabled={pendingId === property.id}
+                >
+                  Tirar da página
+                </button>
+                <button
+                  type="button"
+                  role="menuitem"
+                  className="crm-property-actions__menu-item crm-property-actions__menu-item--danger"
+                  onClick={() => {
+                    setOpenMenu(null);
+                    deleteProperty(property);
+                  }}
+                  disabled={pendingId === property.id}
+                >
+                  Excluir
+                </button>
+              </div>
+            );
+          })()
+        : null}
     </div>
   );
 }
