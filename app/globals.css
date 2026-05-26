@@ -5195,6 +5195,272 @@ body:has(.admin-login-page) .cookie-consent-banner {
   background: linear-gradient(0deg, rgba(7, 13, 24, 0.78), rgba(7, 13, 24, 0));
 }
 
+.development-gallery {
+  display: grid;
+  gap: 12px;
+}
+
+.development-gallery-stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  border-radius: 14px;
+  overflow: hidden;
+  background: #0b1424;
+  box-shadow: 0 18px 40px rgba(7, 13, 24, 0.18);
+}
+
+.development-gallery-slide {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  cursor: zoom-in;
+  opacity: 0;
+  transform: scale(1.02);
+  transition: opacity 700ms ease, transform 900ms ease;
+  pointer-events: none;
+}
+
+.development-gallery-slide.is-active {
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: auto;
+}
+
+.development-gallery-zoom {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(7, 13, 24, 0.62);
+  color: #fff;
+  font-size: var(--fs-12);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 200ms ease, transform 200ms ease;
+}
+
+.development-gallery-slide:hover .development-gallery-zoom,
+.development-gallery-slide:focus-visible .development-gallery-zoom {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.development-gallery-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  border: 0;
+  background: rgba(7, 13, 24, 0.55);
+  color: #fff;
+  font-size: 26px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 200ms ease, transform 200ms ease;
+  z-index: 2;
+}
+
+.development-gallery-arrow:hover,
+.development-gallery-arrow:focus-visible {
+  background: rgba(7, 13, 24, 0.82);
+  transform: translateY(-50%) scale(1.04);
+  outline: none;
+}
+
+.development-gallery-arrow.prev {
+  left: 12px;
+}
+
+.development-gallery-arrow.next {
+  right: 12px;
+}
+
+.development-gallery-counter {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(7, 13, 24, 0.6);
+  color: #fff;
+  font-size: var(--fs-12);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  z-index: 2;
+}
+
+.development-gallery-caption {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 16px 18px;
+  color: #fff;
+  background: linear-gradient(0deg, rgba(7, 13, 24, 0.85), rgba(7, 13, 24, 0));
+  display: grid;
+  gap: 2px;
+  font-size: var(--fs-13);
+  pointer-events: none;
+}
+
+.development-gallery-caption strong {
+  font-size: var(--fs-14);
+  font-weight: 600;
+}
+
+.development-gallery-thumbs {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 2px;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: thin;
+}
+
+.development-gallery-thumb {
+  position: relative;
+  flex: 0 0 96px;
+  height: 64px;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background: var(--surface-soft);
+  overflow: hidden;
+  cursor: pointer;
+  padding: 0;
+  scroll-snap-align: start;
+  transition: border-color 200ms ease, transform 200ms ease;
+}
+
+.development-gallery-thumb img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover;
+}
+
+.development-gallery-thumb.is-active {
+  border-color: var(--gold, #d89a3b);
+  transform: translateY(-2px);
+}
+
+.development-gallery-thumb:hover:not(.is-active) {
+  border-color: rgba(15, 34, 61, 0.25);
+}
+
+.development-gallery-lightbox {
+  position: fixed;
+  inset: 0;
+  background: rgba(4, 8, 16, 0.98);
+  z-index: 1000;
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4vh 5vw;
+  animation: gallery-lightbox-fade 200ms ease;
+}
+
+@keyframes gallery-lightbox-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.development-gallery-lightbox-figure {
+  position: relative;
+  margin: 0;
+  width: min(92vw, 1400px);
+  height: min(82vh, 900px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.development-gallery-lightbox-figure figcaption {
+  position: absolute;
+  left: 50%;
+  bottom: -2vh;
+  transform: translate(-50%, 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  color: #fff;
+  font-size: var(--fs-13);
+  text-align: center;
+  max-width: 80vw;
+}
+
+.development-gallery-lightbox-figure figcaption small {
+  color: rgba(255, 255, 255, 0.65);
+  font-size: var(--fs-12);
+}
+
+.development-gallery-lightbox-close,
+.development-gallery-lightbox-arrow {
+  position: absolute;
+  border: 0;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  transition: background 200ms ease, transform 200ms ease;
+}
+
+.development-gallery-lightbox-close {
+  top: 18px;
+  right: 18px;
+  width: 44px;
+  height: 44px;
+  font-size: 28px;
+  line-height: 1;
+}
+
+.development-gallery-lightbox-arrow {
+  top: 50%;
+  transform: translateY(-50%);
+  width: 52px;
+  height: 52px;
+  font-size: 30px;
+  line-height: 1;
+}
+
+.development-gallery-lightbox-arrow.prev { left: 18px; }
+.development-gallery-lightbox-arrow.next { right: 18px; }
+
+.development-gallery-lightbox-close:hover,
+.development-gallery-lightbox-arrow:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+.development-gallery-lightbox-arrow:hover {
+  transform: translateY(-50%) scale(1.05);
+}
+
+@media (max-width: 640px) {
+  .development-gallery-stage { aspect-ratio: 4 / 3; }
+  .development-gallery-arrow { width: 36px; height: 36px; font-size: 22px; }
+  .development-gallery-thumb { flex-basis: 76px; height: 52px; }
+  .development-gallery-lightbox-arrow { width: 42px; height: 42px; font-size: 24px; }
+}
+
 /* === Stats grid (replaces inline grid-3 with property-summary-grid-item) === */
 .development-stats-grid {
   display: grid;

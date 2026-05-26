@@ -58,8 +58,10 @@ export function DevelopmentHeroSlider({ slides, intervalMs = 5000 }: Development
               src={slide.url}
               alt={slide.alt}
               fill
-              sizes="(max-width: 640px) 100vw, (max-width: 1280px) 94vw, 1180px"
-              loading={index === 0 ? "eager" : "lazy"}
+              sizes="100vw"
+              quality={90}
+              priority={index === 0}
+              loading={index === 0 ? undefined : "lazy"}
               style={{ objectFit: "cover" }}
             />
           </figure>

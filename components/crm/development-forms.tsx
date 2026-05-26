@@ -865,7 +865,7 @@ async function dataUrlToBlob(dataUrl: string) {
   return response.blob();
 }
 
-async function fetchJson(url: string, method: "POST" | "PATCH", payload?: unknown) {
+async function fetchJson(url: string, method: "POST" | "PATCH" | "DELETE", payload?: unknown) {
   const response = await fetch(url, {
     method,
     headers: {
@@ -1839,6 +1839,36 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
     }
   }
 
+  async function deleteMedia(mediaId: string) {
+    if (!selectedId) return;
+    if (!window.confirm("Excluir esta mídia? Esta ação não pode ser desfeita.")) return;
+
+    setSaveStatus("saving");
+    setMediaError("");
+    setMediaInfo("");
+
+    try {
+      await fetchJson(`/api/crm/developments/${selectedId}/media/${mediaId}`, "DELETE");
+
+      setItems((prev) =>
+        prev.map((item) =>
+          item.id === selectedId
+            ? { ...item, media: item.media.filter((m) => m.id !== mediaId) }
+            : item
+        )
+      );
+
+      setSaveStatus("success");
+      setSaveMessage("Mídia excluída.");
+      setMediaInfo("Mídia excluída.");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Falha ao excluir mídia.";
+      setSaveStatus("error");
+      setSaveMessage(message);
+      setMediaError(message);
+    }
+  }
+
   async function handleDirectUpload() {
     const file = uploadFileRef.current?.files?.[0];
     if (!file) {
@@ -2456,7 +2486,7 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
                               borderRadius: 8,
                               padding: 8,
                               display: "grid",
-                              gridTemplateColumns: "88px minmax(0, 1fr)",
+                              gridTemplateColumns: "88px minmax(0, 1fr) auto",
                               gap: 10,
                               alignItems: "center"
                             }}
@@ -2475,6 +2505,16 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
                                 {mediaKindOptions.find((item) => item.value === media.kind)?.label ?? media.kind} · {media.category} · ordem {media.position}
                               </span>
                             </div>
+                            <button
+                              type="button"
+                              className="button button-ghost"
+                              onClick={() => deleteMedia(media.id)}
+                              disabled={mediaSubmitting || saveStatus === "saving"}
+                              style={{ padding: "0.4rem 0.7rem", color: "#b3261e", fontSize: "var(--fs-12)" }}
+                              aria-label={`Excluir ${media.title || "mídia"}`}
+                            >
+                              Excluir
+                            </button>
                           </div>
                         ))}
                     </div>

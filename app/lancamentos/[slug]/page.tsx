@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { DevelopmentInterestForm } from "@/components/public/development-interest-form";
 import { DevelopmentHeroSlider } from "@/components/public/development-hero-slider";
+import { DevelopmentGallery } from "@/components/public/development-gallery";
 import { amenityIconMap, featureIconMap } from "@/lib/icons/development";
 import { getPublicDevelopmentBySlug } from "@/lib/data/developments";
 import {
@@ -441,18 +442,15 @@ export default async function LancamentoDetailsPage({ params }: { params: Promis
             {normalizedGallery.length ? (
               <article id="galeria" className="development-section">
                 <h2 className="development-section-title">Galeria</h2>
-                <div className="development-gallery-grid">
-                  {normalizedGallery.map((media) => (
-                    <figure key={media.id} className="development-gallery-item">
-                      <Image src={media.url} alt={media.title || development.title} width={960} height={620} />
-                      {(media.title || media.caption) ? (
-                        <figcaption>
-                          {media.title || media.caption}
-                        </figcaption>
-                      ) : null}
-                    </figure>
-                  ))}
-                </div>
+                <DevelopmentGallery
+                  developmentTitle={development.title}
+                  items={normalizedGallery.map((media) => ({
+                    id: media.id,
+                    url: media.url,
+                    title: media.title ?? null,
+                    caption: media.caption ?? null
+                  }))}
+                />
               </article>
             ) : null}
 
