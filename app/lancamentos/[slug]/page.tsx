@@ -131,21 +131,6 @@ function getInitials(value: string) {
   return `${parts[0][0] ?? ""}${parts[parts.length - 1][0] ?? ""}`.toUpperCase();
 }
 
-function summarizeBuilderAbout(value: string, maxChars = 280) {
-  const normalized = value.replace(/\s+/g, " ").trim();
-  if (normalized.length <= maxChars) return { text: normalized, isTruncated: false };
-
-  const window = normalized.slice(0, maxChars);
-  const sentenceEnd = Math.max(window.lastIndexOf(". "), window.lastIndexOf("! "), window.lastIndexOf("? "));
-  if (sentenceEnd >= maxChars * 0.6) {
-    return { text: `${window.slice(0, sentenceEnd + 1).trim()}`, isTruncated: true };
-  }
-
-  const wordEnd = window.lastIndexOf(" ");
-  const cut = wordEnd > 0 ? window.slice(0, wordEnd) : window;
-  return { text: `${cut.trim()}…`, isTruncated: true };
-}
-
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
   const development = await getPublicDevelopmentBySlug(slug);
@@ -218,10 +203,6 @@ export default async function LancamentoDetailsPage({ params }: { params: Promis
   const builderName = development.displayBuilderName ?? "A confirmar";
   const builderLogoUrl = development.builder?.logoUrl ?? null;
   const builderInitials = getInitials(builderName);
-  const builderAboutFull =
-    development.builder?.description?.trim() ||
-    "Construtora parceira deste empreendimento.";
-  const builderAboutSummary = summarizeBuilderAbout(builderAboutFull);
   const builderSlug = development.builder?.slug ?? null;
   const investmentAnalysis = getInvestmentPotentialAnalysis(development);
   const publicStage = investmentAnalysis.stage;
@@ -374,14 +355,13 @@ export default async function LancamentoDetailsPage({ params }: { params: Promis
 
             {development.showBuilder ? (
               <aside className="development-hero-builder-card" aria-label="Construtora responsável">
-                <p className="development-hero-builder-label text-card">Construtora responsável</p>
                 <div className="development-hero-builder-logo-shell">
                   {builderLogoUrl ? (
                     <Image
                       src={builderLogoUrl}
                       alt={`Logo da construtora ${builderName}`}
-                      width={120}
-                      height={120}
+                      fill
+                      sizes="260px"
                       className="development-hero-builder-logo"
                     />
                   ) : (
@@ -390,8 +370,8 @@ export default async function LancamentoDetailsPage({ params }: { params: Promis
                     </div>
                   )}
                 </div>
+                <p className="development-hero-builder-label text-card">Construtora responsável</p>
                 <p className="development-hero-builder-name title-luxury">{builderName}</p>
-                <p className="development-hero-builder-caption text-card">Parceira deste empreendimento</p>
               </aside>
             ) : null}
           </div>
@@ -738,15 +718,14 @@ export default async function LancamentoDetailsPage({ params }: { params: Promis
 
             {development.showBuilder ? (
               <article id="construtora" className="card development-builder-detail-card">
-                <h2 className="development-section-title">Construtora responsável</h2>
                 <div className="development-builder-detail-head">
                   <div className="development-builder-detail-avatar-shell">
                     {builderLogoUrl ? (
                       <Image
                         src={builderLogoUrl}
                         alt={`Logo da construtora ${builderName}`}
-                        width={108}
-                        height={108}
+                        fill
+                        sizes="(max-width: 640px) 100vw, 320px"
                         className="development-builder-detail-avatar"
                       />
                     ) : (
@@ -756,53 +735,21 @@ export default async function LancamentoDetailsPage({ params }: { params: Promis
                     )}
                   </div>
                   <div className="development-builder-detail-meta">
-                    <p className="development-builder-detail-kicker text-card">Parceiro estratégico</p>
+                    <p className="development-builder-detail-kicker text-card">Construtora responsável</p>
                     <h3 className="development-builder-detail-name title-luxury">{builderName}</h3>
+                    {builderSlug ? (
+                      <Link className="development-builder-detail-readmore" href={`/construtoras/${builderSlug}`}>
+                        Ver perfil da construtora
+                      </Link>
+                    ) : null}
                   </div>
                 </div>
 
-                <p className="development-builder-detail-description text-card">
-                  {builderAboutSummary.text}
-                  {builderAboutSummary.isTruncated && builderSlug ? (
-                    <>
-                      {" "}
-                      <Link
-                        className="development-builder-detail-readmore"
-                        href={`/construtoras/${builderSlug}`}
-                      >
-                        Ler mais
-                      </Link>
-                    </>
-                  ) : null}
-                </p>
-
-                {development.builder ? (
-                  <>
-                    <div className="development-builder-detail-stats">
-                      <p className="development-builder-detail-stat text-card">
-                        <span>Fundação</span>
-                        <strong>{development.builder.foundedYear ?? "Não informado"}</strong>
-                      </p>
-                      <p className="development-builder-detail-stat text-card">
-                        <span>Empreendimentos entregues</span>
-                        <strong>{development.builder.deliveredDevelopmentsCount ?? "Não informado"}</strong>
-                      </p>
-                      <p className="development-builder-detail-stat text-card">
-                        <span>Unidades entregues</span>
-                        <strong>{development.builder.deliveredUnitsCount ?? "Não informado"}</strong>
-                      </p>
-                    </div>
-                    {development.builder.slug ? (
-                      <Link className="button button-ghost" href={`/construtoras/${development.builder.slug}`}>
-                        Ver outros empreendimentos da construtora
-                      </Link>
-                    ) : null}
-                  </>
-                ) : (
+                {!development.builder ? (
                   <p className="text-card" style={{ margin: 0, color: "var(--text-muted)" }}>
                     Em breve vamos disponibilizar mais detalhes desta construtora.
                   </p>
-                )}
+                ) : null}
               </article>
             ) : null}
 

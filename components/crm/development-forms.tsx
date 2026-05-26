@@ -276,6 +276,25 @@ const mediaCategoryOptions = [
   { value: "OUTROS", label: "Outros" }
 ];
 
+const developmentMediaGuidelines = [
+  {
+    title: "Hero / slider",
+    details: "2400 x 1350 px exato, proporção 16:9. Mínimo aceito: 1920 x 1080 px."
+  },
+  {
+    title: "Galeria, fachada, lazer, decorado e obra",
+    details: "1600 x 1200 px exato, proporção 4:3. Mínimo aceito: 1200 x 900 px."
+  },
+  {
+    title: "Plantas",
+    details: "2000 x 1600 px exato para planta horizontal ou 1600 x 2000 px para planta vertical."
+  },
+  {
+    title: "Localização / mapa",
+    details: "1600 x 900 px exato, proporção 16:9."
+  }
+];
+
 const tabs = [
   { id: "basic", label: "Informações básicas" },
   { id: "location", label: "Localização" },
@@ -878,6 +897,12 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
   const [mediaLocalPreview, setMediaLocalPreview] = useState<{ name: string; sizeKb: number; url: string } | null>(null);
   const [mediaShowManualUrl, setMediaShowManualUrl] = useState(false);
   const [mediaSubmitting, setMediaSubmitting] = useState(false);
+  const [mediaKind, setMediaKind] = useState("GALLERY");
+  const [mediaCategory, setMediaCategory] = useState("FACHADA");
+  const [mediaTitle, setMediaTitle] = useState("");
+  const [mediaCaption, setMediaCaption] = useState("");
+  const [mediaPosition, setMediaPosition] = useState("0");
+  const [mediaIsPrimary, setMediaIsPrimary] = useState(false);
   const [aiText, setAiText] = useState("");
   const [aiSourceUrl, setAiSourceUrl] = useState("");
   const [aiFileName, setAiFileName] = useState("");
@@ -972,6 +997,8 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
     setAiUnitTypes([]);
     setAiMediaCandidates([]);
     setAiMediaUploadingIndex(null);
+    resetMediaForm();
+    setMediaPosition(String(next?.media.length ?? 0));
   }
 
   function resetCreate() {
@@ -987,6 +1014,7 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
     setAiUnitTypes([]);
     setAiMediaCandidates([]);
     setAiMediaUploadingIndex(null);
+    resetMediaForm();
     setActiveTab("basic");
   }
 
@@ -1711,6 +1739,12 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
     setMediaLocalPreview(null);
     setMediaUrl("");
     setMediaShowManualUrl(false);
+    setMediaKind("GALLERY");
+    setMediaCategory("FACHADA");
+    setMediaTitle("");
+    setMediaCaption("");
+    setMediaPosition("0");
+    setMediaIsPrimary(false);
     setMediaInfo("");
     setMediaError("");
   }
@@ -1749,12 +1783,12 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
     setMediaUrl("");
   }
 
-  async function createMedia(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (!selectedId) return;
+  async function createMedia() {
+    if (!selectedId) {
+      setMediaError("Salve o empreendimento antes de adicionar imagens.");
+      return;
+    }
 
-    const form = event.currentTarget;
-    const fd = new FormData(form);
     const url = mediaUrl.trim();
 
     if (!url) {
@@ -1768,20 +1802,33 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
     setSaveStatus("saving");
 
     try {
-      await fetchJson(`/api/crm/developments/${selectedId}/media`, "POST", {
-        kind: fd.get("kind"),
-        category: fd.get("category"),
+      const data = await fetchJson(`/api/crm/developments/${selectedId}/media`, "POST", {
+        kind: mediaKind,
+        category: mediaCategory,
         url,
-        title: optionalString(String(fd.get("title") ?? "")),
-        caption: optionalString(String(fd.get("caption") ?? "")),
-        isPrimary: fd.get("isPrimary") === "on",
-        position: parseNumber(String(fd.get("position") ?? ""))
+        title: optionalString(mediaTitle),
+        caption: optionalString(mediaCaption),
+        isPrimary: mediaIsPrimary,
+        position: parseNumber(mediaPosition)
       });
+      const createdMedia = data.data.media as DevelopmentItem["media"][number];
+
+      setItems((prev) =>
+        prev.map((item) =>
+          item.id === selectedId
+            ? {
+                ...item,
+                media: [...item.media, createdMedia].sort((a, b) => a.position - b.position)
+              }
+            : item
+        )
+      );
 
       setSaveStatus("success");
       setSaveMessage("Mídia adicionada.");
       setMediaInfo("Mídia adicionada com sucesso.");
-      resetMediaForm(form);
+      resetMediaForm();
+      setMediaPosition(String((selected?.media.length ?? 0) + 1));
     } catch (error) {
       const message = error instanceof Error ? error.message : "Falha ao adicionar mídia.";
       setSaveStatus("error");
@@ -2190,6 +2237,253 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
                     Nenhuma imagem sugerida no rascunho atual.
                   </p>
                 )}
+
+                <div
+                  style={{
+                    border: "1px solid #dbe4f0",
+                    borderRadius: 10,
+                    background: "#f8fbff",
+                    padding: 12,
+                    display: "grid",
+                    gap: 8
+                  }}
+                >
+                  <strong style={{ fontSize: "var(--fs-14)", color: "#1f3149" }}>Medidas exatas para carregar mídia</strong>
+                  <div style={{ display: "grid", gap: 6 }}>
+                    {developmentMediaGuidelines.map((item) => (
+                      <p key={item.title} className="text-card" style={{ margin: 0, color: "#526174", fontSize: "var(--fs-12)" }}>
+                        <strong>{item.title}:</strong> {item.details}
+                      </p>
+                    ))}
+                  </div>
+                  <p className="text-card" style={{ margin: 0, color: "#526174", fontSize: "var(--fs-12)" }}>
+                    Formatos aceitos para upload: JPG, PNG ou WEBP. Limite: 10 MB por imagem. A marca d&apos;água é aplicada automaticamente no envio.
+                  </p>
+                </div>
+
+                <div
+                  style={{
+                    border: "1px dashed #c7d2e1",
+                    borderRadius: 12,
+                    padding: 14,
+                    display: "grid",
+                    gap: 12,
+                    background: "#fcfdff"
+                  }}
+                >
+                  <div style={{ display: "flex", justifyContent: "space-between", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+                    <div style={{ display: "grid", gap: 4 }}>
+                      <strong style={{ fontSize: "var(--fs-13)", color: "#1f3149" }}>Upload manual de imagem</strong>
+                      <p style={{ margin: 0, color: "#64748b", fontSize: "var(--fs-12)" }}>
+                        Envie o arquivo, confira a URL gerada e clique em adicionar mídia.
+                      </p>
+                    </div>
+                    {!selectedId ? (
+                      <span className="text-card" style={{ color: "var(--text-muted)", fontSize: "var(--fs-12)" }}>
+                        Salve o empreendimento para liberar o upload.
+                      </span>
+                    ) : null}
+                  </div>
+
+                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+                    <input
+                      ref={uploadFileRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handleMediaFileSelect}
+                      style={{ maxWidth: 320 }}
+                      disabled={mediaFileUploading || !selectedId}
+                    />
+                    <button
+                      type="button"
+                      className="button button-primary"
+                      onClick={handleDirectUpload}
+                      disabled={mediaFileUploading || !mediaLocalPreview || !selectedId}
+                    >
+                      {mediaFileUploading ? "Enviando..." : "Enviar imagem"}
+                    </button>
+                    {(mediaLocalPreview || mediaUrl) && !mediaFileUploading ? (
+                      <button type="button" className="button button-ghost" onClick={() => resetMediaForm()}>
+                        Limpar
+                      </button>
+                    ) : null}
+                  </div>
+
+                  {(mediaLocalPreview || mediaUrl) ? (
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: 12,
+                        alignItems: "center",
+                        padding: 10,
+                        borderRadius: 10,
+                        background: "#ffffff",
+                        border: "1px solid #e2e8f0",
+                        minWidth: 0
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: 112,
+                          height: 78,
+                          borderRadius: 8,
+                          overflow: "hidden",
+                          background: "#f1f5f9",
+                          flex: "0 0 auto",
+                          display: "grid",
+                          placeItems: "center"
+                        }}
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={mediaUrl || mediaLocalPreview?.url}
+                          alt="Pré-visualização da mídia"
+                          style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                        />
+                      </div>
+                      <div style={{ display: "grid", gap: 2, minWidth: 0, flex: 1 }}>
+                        <strong style={{ fontSize: "var(--fs-13)", color: "#1f3149" }}>
+                          {mediaUrl ? "Imagem enviada à CDN" : "Aguardando envio"}
+                        </strong>
+                        {mediaLocalPreview ? (
+                          <span style={{ fontSize: "var(--fs-12)", color: "#64748b" }}>
+                            {mediaLocalPreview.name} · {mediaLocalPreview.sizeKb} KB
+                          </span>
+                        ) : null}
+                        {mediaUrl ? (
+                          <span
+                            style={{
+                              fontSize: "var(--fs-11)",
+                              color: "#64748b",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                              whiteSpace: "nowrap"
+                            }}
+                            title={mediaUrl}
+                          >
+                            {mediaUrl}
+                          </span>
+                        ) : null}
+                      </div>
+                    </div>
+                  ) : null}
+
+                  <div className="form-grid">
+                    <div>
+                      <label>Tipo</label>
+                      <select value={mediaKind} onChange={(event) => setMediaKind(event.target.value)}>
+                        {mediaKindOptions.map((item) => (
+                          <option key={item.value} value={item.value}>{item.label}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label>Categoria</label>
+                      <select value={mediaCategory} onChange={(event) => setMediaCategory(event.target.value)}>
+                        {mediaCategoryOptions.map((item) => (
+                          <option key={item.value} value={item.value}>{item.label}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div><label>Título</label><input value={mediaTitle} onChange={(event) => setMediaTitle(event.target.value)} /></div>
+                    <div><label>Legenda</label><input value={mediaCaption} onChange={(event) => setMediaCaption(event.target.value)} /></div>
+                    <div><label>Ordem</label><input type="number" min={0} value={mediaPosition} onChange={(event) => setMediaPosition(event.target.value)} /></div>
+                    <label style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                      <input type="checkbox" checked={mediaIsPrimary} onChange={(event) => setMediaIsPrimary(event.target.checked)} style={{ width: 16, height: 16 }} />
+                      <span className="text-card">Imagem principal</span>
+                    </label>
+                    <div style={{ gridColumn: "1 / -1", display: "flex", gap: 8, flexWrap: "wrap" }}>
+                      <button
+                        type="button"
+                        className="button button-primary"
+                        onClick={createMedia}
+                        disabled={mediaSubmitting || !mediaUrl || !selectedId}
+                        title={!selectedId ? "Salve o empreendimento antes de adicionar imagens." : !mediaUrl ? "Envie a imagem ou informe uma URL externa primeiro." : undefined}
+                      >
+                        {mediaSubmitting ? "Adicionando..." : "Adicionar mídia"}
+                      </button>
+                      <button
+                        type="button"
+                        className="button button-ghost"
+                        style={{ padding: "0.35rem 0.7rem", fontSize: "var(--fs-12)" }}
+                        onClick={() => setMediaShowManualUrl((prev) => !prev)}
+                      >
+                        {mediaShowManualUrl ? "Ocultar URL externa" : "Usar URL externa"}
+                      </button>
+                    </div>
+                  </div>
+
+                  {mediaShowManualUrl ? (
+                    <div style={{ display: "grid", gap: 4 }}>
+                      <label style={{ fontSize: "var(--fs-12)", color: "#64748b" }}>URL pública da mídia</label>
+                      <input
+                        type="url"
+                        placeholder="https://..."
+                        value={mediaUrl}
+                        onChange={(event) => {
+                          setMediaUrl(event.target.value);
+                          setMediaError("");
+                        }}
+                      />
+                    </div>
+                  ) : null}
+
+                  {mediaError ? (
+                    <div role="alert" style={{ padding: 10, borderRadius: 8, background: "#fef2f2", border: "1px solid #fecaca", color: "#991b1b", fontSize: "var(--fs-12)" }}>
+                      {mediaError}
+                    </div>
+                  ) : null}
+
+                  {mediaInfo && !mediaError ? (
+                    <div role="status" style={{ padding: 10, borderRadius: 8, background: "#ecfdf5", border: "1px solid #a7f3d0", color: "#065f46", fontSize: "var(--fs-12)" }}>
+                      {mediaInfo}
+                    </div>
+                  ) : null}
+                </div>
+
+                <div style={{ display: "grid", gap: 8 }}>
+                  <strong className="text-card">Mídias cadastradas</strong>
+                  {selected?.media.length ? (
+                    <div style={{ display: "grid", gap: 8 }}>
+                      {selected.media
+                        .slice()
+                        .sort((a, b) => a.position - b.position)
+                        .map((media) => (
+                          <div
+                            key={media.id}
+                            style={{
+                              border: "1px solid var(--border)",
+                              borderRadius: 8,
+                              padding: 8,
+                              display: "grid",
+                              gridTemplateColumns: "88px minmax(0, 1fr)",
+                              gap: 10,
+                              alignItems: "center"
+                            }}
+                          >
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              src={media.url}
+                              alt={media.title || "Mídia cadastrada"}
+                              style={{ width: 88, height: 58, borderRadius: 6, objectFit: "cover", background: "#eef2f7" }}
+                            />
+                            <div style={{ minWidth: 0 }}>
+                              <strong style={{ display: "block", fontSize: "var(--fs-13)", color: "#1f3149" }}>
+                                {media.title || mediaCategoryOptions.find((item) => item.value === media.category)?.label || "Mídia sem título"}
+                              </strong>
+                              <span style={{ display: "block", color: "#64748b", fontSize: "var(--fs-12)" }}>
+                                {mediaKindOptions.find((item) => item.value === media.kind)?.label ?? media.kind} · {media.category} · ordem {media.position}
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                    </div>
+                  ) : (
+                    <p className="text-card" style={{ margin: 0, color: "var(--text-muted)" }}>
+                      Nenhuma mídia cadastrada ainda.
+                    </p>
+                  )}
+                </div>
               </div>
             </>
           ) : null}
@@ -2407,6 +2701,7 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
           <h3 className="title-luxury" style={{ margin: 0 }}>Cadastro complementar</h3>
 
           <div style={{ display: "grid", gap: 12 }}>
+            {activeTab !== "media" ? (
             <div className="card" style={{ padding: 12 }}>
               <h4 style={{ marginTop: 0 }}>Adicionar mídia</h4>
               <div style={{ display: "grid", gap: 12 }}>
@@ -2420,14 +2715,12 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
                     gap: 6
                   }}
                 >
-                  <strong style={{ fontSize: "var(--fs-14)", color: "#1f3149" }}>Guia rápido do Hero Slider</strong>
+                  <strong style={{ fontSize: "var(--fs-14)", color: "#1f3149" }}>Medidas exatas das mídias</strong>
                   <p style={{ margin: 0, color: "#526174", fontSize: "var(--fs-12)" }}>
-                    Para o topo da página de lançamento virar slider, cadastre mais de 1 imagem com <strong>Tipo = Hero</strong>.
-                    Use <strong>Ordem</strong> para controlar a sequência dos slides (0, 1, 2...).
+                    Hero / slider: <strong>2400 x 1350 px</strong>, proporção 16:9, mínimo 1920 x 1080 px.
                   </p>
                   <p style={{ margin: 0, color: "#526174", fontSize: "var(--fs-12)" }}>
-                    Dimensão recomendada: <strong>2400x1350</strong> (mínimo 1920x1080), formato horizontal, foco principal no
-                    centro da imagem para funcionar bem no desktop e no mobile. Máx. 10 MB por arquivo.
+                    Galeria: <strong>1600 x 1200 px</strong>. Plantas: <strong>2000 x 1600 px</strong> ou <strong>1600 x 2000 px</strong>. Localização: <strong>1600 x 900 px</strong>. Máx. 10 MB.
                   </p>
                 </div>
 
@@ -2592,29 +2885,31 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
                   </div>
                 </div>
 
-                <form className="form-grid" onSubmit={createMedia}>
+                <div className="form-grid">
                   <div style={{ gridColumn: "1 / -1" }}>
                     <strong style={{ fontSize: "var(--fs-13)", color: "#1f3149" }}>2. Detalhes da mídia</strong>
                   </div>
-                  <div><label>Tipo</label><select name="kind" defaultValue="GALLERY"><option value="HERO">Hero</option><option value="GALLERY">Galeria</option><option value="FLOORPLAN">Planta</option><option value="VIDEO">Vídeo</option><option value="PDF">PDF</option></select></div>
-                  <div><label>Categoria</label><select name="category" defaultValue="FACHADA"><option value="HERO">Hero</option><option value="FACHADA">Fachada</option><option value="LAZER">Lazer</option><option value="DECORADO">Decorado</option><option value="PLANTA">Planta</option><option value="LOCALIZACAO">Localização</option><option value="OBRA">Obra</option><option value="OUTROS">Outros</option></select></div>
-                  <div><label>Título</label><input name="title" /></div>
-                  <div><label>Legenda</label><input name="caption" /></div>
-                  <div><label>Ordem</label><input name="position" type="number" min={0} defaultValue={0} /></div>
-                  <label style={{ display: "flex", gap: 8, alignItems: "center" }}><input type="checkbox" name="isPrimary" style={{ width: 16, height: 16 }} /><span className="text-card">Imagem principal</span></label>
+                  <div><label>Tipo</label><select value={mediaKind} onChange={(event) => setMediaKind(event.target.value)}>{mediaKindOptions.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}</select></div>
+                  <div><label>Categoria</label><select value={mediaCategory} onChange={(event) => setMediaCategory(event.target.value)}>{mediaCategoryOptions.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}</select></div>
+                  <div><label>Título</label><input value={mediaTitle} onChange={(event) => setMediaTitle(event.target.value)} /></div>
+                  <div><label>Legenda</label><input value={mediaCaption} onChange={(event) => setMediaCaption(event.target.value)} /></div>
+                  <div><label>Ordem</label><input type="number" min={0} value={mediaPosition} onChange={(event) => setMediaPosition(event.target.value)} /></div>
+                  <label style={{ display: "flex", gap: 8, alignItems: "center" }}><input type="checkbox" checked={mediaIsPrimary} onChange={(event) => setMediaIsPrimary(event.target.checked)} style={{ width: 16, height: 16 }} /><span className="text-card">Imagem principal</span></label>
                   <div style={{ gridColumn: "1 / -1" }}>
                     <button
-                      type="submit"
+                      type="button"
                       className="button button-primary"
+                      onClick={createMedia}
                       disabled={mediaSubmitting || !mediaUrl}
                       title={!mediaUrl ? "Envie a imagem ou informe uma URL externa primeiro." : undefined}
                     >
                       {mediaSubmitting ? "Adicionando..." : "Adicionar mídia"}
                     </button>
                   </div>
-                </form>
+                </div>
               </div>
             </div>
+            ) : null}
 
             <div className="card" style={{ padding: 12 }}>
               <h4 style={{ marginTop: 0 }}>Adicionar torre/bloco</h4>

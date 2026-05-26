@@ -554,7 +554,7 @@ export function BuilderForms({ builders }: { builders: BuilderItem[] }) {
                 />
               </div>
               <div style={{ gridColumn: "1 / -1" }}>
-                <label>Logo</label>
+                <label>Logo (quadro 2:1)</label>
                 <input
                   value={form.logoUrl}
                   onChange={(event) => setForm((prev) => ({ ...prev, logoUrl: event.target.value }))}
@@ -592,10 +592,10 @@ export function BuilderForms({ builders }: { builders: BuilderItem[] }) {
                     <Image
                       src={form.logoUrl}
                       alt="Preview da logo"
-                      width={160}
-                      height={54}
+                      width={260}
+                      height={130}
                       unoptimized
-                      style={{ maxWidth: 160, maxHeight: 54, objectFit: "contain" }}
+                      style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
                     />
                   </div>
                 ) : null}
