@@ -120,7 +120,9 @@ export const crmCreatePropertySchema = z.object({
   marketComparableLinks: z.array(z.string()).default([]),
   marketLiquidityNotes: z.string().optional(),
   isInvestorHighlight: z.boolean().optional(),
-  isAuctionOpportunity: z.boolean().optional()
+  isAuctionOpportunity: z.boolean().optional(),
+  ownerName: z.string().trim().min(2).max(120).optional().or(z.literal("")),
+  ownerPhone: z.string().trim().min(8).max(40).optional().or(z.literal(""))
 });
 
 export const crmUpdatePropertySchema = crmCreatePropertySchema.partial();

@@ -1,6 +1,11 @@
 import { fail, ok } from "@/lib/api/http";
 import { requireCrmWriteAccess } from "@/lib/auth/permissions";
-import { createPropertyAuditLog, findCrmPropertyById, updateCrmProperty } from "@/lib/data/crm-properties";
+import {
+  createPropertyAuditLog,
+  deleteCrmProperty,
+  findCrmPropertyById,
+  updateCrmProperty
+} from "@/lib/data/crm-properties";
 import { crmUpdatePropertySchema } from "@/lib/validation/schemas";
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -35,4 +40,29 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   });
 
   return ok({ property });
+}
+
+export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { session, denied } = await requireCrmWriteAccess();
+  if (denied) return denied;
+
+  const { id } = await params;
+  const current = await findCrmPropertyById(id);
+  if (!current) {
+    return fail("Imóvel não encontrado.", 404);
+  }
+
+  const removed = await deleteCrmProperty(id);
+  if (!removed) {
+    return fail("Não foi possível excluir o imóvel.", 500);
+  }
+
+  await createPropertyAuditLog({
+    action: "PROPERTY_DELETED",
+    resourceId: id,
+    actorId: session?.userId,
+    payload: { title: current.title }
+  });
+
+  return ok({ id });
 }

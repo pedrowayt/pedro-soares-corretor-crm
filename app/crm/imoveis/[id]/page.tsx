@@ -53,8 +53,16 @@ export default async function CrmImovelEditPage({ params }: { params: Promise<{ 
     marketLiquidityNotes: property.marketLiquidityNotes ?? null,
     isInvestorHighlight: property.isInvestorHighlight ?? false,
     isAuctionOpportunity: property.isAuctionOpportunity ?? false,
+    ownerName: (property.owner as { name?: string } | null)?.name ?? null,
+    ownerPhone: (property.owner as { phone?: string } | null)?.phone ?? null,
     media
   };
+
+  const owner = property.owner as { name?: string; phone?: string } | null;
+  const ownerDigits = owner?.phone ? owner.phone.replace(/\D/g, "") : null;
+  const whatsappText = encodeURIComponent(
+    `Olá! Sou o corretor responsável pelo imóvel "${property.title}" e gostaria de falar com você.`
+  );
 
   return (
     <>
@@ -63,12 +71,29 @@ export default async function CrmImovelEditPage({ params }: { params: Promise<{ 
         <Link href={`/imoveis/${property.slug}`} target="_blank" className="button button-ghost">
           Ver no site
         </Link>
+        {ownerDigits ? (
+          <a
+            className="button button-ghost"
+            href={`https://wa.me/${ownerDigits}?text=${whatsappText}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            title={`Falar com ${owner?.name ?? "proprietário"} no WhatsApp`}
+          >
+            💬 WhatsApp do proprietário
+          </a>
+        ) : null}
       </div>
 
       <h1 className="section-title" style={{ marginTop: 0 }}>{property.title}</h1>
       <p className="section-subtitle" style={{ marginTop: 0 }}>
         {property.city} • {property.district} • {formatCurrencyBRL(Number(property.price))}
       </p>
+      {owner?.name ? (
+        <p className="section-subtitle" style={{ marginTop: 4, color: "var(--text-muted)" }}>
+          Proprietário (interno): <strong>{owner.name}</strong>
+          {owner.phone ? <> · {owner.phone}</> : null}
+        </p>
+      ) : null}
 
       <div style={{ marginTop: 18 }}>
         <PropertyWizard mode="edit" initial={wizardProperty} />

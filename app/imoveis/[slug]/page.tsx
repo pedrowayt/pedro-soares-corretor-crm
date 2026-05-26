@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { PropertyInterestForm } from "@/components/public/lead-forms";
 import { WhatsAppPropertyButton } from "@/components/public/whatsapp-property-button";
+
+const INSTAGRAM_URL =
+  "https://www.instagram.com/pedrosoarespmw?igsh=MXQ3ZTA2YW13ZjZmNQ%3D%3D&utm_source=qr";
 import { getPropertyBySlug } from "@/lib/data/properties";
 import { buildGoogleMapsEmbedUrl, buildGoogleMapsOpenUrl } from "@/lib/maps";
 import { formatCurrencyBRL } from "@/lib/utils";
@@ -392,6 +394,7 @@ export default async function PropertyDetailsPage({ params }: { params: Promise<
                 propertyId={property.id}
                 propertySlug={property.slug}
                 message={whatsappMessage}
+                className="button button-primary"
                 label="Falar com Pedro no WhatsApp"
               />
             </div>
@@ -412,10 +415,32 @@ export default async function PropertyDetailsPage({ params }: { params: Promise<
                 propertyId={property.id}
                 propertySlug={property.slug}
                 message={whatsappMessage}
+                className="button button-primary"
                 label="Chamar Pedro no WhatsApp"
               />
-              <a className="button button-ghost" href="tel:+5563984845101">
-                Ligar {broker.phone}
+              <a
+                className="button button-ghost property-instagram-button"
+                href={INSTAGRAM_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Abrir Instagram de Pedro Soares"
+              >
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden="true"
+                >
+                  <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+                  <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+                  <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+                </svg>
+                Ver no Instagram
               </a>
             </div>
 
@@ -423,8 +448,6 @@ export default async function PropertyDetailsPage({ params }: { params: Promise<
               <p>Agendamento de visita com orientação sobre documentação, região e potencial de negociação.</p>
               <p>Resposta rápida para disponibilidade, proposta e simulação de financiamento.</p>
             </div>
-
-            <PropertyInterestForm propertySlug={property.slug} embedded />
           </aside>
         </div>
       </div>
@@ -434,7 +457,7 @@ export default async function PropertyDetailsPage({ params }: { params: Promise<
           propertyId={property.id}
           propertySlug={property.slug}
           message={whatsappMessage}
-          className="button button-whatsapp property-mobile-cta-button"
+          className="button button-primary property-mobile-cta-button"
           label="WhatsApp • Fale comigo"
         />
       </div>

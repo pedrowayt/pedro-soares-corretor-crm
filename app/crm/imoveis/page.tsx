@@ -5,7 +5,7 @@ export default async function CrmImoveisPage() {
   const properties = await listCrmProperties();
   const propertyItems: PropertyListItem[] = properties.map((property) => {
     const media = (property.media ?? []).slice().sort((a, b) => a.position - b.position);
-    const owner = property.owner as { name?: string } | null | undefined;
+    const owner = property.owner as { name?: string; phone?: string } | null | undefined;
 
     return {
       id: property.id,
@@ -22,6 +22,7 @@ export default async function CrmImoveisPage() {
       bathrooms: property.bathrooms ?? null,
       parkingSpaces: property.parkingSpaces ?? null,
       ownerName: owner?.name ?? null,
+      ownerPhone: owner?.phone ?? null,
       thumbnailUrl: media[0]?.url ?? null
     };
   });

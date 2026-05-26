@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { PropertyStatusActions } from "@/components/crm/property-status-actions";
 import { PropertyWizard } from "@/components/crm/property-wizard";
 import { formatCurrencyBRL } from "@/lib/utils";
@@ -21,8 +22,17 @@ export type PropertyListItem = {
   bathrooms: number | null;
   parkingSpaces: number | null;
   ownerName: string | null;
+  ownerPhone: string | null;
   thumbnailUrl: string | null;
 };
+
+function buildWhatsappLink(phone: string, propertyTitle: string) {
+  const digits = phone.replace(/\D/g, "");
+  const text = encodeURIComponent(
+    `Olá! Sou o corretor responsável pelo imóvel "${propertyTitle}" e gostaria de falar com você.`
+  );
+  return `https://wa.me/${digits}?text=${text}`;
+}
 
 const PURPOSE_LABELS: Record<string, string> = {
   VENDA: "Venda",
@@ -52,7 +62,10 @@ function formatSpecs(property: PropertyListItem) {
 }
 
 export function PropertyListManager({ properties }: { properties: PropertyListItem[] }) {
+  const router = useRouter();
   const [showWizard, setShowWizard] = useState(false);
+  const [pendingId, setPendingId] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
   const wizardRef = useRef<HTMLDivElement | null>(null);
 
   function openWizard() {
@@ -60,6 +73,61 @@ export function PropertyListManager({ properties }: { properties: PropertyListIt
     window.requestAnimationFrame(() => {
       wizardRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     });
+  }
+
+  async function handleResponse(response: Response) {
+    if (response.status === 401) {
+      const next = encodeURIComponent(window.location.pathname + window.location.search);
+      window.location.assign(`/admin/login?next=${next}`);
+      throw new Error("Sessão expirada. Redirecionando para o login...");
+    }
+    const data = await response.json().catch(() => null);
+    if (!response.ok || !data?.success) {
+      throw new Error(data?.error?.message ?? "Falha na operação.");
+    }
+    return data;
+  }
+
+  async function unpublishProperty(property: PropertyListItem) {
+    if (property.status === "EM_ANALISE") {
+      setActionError("Imóvel já está oculto do site.");
+      return;
+    }
+    if (!window.confirm(`Tirar "${property.title}" da página pública? O imóvel continua no CRM como "Em análise".`)) return;
+
+    setActionError(null);
+    setPendingId(property.id);
+    try {
+      const response = await fetch(`/api/crm/properties/${property.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: "EM_ANALISE" })
+      });
+      await handleResponse(response);
+      router.refresh();
+    } catch (error) {
+      setActionError(error instanceof Error ? error.message : "Erro ao ocultar imóvel.");
+    } finally {
+      setPendingId(null);
+    }
+  }
+
+  async function deleteProperty(property: PropertyListItem) {
+    if (!window.confirm(`Excluir definitivamente "${property.title}"? Esta ação não pode ser desfeita.`)) return;
+
+    setActionError(null);
+    setPendingId(property.id);
+    try {
+      const response = await fetch(`/api/crm/properties/${property.id}`, {
+        method: "DELETE"
+      });
+      await handleResponse(response);
+      router.refresh();
+    } catch (error) {
+      setActionError(error instanceof Error ? error.message : "Erro ao excluir imóvel.");
+    } finally {
+      setPendingId(null);
+    }
   }
 
   return (
@@ -94,6 +162,10 @@ export function PropertyListManager({ properties }: { properties: PropertyListIt
           <strong>{properties.length} {properties.length === 1 ? "imóvel" : "imóveis"}</strong>
           <span>Ordenados pelos mais recentes</span>
         </div>
+
+        {actionError ? (
+          <p className="crm-property-list__error" role="alert">{actionError}</p>
+        ) : null}
 
         {properties.length ? (
           <div className="crm-property-table-wrap">
@@ -140,6 +212,17 @@ export function PropertyListManager({ properties }: { properties: PropertyListIt
                       <span className="crm-property-meta">
                         Proprietário: {property.ownerName ?? "Não vinculado"}
                       </span>
+                      {property.ownerPhone ? (
+                        <a
+                          className="crm-property-owner-whatsapp"
+                          href={buildWhatsappLink(property.ownerPhone, property.title)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          title={`Falar com ${property.ownerName ?? "proprietário"} no WhatsApp`}
+                        >
+                          <span aria-hidden="true">💬</span> {property.ownerPhone}
+                        </a>
+                      ) : null}
                     </td>
                     <td>
                       <strong className="crm-property-price">{formatCurrencyBRL(property.price)}</strong>
@@ -159,6 +242,22 @@ export function PropertyListManager({ properties }: { properties: PropertyListIt
                         <Link className="button button-ghost" href={`/imoveis/${property.slug}`} target="_blank">
                           Ver no site
                         </Link>
+                        <button
+                          type="button"
+                          className="button button-ghost"
+                          onClick={() => unpublishProperty(property)}
+                          disabled={pendingId === property.id}
+                        >
+                          Tirar da página
+                        </button>
+                        <button
+                          type="button"
+                          className="button button-ghost crm-property-actions__delete"
+                          onClick={() => deleteProperty(property)}
+                          disabled={pendingId === property.id}
+                        >
+                          Excluir
+                        </button>
                       </div>
                     </td>
                   </tr>

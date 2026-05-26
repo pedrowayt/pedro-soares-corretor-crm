@@ -38,6 +38,8 @@ export type CrmPropertyPayload = {
   marketLiquidityNotes?: string | null;
   isInvestorHighlight?: boolean;
   isAuctionOpportunity?: boolean;
+  ownerName?: string | null;
+  ownerPhone?: string | null;
 };
 
 type MemoryMedia = {
@@ -109,6 +111,35 @@ function optionalNumber(input?: number | null) {
   if (input === undefined) return undefined;
   if (input === null || Number.isNaN(input)) return null;
   return Number(input);
+}
+
+function normalizePhone(input?: string | null) {
+  const trimmed = optionalString(input);
+  return trimmed;
+}
+
+async function upsertOwnerByPhone(name?: string | null, phone?: string | null) {
+  const cleanedName = optionalString(name);
+  const cleanedPhone = normalizePhone(phone);
+  if (!cleanedName || !cleanedPhone) return null;
+
+  if (!hasDatabase) return null;
+
+  try {
+    const existing = await prisma.owner.findFirst({ where: { phone: cleanedPhone } });
+    if (existing) {
+      if (existing.name !== cleanedName) {
+        await prisma.owner.update({ where: { id: existing.id }, data: { name: cleanedName } });
+      }
+      return existing.id;
+    }
+    const created = await prisma.owner.create({
+      data: { name: cleanedName, phone: cleanedPhone }
+    });
+    return created.id;
+  } catch {
+    return null;
+  }
 }
 
 function normalizeFeatureList(features: string[]) {
@@ -277,11 +308,13 @@ export async function listCrmProperties() {
 
 export async function createCrmProperty(payload: CrmPropertyPayload) {
   const normalized = normalizeForCreate(payload);
+  const ownerId = await upsertOwnerByPhone(payload.ownerName, payload.ownerPhone);
 
   if (hasDatabase) {
     try {
       const property = await prisma.property.create({
         data: {
+          ...(ownerId ? { ownerId } : {}),
           slug: normalized.slug,
           title: normalized.title,
           type: normalized.type,
@@ -388,8 +421,15 @@ export async function createCrmProperty(payload: CrmPropertyPayload) {
 }
 
 export async function updateCrmProperty(id: string, payload: Partial<CrmPropertyPayload>) {
+  const ownerId =
+    payload.ownerName !== undefined || payload.ownerPhone !== undefined
+      ? await upsertOwnerByPhone(payload.ownerName ?? null, payload.ownerPhone ?? null)
+      : undefined;
+
   const partial = {
     ...payload,
+    ownerName: undefined,
+    ownerPhone: undefined,
     slug: payload.slug ? slugify(payload.slug) : undefined,
     title: payload.title?.trim(),
     city: payload.city?.trim(),
@@ -420,6 +460,7 @@ export async function updateCrmProperty(id: string, payload: Partial<CrmProperty
         where: { id },
         data: {
           ...partial,
+          ...(ownerId ? { ownerId } : {}),
           googleMapsUrl:
             partial.googleMapsUrl === undefined
               ? undefined
@@ -672,6 +713,25 @@ export async function deletePropertyMedia(propertyId: string, mediaId: string) {
   });
   property.updatedAt = new Date();
   return property.media.length < before;
+}
+
+export async function deleteCrmProperty(id: string) {
+  if (hasDatabase) {
+    try {
+      await prisma.property.delete({ where: { id } });
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  const store = getMemoryStore();
+  const before = store.length;
+  const next = store.filter((item) => item.id !== id);
+  if (next.length === before) return false;
+  store.length = 0;
+  store.push(...next);
+  return true;
 }
 
 export async function createPropertyAuditLog(input: {

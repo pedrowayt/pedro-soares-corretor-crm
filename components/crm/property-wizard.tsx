@@ -97,6 +97,8 @@ export type WizardProperty = {
   marketLiquidityNotes: string | null;
   isInvestorHighlight: boolean;
   isAuctionOpportunity: boolean;
+  ownerName: string | null;
+  ownerPhone: string | null;
   media: WizardMedia[];
 };
 
@@ -147,7 +149,9 @@ function makeInitialState(initial?: WizardProperty): FormState {
     marketComparableLinks: initial?.marketComparableLinks ?? [],
     marketLiquidityNotes: initial?.marketLiquidityNotes ?? null,
     isInvestorHighlight: initial?.isInvestorHighlight ?? false,
-    isAuctionOpportunity: initial?.isAuctionOpportunity ?? false
+    isAuctionOpportunity: initial?.isAuctionOpportunity ?? false,
+    ownerName: initial?.ownerName ?? null,
+    ownerPhone: initial?.ownerPhone ?? null
   };
 }
 
@@ -157,6 +161,11 @@ async function fetchJson(url: string, method: string, body?: unknown) {
     headers: body ? { "Content-Type": "application/json" } : undefined,
     body: body ? JSON.stringify(body) : undefined
   });
+  if (response.status === 401 && typeof window !== "undefined") {
+    const next = encodeURIComponent(window.location.pathname + window.location.search);
+    window.location.assign(`/admin/login?next=${next}`);
+    throw new Error("Sessão expirada. Redirecionando para o login...");
+  }
   const data = await response.json().catch(() => null);
   if (!response.ok || !data?.success) {
     throw new Error(data?.error?.message ?? "Falha na operação.");
@@ -264,7 +273,9 @@ export function PropertyWizard({ mode, initial }: Props) {
       marketComparableLinks: state.marketComparableLinks,
       marketLiquidityNotes: state.marketLiquidityNotes,
       isInvestorHighlight: state.isInvestorHighlight,
-      isAuctionOpportunity: state.isAuctionOpportunity
+      isAuctionOpportunity: state.isAuctionOpportunity,
+      ownerName: state.ownerName ?? undefined,
+      ownerPhone: state.ownerPhone ?? undefined
     };
 
     if (propertyId) {
@@ -1215,6 +1226,33 @@ function StepDetalhes({
           </div>
         </div>
       ) : null}
+
+      <fieldset className="wiz-fieldset wiz-fieldset--internal">
+        <legend>Proprietário (uso interno)</legend>
+        <p className="wiz-step__hint" style={{ marginTop: 0 }}>
+          Estes dados não aparecem na página pública. O telefone vira link de WhatsApp dentro do CRM.
+        </p>
+        <div className="wiz-form">
+          <div className="wiz-field">
+            <label>Nome do proprietário</label>
+            <input
+              type="text"
+              value={state.ownerName ?? ""}
+              onChange={(event) => onChange({ ownerName: event.target.value || null })}
+              placeholder="Ex.: Mariana Costa"
+            />
+          </div>
+          <div className="wiz-field">
+            <label>WhatsApp do proprietário</label>
+            <input
+              type="tel"
+              value={state.ownerPhone ?? ""}
+              onChange={(event) => onChange({ ownerPhone: event.target.value || null })}
+              placeholder="Ex.: +55 63 99999-0000"
+            />
+          </div>
+        </div>
+      </fieldset>
     </div>
   );
 }
