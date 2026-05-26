@@ -17,6 +17,7 @@ import {
   type PublicDevelopmentStage
 } from "@/lib/development-investment";
 import { mockDevelopments } from "@/lib/data/mock";
+import { rewriteCloudflareDeliveryUrl } from "@/lib/cloudflare/client";
 
 const hasDatabase = Boolean(process.env.DATABASE_URL);
 
@@ -314,6 +315,7 @@ function normalizeMockDevelopment(development: (typeof mockDevelopments)[number]
         : [],
     media: development.media.map((media, index) => ({
       ...media,
+      url: rewriteCloudflareDeliveryUrl(media.url) ?? media.url,
       category: ("category" in media ? (media.category as string | null | undefined) : null) ?? null,
       caption: ("caption" in media ? (media.caption as string | null | undefined) : null) ?? null,
       position: ("position" in media ? (media.position as number | null | undefined) : null) ?? index,

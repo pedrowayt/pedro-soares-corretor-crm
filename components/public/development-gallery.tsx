@@ -48,9 +48,11 @@ export function DevelopmentGallery({ items, developmentTitle, autoplayMs = 4500 
     const node = thumbsRef.current;
     if (!node) return;
     const activeThumb = node.querySelector<HTMLElement>(`[data-thumb-index="${currentIndex}"]`);
-    if (activeThumb) {
-      activeThumb.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
-    }
+    if (!activeThumb) return;
+
+    const target = activeThumb.offsetLeft - node.clientWidth / 2 + activeThumb.clientWidth / 2;
+    const max = node.scrollWidth - node.clientWidth;
+    node.scrollTo({ left: Math.max(0, Math.min(max, target)), behavior: "smooth" });
   }, [currentIndex]);
 
   useEffect(() => {

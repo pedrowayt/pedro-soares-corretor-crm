@@ -25,9 +25,36 @@ export function getCloudflareImagesDeliveryBaseUrl() {
   return accountHash ? `https://imagedelivery.net/${accountHash}` : null;
 }
 
-export function getCloudflareImageDeliveryUrl(imageId: string, variant = "public") {
+export function getCloudflareImagesVariant() {
+  return process.env.CLOUDFLARE_IMAGES_VARIANT?.trim() || "public";
+}
+
+export function getCloudflareImageDeliveryUrl(imageId: string, variant?: string) {
   const baseUrl = getCloudflareImagesDeliveryBaseUrl();
-  return baseUrl ? `${baseUrl}/${imageId}/${variant}` : null;
+  const resolvedVariant = variant ?? getCloudflareImagesVariant();
+  return baseUrl ? `${baseUrl}/${imageId}/${resolvedVariant}` : null;
+}
+
+const IMAGE_DELIVERY_HOSTNAME = "imagedelivery.net";
+
+export function rewriteCloudflareDeliveryUrl(url: string | null | undefined, variant?: string) {
+  if (!url) return url ?? null;
+  if (!url.includes(IMAGE_DELIVERY_HOSTNAME)) return url;
+
+  try {
+    const parsed = new URL(url);
+    if (parsed.hostname !== IMAGE_DELIVERY_HOSTNAME) return url;
+
+    const segments = parsed.pathname.split("/").filter(Boolean);
+    if (segments.length < 2) return url;
+
+    const target = variant ?? getCloudflareImagesVariant();
+    const [accountHash, imageId] = segments;
+    parsed.pathname = `/${accountHash}/${imageId}/${target}`;
+    return parsed.toString();
+  } catch {
+    return url;
+  }
 }
 
 async function callCloudflare<T>(path: string, init?: RequestInit): Promise<T> {
