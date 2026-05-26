@@ -260,7 +260,6 @@ export default async function HomePage({
   );
 
   const latestProperties = allCards.slice(0, 6);
-  const rentalProperties = allCards.filter((card) => card.purpose === "LOCACAO").slice(0, 3);
   const auctionCards = allCards.filter(isAuctionCard).slice(0, 3);
 
   const developmentCards = developmentsRaw.slice(0, 3);
@@ -433,10 +432,71 @@ export default async function HomePage({
         </div>
       </section>
 
+      <section className="section wp-soft-section" style={{ paddingTop: 24 }}>
+        <div className="container">
+          <div className="wp-section-head">
+            <h2 className="section-title">Imóveis na planta</h2>
+            <p className="section-subtitle text-card">
+              Lançamentos com ficha técnica completa, cronograma, FAQ e captação de lead por empreendimento.
+            </p>
+          </div>
+          {developmentCards.length ? (
+            <div className="wp-property-grid wp-property-grid-3" style={{ marginTop: 20 }}>
+              {developmentCards.map((development) => {
+                const media =
+                  development.media.find((item) => item.isPrimary)?.url ??
+                  development.media.find((item) => item.kind === "HERO")?.url ??
+                  development.media.find((item) => item.kind === "GALLERY")?.url ??
+                  "/brand/logo-light-bg.png";
+
+                return (
+                  <article key={development.id} className="wp-property-card compact">
+                    <div
+                      className="wp-property-media"
+                      style={{
+                        backgroundImage: `linear-gradient(180deg, rgba(7, 13, 24, 0.1), rgba(7, 13, 24, 0.68)), url(${media})`
+                      }}
+                    >
+                      <div className="wp-media-badges">
+                        <span className="badge">Lançamento</span>
+                        <span className="badge">{getDevelopmentStageLabel(development.stage)}</span>
+                      </div>
+                      <p>{development.city} • {development.district}</p>
+                    </div>
+                    <div className="wp-property-body">
+                      <h3>{development.title}</h3>
+                      <p className="wp-price">
+                        A partir de{" "}
+                        {development.startingPriceNumber
+                          ? formatCurrencyBRL(development.startingPriceNumber)
+                          : "Sob consulta"}
+                      </p>
+                      <div className="wp-spec-row">
+                        <span>{development.bedroomsFrom ?? "-"} a {development.bedroomsTo ?? "-"} quartos</span>
+                        <span>{development.areaFromM2Number ?? "-"} a {development.areaToM2Number ?? "-"} m²</span>
+                      </div>
+                      <Link href={`/lancamentos/${development.slug}`} className="button button-primary" style={{ width: "100%" }}>
+                        Ver empreendimento
+                      </Link>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+          ) : (
+            <article className="card" style={{ padding: 16, marginTop: 20 }}>
+              <p className="text-card" style={{ margin: 0, color: "var(--text-muted)" }}>
+                Nenhum lançamento publicado no backend.
+              </p>
+            </article>
+          )}
+        </div>
+      </section>
+
       <section className="section" style={{ paddingTop: 24 }}>
         <div className="container">
           <div className="wp-section-head">
-            <h2 className="section-title">Últimos imóveis</h2>
+            <h2 className="section-title">Últimos imóveis à venda</h2>
             <p className="section-subtitle text-card">Novos anúncios e ativos com melhor momento comercial.</p>
           </div>
 
@@ -527,117 +587,6 @@ export default async function HomePage({
             <article className="card" style={{ padding: 16 }}>
               <p className="text-card" style={{ margin: 0, color: "var(--text-muted)" }}>
                 Nenhuma categoria com imóveis prontos à venda no backend.
-              </p>
-            </article>
-          )}
-        </div>
-      </section>
-
-      <section className="section" style={{ paddingTop: 24 }}>
-        <div className="container">
-          <div className="wp-section-head">
-            <h2 className="section-title">Aluguel</h2>
-            <p className="section-subtitle text-card">Ativos residenciais e comerciais com locação ativa.</p>
-          </div>
-          {rentalProperties.length ? (
-            <div className="wp-property-grid wp-property-grid-3" style={{ marginTop: 20 }}>
-              {rentalProperties.map((property) => {
-                const isRented = property.status === "ALUGADO";
-                return (
-                  <article key={property.id} className={`wp-property-card compact ${isRented ? "is-sold" : ""}`}>
-                    <div
-                      className="wp-property-media"
-                      style={{
-                        backgroundImage: `linear-gradient(180deg, rgba(7, 13, 24, 0.06), rgba(7, 13, 24, 0.62)), url(${property.imageUrl})`
-                      }}
-                    >
-                      <div className="wp-media-badges">
-                        {isRented ? <span className="badge badge-tone-rented">Alugado</span> : null}
-                        <span className="badge">Locação</span>
-                      </div>
-                      <p>{property.city} • {property.district}</p>
-                    </div>
-                    <div className="wp-property-body">
-                      <h3>{property.title}</h3>
-                      <p className="wp-price">{formatCurrencyBRL(property.price)} / mês</p>
-                      <div className="wp-spec-row">
-                        <span>{property.bedrooms ?? "-"} quartos</span>
-                        <span>{property.bathrooms ?? "-"} banheiros</span>
-                        <span>{property.areaM2 ?? "-"} m²</span>
-                      </div>
-                      <Link href={property.href} className="button button-ghost" style={{ width: "100%" }}>
-                        Ver detalhes
-                      </Link>
-                    </div>
-                  </article>
-                );
-              })}
-            </div>
-          ) : (
-            <article className="card" style={{ padding: 16, marginTop: 20 }}>
-              <p className="text-card" style={{ margin: 0, color: "var(--text-muted)" }}>
-                Nenhum imóvel de locação disponível no backend.
-              </p>
-            </article>
-          )}
-        </div>
-      </section>
-
-      <section className="section wp-soft-section" style={{ paddingTop: 24 }}>
-        <div className="container">
-          <div className="wp-section-head">
-            <h2 className="section-title">Imóveis na planta</h2>
-            <p className="section-subtitle text-card">
-              Lançamentos com ficha técnica completa, cronograma, FAQ e captação de lead por empreendimento.
-            </p>
-          </div>
-          {developmentCards.length ? (
-            <div className="wp-property-grid wp-property-grid-3" style={{ marginTop: 20 }}>
-              {developmentCards.map((development) => {
-                const media =
-                  development.media.find((item) => item.isPrimary)?.url ??
-                  development.media.find((item) => item.kind === "HERO")?.url ??
-                  development.media.find((item) => item.kind === "GALLERY")?.url ??
-                  "/brand/logo-light-bg.png";
-
-                return (
-                  <article key={development.id} className="wp-property-card compact">
-                    <div
-                      className="wp-property-media"
-                      style={{
-                        backgroundImage: `linear-gradient(180deg, rgba(7, 13, 24, 0.1), rgba(7, 13, 24, 0.68)), url(${media})`
-                      }}
-                    >
-                      <div className="wp-media-badges">
-                        <span className="badge">Lançamento</span>
-                        <span className="badge">{getDevelopmentStageLabel(development.stage)}</span>
-                      </div>
-                      <p>{development.city} • {development.district}</p>
-                    </div>
-                    <div className="wp-property-body">
-                      <h3>{development.title}</h3>
-                      <p className="wp-price">
-                        A partir de{" "}
-                        {development.startingPriceNumber
-                          ? formatCurrencyBRL(development.startingPriceNumber)
-                          : "Sob consulta"}
-                      </p>
-                      <div className="wp-spec-row">
-                        <span>{development.bedroomsFrom ?? "-"} a {development.bedroomsTo ?? "-"} quartos</span>
-                        <span>{development.areaFromM2Number ?? "-"} a {development.areaToM2Number ?? "-"} m²</span>
-                      </div>
-                      <Link href={`/lancamentos/${development.slug}`} className="button button-primary" style={{ width: "100%" }}>
-                        Ver empreendimento
-                      </Link>
-                    </div>
-                  </article>
-                );
-              })}
-            </div>
-          ) : (
-            <article className="card" style={{ padding: 16, marginTop: 20 }}>
-              <p className="text-card" style={{ margin: 0, color: "var(--text-muted)" }}>
-                Nenhum lançamento publicado no backend.
               </p>
             </article>
           )}

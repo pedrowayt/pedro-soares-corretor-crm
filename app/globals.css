@@ -138,17 +138,132 @@ main {
   color: #062c13;
 }
 
-.property-instagram-button {
+.button.property-instagram-button,
+a.property-instagram-button {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
-  color: #ffffff !important;
-  border-color: transparent;
+  background: #0b1424;
+  color: #ffffff;
+  border-color: #0b1424;
 }
 
-.property-instagram-button:hover {
-  filter: brightness(1.05);
+.property-instagram-button svg {
+  color: #ffffff;
+  flex-shrink: 0;
+}
+
+.about-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 320px) minmax(0, 1fr);
+  gap: 22px;
+  align-items: stretch;
+}
+
+.about-photo-card {
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: #0b1424;
+  color: #fff;
+}
+
+.about-photo-card img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  aspect-ratio: 4 / 5;
+  display: block;
+}
+
+.about-photo-meta {
+  padding: 14px 16px 16px;
+  display: grid;
+  gap: 2px;
+  background: linear-gradient(180deg, rgba(7, 13, 24, 0.0), rgba(7, 13, 24, 1));
+  margin-top: -56px;
+  position: relative;
+  z-index: 1;
+}
+
+.about-photo-meta strong {
+  font-size: var(--fs-18);
+  font-weight: 600;
+}
+
+.about-photo-meta span {
+  font-size: var(--fs-13);
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.about-intro-card {
+  padding: 22px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.about-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: auto;
+  padding-top: 12px;
+}
+
+.about-specialties-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+  margin-top: 18px;
+}
+
+.about-specialty-card {
+  padding: 20px 18px;
+  display: grid;
+  gap: 8px;
+}
+
+.about-specialty-card h3 {
+  margin: 0;
+  font-size: var(--fs-16);
+  color: #1f3149;
+}
+
+.about-specialty-card p {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: var(--fs-14);
+  line-height: 1.55;
+}
+
+.about-specialty-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(216, 154, 59, 0.16);
+  color: var(--gold, #d89a3b);
+}
+
+@media (max-width: 768px) {
+  .about-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .about-photo-card img {
+    aspect-ratio: 5 / 6;
+  }
+}
+
+.button.property-instagram-button:hover,
+a.property-instagram-button:hover {
+  background: #1a2740;
+  border-color: #1a2740;
+  color: #ffffff;
   transform: translateY(-1px);
 }
 
