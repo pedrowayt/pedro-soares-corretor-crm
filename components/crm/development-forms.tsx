@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import { slugify } from "@/lib/crm/slug";
 import { appreciationPotentialOptions, developmentStageOptions } from "@/lib/development-investment";
+import { applyWatermarkToImage } from "@/lib/media/watermark";
 
 const MAX_AI_UPLOAD_BYTES = 20 * 1024 * 1024;
 
@@ -1227,8 +1228,10 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
       const uploadUrl = directUploadData.data.directUpload.uploadURL as string;
       const imageDeliveryUrl = directUploadData.data.imageDeliveryUrl as string | null | undefined;
       const blob = await dataUrlToBlob(candidate.dataUrl);
+      const fileName = `${candidate.cropApplied ? "recorte" : candidate.imageUrl ? "site" : "pagina"}-${candidate.page ?? index + 1}.png`;
+      const watermarkedFile = await applyWatermarkToImage(blob, { fileName });
       const body = new FormData();
-      body.append("file", blob, `${candidate.cropApplied ? "recorte" : candidate.imageUrl ? "site" : "pagina"}-${candidate.page ?? index + 1}.png`);
+      body.append("file", watermarkedFile);
 
       const uploadResponse = await fetch(uploadUrl, {
         method: "POST",
@@ -1822,8 +1825,9 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
       const uploadUrl = directUploadData.data.directUpload.uploadURL as string;
       const imageDeliveryUrl = directUploadData.data.imageDeliveryUrl as string | null | undefined;
 
+      const watermarkedFile = await applyWatermarkToImage(file);
       const body = new FormData();
-      body.append("file", file);
+      body.append("file", watermarkedFile);
 
       const uploadResponse = await fetch(uploadUrl, {
         method: "POST",

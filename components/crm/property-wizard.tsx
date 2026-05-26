@@ -2,6 +2,7 @@
 
 import { useMemo, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { applyWatermarkToImage } from "@/lib/media/watermark";
 
 const TYPE_OPTIONS = [
   { value: "CASA", label: "Casa", icon: "🏠", hint: "Residencial unifamiliar" },
@@ -808,8 +809,9 @@ function StepFotos({
           });
           const uploadUrl = directUpload.data.directUpload.uploadURL as string;
           const imageDeliveryUrl = directUpload.data.imageDeliveryUrl as string | null | undefined;
+          const watermarkedFile = await applyWatermarkToImage(file);
           const body = new FormData();
-          body.append("file", file);
+          body.append("file", watermarkedFile);
           const cfResponse = await fetch(uploadUrl, { method: "POST", body });
           const cfPayload = await cfResponse.json().catch(() => null);
           if (!cfResponse.ok || !cfPayload?.success) {
