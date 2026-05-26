@@ -3,8 +3,7 @@ import {
   DevelopmentPublicationStatus,
   DevelopmentStage,
   Prisma,
-  type Builder,
-  type DevelopmentTower
+  type Builder
 } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import {
@@ -140,6 +139,16 @@ function normalizeDevelopment(development: DevelopmentWithRelations) {
     builder: normalizedBuilder,
     displayBuilderName: normalizedBuilder?.name ?? null,
     towers: development.towers.map((tower) => ({ ...tower })),
+    media: development.media.map((media) => ({
+      ...media,
+      url: rewriteCloudflareDeliveryUrl(media.url) ?? media.url,
+      towerName: media.towerId
+        ? development.towers.find((tower) => tower.id === media.towerId)?.name ?? null
+        : null,
+      unitTypeName: media.unitTypeId
+        ? development.unitTypes.find((unit) => unit.id === media.unitTypeId)?.name ?? null
+        : null
+    })),
     unitTypes: development.unitTypes.map((unit) => ({
       ...unit,
       towerName: development.towers.find((tower) => tower.id === unit.towerId)?.name ?? null,
@@ -282,7 +291,7 @@ function normalizeMockDevelopment(development: (typeof mockDevelopments)[number]
           institutionalText: null
         }
       : null,
-    towers: "towers" in development ? (development.towers as DevelopmentTower[]) : [],
+    towers: "towers" in development ? Array.from(development.towers).map((tower) => ({ ...tower })) : [],
     unitTypes: development.unitTypes.map((unit) => ({
       ...unit,
       towerId: ("towerId" in unit ? (unit.towerId as string | null | undefined) : null) ?? null,
@@ -316,12 +325,14 @@ function normalizeMockDevelopment(development: (typeof mockDevelopments)[number]
     media: development.media.map((media, index) => ({
       ...media,
       url: rewriteCloudflareDeliveryUrl(media.url) ?? media.url,
+      towerId: ("towerId" in media ? (media.towerId as string | null | undefined) : null) ?? null,
+      towerName: ("towerName" in media ? (media.towerName as string | null | undefined) : null) ?? null,
+      unitTypeId: ("unitTypeId" in media ? (media.unitTypeId as string | null | undefined) : null) ?? null,
+      unitTypeName: ("unitTypeName" in media ? (media.unitTypeName as string | null | undefined) : null) ?? null,
       category: ("category" in media ? (media.category as string | null | undefined) : null) ?? null,
       caption: ("caption" in media ? (media.caption as string | null | undefined) : null) ?? null,
       position: ("position" in media ? (media.position as number | null | undefined) : null) ?? index,
-      isPrimary:
-        ("isPrimary" in media ? Boolean(media.isPrimary) : false) ||
-        (!("isPrimary" in media) && media.kind === "HERO" && index === 0)
+      isPrimary: "isPrimary" in media ? Boolean(media.isPrimary) : index === 0
     }))
   };
 }
@@ -503,6 +514,30 @@ export async function getPublicDevelopmentBySlug(slug: string) {
     const development = mockDevelopments.find((item) => item.slug === slug);
     return development ? normalizeMockDevelopment(development) : null;
   }
+}
+
+export async function getPublicDevelopmentTowerBySlug(developmentSlug: string, towerSlug: string) {
+  const development = await getPublicDevelopmentBySlug(developmentSlug);
+  if (!development) return null;
+
+  const tower = development.towers.find((item) => item.slug === towerSlug || item.id === towerSlug);
+  if (!tower) return null;
+
+  const unitTypes = development.unitTypes.filter((unit) => unit.towerId === tower.id);
+  const unitTypeIds = new Set(unitTypes.map((unit) => unit.id));
+  const units = development.units.filter((unit) => unit.towerId === tower.id);
+  const scopedMedia = development.media.filter(
+    (media) => media.towerId === tower.id || (media.unitTypeId ? unitTypeIds.has(media.unitTypeId) : false)
+  );
+  const fallbackMedia = development.media.filter((media) => !media.towerId && !media.unitTypeId);
+
+  return {
+    development,
+    tower,
+    unitTypes,
+    units,
+    media: scopedMedia.length ? scopedMedia : fallbackMedia
+  };
 }
 
 export async function listCrmDevelopments(options?: { includeArchived?: boolean }) {

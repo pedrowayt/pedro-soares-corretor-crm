@@ -341,6 +341,8 @@ export const crmCreateDevelopmentUnitSchema = z.object({
 });
 
 export const crmCreateDevelopmentMediaSchema = z.object({
+  towerId: z.string().optional(),
+  unitTypeId: z.string().optional(),
   kind: z.nativeEnum(DevelopmentMediaKind),
   category: z.nativeEnum(DevelopmentMediaCategory).optional(),
   url: z.string().url(),

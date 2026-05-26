@@ -6,6 +6,7 @@ import {
   Bath,
   Bed,
   BarChart3,
+  Building2,
   Calendar,
   Car,
   CheckCircle2,
@@ -381,6 +382,7 @@ export default async function LancamentoDetailsPage({ params }: { params: Promis
         <nav className="development-toc" aria-label="Seções do empreendimento">
           <span className="development-toc-label">Navegar</span>
           <a href="#resumo">Resumo</a>
+          {development.towers.length ? <a href="#torres">Torres</a> : null}
           <a href="#plantas">Plantas</a>
           {development.units.length ? <a href="#disponibilidade">Disponibilidade</a> : null}
           {development.showInvestmentPotentialBlock ? <a href="#valorizacao">Valorização</a> : null}
@@ -439,6 +441,56 @@ export default async function LancamentoDetailsPage({ params }: { params: Promis
               </div>
             </article>
 
+            {development.towers.length ? (
+              <article id="torres" className="development-section development-section--feature">
+                <span className="development-section-eyebrow">Torres e blocos</span>
+                <h2 className="development-section-title">Escolha uma torre do {development.title}</h2>
+                <div className="development-unit-grid">
+                  {development.towers.map((tower) => {
+                    const towerUnitTypes = development.unitTypes.filter((unitType) => unitType.towerId === tower.id);
+                    const towerUnits = development.units.filter((unit) => unit.towerId === tower.id);
+                    const towerUnitTypeIds = new Set(towerUnitTypes.map((unitType) => unitType.id));
+                    const towerMedia = development.media.filter(
+                      (media) => media.towerId === tower.id || (media.unitTypeId ? towerUnitTypeIds.has(media.unitTypeId) : false)
+                    );
+                    const cover = towerMedia.find((media) => media.kind === "HERO" || media.category === "HERO") ?? towerMedia[0];
+
+                    return (
+                      <div key={tower.id} className="development-unit-card">
+                        {cover ? (
+                          <div style={{ position: "relative", aspectRatio: "16 / 10", borderRadius: 8, overflow: "hidden", marginBottom: 10, background: "#eef2f7" }}>
+                            <Image src={cover.url} alt={cover.title || tower.name} fill sizes="(max-width: 768px) 100vw, 360px" style={{ objectFit: "cover" }} />
+                          </div>
+                        ) : null}
+                        <div className="development-unit-card-header">
+                          <strong>{tower.name}</strong>
+                          {tower.propertyType ? (
+                            <span className="development-unit-status development-unit-status--disponivel">{tower.propertyType}</span>
+                          ) : null}
+                        </div>
+                        <p className="development-unit-card-specs">
+                          {tower.floorsCount ? <span><Building2 size={14} /> {tower.floorsCount} pavimentos</span> : null}
+                          {tower.availableUnits || tower.totalUnits ? <span>{tower.availableUnits ?? "-"} / {tower.totalUnits ?? "-"} unidades</span> : null}
+                          <span>{towerUnitTypes.length} planta{towerUnitTypes.length === 1 ? "" : "s"}</span>
+                          {towerUnits.length ? <span>{towerUnits.length} unidade{towerUnits.length === 1 ? "" : "s"} no estoque</span> : null}
+                        </p>
+                        {tower.description ? (
+                          <p className="development-unit-card-description">{tower.description}</p>
+                        ) : null}
+                        <Link
+                          className="button button-primary"
+                          href={`/lancamentos/${development.slug}/torres/${tower.slug || tower.id}`}
+                          style={{ marginTop: "auto" }}
+                        >
+                          Ver torre
+                        </Link>
+                      </div>
+                    );
+                  })}
+                </div>
+              </article>
+            ) : null}
+
             {normalizedGallery.length ? (
               <article id="galeria" className="development-section">
                 <h2 className="development-section-title">Galeria</h2>
@@ -495,41 +547,51 @@ export default async function LancamentoDetailsPage({ params }: { params: Promis
               </p>
 
               <div className="development-unit-grid">
-                {development.unitTypes.map((unit) => (
-                  <div key={unit.id} className="development-unit-card">
-                    <div className="development-unit-card-header">
-                      <strong>{unit.towerName ? `${unit.towerName} • ${unit.name}` : unit.name}</strong>
-                      <span className={`development-unit-status development-unit-status--${unit.isAvailable ? "disponivel" : "bloqueada"}`}>
-                        {unit.isAvailable ? "Disponível" : "Indisponível"}
-                      </span>
+                {development.unitTypes.map((unit) => {
+                  const unitMedia = development.media.find((media) => media.unitTypeId === unit.id);
+                  const previewUrl = unit.imageUrl || unitMedia?.url || null;
+
+                  return (
+                    <div key={unit.id} className="development-unit-card">
+                      {previewUrl ? (
+                        <div style={{ position: "relative", aspectRatio: "16 / 10", borderRadius: 8, overflow: "hidden", marginBottom: 10, background: "#eef2f7" }}>
+                          <Image src={previewUrl} alt={unit.name} fill sizes="(max-width: 768px) 100vw, 360px" style={{ objectFit: "cover" }} />
+                        </div>
+                      ) : null}
+                      <div className="development-unit-card-header">
+                        <strong>{unit.towerName ? `${unit.towerName} • ${unit.name}` : unit.name}</strong>
+                        <span className={`development-unit-status development-unit-status--${unit.isAvailable ? "disponivel" : "bloqueada"}`}>
+                          {unit.isAvailable ? "Disponível" : "Indisponível"}
+                        </span>
+                      </div>
+                      <p className="development-unit-card-specs">
+                        <span><Ruler size={14} /> {numberRange(unit.areaPrivateM2Number ?? unit.areaFromM2Number, unit.areaTotalM2Number ?? unit.areaToM2Number, " m²")}</span>
+                        <span><Bed size={14} /> {numberRange(unit.bedrooms, unit.bedrooms, "")}</span>
+                        {unit.suites ? <span>{unit.suites} suíte{unit.suites > 1 ? "s" : ""}</span> : null}
+                        {unit.parkingSpaces ? <span><Car size={14} /> {unit.parkingSpaces}</span> : null}
+                      </p>
+                      <p className="development-unit-card-price">
+                        {unit.initialPriceNumber
+                          ? `A partir de ${formatCurrencyBRL(unit.initialPriceNumber)}`
+                          : unit.priceFromNumber
+                            ? `A partir de ${formatCurrencyBRL(unit.priceFromNumber)}`
+                            : "Preço sob consulta"}
+                      </p>
+                      {unit.description ? (
+                        <p className="development-unit-card-description">{unit.description}</p>
+                      ) : null}
+                      <a
+                        className="button button-whatsapp"
+                        href={buildWhatsAppUrl(buildDevelopmentUnitMessage(development.title, unit.name))}
+                        target="_blank"
+                        rel="noreferrer"
+                        style={{ marginTop: "auto" }}
+                      >
+                        Tenho interesse
+                      </a>
                     </div>
-                    <p className="development-unit-card-specs">
-                      <span><Ruler size={14} /> {numberRange(unit.areaPrivateM2Number ?? unit.areaFromM2Number, unit.areaTotalM2Number ?? unit.areaToM2Number, " m²")}</span>
-                      <span><Bed size={14} /> {numberRange(unit.bedrooms, unit.bedrooms, "")}</span>
-                      {unit.suites ? <span>{unit.suites} suíte{unit.suites > 1 ? "s" : ""}</span> : null}
-                      {unit.parkingSpaces ? <span><Car size={14} /> {unit.parkingSpaces}</span> : null}
-                    </p>
-                    <p className="development-unit-card-price">
-                      {unit.initialPriceNumber
-                        ? `A partir de ${formatCurrencyBRL(unit.initialPriceNumber)}`
-                        : unit.priceFromNumber
-                          ? `A partir de ${formatCurrencyBRL(unit.priceFromNumber)}`
-                          : "Preço sob consulta"}
-                    </p>
-                    {unit.description ? (
-                      <p className="development-unit-card-description">{unit.description}</p>
-                    ) : null}
-                    <a
-                      className="button button-whatsapp"
-                      href={buildWhatsAppUrl(buildDevelopmentUnitMessage(development.title, unit.name))}
-                      target="_blank"
-                      rel="noreferrer"
-                      style={{ marginTop: "auto" }}
-                    >
-                      Tenho interesse
-                    </a>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </article>
 

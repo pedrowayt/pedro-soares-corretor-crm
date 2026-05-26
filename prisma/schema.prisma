@@ -548,6 +548,7 @@ model DevelopmentTower {
   development Development           @relation(fields: [developmentId], references: [id], onDelete: Cascade)
   unitTypes   DevelopmentUnitType[]
   units       DevelopmentUnit[]
+  media       DevelopmentMedia[]
 
   @@unique([developmentId, slug])
   @@index([developmentId, position])
@@ -582,6 +583,7 @@ model DevelopmentUnitType {
   development  Development       @relation(fields: [developmentId], references: [id], onDelete: Cascade)
   tower        DevelopmentTower? @relation(fields: [towerId], references: [id], onDelete: SetNull)
   units        DevelopmentUnit[]
+  media        DevelopmentMedia[]
   leads        Lead[]            @relation("LeadDevelopmentUnitType")
   interactions LeadInteraction[] @relation("InteractionDevelopmentUnitType")
 
@@ -623,6 +625,8 @@ model DevelopmentUnit {
 model DevelopmentMedia {
   id                String                   @id @default(cuid())
   developmentId     String
+  towerId           String?
+  unitTypeId        String?
   kind              DevelopmentMediaKind
   category          DevelopmentMediaCategory @default(OUTROS)
   status            MediaStatus              @default(PENDENTE)
@@ -636,9 +640,13 @@ model DevelopmentMedia {
   createdAt         DateTime                 @default(now())
   updatedAt         DateTime                 @updatedAt
 
-  development Development @relation(fields: [developmentId], references: [id], onDelete: Cascade)
+  development Development          @relation(fields: [developmentId], references: [id], onDelete: Cascade)
+  tower       DevelopmentTower?    @relation(fields: [towerId], references: [id], onDelete: SetNull)
+  unitType    DevelopmentUnitType? @relation(fields: [unitTypeId], references: [id], onDelete: SetNull)
 
   @@index([developmentId, kind])
+  @@index([towerId])
+  @@index([unitTypeId])
 }
 
 model DevelopmentMilestone {

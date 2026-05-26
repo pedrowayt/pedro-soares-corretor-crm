@@ -1,4 +1,5 @@
 import {
+  DevelopmentPropertyType,
   DevelopmentPublicationStatus,
   DevelopmentStage,
   PropertyPurpose,
@@ -92,29 +93,85 @@ export const mockDevelopments = [
     ctaPrimaryUrl: "https://wa.me/5563984845101",
     ctaSecondaryLabel: "Receber tabela PDF",
     ctaSecondaryUrl: "/lancamentos/acqua-design-residence",
+    towers: [
+      {
+        id: "mock-dev-tower-a",
+        developmentId: "mock-dev-1",
+        name: "Torre A Residencial",
+        slug: "torre-a-residencial",
+        propertyType: DevelopmentPropertyType.APARTAMENTO,
+        description: "Torre residencial com plantas de 2 e 3 quartos e acesso direto ao lazer central.",
+        floorsCount: 28,
+        elevatorsCount: 3,
+        totalUnits: 96,
+        availableUnits: 31,
+        deliveryDate: new Date("2028-08-30T00:00:00.000Z"),
+        incorporationRegistry: null,
+        position: 0,
+        createdAt: new Date("2026-01-01T00:00:00.000Z"),
+        updatedAt: new Date("2026-01-01T00:00:00.000Z")
+      },
+      {
+        id: "mock-dev-tower-comercial",
+        developmentId: "mock-dev-1",
+        name: "Torre Comercial",
+        slug: "torre-comercial",
+        propertyType: DevelopmentPropertyType.SALA_COMERCIAL,
+        description: "Bloco comercial com salas compactas para serviços, consultórios e operação de bairro.",
+        floorsCount: 12,
+        elevatorsCount: 2,
+        totalUnits: 36,
+        availableUnits: 7,
+        deliveryDate: new Date("2028-08-30T00:00:00.000Z"),
+        incorporationRegistry: null,
+        position: 1,
+        createdAt: new Date("2026-01-01T00:00:00.000Z"),
+        updatedAt: new Date("2026-01-01T00:00:00.000Z")
+      }
+    ],
     media: [
       {
         id: "mock-dev-media-hero",
         kind: "HERO",
         url: "https://images.unsplash.com/photo-1460317442991-0ec209397118",
-        title: "Perspectiva noturna"
+        title: "Perspectiva noturna",
+        category: "HERO",
+        caption: null,
+        isPrimary: true,
+        position: 0,
+        towerId: null,
+        unitTypeId: null
       },
       {
         id: "mock-dev-media-gallery",
         kind: "GALLERY",
         url: "https://images.unsplash.com/photo-1600607687644-c7f34b5e7885",
-        title: "Fachada principal"
+        title: "Fachada principal",
+        category: "FACHADA",
+        caption: null,
+        isPrimary: false,
+        position: 1,
+        towerId: "mock-dev-tower-a",
+        unitTypeId: null
       },
       {
         id: "mock-dev-media-floor",
         kind: "FLOORPLAN",
         url: "https://images.unsplash.com/photo-1582407947304-fd86f028f716",
-        title: "Planta tipo 78m²"
+        title: "Planta tipo 78m²",
+        category: "PLANTA",
+        caption: null,
+        isPrimary: false,
+        position: 2,
+        towerId: "mock-dev-tower-a",
+        unitTypeId: "mock-dev-unit-78"
       }
     ],
     unitTypes: [
       {
         id: "mock-dev-unit-78",
+        towerId: "mock-dev-tower-a",
+        towerName: "Torre A Residencial",
         name: "Tipo 78m²",
         bedrooms: 2,
         suites: 1,
@@ -126,10 +183,13 @@ export const mockDevelopments = [
         priceTo: 760000,
         availableUnits: 17,
         totalUnits: 52,
+        imageUrl: "https://images.unsplash.com/photo-1582407947304-fd86f028f716",
         description: "Planta funcional para casal ou investidor."
       },
       {
         id: "mock-dev-unit-112",
+        towerId: "mock-dev-tower-a",
+        towerName: "Torre A Residencial",
         name: "Tipo 112m²",
         bedrooms: 3,
         suites: 2,
@@ -142,6 +202,23 @@ export const mockDevelopments = [
         availableUnits: 14,
         totalUnits: 44,
         description: "Planta família com varanda estendida."
+      },
+      {
+        id: "mock-dev-unit-comercial-34",
+        towerId: "mock-dev-tower-comercial",
+        towerName: "Torre Comercial",
+        name: "Sala comercial 34m²",
+        bedrooms: 0,
+        suites: 0,
+        bathrooms: 1,
+        parkingSpaces: 1,
+        areaFromM2: 34,
+        areaToM2: 39,
+        priceFrom: 420000,
+        priceTo: 510000,
+        availableUnits: 7,
+        totalUnits: 36,
+        description: "Sala compacta para operação comercial, consultório ou escritório."
       }
     ],
     milestones: [

@@ -16,19 +16,51 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     return fail("Payload inválido para mídia de empreendimento.", 422, parsed.error.flatten());
   }
 
+  const payload = parsed.data;
+  const towerId = payload.towerId?.trim() || null;
+  const unitTypeId = payload.unitTypeId?.trim() || null;
+
+  if (towerId) {
+    const tower = await prisma.developmentTower.findFirst({
+      where: { id: towerId, developmentId: id },
+      select: { id: true }
+    });
+
+    if (!tower) {
+      return fail("Torre/bloco não encontrado para esta mídia.", 404);
+    }
+  }
+
+  if (unitTypeId) {
+    const unitType = await prisma.developmentUnitType.findFirst({
+      where: { id: unitTypeId, developmentId: id },
+      select: { id: true, towerId: true }
+    });
+
+    if (!unitType) {
+      return fail("Tipologia/planta não encontrada para esta mídia.", 404);
+    }
+
+    if (towerId && unitType.towerId && unitType.towerId !== towerId) {
+      return fail("A tipologia selecionada pertence a outra torre/bloco.", 422);
+    }
+  }
+
   const media = await prisma.developmentMedia.create({
     data: {
       developmentId: id,
-      kind: parsed.data.kind,
-      category: parsed.data.category,
-      url: parsed.data.url,
-      title: parsed.data.title,
-      caption: parsed.data.caption,
-      isPrimary: parsed.data.isPrimary ?? false,
-      position: parsed.data.position ?? 0,
-      cloudflareMediaId: parsed.data.cloudflareMediaId,
-      status: parsed.data.status,
-      metadata: parsed.data.metadata as Prisma.InputJsonValue | undefined
+      towerId: towerId || undefined,
+      unitTypeId: unitTypeId || undefined,
+      kind: payload.kind,
+      category: payload.category,
+      url: payload.url,
+      title: payload.title,
+      caption: payload.caption,
+      isPrimary: payload.isPrimary ?? false,
+      position: payload.position ?? 0,
+      cloudflareMediaId: payload.cloudflareMediaId,
+      status: payload.status,
+      metadata: payload.metadata as Prisma.InputJsonValue | undefined
     }
   });
 

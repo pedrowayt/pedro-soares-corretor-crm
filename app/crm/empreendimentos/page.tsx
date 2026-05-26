@@ -88,15 +88,22 @@ export default async function CrmEmpreendimentosPage() {
               id: media.id,
               url: media.url,
               title: media.title ?? null,
+              caption: media.caption ?? null,
               kind: String(media.kind),
               category: media.category ?? "OUTROS",
-              position: typeof media.position === "number" ? media.position : mediaIndex
+              position: typeof media.position === "number" ? media.position : mediaIndex,
+              isPrimary: Boolean(media.isPrimary),
+              towerId: media.towerId ?? null,
+              towerName: media.towerName ?? null,
+              unitTypeId: media.unitTypeId ?? null,
+              unitTypeName: media.unitTypeName ?? null
             })),
             towers: item.towers.map((tower) => ({
               id: tower.id,
               name: tower.name,
               slug: tower.slug ?? null,
               propertyType: tower.propertyType ?? null,
+              description: tower.description ?? null,
               floorsCount: tower.floorsCount ?? null,
               elevatorsCount: tower.elevatorsCount ?? null,
               totalUnits: tower.totalUnits ?? null,
@@ -105,7 +112,7 @@ export default async function CrmEmpreendimentosPage() {
               incorporationRegistry: tower.incorporationRegistry ?? null,
               position: tower.position
             })),
-            unitTypes: item.unitTypes.map((unit) => ({
+            unitTypes: item.unitTypes.map((unit, unitIndex) => ({
               id: unit.id,
               towerId: unit.towerId ?? null,
               towerName: unit.towerName ?? null,
@@ -118,6 +125,11 @@ export default async function CrmEmpreendimentosPage() {
               areaPrivateM2Number: unit.areaPrivateM2Number,
               areaTotalM2Number: unit.areaTotalM2Number,
               initialPriceNumber: unit.initialPriceNumber,
+              imageUrl: unit.imageUrl ?? null,
+              availableUnits: unit.availableUnits ?? null,
+              totalUnits: unit.totalUnits ?? null,
+              description: unit.description ?? null,
+              position: "position" in unit && typeof unit.position === "number" ? unit.position : unitIndex,
               isAvailable: unit.isAvailable
             })),
             units: item.units.map((unit) => ({

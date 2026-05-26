@@ -27,7 +27,9 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
       units: {
         orderBy: [{ position: "asc" }, { floor: "asc" }, { unitNumber: "asc" }]
       },
-      media: true,
+      media: {
+        orderBy: [{ isPrimary: "desc" }, { position: "asc" }]
+      },
       milestones: true,
       faqs: true
     }
@@ -186,7 +188,7 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
     }
   });
 
-  const [duplicatedTowers, duplicatedUnitTypes] = await Promise.all([
+  const [duplicatedTowers, duplicatedUnitTypes, duplicatedMedia] = await Promise.all([
     prisma.developmentTower.findMany({
       where: { developmentId: duplicated.id },
       orderBy: { position: "asc" }
@@ -194,6 +196,10 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
     prisma.developmentUnitType.findMany({
       where: { developmentId: duplicated.id },
       orderBy: [{ isAvailable: "desc" }, { position: "asc" }]
+    }),
+    prisma.developmentMedia.findMany({
+      where: { developmentId: duplicated.id },
+      orderBy: [{ isPrimary: "desc" }, { position: "asc" }]
     })
   ]);
 
@@ -218,6 +224,21 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
       return prisma.developmentUnitType.update({
         where: { id: duplicatedUnitTypeId },
         data: { towerId: duplicatedTowerId }
+      });
+    })
+  );
+
+  await Promise.all(
+    source.media.map((media, index) => {
+      const duplicatedMediaId = duplicatedMedia[index]?.id;
+      if (!duplicatedMediaId) return Promise.resolve(null);
+
+      return prisma.developmentMedia.update({
+        where: { id: duplicatedMediaId },
+        data: {
+          towerId: media.towerId ? towerIdMap.get(media.towerId) ?? null : null,
+          unitTypeId: media.unitTypeId ? unitTypeIdMap.get(media.unitTypeId) ?? null : null
+        }
       });
     })
   );

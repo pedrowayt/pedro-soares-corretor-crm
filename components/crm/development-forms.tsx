@@ -83,12 +83,26 @@ type DevelopmentItem = {
   showFloorplanTable: boolean;
   showWhatsappButton: boolean;
   isPublished: boolean;
-  media: Array<{ id: string; url: string; title: string | null; kind: string; category: string; position: number }>;
+  media: Array<{
+    id: string;
+    url: string;
+    title: string | null;
+    caption: string | null;
+    kind: string;
+    category: string;
+    position: number;
+    isPrimary: boolean;
+    towerId: string | null;
+    towerName: string | null;
+    unitTypeId: string | null;
+    unitTypeName: string | null;
+  }>;
   towers: Array<{
     id: string;
     name: string;
     slug: string | null;
     propertyType: string | null;
+    description: string | null;
     floorsCount: number | null;
     elevatorsCount: number | null;
     totalUnits: number | null;
@@ -110,6 +124,11 @@ type DevelopmentItem = {
     areaPrivateM2Number: number | null;
     areaTotalM2Number: number | null;
     initialPriceNumber: number | null;
+    imageUrl: string | null;
+    availableUnits: number | null;
+    totalUnits: number | null;
+    description: string | null;
+    position: number;
     isAvailable: boolean;
   }>;
   units: Array<{
@@ -302,7 +321,7 @@ const tabs = [
   { id: "investment", label: "Investimento" },
   { id: "descriptions", label: "Descrições" },
   { id: "media", label: "Imagens" },
-  { id: "plants", label: "Plantas e preços" },
+  { id: "plants", label: "Torres, plantas e preços" },
   { id: "amenities", label: "Lazer e diferenciais" },
   { id: "builder", label: "Construtora" },
   { id: "seo", label: "SEO" },
@@ -485,6 +504,13 @@ function parseReferencePointLines(value: string) {
 
 function optionalString(value: string) {
   return value.trim() ? value.trim() : undefined;
+}
+
+function mediaScopeLabel(media: Pick<DevelopmentItem["media"][number], "towerName" | "unitTypeName">) {
+  if (media.unitTypeName && media.towerName) return `${media.towerName} / ${media.unitTypeName}`;
+  if (media.unitTypeName) return `Planta: ${media.unitTypeName}`;
+  if (media.towerName) return `Torre: ${media.towerName}`;
+  return "Geral do empreendimento";
 }
 
 function formatFileSize(bytes: number) {
@@ -908,6 +934,8 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
   const [mediaCaption, setMediaCaption] = useState("");
   const [mediaPosition, setMediaPosition] = useState("0");
   const [mediaIsPrimary, setMediaIsPrimary] = useState(false);
+  const [mediaTowerId, setMediaTowerId] = useState("");
+  const [mediaUnitTypeId, setMediaUnitTypeId] = useState("");
   const [aiText, setAiText] = useState("");
   const [aiSourceUrl, setAiSourceUrl] = useState("");
   const [aiFileName, setAiFileName] = useState("");
@@ -925,6 +953,54 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
   const uploadFileRef = useRef<HTMLInputElement | null>(null);
 
   const selected = useMemo(() => items.find((item) => item.id === selectedId) ?? null, [items, selectedId]);
+  const mediaUnitTypeOptions = useMemo(() => {
+    if (!selected) return [];
+    if (!mediaTowerId) return selected.unitTypes;
+    return selected.unitTypes.filter((unitType) => !unitType.towerId || unitType.towerId === mediaTowerId);
+  }, [mediaTowerId, selected]);
+
+  function renderMediaScopeFields() {
+    return (
+      <>
+        <div>
+          <label>Torre/bloco da mídia</label>
+          <select
+            value={mediaTowerId}
+            onChange={(event) => {
+              setMediaTowerId(event.target.value);
+              setMediaUnitTypeId("");
+            }}
+            disabled={!selected?.towers.length}
+          >
+            <option value="">Geral do empreendimento</option>
+            {selected?.towers.map((tower) => (
+              <option key={tower.id} value={tower.id}>{tower.name}</option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label>Planta/tipologia da mídia</label>
+          <select
+            value={mediaUnitTypeId}
+            onChange={(event) => {
+              const unitTypeId = event.target.value;
+              setMediaUnitTypeId(unitTypeId);
+              const unitType = selected?.unitTypes.find((item) => item.id === unitTypeId);
+              if (unitType?.towerId) setMediaTowerId(unitType.towerId);
+            }}
+            disabled={!mediaUnitTypeOptions.length}
+          >
+            <option value="">Sem planta específica</option>
+            {mediaUnitTypeOptions.map((unitType) => (
+              <option key={unitType.id} value={unitType.id}>
+                {unitType.towerName ? `${unitType.towerName} / ` : ""}{unitType.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      </>
+    );
+  }
 
   useEffect(() => {
     return () => {
@@ -1572,6 +1648,11 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
         areaPrivateM2?: unknown;
         areaTotalM2?: unknown;
         initialPrice?: unknown;
+        imageUrl: string | null;
+        availableUnits: number | null;
+        totalUnits: number | null;
+        description: string | null;
+        position: number;
         isAvailable: boolean;
       };
       const towerName = selected?.towers.find((tower) => tower.id === rawUnitType.towerId)?.name ?? null;
@@ -1588,6 +1669,11 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
         areaPrivateM2Number: apiNumber(rawUnitType.areaPrivateM2),
         areaTotalM2Number: apiNumber(rawUnitType.areaTotalM2),
         initialPriceNumber: apiNumber(rawUnitType.initialPrice),
+        imageUrl: rawUnitType.imageUrl ?? null,
+        availableUnits: rawUnitType.availableUnits ?? null,
+        totalUnits: rawUnitType.totalUnits ?? null,
+        description: rawUnitType.description ?? null,
+        position: rawUnitType.position ?? 0,
         isAvailable: rawUnitType.isAvailable
       };
       setItems((prev) =>
@@ -1750,6 +1836,8 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
     setMediaCaption("");
     setMediaPosition("0");
     setMediaIsPrimary(false);
+    setMediaTowerId("");
+    setMediaUnitTypeId("");
     setMediaInfo("");
     setMediaError("");
   }
@@ -1808,6 +1896,8 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
 
     try {
       const data = await fetchJson(`/api/crm/developments/${selectedId}/media`, "POST", {
+        towerId: mediaTowerId || undefined,
+        unitTypeId: mediaUnitTypeId || undefined,
         kind: mediaKind,
         category: mediaCategory,
         url,
@@ -1816,7 +1906,17 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
         isPrimary: mediaIsPrimary,
         position: parseNumber(mediaPosition)
       });
-      const createdMedia = data.data.media as DevelopmentItem["media"][number];
+      const rawMedia = data.data.media as DevelopmentItem["media"][number];
+      const createdMedia: DevelopmentItem["media"][number] = {
+        ...rawMedia,
+        caption: rawMedia.caption ?? optionalString(mediaCaption) ?? null,
+        isPrimary: rawMedia.isPrimary ?? mediaIsPrimary,
+        towerId: (rawMedia.towerId ?? mediaTowerId) || null,
+        towerName: selected?.towers.find((tower) => tower.id === (rawMedia.towerId ?? mediaTowerId))?.name ?? null,
+        unitTypeId: (rawMedia.unitTypeId ?? mediaUnitTypeId) || null,
+        unitTypeName:
+          selected?.unitTypes.find((unitType) => unitType.id === (rawMedia.unitTypeId ?? mediaUnitTypeId))?.name ?? null
+      };
 
       setItems((prev) =>
         prev.map((item) =>
@@ -2420,6 +2520,7 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
                         ))}
                       </select>
                     </div>
+                    {renderMediaScopeFields()}
                     <div><label>Título</label><input value={mediaTitle} onChange={(event) => setMediaTitle(event.target.value)} /></div>
                     <div><label>Legenda</label><input value={mediaCaption} onChange={(event) => setMediaCaption(event.target.value)} /></div>
                     <div><label>Ordem</label><input type="number" min={0} value={mediaPosition} onChange={(event) => setMediaPosition(event.target.value)} /></div>
@@ -2509,6 +2610,9 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
                               <span style={{ display: "block", color: "#64748b", fontSize: "var(--fs-12)" }}>
                                 {mediaKindOptions.find((item) => item.value === media.kind)?.label ?? media.kind} · {media.category} · ordem {media.position}
                               </span>
+                              <span style={{ display: "block", color: "#64748b", fontSize: "var(--fs-12)" }}>
+                                {mediaScopeLabel(media)}
+                              </span>
                             </div>
                             <button
                               type="button"
@@ -2536,6 +2640,109 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
           {activeTab === "plants" ? (
             <>
               <div style={{ gridColumn: "1 / -1", display: "grid", gap: 12 }}>
+                <div
+                  style={{
+                    border: "1px solid #dbe4f0",
+                    borderRadius: 10,
+                    background: "#f8fbff",
+                    padding: 12,
+                    display: "grid",
+                    gap: 8
+                  }}
+                >
+                  <strong style={{ color: "#1f3149" }}>Estrutura recomendada do cadastro</strong>
+                  <p className="text-card" style={{ margin: 0, color: "#526174" }}>
+                    Cadastre primeiro as torres/blocos, depois as plantas de cada torre e por fim as unidades
+                    individuais quando precisar controlar estoque, preço ou status por apartamento/sala.
+                  </p>
+                </div>
+
+                {selected?.towers.length ? (
+                  <div style={{ display: "grid", gap: 10 }}>
+                    <strong className="text-card">Mapa visual por torre/bloco</strong>
+                    {selected.towers.map((tower) => {
+                      const towerUnitTypes = selected.unitTypes.filter((unitType) => unitType.towerId === tower.id);
+                      const towerUnits = selected.units.filter((unit) => unit.towerId === tower.id);
+                      const towerUnitTypeIds = new Set(towerUnitTypes.map((unitType) => unitType.id));
+                      const towerMedia = selected.media.filter(
+                        (media) => media.towerId === tower.id || (media.unitTypeId ? towerUnitTypeIds.has(media.unitTypeId) : false)
+                      );
+
+                      return (
+                        <section
+                          key={tower.id}
+                          style={{
+                            border: "1px solid var(--border)",
+                            borderRadius: 8,
+                            padding: 12,
+                            display: "grid",
+                            gap: 10,
+                            background: "#ffffff"
+                          }}
+                        >
+                          <div style={{ display: "flex", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
+                            <div>
+                              <strong style={{ display: "block", color: "#1f3149" }}>{tower.name}</strong>
+                              <span style={{ color: "#64748b", fontSize: "var(--fs-12)" }}>
+                                {tower.propertyType ? `${tower.propertyType} · ` : ""}
+                                {tower.floorsCount ? `${tower.floorsCount} pavimentos · ` : ""}
+                                {tower.availableUnits ?? "-"} / {tower.totalUnits ?? "-"} unidades
+                              </span>
+                            </div>
+                            <a
+                              className="button button-ghost"
+                              href={selected ? `/lancamentos/${selected.slug}/torres/${tower.slug || tower.id}` : "#"}
+                              target="_blank"
+                              rel="noreferrer"
+                              style={{ padding: "0.4rem 0.7rem", fontSize: "var(--fs-12)" }}
+                            >
+                              Ver página da torre
+                            </a>
+                          </div>
+
+                          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 8 }}>
+                            <div className="property-summary-grid-item">Plantas: {towerUnitTypes.length}</div>
+                            <div className="property-summary-grid-item">Unidades: {towerUnits.length}</div>
+                            <div className="property-summary-grid-item">Mídias da torre: {towerMedia.length}</div>
+                          </div>
+
+                          {towerUnitTypes.length ? (
+                            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(210px, 1fr))", gap: 8 }}>
+                              {towerUnitTypes.map((unitType) => {
+                                const unitTypeMedia = selected.media.find((media) => media.unitTypeId === unitType.id);
+                                const previewUrl = unitType.imageUrl || unitTypeMedia?.url || "";
+                                return (
+                                  <div key={unitType.id} style={{ border: "1px solid #e2e8f0", borderRadius: 8, padding: 8, display: "grid", gap: 6 }}>
+                                    {previewUrl ? (
+                                      // eslint-disable-next-line @next/next/no-img-element
+                                      <img src={previewUrl} alt={unitType.name} style={{ width: "100%", aspectRatio: "16 / 10", objectFit: "cover", borderRadius: 6, background: "#eef2f7" }} />
+                                    ) : null}
+                                    <strong style={{ color: "#1f3149", fontSize: "var(--fs-13)" }}>{unitType.name}</strong>
+                                    <span style={{ color: "#64748b", fontSize: "var(--fs-12)" }}>
+                                      {unitType.areaPrivateM2Number ? `${unitType.areaPrivateM2Number} m²` : "Área sob consulta"} · {unitType.bedrooms ?? "-"} quartos
+                                    </span>
+                                    <span style={{ color: "#64748b", fontSize: "var(--fs-12)" }}>
+                                      {unitType.initialPriceNumber ? `A partir de R$ ${unitType.initialPriceNumber.toLocaleString("pt-BR")}` : "Preço sob consulta"}
+                                    </span>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          ) : (
+                            <p className="text-card" style={{ margin: 0, color: "var(--text-muted)" }}>
+                              Nenhuma planta vinculada a esta torre ainda.
+                            </p>
+                          )}
+                        </section>
+                      );
+                    })}
+                  </div>
+                ) : (
+                  <p className="text-card" style={{ margin: 0, color: "var(--text-muted)" }}>
+                    Nenhuma torre/bloco cadastrado. Comece pelo formulário Adicionar torre/bloco abaixo.
+                  </p>
+                )}
+
                 {selected?.towers.length ? (
                   <div style={{ display: "grid", gap: 8 }}>
                     <strong className="text-card">Torres e blocos cadastrados</strong>
@@ -2936,6 +3143,7 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
                   </div>
                   <div><label>Tipo</label><select value={mediaKind} onChange={(event) => setMediaKind(event.target.value)}>{mediaKindOptions.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}</select></div>
                   <div><label>Categoria</label><select value={mediaCategory} onChange={(event) => setMediaCategory(event.target.value)}>{mediaCategoryOptions.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}</select></div>
+                  {renderMediaScopeFields()}
                   <div><label>Título</label><input value={mediaTitle} onChange={(event) => setMediaTitle(event.target.value)} /></div>
                   <div><label>Legenda</label><input value={mediaCaption} onChange={(event) => setMediaCaption(event.target.value)} /></div>
                   <div><label>Ordem</label><input type="number" min={0} value={mediaPosition} onChange={(event) => setMediaPosition(event.target.value)} /></div>
