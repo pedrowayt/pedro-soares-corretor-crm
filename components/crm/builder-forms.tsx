@@ -40,7 +40,7 @@ type LogoCandidate = {
   score: number;
 };
 
-async function requestJson(url: string, method: "POST" | "PATCH", payload?: unknown) {
+async function requestJson(url: string, method: "POST" | "PATCH" | "DELETE", payload?: unknown) {
   const response = await fetch(url, {
     method,
     headers: {
@@ -224,17 +224,52 @@ export function BuilderForms({ builders }: { builders: BuilderItem[] }) {
 
   async function archiveSelected() {
     if (!selectedId) return;
+    await archiveBuilder(selectedId);
+  }
+
+  async function archiveBuilder(id: string) {
     if (!window.confirm("Arquivar esta construtora?")) return;
 
     setStatus("saving");
     try {
-      await requestJson(`/api/crm/builders/${selectedId}/archive`, "PATCH");
-      setItems((prev) => prev.map((item) => (item.id === selectedId ? { ...item, archivedAt: new Date() } : item)));
+      await requestJson(`/api/crm/builders/${id}/archive`, "PATCH");
+      setItems((prev) => prev.map((item) => (item.id === id ? { ...item, archivedAt: new Date() } : item)));
       setStatus("success");
       setStatusMessage("Construtora arquivada.");
     } catch (error) {
       setStatus("error");
       setStatusMessage(error instanceof Error ? error.message : "Erro ao arquivar.");
+    }
+  }
+
+  async function unarchiveBuilder(id: string) {
+    setStatus("saving");
+    try {
+      await requestJson(`/api/crm/builders/${id}/unarchive`, "PATCH");
+      setItems((prev) => prev.map((item) => (item.id === id ? { ...item, archivedAt: null } : item)));
+      setStatus("success");
+      setStatusMessage("Construtora desarquivada.");
+    } catch (error) {
+      setStatus("error");
+      setStatusMessage(error instanceof Error ? error.message : "Erro ao desarquivar.");
+    }
+  }
+
+  async function deleteBuilder(id: string, name: string) {
+    if (!window.confirm(`Excluir definitivamente a construtora "${name}"? Esta ação não pode ser desfeita.`)) return;
+
+    setStatus("saving");
+    try {
+      await requestJson(`/api/crm/builders/${id}`, "DELETE");
+      setItems((prev) => prev.filter((item) => item.id !== id));
+      if (selectedId === id) {
+        switchToCreate();
+      }
+      setStatus("success");
+      setStatusMessage("Construtora excluída.");
+    } catch (error) {
+      setStatus("error");
+      setStatusMessage(error instanceof Error ? error.message : "Erro ao excluir.");
     }
   }
 
@@ -386,14 +421,42 @@ export function BuilderForms({ builders }: { builders: BuilderItem[] }) {
                         </span>
                       </td>
                       <td>
-                        <button
-                          type="button"
-                          className="button button-ghost"
-                          style={{ padding: "0.45rem 0.72rem" }}
-                          onClick={() => handleSelect(item.id)}
-                        >
-                          {isSelected ? "Editando" : "Editar"}
-                        </button>
+                        <div className="crm-builders-row-actions">
+                          <button
+                            type="button"
+                            className="button button-ghost"
+                            onClick={() => handleSelect(item.id)}
+                          >
+                            {isSelected ? "Editando" : "Editar"}
+                          </button>
+                          {item.archivedAt ? (
+                            <button
+                              type="button"
+                              className="button button-ghost"
+                              onClick={() => unarchiveBuilder(item.id)}
+                              disabled={status === "saving"}
+                            >
+                              Desarquivar
+                            </button>
+                          ) : (
+                            <button
+                              type="button"
+                              className="button button-ghost"
+                              onClick={() => archiveBuilder(item.id)}
+                              disabled={status === "saving"}
+                            >
+                              Arquivar
+                            </button>
+                          )}
+                          <button
+                            type="button"
+                            className="button button-ghost crm-builders-row-delete"
+                            onClick={() => deleteBuilder(item.id, item.name)}
+                            disabled={status === "saving"}
+                          >
+                            Excluir
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   );

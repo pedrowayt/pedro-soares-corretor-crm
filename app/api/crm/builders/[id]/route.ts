@@ -68,3 +68,27 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 
   return ok({ builder });
 }
+
+export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { session, denied } = await requireCrmWriteAccess();
+  if (denied) return denied;
+
+  const { id } = await params;
+
+  const builder = await prisma.builder.findUnique({ where: { id }, select: { id: true, name: true } });
+  if (!builder) return fail("Construtora não encontrada.", 404);
+
+  await prisma.builder.delete({ where: { id } });
+
+  await prisma.auditLog.create({
+    data: {
+      action: "BUILDER_DELETED",
+      resource: "Builder",
+      resourceId: id,
+      actorId: session?.userId,
+      metadata: { name: builder.name } as Prisma.InputJsonValue
+    }
+  });
+
+  return ok({ id });
+}

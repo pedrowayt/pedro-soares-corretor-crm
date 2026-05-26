@@ -3065,6 +3065,26 @@ body:has(.admin-login-page) .cookie-consent-banner {
   color: var(--text-muted);
 }
 
+.crm-builders-row-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.crm-builders-row-actions .button {
+  padding: 0.4rem 0.7rem;
+  font-size: var(--fs-12);
+}
+
+.crm-builders-row-actions .crm-builders-row-delete {
+  color: #b3261e;
+}
+
+.crm-builders-row-actions .crm-builders-row-delete:hover:not(:disabled) {
+  background: rgba(179, 38, 30, 0.08);
+}
+
 .crm-builders-scrape-row {
   margin-top: 14px;
   display: grid;
