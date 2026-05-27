@@ -17,7 +17,9 @@ export type PropertyListItem = {
   price: number;
   city: string;
   district: string;
+  landAreaM2: number | null;
   bedrooms: number | null;
+  livingRooms: number | null;
   suites: number | null;
   bathrooms: number | null;
   parkingSpaces: number | null;
@@ -53,9 +55,11 @@ const TYPE_LABELS: Record<string, string> = {
 function formatSpecs(property: PropertyListItem) {
   const specs = [
     property.bedrooms !== null ? `${property.bedrooms} qtos` : null,
+    property.livingRooms !== null ? `${property.livingRooms} salas` : null,
     property.suites !== null ? `${property.suites} suítes` : null,
     property.bathrooms !== null ? `${property.bathrooms} banh.` : null,
-    property.parkingSpaces !== null ? `${property.parkingSpaces} vagas` : null
+    property.parkingSpaces !== null ? `${property.parkingSpaces} vagas` : null,
+    property.landAreaM2 !== null ? `${property.landAreaM2} m² terreno` : null
   ].filter(Boolean);
 
   return specs.length ? specs.join(" • ") : "Sem métricas";

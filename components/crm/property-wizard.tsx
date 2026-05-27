@@ -81,7 +81,9 @@ export type WizardProperty = {
   latitude: number | null;
   longitude: number | null;
   areaM2: number | null;
+  landAreaM2: number | null;
   bedrooms: number | null;
+  livingRooms: number | null;
   suites: number | null;
   bathrooms: number | null;
   parkingSpaces: number | null;
@@ -134,7 +136,9 @@ function makeInitialState(initial?: WizardProperty): FormState {
     latitude: initial?.latitude ?? null,
     longitude: initial?.longitude ?? null,
     areaM2: initial?.areaM2 ?? null,
+    landAreaM2: initial?.landAreaM2 ?? null,
     bedrooms: initial?.bedrooms ?? null,
+    livingRooms: initial?.livingRooms ?? null,
     suites: initial?.suites ?? null,
     bathrooms: initial?.bathrooms ?? null,
     parkingSpaces: initial?.parkingSpaces ?? null,
@@ -236,7 +240,9 @@ export function PropertyWizard({ mode, initial }: Props) {
     const hash = window.location.hash.replace("#", "").toLowerCase();
     if (!hash) return;
     const target = STEPS.findIndex((step) => step.id === hash);
-    if (target >= 0) setStepIndex(target);
+    if (target < 0) return;
+    const frame = window.requestAnimationFrame(() => setStepIndex(target));
+    return () => window.cancelAnimationFrame(frame);
   }, []);
 
   const stepId = STEPS[stepIndex].id;
@@ -281,7 +287,9 @@ export function PropertyWizard({ mode, initial }: Props) {
       latitude: state.latitude ?? undefined,
       longitude: state.longitude ?? undefined,
       areaM2: state.areaM2 ?? undefined,
+      landAreaM2: state.landAreaM2 ?? undefined,
       bedrooms: state.bedrooms ?? undefined,
+      livingRooms: state.livingRooms ?? undefined,
       suites: state.suites ?? undefined,
       bathrooms: state.bathrooms ?? undefined,
       parkingSpaces: state.parkingSpaces ?? undefined,
@@ -710,6 +718,19 @@ function StepFeatures({
             placeholder="180"
           />
         </div>
+        <div className="wiz-field">
+          <label>Terreno (m²)</label>
+          <input
+            type="number"
+            min={0}
+            step="0.01"
+            value={state.landAreaM2 ?? ""}
+            onChange={(event) =>
+              onChange({ landAreaM2: event.target.value === "" ? null : Number(event.target.value) })
+            }
+            placeholder="360"
+          />
+        </div>
       </div>
 
       <div className="wiz-steppers">
@@ -717,6 +738,11 @@ function StepFeatures({
           label="Quartos"
           value={state.bedrooms}
           onChange={(v) => onChange({ bedrooms: v })}
+        />
+        <NumberStepper
+          label="Salas"
+          value={state.livingRooms}
+          onChange={(v) => onChange({ livingRooms: v })}
         />
         <NumberStepper
           label="Suítes"

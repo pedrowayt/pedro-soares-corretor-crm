@@ -51,7 +51,9 @@ export type EditorProperty = {
   latitude: number | null;
   longitude: number | null;
   areaM2: number | null;
+  landAreaM2: number | null;
   bedrooms: number | null;
+  livingRooms: number | null;
   suites: number | null;
   bathrooms: number | null;
   parkingSpaces: number | null;
@@ -136,7 +138,9 @@ export function PropertyEditor({ property }: { property: EditorProperty }) {
         latitude: toOptionalNumber(formData.get("latitude")),
         longitude: toOptionalNumber(formData.get("longitude")),
         areaM2: toOptionalNumber(formData.get("areaM2")),
+        landAreaM2: toOptionalNumber(formData.get("landAreaM2")),
         bedrooms: toOptionalNumber(formData.get("bedrooms")),
+        livingRooms: toOptionalNumber(formData.get("livingRooms")),
         suites: toOptionalNumber(formData.get("suites")),
         bathrooms: toOptionalNumber(formData.get("bathrooms")),
         parkingSpaces: toOptionalNumber(formData.get("parkingSpaces")),
@@ -431,8 +435,16 @@ export function PropertyEditor({ property }: { property: EditorProperty }) {
               <input name="areaM2" type="number" min={0} step="0.01" defaultValue={property.areaM2 ?? ""} />
             </div>
             <div>
+              <label>Terreno (m²)</label>
+              <input name="landAreaM2" type="number" min={0} step="0.01" defaultValue={property.landAreaM2 ?? ""} />
+            </div>
+            <div>
               <label>Quartos</label>
               <input name="bedrooms" type="number" min={0} defaultValue={property.bedrooms ?? ""} />
+            </div>
+            <div>
+              <label>Salas</label>
+              <input name="livingRooms" type="number" min={0} defaultValue={property.livingRooms ?? ""} />
             </div>
             <div>
               <label>Suítes</label>

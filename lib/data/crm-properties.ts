@@ -22,7 +22,9 @@ export type CrmPropertyPayload = {
   latitude?: number | null;
   longitude?: number | null;
   areaM2?: number | null;
+  landAreaM2?: number | null;
   bedrooms?: number | null;
+  livingRooms?: number | null;
   suites?: number | null;
   bathrooms?: number | null;
   parkingSpaces?: number | null;
@@ -71,7 +73,9 @@ type MemoryProperty = {
   latitude: NullableNumber;
   longitude: NullableNumber;
   areaM2: NullableNumber;
+  landAreaM2: NullableNumber;
   bedrooms: number | null;
+  livingRooms: number | null;
   suites: number | null;
   bathrooms: number | null;
   parkingSpaces: number | null;
@@ -178,6 +182,7 @@ function normalizeDbProperty(property: DbPropertyWithRelations) {
     ...property,
     price: Number(property.price),
     areaM2: toNumber(property.areaM2),
+    landAreaM2: toNumber(property.landAreaM2),
     latitude: toNumber(property.latitude),
     longitude: toNumber(property.longitude),
     commissionPct: toNumber(property.commissionPct),
@@ -214,7 +219,9 @@ function fromMockProperty(property: (typeof mockProperties)[number], index: numb
     latitude: null,
     longitude: null,
     areaM2: property.areaM2,
+    landAreaM2: property.landAreaM2,
     bedrooms: property.bedrooms,
+    livingRooms: property.livingRooms,
     suites: property.suites,
     bathrooms: property.bathrooms,
     parkingSpaces: property.parkingSpaces,
@@ -265,11 +272,13 @@ function normalizeForCreate(input: CrmPropertyPayload): CrmPropertyPayload {
     latitude: optionalNumber(input.latitude),
     longitude: optionalNumber(input.longitude),
     areaM2: optionalNumber(input.areaM2),
+    landAreaM2: optionalNumber(input.landAreaM2),
     commissionPct: optionalNumber(input.commissionPct),
     marketAskingValue: optionalNumber(input.marketAskingValue),
     marketEstimatedValue: optionalNumber(input.marketEstimatedValue),
     marketOpportunity: optionalNumber(input.marketOpportunity),
     bedrooms: input.bedrooms ?? null,
+    livingRooms: input.livingRooms ?? null,
     suites: input.suites ?? null,
     bathrooms: input.bathrooms ?? null,
     parkingSpaces: input.parkingSpaces ?? null,
@@ -335,7 +344,9 @@ export async function createCrmProperty(payload: CrmPropertyPayload) {
           latitude: normalized.latitude,
           longitude: normalized.longitude,
           areaM2: normalized.areaM2,
+          landAreaM2: normalized.landAreaM2,
           bedrooms: normalized.bedrooms,
+          livingRooms: normalized.livingRooms,
           suites: normalized.suites,
           bathrooms: normalized.bathrooms,
           parkingSpaces: normalized.parkingSpaces,
@@ -390,7 +401,9 @@ export async function createCrmProperty(payload: CrmPropertyPayload) {
     latitude: normalized.latitude ?? null,
     longitude: normalized.longitude ?? null,
     areaM2: normalized.areaM2 ?? null,
+    landAreaM2: normalized.landAreaM2 ?? null,
     bedrooms: normalized.bedrooms ?? null,
+    livingRooms: normalized.livingRooms ?? null,
     suites: normalized.suites ?? null,
     bathrooms: normalized.bathrooms ?? null,
     parkingSpaces: normalized.parkingSpaces ?? null,
@@ -444,6 +457,7 @@ export async function updateCrmProperty(id: string, payload: Partial<CrmProperty
     latitude: optionalNumber(payload.latitude),
     longitude: optionalNumber(payload.longitude),
     areaM2: optionalNumber(payload.areaM2),
+    landAreaM2: optionalNumber(payload.landAreaM2),
     commissionPct: optionalNumber(payload.commissionPct),
     marketAskingValue: optionalNumber(payload.marketAskingValue),
     marketEstimatedValue: optionalNumber(payload.marketEstimatedValue),
@@ -504,7 +518,9 @@ export async function updateCrmProperty(id: string, payload: Partial<CrmProperty
     latitude: partial.latitude === undefined ? current.latitude : partial.latitude,
     longitude: partial.longitude === undefined ? current.longitude : partial.longitude,
     areaM2: partial.areaM2 === undefined ? current.areaM2 : partial.areaM2,
+    landAreaM2: partial.landAreaM2 === undefined ? current.landAreaM2 : partial.landAreaM2,
     bedrooms: partial.bedrooms === undefined ? current.bedrooms : partial.bedrooms,
+    livingRooms: partial.livingRooms === undefined ? current.livingRooms : partial.livingRooms,
     suites: partial.suites === undefined ? current.suites : partial.suites,
     bathrooms: partial.bathrooms === undefined ? current.bathrooms : partial.bathrooms,
     parkingSpaces: partial.parkingSpaces === undefined ? current.parkingSpaces : partial.parkingSpaces,

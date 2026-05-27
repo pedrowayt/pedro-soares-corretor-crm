@@ -25,10 +25,12 @@ export const mockProperties = [
     latitude: null,
     longitude: null,
     bedrooms: 4,
+    livingRooms: 2,
     bathrooms: 5,
     suites: 3,
     parkingSpaces: 2,
     areaM2: 320,
+    landAreaM2: 450,
     isInvestorHighlight: true,
     isAuctionOpportunity: false,
     description:

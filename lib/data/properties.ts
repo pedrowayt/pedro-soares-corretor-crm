@@ -46,6 +46,7 @@ async function fallbackPublicProperties(filters: PublicPropertyFilters = {}) {
     ...property,
     priceValue: Number(property.price),
     areaM2Value: property.areaM2 ? Number(property.areaM2) : null,
+    landAreaM2Value: property.landAreaM2 ? Number(property.landAreaM2) : null,
     media: [],
     investorOpportunity: property.investorOpportunity ?? null,
     auctionCase: property.auctionCase ?? null
@@ -73,6 +74,7 @@ async function fallbackPublicProperties(filters: PublicPropertyFilters = {}) {
       ...property,
       priceValue: property.price,
       areaM2Value: property.areaM2,
+      landAreaM2Value: property.landAreaM2,
       media: property.media,
       investorOpportunity: null,
       auctionCase: null
@@ -141,7 +143,8 @@ export async function listPublicProperties(filters: PublicPropertyFilters = {}) 
     return properties.map((property) => ({
       ...property,
       priceValue: Number(property.price),
-      areaM2Value: property.areaM2 ? Number(property.areaM2) : null
+      areaM2Value: property.areaM2 ? Number(property.areaM2) : null,
+      landAreaM2Value: property.landAreaM2 ? Number(property.landAreaM2) : null
     }));
   } catch {
     return fallbackPublicProperties(filters);
@@ -157,6 +160,7 @@ export async function getPropertyBySlug(slug: string) {
       ...property,
       priceValue: property.priceValue,
       areaM2Value: property.areaM2Value,
+      landAreaM2Value: property.landAreaM2Value,
       marketAskingValueNumber: null,
       marketEstimatedValueNumber: null,
       marketOpportunityNumber: null,
@@ -187,6 +191,7 @@ export async function getPropertyBySlug(slug: string) {
       ...property,
       priceValue: Number(property.price),
       areaM2Value: property.areaM2 ? Number(property.areaM2) : null,
+      landAreaM2Value: property.landAreaM2 ? Number(property.landAreaM2) : null,
       marketAskingValueNumber: property.marketAskingValue ? Number(property.marketAskingValue) : null,
       marketEstimatedValueNumber: property.marketEstimatedValue
         ? Number(property.marketEstimatedValue)
@@ -201,6 +206,7 @@ export async function getPropertyBySlug(slug: string) {
       ...property,
       priceValue: property.priceValue,
       areaM2Value: property.areaM2Value,
+      landAreaM2Value: property.landAreaM2Value,
       marketAskingValueNumber: null,
       marketEstimatedValueNumber: null,
       marketOpportunityNumber: null,

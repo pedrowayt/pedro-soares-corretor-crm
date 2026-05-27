@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import { Bath, Bed, BedDouble, Car, LandPlot, Ruler, Sofa } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import { notFound } from "next/navigation";
 import { PropertyGallery } from "@/components/public/property-gallery";
 import { WhatsAppPropertyButton } from "@/components/public/whatsapp-property-button";
@@ -26,6 +28,31 @@ const broker = {
   photo: "/brand/pedro-portrait-5.png",
   phone: "(63) 98484-5101"
 };
+
+function formatAreaM2(value: number | null | undefined) {
+  if (!value) return "Sob consulta";
+  return `${new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 2 }).format(value)} m²`;
+}
+
+function formatCount(value: number | null | undefined, singular: string, plural: string) {
+  if (value === null || value === undefined) return "Sob consulta";
+  return `${value} ${value === 1 ? singular : plural}`;
+}
+
+function normalizeFeature(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+}
+
+function findFeatureSummary(features: readonly string[], keywords: string[]) {
+  const normalizedKeywords = keywords.map(normalizeFeature);
+  return features.find((feature) => {
+    const normalizedFeature = normalizeFeature(feature);
+    return normalizedKeywords.some((keyword) => normalizedFeature.includes(keyword));
+  });
+}
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;
@@ -120,6 +147,57 @@ export default async function PropertyDetailsPage({ params }: { params: Promise<
   const galleryImages = propertyImages.length
     ? propertyImages
     : [{ id: "fallback-property-image", url: fallbackImage }];
+  const features = property.features ?? [];
+  const roomFeature = findFeatureSummary(features, ["sala", "living"]);
+  const landFeature = findFeatureSummary(features, ["terreno", "quintal", "lote"]);
+  const isLandProperty = property.type === "LOTE" || property.type === "RURAL";
+  const technicalSummaryItems: Array<{
+    label: string;
+    value: string;
+    Icon: LucideIcon;
+  }> = [
+    {
+      label: "Metragem",
+      value: formatAreaM2(property.areaM2Value),
+      Icon: Ruler
+    },
+    {
+      label: "Quartos",
+      value: formatCount(property.bedrooms, "quarto", "quartos"),
+      Icon: Bed
+    },
+    {
+      label: "Salas",
+      value: property.livingRooms !== null && property.livingRooms !== undefined
+        ? formatCount(property.livingRooms, "sala", "salas")
+        : roomFeature ?? "Sob consulta",
+      Icon: Sofa
+    },
+    {
+      label: "Suítes",
+      value: formatCount(property.suites, "suíte", "suítes"),
+      Icon: BedDouble
+    },
+    {
+      label: "Banheiros",
+      value: formatCount(property.bathrooms, "banheiro", "banheiros"),
+      Icon: Bath
+    },
+    {
+      label: "Vagas",
+      value: formatCount(property.parkingSpaces, "vaga", "vagas"),
+      Icon: Car
+    },
+    {
+      label: "Terreno",
+      value: property.landAreaM2Value
+        ? formatAreaM2(property.landAreaM2Value)
+        : isLandProperty
+          ? formatAreaM2(property.areaM2Value)
+          : landFeature ?? "Sob consulta",
+      Icon: LandPlot
+    }
+  ];
 
   const faqItems = [
     {
@@ -330,21 +408,17 @@ export default async function PropertyDetailsPage({ params }: { params: Promise<
                 Resumo técnico
               </h3>
               <div className="property-summary-grid">
-                <p>
-                  <strong>Quartos:</strong> {property.bedrooms ?? "-"}
-                </p>
-                <p>
-                  <strong>Suítes:</strong> {property.suites ?? "-"}
-                </p>
-                <p>
-                  <strong>Banheiros:</strong> {property.bathrooms ?? "-"}
-                </p>
-                <p>
-                  <strong>Vagas:</strong> {property.parkingSpaces ?? "-"}
-                </p>
-                <p>
-                  <strong>Área:</strong> {property.areaM2Value ?? "-"} m²
-                </p>
+                {technicalSummaryItems.map(({ label, value, Icon }) => (
+                  <div className="property-summary-grid-item property-summary-grid-item--metric" key={label}>
+                    <span className="property-summary-grid-icon" aria-hidden="true">
+                      <Icon size={18} strokeWidth={2.1} />
+                    </span>
+                    <span className="property-summary-grid-copy">
+                      <span className="property-summary-grid-label">{label}</span>
+                      <strong className="property-summary-grid-value">{value}</strong>
+                    </span>
+                  </div>
+                ))}
               </div>
 
               <h3 className="title-luxury">Mapa aproximado</h3>

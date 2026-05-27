@@ -91,7 +91,9 @@ export function PropertyForms() {
                 postalCode: formData.get("postalCode"),
                 googleMapsUrl: formData.get("googleMapsUrl"),
                 areaM2: toOptionalNumber(formData.get("areaM2")),
+                landAreaM2: toOptionalNumber(formData.get("landAreaM2")),
                 bedrooms: toOptionalNumber(formData.get("bedrooms")),
+                livingRooms: toOptionalNumber(formData.get("livingRooms")),
                 suites: toOptionalNumber(formData.get("suites")),
                 bathrooms: toOptionalNumber(formData.get("bathrooms")),
                 parkingSpaces: toOptionalNumber(formData.get("parkingSpaces")),
@@ -176,8 +178,16 @@ export function PropertyForms() {
             <input name="areaM2" type="number" min={0} step="0.01" />
           </div>
           <div>
+            <label>Terreno (m²)</label>
+            <input name="landAreaM2" type="number" min={0} step="0.01" />
+          </div>
+          <div>
             <label>Quartos</label>
             <input name="bedrooms" type="number" min={0} />
+          </div>
+          <div>
+            <label>Salas</label>
+            <input name="livingRooms" type="number" min={0} />
           </div>
           <div>
             <label>Suítes</label>
