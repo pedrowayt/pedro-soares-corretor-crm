@@ -84,6 +84,17 @@ export default async function CrmEmpreendimentosPage() {
             isPublished: item.isPublished,
             amenities: Array.from(item.amenities ?? []),
             differentials: Array.from(item.differentials ?? []),
+            amenityItems: item.amenityItems.map((amenity) => ({
+              id: amenity.id,
+              towerId: amenity.towerId ?? null,
+              towerName: amenity.towerName ?? null,
+              type: String(amenity.type),
+              label: amenity.label,
+              description: amenity.description ?? null,
+              icon: amenity.icon ?? null,
+              isHighlighted: Boolean(amenity.isHighlighted),
+              position: amenity.position
+            })),
             media: item.media.map((media, mediaIndex) => ({
               id: media.id,
               url: media.url,

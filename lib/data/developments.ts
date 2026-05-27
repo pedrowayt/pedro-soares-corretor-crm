@@ -24,6 +24,10 @@ const developmentInclude = {
   builder: true,
   towers: { orderBy: { position: "asc" } },
   media: { orderBy: [{ isPrimary: "desc" }, { position: "asc" }] },
+  amenityItems: {
+    include: { tower: true },
+    orderBy: [{ type: "asc" }, { position: "asc" }]
+  },
   unitTypes: { orderBy: [{ isAvailable: "desc" }, { position: "asc" }] },
   units: {
     include: { tower: true, unitType: true },
@@ -127,6 +131,10 @@ function normalizeDevelopment(development: DevelopmentWithRelations) {
     ...development,
     amenities: [...development.amenities],
     differentials: [...development.differentials],
+    amenityItems: development.amenityItems.map((item) => ({
+      ...item,
+      towerName: item.tower?.name ?? null
+    })),
     stageLabel: getDevelopmentStageLabel(development.stage),
     publicStage: mapStageToPublicStage(development.stage),
     startingPriceNumber: toNumber(development.startingPrice),
@@ -292,6 +300,18 @@ function normalizeMockDevelopment(development: (typeof mockDevelopments)[number]
         }
       : null,
     towers: "towers" in development ? Array.from(development.towers).map((tower) => ({ ...tower })) : [],
+    amenityItems:
+      "amenityItems" in development && Array.isArray(development.amenityItems)
+        ? development.amenityItems.map((item) => ({
+            ...item,
+            towerId: ("towerId" in item ? (item.towerId as string | null | undefined) : null) ?? null,
+            towerName: ("towerName" in item ? (item.towerName as string | null | undefined) : null) ?? null,
+            description: ("description" in item ? (item.description as string | null | undefined) : null) ?? null,
+            icon: ("icon" in item ? (item.icon as string | null | undefined) : null) ?? null,
+            isHighlighted: "isHighlighted" in item ? Boolean(item.isHighlighted) : true,
+            position: ("position" in item ? (item.position as number | null | undefined) : null) ?? 0
+          }))
+        : [],
     unitTypes: development.unitTypes.map((unit) => ({
       ...unit,
       towerId: ("towerId" in unit ? (unit.towerId as string | null | undefined) : null) ?? null,
@@ -395,7 +415,10 @@ function matchDevelopmentFilters(
     const feature = normalizeText(filters.feature);
     const inAmenities = development.amenities.some((item) => normalizeText(item).includes(feature));
     const inDifferentials = development.differentials.some((item) => normalizeText(item).includes(feature));
-    if (!inAmenities && !inDifferentials) return false;
+    const inStructuredItems = development.amenityItems.some(
+      (item) => normalizeText(item.label).includes(feature) || normalizeText(item.description).includes(feature)
+    );
+    if (!inAmenities && !inDifferentials && !inStructuredItems) return false;
   }
 
   return true;
@@ -530,13 +553,15 @@ export async function getPublicDevelopmentTowerBySlug(developmentSlug: string, t
     (media) => media.towerId === tower.id || (media.unitTypeId ? unitTypeIds.has(media.unitTypeId) : false)
   );
   const fallbackMedia = development.media.filter((media) => !media.towerId && !media.unitTypeId);
+  const amenityItems = development.amenityItems.filter((item) => !item.towerId || item.towerId === tower.id);
 
   return {
     development,
     tower,
     unitTypes,
     units,
-    media: scopedMedia.length ? scopedMedia : fallbackMedia
+    media: scopedMedia.length ? scopedMedia : fallbackMedia,
+    amenityItems
   };
 }
 

@@ -21,7 +21,7 @@ import {
 import { DevelopmentInterestForm } from "@/components/public/development-interest-form";
 import { DevelopmentHeroSlider } from "@/components/public/development-hero-slider";
 import { DevelopmentGallery } from "@/components/public/development-gallery";
-import { amenityIconMap, featureIconMap } from "@/lib/icons/development";
+import { amenityIconMap, featureIconMap, getDevelopmentAmenityIcon } from "@/lib/icons/development";
 import { getPublicDevelopmentBySlug } from "@/lib/data/developments";
 import {
   getInvestmentPotentialAnalysis,
@@ -227,6 +227,25 @@ export default async function LancamentoDetailsPage({ params }: { params: Promis
     {}
   );
   const unitGroups = Object.entries(unitsByTower);
+  const highlightedAmenityItems = development.amenityItems.filter((item) => item.isHighlighted);
+  const leisureItems = highlightedAmenityItems.some((item) => item.type === "LAZER")
+    ? highlightedAmenityItems.filter((item) => item.type === "LAZER")
+    : development.amenities.map((item, index) => ({
+        id: `legacy-amenity-${index}`,
+        label: item,
+        description: null,
+        icon: null,
+        towerName: null
+      }));
+  const differentialItems = highlightedAmenityItems.some((item) => item.type === "DIFERENCIAL")
+    ? highlightedAmenityItems.filter((item) => item.type === "DIFERENCIAL")
+    : development.differentials.map((item, index) => ({
+        id: `legacy-differential-${index}`,
+        label: item,
+        description: null,
+        icon: null,
+        towerName: null
+      }));
 
   const breadcrumbSchema = {
     "@context": "https://schema.org",
@@ -525,19 +544,28 @@ export default async function LancamentoDetailsPage({ params }: { params: Promis
               </article>
             ) : null}
 
-            <article className="development-section development-section--quiet">
-              <h2 className="development-section-title">Áreas de convívio e lazer</h2>
-              <div className="development-stats-grid">
-                {development.amenities.map((item) => {
-                  const Icon = pickAmenityIcon(item);
-                  return (
-                    <div key={item} className="property-summary-grid-item">
-                      <Icon size={16} /> {item}
-                    </div>
-                  );
-                })}
-              </div>
-            </article>
+            {leisureItems.length ? (
+              <article className="development-section development-section--quiet">
+                <h2 className="development-section-title">Áreas de convívio e lazer</h2>
+                <div className="development-stats-grid">
+                  {leisureItems.map((item) => {
+                    const Icon = item.icon || item.description
+                      ? getDevelopmentAmenityIcon(item.icon, `${item.label} ${item.description ?? ""}`)
+                      : pickAmenityIcon(item.label);
+                    return (
+                      <div key={item.id} className="property-summary-grid-item" style={{ alignItems: "flex-start" }}>
+                        <Icon size={16} />
+                        <span style={{ display: "grid", gap: 2 }}>
+                          <strong style={{ fontWeight: 700 }}>{item.label}</strong>
+                          {item.description ? <small style={{ color: "var(--text-muted)" }}>{item.description}</small> : null}
+                          {item.towerName ? <small style={{ color: "var(--text-muted)" }}>Exclusivo: {item.towerName}</small> : null}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </article>
+            ) : null}
 
             <article id="plantas" className="development-section development-section--feature">
               <span className="development-section-eyebrow">Plantas disponíveis</span>
@@ -762,19 +790,28 @@ export default async function LancamentoDetailsPage({ params }: { params: Promis
               </article>
             ) : null}
 
-            <article className="development-section development-section--quiet">
-              <h2 className="development-section-title">Diferenciais do {development.title}</h2>
-              <div className="development-stats-grid">
-                {development.differentials.map((item) => {
-                  const Icon = pickFeatureIcon(item);
-                  return (
-                    <div key={item} className="property-summary-grid-item">
-                      <Icon size={16} /> {item}
-                    </div>
-                  );
-                })}
-              </div>
-            </article>
+            {differentialItems.length ? (
+              <article className="development-section development-section--quiet">
+                <h2 className="development-section-title">Diferenciais do {development.title}</h2>
+                <div className="development-stats-grid">
+                  {differentialItems.map((item) => {
+                    const Icon = item.icon || item.description
+                      ? getDevelopmentAmenityIcon(item.icon, `${item.label} ${item.description ?? ""}`)
+                      : pickFeatureIcon(item.label);
+                    return (
+                      <div key={item.id} className="property-summary-grid-item" style={{ alignItems: "flex-start" }}>
+                        <Icon size={16} />
+                        <span style={{ display: "grid", gap: 2 }}>
+                          <strong style={{ fontWeight: 700 }}>{item.label}</strong>
+                          {item.description ? <small style={{ color: "var(--text-muted)" }}>{item.description}</small> : null}
+                          {item.towerName ? <small style={{ color: "var(--text-muted)" }}>Escopo: {item.towerName}</small> : null}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </article>
+            ) : null}
 
             {development.showBuilder ? (
               <article id="construtora" className="card development-builder-detail-card">

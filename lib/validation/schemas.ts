@@ -1,4 +1,5 @@
 import {
+  DevelopmentAmenityType,
   DevelopmentLeadStatus,
   DevelopmentMediaCategory,
   DevelopmentMediaKind,
@@ -353,6 +354,16 @@ export const crmCreateDevelopmentMediaSchema = z.object({
   cloudflareMediaId: z.string().optional(),
   status: z.enum(["PENDENTE", "PROCESSANDO", "PRONTO", "FALHA"]).optional(),
   metadata: z.record(z.string(), z.unknown()).optional()
+});
+
+export const crmCreateDevelopmentAmenitySchema = z.object({
+  towerId: z.string().optional(),
+  type: z.nativeEnum(DevelopmentAmenityType).default(DevelopmentAmenityType.LAZER),
+  label: z.string().min(2),
+  description: z.string().optional(),
+  icon: z.string().optional(),
+  isHighlighted: z.boolean().optional(),
+  position: z.coerce.number().int().optional()
 });
 
 export const crmCreateDevelopmentMilestoneSchema = z.object({

@@ -7,6 +7,7 @@ import { DevelopmentGallery } from "@/components/public/development-gallery";
 import { DevelopmentHeroSlider } from "@/components/public/development-hero-slider";
 import { DevelopmentInterestForm } from "@/components/public/development-interest-form";
 import { getPublicDevelopmentTowerBySlug } from "@/lib/data/developments";
+import { getDevelopmentAmenityIcon } from "@/lib/icons/development";
 import { buildDevelopmentMessage, buildDevelopmentUnitMessage, buildWhatsAppUrl } from "@/lib/integrations/whatsapp-links";
 import { formatCurrencyBRL } from "@/lib/utils";
 
@@ -77,7 +78,7 @@ export default async function DevelopmentTowerPage({
 
   if (!data) notFound();
 
-  const { development, tower, unitTypes, units, media } = data;
+  const { development, tower, unitTypes, units, media, amenityItems } = data;
   const heroSlides = media
     .filter((item) => item.kind === "HERO" || item.category === "HERO")
     .map((item) => ({
@@ -112,6 +113,9 @@ export default async function DevelopmentTowerPage({
   const prices = unitTypes
     .map((unit) => unit.initialPriceNumber ?? unit.priceFromNumber)
     .filter((value): value is number => typeof value === "number");
+  const highlightedAmenityItems = amenityItems.filter((item) => item.isHighlighted);
+  const leisureItems = highlightedAmenityItems.filter((item) => item.type === "LAZER");
+  const differentialItems = highlightedAmenityItems.filter((item) => item.type === "DIFERENCIAL");
 
   return (
     <section className="section property-detail-page" style={{ paddingTop: 0 }}>
@@ -169,8 +173,10 @@ export default async function DevelopmentTowerPage({
         <nav className="development-toc" aria-label="Seções da torre">
           <span className="development-toc-label">Navegar</span>
           <a href="#ficha">Ficha técnica</a>
+          {leisureItems.length ? <a href="#lazer">Lazer</a> : null}
           <a href="#plantas">Plantas</a>
           {units.length ? <a href="#disponibilidade">Disponibilidade</a> : null}
+          {differentialItems.length ? <a href="#diferenciais">Diferenciais</a> : null}
           {gallery.length ? <a href="#galeria">Galeria</a> : null}
           <a href="#atendimento">Atendimento</a>
         </nav>
@@ -197,6 +203,27 @@ export default async function DevelopmentTowerPage({
                 </a>
               </div>
             </article>
+
+            {leisureItems.length ? (
+              <article id="lazer" className="development-section development-section--quiet">
+                <h2 className="development-section-title">Lazer e serviços da {tower.name}</h2>
+                <div className="development-stats-grid">
+                  {leisureItems.map((item) => {
+                    const Icon = getDevelopmentAmenityIcon(item.icon, `${item.label} ${item.description ?? ""}`);
+                    return (
+                      <div key={item.id} className="property-summary-grid-item" style={{ alignItems: "flex-start" }}>
+                        <Icon size={16} />
+                        <span style={{ display: "grid", gap: 2 }}>
+                          <strong style={{ fontWeight: 700 }}>{item.label}</strong>
+                          {item.description ? <small style={{ color: "var(--text-muted)" }}>{item.description}</small> : null}
+                          {!item.towerId ? <small style={{ color: "var(--text-muted)" }}>Disponível no complexo</small> : null}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </article>
+            ) : null}
 
             <article id="plantas" className="development-section development-section--feature">
               <span className="development-section-eyebrow">Plantas da torre</span>
@@ -285,6 +312,27 @@ export default async function DevelopmentTowerPage({
                       })}
                     </tbody>
                   </table>
+                </div>
+              </article>
+            ) : null}
+
+            {differentialItems.length ? (
+              <article id="diferenciais" className="development-section development-section--quiet">
+                <h2 className="development-section-title">Diferenciais da {tower.name}</h2>
+                <div className="development-stats-grid">
+                  {differentialItems.map((item) => {
+                    const Icon = getDevelopmentAmenityIcon(item.icon, `${item.label} ${item.description ?? ""}`);
+                    return (
+                      <div key={item.id} className="property-summary-grid-item" style={{ alignItems: "flex-start" }}>
+                        <Icon size={16} />
+                        <span style={{ display: "grid", gap: 2 }}>
+                          <strong style={{ fontWeight: 700 }}>{item.label}</strong>
+                          {item.description ? <small style={{ color: "var(--text-muted)" }}>{item.description}</small> : null}
+                          {!item.towerId ? <small style={{ color: "var(--text-muted)" }}>Diferencial do complexo</small> : null}
+                        </span>
+                      </div>
+                    );
+                  })}
                 </div>
               </article>
             ) : null}

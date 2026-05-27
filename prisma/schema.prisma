@@ -214,6 +214,11 @@ enum DevelopmentMediaCategory {
   OUTROS
 }
 
+enum DevelopmentAmenityType {
+  LAZER
+  DIFERENCIAL
+}
+
 enum DevelopmentLeadStatus {
   NOVO
   EM_ATENDIMENTO
@@ -516,6 +521,7 @@ model Development {
   unitTypes    DevelopmentUnitType[]
   units        DevelopmentUnit[]
   media        DevelopmentMedia[]
+  amenityItems DevelopmentAmenity[]
   milestones   DevelopmentMilestone[]
   faqs         DevelopmentFaq[]
   leads        Lead[]
@@ -550,6 +556,7 @@ model DevelopmentTower {
   unitTypes   DevelopmentUnitType[]
   units       DevelopmentUnit[]
   media       DevelopmentMedia[]
+  amenityItems DevelopmentAmenity[]
 
   @@unique([developmentId, slug])
   @@index([developmentId, position])
@@ -648,6 +655,26 @@ model DevelopmentMedia {
   @@index([developmentId, kind])
   @@index([towerId])
   @@index([unitTypeId])
+}
+
+model DevelopmentAmenity {
+  id            String                 @id @default(cuid())
+  developmentId String
+  towerId       String?
+  type          DevelopmentAmenityType @default(LAZER)
+  label         String
+  description   String?
+  icon          String?
+  isHighlighted Boolean                @default(true)
+  position      Int                    @default(0)
+  createdAt     DateTime               @default(now())
+  updatedAt     DateTime               @updatedAt
+
+  development Development       @relation(fields: [developmentId], references: [id], onDelete: Cascade)
+  tower       DevelopmentTower? @relation(fields: [towerId], references: [id], onDelete: SetNull)
+
+  @@index([developmentId, type, position])
+  @@index([towerId, type, position])
 }
 
 model DevelopmentMilestone {

@@ -27,6 +27,9 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
       units: {
         orderBy: [{ position: "asc" }, { floor: "asc" }, { unitNumber: "asc" }]
       },
+      amenityItems: {
+        orderBy: [{ type: "asc" }, { position: "asc" }]
+      },
       media: {
         orderBy: [{ isPrimary: "desc" }, { position: "asc" }]
       },
@@ -242,6 +245,21 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
       });
     })
   );
+
+  if (source.amenityItems.length) {
+    await prisma.developmentAmenity.createMany({
+      data: source.amenityItems.map((item) => ({
+        developmentId: duplicated.id,
+        towerId: item.towerId ? towerIdMap.get(item.towerId) ?? null : null,
+        type: item.type,
+        label: item.label,
+        description: item.description,
+        icon: item.icon,
+        isHighlighted: item.isHighlighted,
+        position: item.position
+      }))
+    });
+  }
 
   if (source.units.length) {
     await prisma.developmentUnit.createMany({

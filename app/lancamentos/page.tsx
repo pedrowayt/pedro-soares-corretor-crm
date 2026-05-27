@@ -88,7 +88,7 @@ export default async function LancamentosPage({
   const featureOptions = Array.from(
     new Set(
       allDevelopments
-        .flatMap((item) => [...item.amenities, ...item.differentials])
+        .flatMap((item) => [...item.amenities, ...item.differentials, ...item.amenityItems.map((amenity) => amenity.label)])
         .map((item) => item.trim())
         .filter(Boolean)
     )

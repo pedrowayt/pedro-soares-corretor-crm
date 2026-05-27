@@ -1,10 +1,11 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { createElement, useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import { slugify } from "@/lib/crm/slug";
 import { appreciationPotentialOptions, developmentStageOptions } from "@/lib/development-investment";
+import { developmentAmenityIconOptions, getDevelopmentAmenityIcon } from "@/lib/icons/development";
 import { applyWatermarkToImage } from "@/lib/media/watermark";
 
 const MAX_AI_UPLOAD_BYTES = 20 * 1024 * 1024;
@@ -52,6 +53,17 @@ type DevelopmentItem = {
   hasPatrimonyOfAffectation: boolean | null;
   amenities: string[];
   differentials: string[];
+  amenityItems: Array<{
+    id: string;
+    towerId: string | null;
+    towerName: string | null;
+    type: string;
+    label: string;
+    description: string | null;
+    icon: string | null;
+    isHighlighted: boolean;
+    position: number;
+  }>;
   projectText: string | null;
   apartmentsText: string | null;
   locationText: string | null;
@@ -265,6 +277,11 @@ const unitStatusOptions = [
   { value: "RESERVADA", label: "Reservada" },
   { value: "VENDIDA", label: "Vendida" },
   { value: "BLOQUEADA", label: "Bloqueada" }
+];
+
+const amenityTypeOptions = [
+  { value: "LAZER", label: "Lazer" },
+  { value: "DIFERENCIAL", label: "Diferencial" }
 ];
 
 const developmentPropertyTypeOptions = [
@@ -512,6 +529,14 @@ function mediaScopeLabel(media: Pick<DevelopmentItem["media"][number], "towerNam
   if (media.unitTypeName) return `Planta: ${media.unitTypeName}`;
   if (media.towerName) return `Torre: ${media.towerName}`;
   return "Geral do empreendimento";
+}
+
+function amenityTypeLabel(type: string) {
+  return amenityTypeOptions.find((item) => item.value === type)?.label ?? type;
+}
+
+function amenityScopeLabel(item: Pick<DevelopmentItem["amenityItems"][number], "towerName">) {
+  return item.towerName ? `Torre: ${item.towerName}` : "Geral do empreendimento";
 }
 
 function formatFileSize(bytes: number) {
@@ -937,6 +962,15 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
   const [mediaIsPrimary, setMediaIsPrimary] = useState(false);
   const [mediaTowerId, setMediaTowerId] = useState("");
   const [mediaUnitTypeId, setMediaUnitTypeId] = useState("");
+  const [amenityTowerId, setAmenityTowerId] = useState("");
+  const [amenityType, setAmenityType] = useState("LAZER");
+  const [amenityIcon, setAmenityIcon] = useState("pool");
+  const [amenityLabel, setAmenityLabel] = useState("");
+  const [amenityDescription, setAmenityDescription] = useState("");
+  const [amenityPosition, setAmenityPosition] = useState("0");
+  const [amenityIsHighlighted, setAmenityIsHighlighted] = useState(true);
+  const [amenitySubmitting, setAmenitySubmitting] = useState(false);
+  const [amenityMessage, setAmenityMessage] = useState("");
   const [aiText, setAiText] = useState("");
   const [aiSourceUrl, setAiSourceUrl] = useState("");
   const [aiFileName, setAiFileName] = useState("");
@@ -959,6 +993,18 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
     if (!mediaTowerId) return selected.unitTypes;
     return selected.unitTypes.filter((unitType) => !unitType.towerId || unitType.towerId === mediaTowerId);
   }, [mediaTowerId, selected]);
+  const amenityIconPreview = getDevelopmentAmenityIcon(amenityIcon, amenityLabel);
+  const amenityGroups = useMemo(() => {
+    if (!selected) return { general: [], byTower: [] };
+
+    return {
+      general: selected.amenityItems.filter((item) => !item.towerId),
+      byTower: selected.towers.map((tower) => ({
+        tower,
+        items: selected.amenityItems.filter((item) => item.towerId === tower.id)
+      }))
+    };
+  }, [selected]);
 
   function renderMediaScopeFields() {
     return (
@@ -1080,7 +1126,9 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
     setAiMediaCandidates([]);
     setAiMediaUploadingIndex(null);
     resetMediaForm();
+    resetAmenityForm();
     setMediaPosition(String(next?.media.length ?? 0));
+    setAmenityPosition(String(next?.amenityItems.length ?? 0));
   }
 
   function resetCreate() {
@@ -1097,6 +1145,8 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
     setAiMediaCandidates([]);
     setAiMediaUploadingIndex(null);
     resetMediaForm();
+    resetAmenityForm();
+    setAmenityPosition("0");
     setActiveTab("basic");
   }
 
@@ -1492,10 +1542,11 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
       if (mode === "create") {
         const data = await fetchJson("/api/crm/developments", "POST", payload);
         const created = data.data.development as DevelopmentItem;
-        setItems((prev) => [{ ...created, media: [], towers: [], unitTypes: [], units: [], milestones: [], faqs: [] }, ...prev]);
+        setItems((prev) => [{ ...created, amenityItems: [], media: [], towers: [], unitTypes: [], units: [], milestones: [], faqs: [] }, ...prev]);
         setSelectedId(created.id);
         setMode("edit");
         targetDevelopmentId = created.id;
+        setAmenityPosition("0");
       } else {
         const data = await fetchJson(`/api/crm/developments/${selectedId}`, "PATCH", payload);
         const updated = data.data.development as DevelopmentItem;
@@ -1973,6 +2024,184 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
       setSaveMessage(message);
       setMediaError(message);
     }
+  }
+
+  function resetAmenityForm() {
+    setAmenityTowerId("");
+    setAmenityType("LAZER");
+    setAmenityIcon("pool");
+    setAmenityLabel("");
+    setAmenityDescription("");
+    setAmenityPosition(String(selected?.amenityItems.length ?? 0));
+    setAmenityIsHighlighted(true);
+    setAmenityMessage("");
+  }
+
+  async function createAmenity() {
+    if (!selectedId) {
+      setAmenityMessage("Salve o empreendimento antes de adicionar lazer ou diferencial.");
+      return;
+    }
+
+    if (!amenityLabel.trim()) {
+      setAmenityMessage("Informe o nome do item antes de adicionar.");
+      return;
+    }
+
+    setAmenitySubmitting(true);
+    setSaveStatus("saving");
+    setAmenityMessage("");
+
+    try {
+      const data = await fetchJson(`/api/crm/developments/${selectedId}/amenities`, "POST", {
+        towerId: amenityTowerId || undefined,
+        type: amenityType,
+        label: amenityLabel,
+        description: optionalString(amenityDescription),
+        icon: amenityIcon || undefined,
+        isHighlighted: amenityIsHighlighted,
+        position: parseNumber(amenityPosition)
+      });
+
+      const rawAmenity = data.data.amenity as DevelopmentItem["amenityItems"][number];
+      const createdAmenity: DevelopmentItem["amenityItems"][number] = {
+        ...rawAmenity,
+        towerId: (rawAmenity.towerId ?? amenityTowerId) || null,
+        towerName: selected?.towers.find((tower) => tower.id === (rawAmenity.towerId ?? amenityTowerId))?.name ?? rawAmenity.towerName ?? null,
+        description: rawAmenity.description ?? optionalString(amenityDescription) ?? null,
+        icon: rawAmenity.icon ?? amenityIcon ?? null,
+        isHighlighted: rawAmenity.isHighlighted ?? amenityIsHighlighted,
+        position: rawAmenity.position ?? parseNumber(amenityPosition) ?? 0
+      };
+
+      setItems((prev) =>
+        prev.map((item) =>
+          item.id === selectedId
+            ? {
+                ...item,
+                amenityItems: [...item.amenityItems, createdAmenity].sort((a, b) => a.position - b.position)
+              }
+            : item
+        )
+      );
+
+      setSaveStatus("success");
+      setSaveMessage("Item de lazer/diferencial adicionado.");
+      setAmenityMessage("Item adicionado.");
+      setAmenityLabel("");
+      setAmenityDescription("");
+      setAmenityPosition(String((selected?.amenityItems.length ?? 0) + 1));
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Falha ao adicionar lazer/diferencial.";
+      setSaveStatus("error");
+      setSaveMessage(message);
+      setAmenityMessage(message);
+    } finally {
+      setAmenitySubmitting(false);
+    }
+  }
+
+  async function deleteAmenity(amenityId: string) {
+    if (!selectedId) return;
+    if (!window.confirm("Excluir este item de lazer/diferencial?")) return;
+
+    setAmenitySubmitting(true);
+    setSaveStatus("saving");
+    setAmenityMessage("");
+
+    try {
+      await fetchJson(`/api/crm/developments/${selectedId}/amenities/${amenityId}`, "DELETE");
+
+      setItems((prev) =>
+        prev.map((item) =>
+          item.id === selectedId
+            ? { ...item, amenityItems: item.amenityItems.filter((amenity) => amenity.id !== amenityId) }
+            : item
+        )
+      );
+
+      setSaveStatus("success");
+      setSaveMessage("Item de lazer/diferencial excluído.");
+      setAmenityMessage("Item excluído.");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Falha ao excluir lazer/diferencial.";
+      setSaveStatus("error");
+      setSaveMessage(message);
+      setAmenityMessage(message);
+    } finally {
+      setAmenitySubmitting(false);
+    }
+  }
+
+  function renderAmenityCards(items: DevelopmentItem["amenityItems"]) {
+    if (!items.length) {
+      return (
+        <p className="text-card" style={{ margin: 0, color: "var(--text-muted)" }}>
+          Nenhum item cadastrado neste escopo.
+        </p>
+      );
+    }
+
+    return (
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(230px, 1fr))", gap: 10 }}>
+        {items
+          .slice()
+          .sort((a, b) => a.position - b.position)
+          .map((item) => {
+            const Icon = getDevelopmentAmenityIcon(item.icon, `${item.label} ${item.description ?? ""}`);
+            return (
+              <div
+                key={item.id}
+                style={{
+                  border: "1px solid #e2e8f0",
+                  borderRadius: 8,
+                  padding: 10,
+                  display: "grid",
+                  gap: 8,
+                  background: "#ffffff"
+                }}
+              >
+                <div style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
+                  <span
+                    style={{
+                      width: 36,
+                      height: 36,
+                      borderRadius: 8,
+                      display: "grid",
+                      placeItems: "center",
+                      color: "#1f3149",
+                      background: "#f1f5f9",
+                      flex: "0 0 auto"
+                    }}
+                  >
+                    <Icon size={19} />
+                  </span>
+                  <div style={{ minWidth: 0 }}>
+                    <strong style={{ display: "block", color: "#1f3149", fontSize: "var(--fs-13)" }}>{item.label}</strong>
+                    <span style={{ display: "block", color: "#64748b", fontSize: "var(--fs-12)" }}>
+                      {amenityTypeLabel(item.type)} · {amenityScopeLabel(item)} · ordem {item.position}
+                    </span>
+                  </div>
+                </div>
+                {item.description ? (
+                  <p className="text-card" style={{ margin: 0, color: "#526174", fontSize: "var(--fs-12)" }}>
+                    {item.description}
+                  </p>
+                ) : null}
+                <button
+                  type="button"
+                  className="button button-ghost"
+                  onClick={() => deleteAmenity(item.id)}
+                  disabled={amenitySubmitting || saveStatus === "saving"}
+                  style={{ justifySelf: "start", padding: "0.4rem 0.7rem", color: "#b3261e", fontSize: "var(--fs-12)" }}
+                >
+                  Excluir
+                </button>
+              </div>
+            );
+          })}
+      </div>
+    );
   }
 
   async function handleDirectUpload() {
@@ -2895,8 +3124,144 @@ export function DevelopmentForms({ developments, builders }: { developments: Dev
 
           {activeTab === "amenities" ? (
             <>
-              <div><label>Lazer (1 por linha)</label><textarea value={form.amenitiesText} onChange={(e) => updateField("amenitiesText", e.target.value)} /></div>
-              <div><label>Diferenciais (1 por linha)</label><textarea value={form.differentialsText} onChange={(e) => updateField("differentialsText", e.target.value)} /></div>
+              <div style={{ gridColumn: "1 / -1", display: "grid", gap: 14 }}>
+                <div
+                  style={{
+                    border: "1px solid #dbe4f0",
+                    borderRadius: 10,
+                    background: "#f8fbff",
+                    padding: 12,
+                    display: "grid",
+                    gap: 6
+                  }}
+                >
+                  <strong style={{ color: "#1f3149" }}>Cadastro com ícones e escopo</strong>
+                  <p className="text-card" style={{ margin: 0, color: "#526174" }}>
+                    Use Geral do empreendimento para itens do complexo inteiro. Se o lazer ou diferencial for exclusivo de uma torre, selecione a torre antes de adicionar.
+                  </p>
+                </div>
+
+                <div className="form-grid" style={{ border: "1px solid var(--border)", borderRadius: 8, padding: 12, background: "#ffffff" }}>
+                  <div>
+                    <label>Tipo do item</label>
+                    <select value={amenityType} onChange={(event) => setAmenityType(event.target.value)}>
+                      {amenityTypeOptions.map((item) => (
+                        <option key={item.value} value={item.value}>{item.label}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label>Escopo</label>
+                    <select value={amenityTowerId} onChange={(event) => setAmenityTowerId(event.target.value)} disabled={!selected?.towers.length}>
+                      <option value="">Geral do empreendimento</option>
+                      {selected?.towers.map((tower) => (
+                        <option key={tower.id} value={tower.id}>{tower.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label>Ícone</label>
+                    <div style={{ display: "grid", gridTemplateColumns: "42px minmax(0, 1fr)", gap: 8, alignItems: "center" }}>
+                      <span
+                        style={{
+                          width: 42,
+                          height: 42,
+                          borderRadius: 8,
+                          display: "grid",
+                          placeItems: "center",
+                          border: "1px solid #dbe4f0",
+                          color: "#1f3149",
+                          background: "#f8fafc"
+                        }}
+                      >
+                        {createElement(amenityIconPreview, { size: 21 })}
+                      </span>
+                      <select value={amenityIcon} onChange={(event) => setAmenityIcon(event.target.value)}>
+                        {developmentAmenityIconOptions.map((item) => (
+                          <option key={item.value} value={item.value}>{item.label}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                  <div>
+                    <label>Nome do item</label>
+                    <input value={amenityLabel} onChange={(event) => setAmenityLabel(event.target.value)} placeholder="Piscina com borda infinita" />
+                  </div>
+                  <div style={{ gridColumn: "1 / -1" }}>
+                    <label>Descrição complementar</label>
+                    <textarea
+                      value={amenityDescription}
+                      onChange={(event) => setAmenityDescription(event.target.value)}
+                      placeholder="Ex.: frente lago, exclusivo por torre, mobiliário assinado..."
+                    />
+                  </div>
+                  <div><label>Ordem</label><input type="number" min={0} value={amenityPosition} onChange={(event) => setAmenityPosition(event.target.value)} /></div>
+                  <label style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                    <input type="checkbox" checked={amenityIsHighlighted} onChange={(event) => setAmenityIsHighlighted(event.target.checked)} style={{ width: 16, height: 16 }} />
+                    <span className="text-card">Exibir na página pública</span>
+                  </label>
+                  <div style={{ gridColumn: "1 / -1", display: "flex", gap: 8, flexWrap: "wrap" }}>
+                    <button
+                      type="button"
+                      className="button button-primary"
+                      onClick={createAmenity}
+                      disabled={amenitySubmitting || !selectedId}
+                      title={!selectedId ? "Salve o empreendimento antes de adicionar itens." : undefined}
+                    >
+                      {amenitySubmitting ? "Adicionando..." : "Adicionar item"}
+                    </button>
+                    <button type="button" className="button button-ghost" onClick={resetAmenityForm} disabled={amenitySubmitting}>
+                      Limpar
+                    </button>
+                  </div>
+                  {amenityMessage ? (
+                    <div
+                      role="status"
+                      style={{
+                        gridColumn: "1 / -1",
+                        padding: 10,
+                        borderRadius: 8,
+                        border: amenityMessage.includes("Falha") || amenityMessage.includes("Informe") ? "1px solid #fecaca" : "1px solid #a7f3d0",
+                        background: amenityMessage.includes("Falha") || amenityMessage.includes("Informe") ? "#fef2f2" : "#ecfdf5",
+                        color: amenityMessage.includes("Falha") || amenityMessage.includes("Informe") ? "#991b1b" : "#065f46",
+                        fontSize: "var(--fs-12)"
+                      }}
+                    >
+                      {amenityMessage}
+                    </div>
+                  ) : null}
+                </div>
+
+                <div style={{ display: "grid", gap: 12 }}>
+                  <strong className="text-card">Itens cadastrados</strong>
+                  {!selectedId ? (
+                    <p className="text-card" style={{ margin: 0, color: "var(--text-muted)" }}>
+                      Salve o empreendimento para cadastrar itens com ícones e vínculo por torre.
+                    </p>
+                  ) : (
+                    <>
+                      <section style={{ display: "grid", gap: 8 }}>
+                        <strong style={{ color: "#1f3149", fontSize: "var(--fs-13)" }}>Geral do empreendimento</strong>
+                        {renderAmenityCards(amenityGroups.general)}
+                      </section>
+                      {amenityGroups.byTower.map(({ tower, items: towerItems }) => (
+                        <section key={tower.id} style={{ display: "grid", gap: 8 }}>
+                          <strong style={{ color: "#1f3149", fontSize: "var(--fs-13)" }}>{tower.name}</strong>
+                          {renderAmenityCards(towerItems)}
+                        </section>
+                      ))}
+                    </>
+                  )}
+                </div>
+
+                <details style={{ border: "1px solid #e2e8f0", borderRadius: 8, padding: 12, background: "#fcfdff" }}>
+                  <summary style={{ cursor: "pointer", color: "#1f3149", fontWeight: 700 }}>Listas simples antigas</summary>
+                  <div className="form-grid" style={{ marginTop: 12 }}>
+                    <div><label>Lazer (1 por linha)</label><textarea value={form.amenitiesText} onChange={(e) => updateField("amenitiesText", e.target.value)} /></div>
+                    <div><label>Diferenciais (1 por linha)</label><textarea value={form.differentialsText} onChange={(e) => updateField("differentialsText", e.target.value)} /></div>
+                  </div>
+                </details>
+              </div>
             </>
           ) : null}
 
