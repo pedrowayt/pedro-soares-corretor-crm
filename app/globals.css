@@ -1855,6 +1855,78 @@ body:has(.admin-login-page) .cookie-consent-banner {
   fill: #17120e;
 }
 
+.site-footer-seo {
+  position: relative;
+  z-index: 1;
+  border-top: 1px solid rgba(23, 18, 14, 0.18);
+  padding: 22px 0 10px;
+}
+
+.site-footer-seo .container {
+  display: grid;
+  gap: 16px;
+}
+
+.site-footer-seo-head {
+  display: grid;
+  gap: 4px;
+}
+
+.site-footer-seo-head h2 {
+  margin: 0;
+  color: #17120e;
+  font-size: var(--fs-16);
+  font-weight: 800;
+}
+
+.site-footer-seo-head p {
+  margin: 0;
+  color: rgba(23, 18, 14, 0.78);
+  font-size: var(--fs-13);
+  font-weight: 600;
+}
+
+.site-footer-seo-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 14px 22px;
+}
+
+.site-footer-seo-group {
+  min-width: 0;
+}
+
+.site-footer-seo-group h3 {
+  margin: 0 0 8px;
+  color: #1a120a;
+  font-size: var(--fs-12);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.site-footer-seo-group ul {
+  display: grid;
+  gap: 7px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.site-footer-seo-group a {
+  color: #17120e;
+  font-size: var(--fs-13);
+  font-weight: 600;
+  line-height: 1.35;
+  border-bottom: 1px solid transparent;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.site-footer-seo-group a:hover {
+  color: #0f223d;
+  border-bottom-color: rgba(15, 34, 61, 0.42);
+}
+
 .cookie-consent-banner {
   position: fixed;
   left: 14px;
@@ -4715,6 +4787,19 @@ body:has(.admin-login-page) .cookie-consent-banner {
     justify-content: center;
   }
 
+  .site-footer-seo {
+    padding-top: 18px;
+  }
+
+  .site-footer-seo-head {
+    justify-items: center;
+    text-align: center;
+  }
+
+  .site-footer-seo-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
   .property-review-grid {
     grid-template-columns: 1fr 1fr;
   }
@@ -5149,6 +5234,50 @@ body:has(.admin-login-page) .cookie-consent-banner {
     font-size: var(--fs-12);
     font-weight: 600;
     justify-self: center;
+  }
+
+  .site-footer-seo {
+    padding-top: 16px;
+  }
+
+  .site-footer-seo .container {
+    gap: 14px;
+  }
+
+  .site-footer-seo-head h2 {
+    font-size: var(--fs-15);
+  }
+
+  .site-footer-seo-head p {
+    font-size: var(--fs-12);
+  }
+
+  .site-footer-seo-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    text-align: center;
+  }
+
+  .site-footer-seo-group {
+    padding-top: 10px;
+    border-top: 1px solid rgba(23, 18, 14, 0.14);
+  }
+
+  .site-footer-seo-group:first-child {
+    padding-top: 0;
+    border-top: 0;
+  }
+
+  .site-footer-seo-group ul {
+    gap: 2px;
+  }
+
+  .site-footer-seo-group a {
+    min-height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--fs-12);
   }
 
   .cookie-consent-banner {

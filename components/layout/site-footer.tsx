@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { OpenCookieSettingsButton } from "@/components/layout/open-cookie-settings-button";
+import { SeoFooterLinks } from "@/components/layout/seo-footer-links";
 
 export function SiteFooter() {
   const year = new Date().getFullYear();
@@ -74,6 +75,8 @@ export function SiteFooter() {
           </div>
         </div>
       </div>
+
+      <SeoFooterLinks />
 
       <div className="container site-footer-bottom">
         <p>© {year} Pedro Soares. Todos os direitos reservados.</p>
