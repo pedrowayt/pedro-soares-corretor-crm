@@ -12,6 +12,7 @@ const crmMenu = [
   { href: "/crm/propostas", label: "Propostas" },
   { href: "/crm/tarefas", label: "Tarefas" },
   { href: "/crm/paginas-seo", label: "Páginas SEO" },
+  { href: "/crm/blog", label: "Blog" },
   { href: "/crm/relatorios", label: "Relatórios" },
   { href: "/crm/configuracoes", label: "Configurações" }
 ];

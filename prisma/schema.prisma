@@ -282,6 +282,7 @@ model User {
   auditLogs     AuditLog[]
   crmSessions   CrmSession[]
   loginAttempts LoginAttempt[]
+  blogPosts     BlogPost[]             @relation("BlogPostAuthor")
 }
 
 model CrmSession {
@@ -944,4 +945,42 @@ model SeoLandingPage {
 
   @@index([status])
   @@index([city, district])
+}
+
+enum BlogStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum BlogSource {
+  MANUAL
+  AI_GENERATED
+}
+
+model BlogPost {
+  id            String     @id @default(cuid())
+  slug          String     @unique
+  title         String
+  excerpt       String
+  coverImageUrl String?
+  bodyMarkdown  String
+  status        BlogStatus @default(DRAFT)
+  source        BlogSource @default(MANUAL)
+  authorId      String?
+  author        User?      @relation("BlogPostAuthor", fields: [authorId], references: [id])
+  tags          BlogTag[]  @relation("BlogPostTags")
+  publishedAt   DateTime?
+  views         Int        @default(0)
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  @@index([status, publishedAt])
+}
+
+model BlogTag {
+  id    String     @id @default(cuid())
+  slug  String     @unique
+  label String
+  posts BlogPost[] @relation("BlogPostTags")
 }

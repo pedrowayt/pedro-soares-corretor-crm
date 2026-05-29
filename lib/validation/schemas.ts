@@ -1,4 +1,6 @@
 import {
+  BlogSource,
+  BlogStatus,
   DevelopmentAmenityType,
   DevelopmentLeadStatus,
   DevelopmentMediaCategory,
@@ -423,3 +425,16 @@ export const crmCreateSeoLandingPageSchema = z.object({
 });
 
 export const crmUpdateSeoLandingPageSchema = crmCreateSeoLandingPageSchema.partial();
+
+export const crmCreateBlogPostSchema = z.object({
+  title: z.string().min(4),
+  slug: z.string().min(3).regex(/^[a-z0-9-]+$/, "Slug deve usar minúsculas, números e hífens."),
+  excerpt: z.string().min(20).max(280),
+  coverImageUrl: z.string().url().optional().nullable(),
+  bodyMarkdown: z.string().min(80),
+  status: z.nativeEnum(BlogStatus).default(BlogStatus.DRAFT),
+  source: z.nativeEnum(BlogSource).default(BlogSource.MANUAL),
+  tagSlugs: z.array(z.string().min(1)).default([])
+});
+
+export const crmUpdateBlogPostSchema = crmCreateBlogPostSchema.partial();
