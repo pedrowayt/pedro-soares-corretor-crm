@@ -1,11 +1,9 @@
 import { PropertyPurpose, PropertyStatus, PropertyType } from "@prisma/client";
 import Link from "next/link";
-import { developmentPublicStageLabels, listHighlightedDevelopments } from "@/lib/data/developments";
+import { listHighlightedDevelopments } from "@/lib/data/developments";
 import { getDevelopmentStageLabel } from "@/lib/development-investment";
 import { listPublicProperties } from "@/lib/data/properties";
 import { formatCurrencyBRL } from "@/lib/utils";
-
-type SearchMode = "prontos" | "planta" | "leilao";
 
 type HomePropertyCard = {
   id: string;
@@ -231,24 +229,11 @@ function buildCategoryCards(properties: HomePropertyCard[]) {
   );
 }
 
-function getSearchMode(modeInput: string | string[] | undefined): SearchMode {
-  if (modeInput === "planta") return "planta";
-  if (modeInput === "leilao") return "leilao";
-  return "prontos";
-}
-
 function formatCountLabel(count: number, singular: string, plural: string) {
   return `${count} ${count === 1 ? singular : plural}`;
 }
 
-export default async function HomePage({
-  searchParams
-}: {
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
-}) {
-  const filters = await searchParams;
-  const searchMode = getSearchMode(filters.mode);
-
+export default async function HomePage() {
   const [propertiesRaw, developmentsRaw] = await Promise.all([
     listPublicProperties(),
     listHighlightedDevelopments(8)
@@ -267,12 +252,6 @@ export default async function HomePage({
   const categoryCards = buildCategoryCards(readySaleCards);
   const areaCards = buildAreaCards(readySaleCards);
 
-  const modeTabs: Array<{ key: SearchMode; label: string }> = [
-    { key: "prontos", label: "Imóveis prontos" },
-    { key: "planta", label: "Imóveis na planta" },
-    { key: "leilao", label: "Imóveis leilão" }
-  ];
-
   return (
     <>
       <section className="wp-hero">
@@ -280,109 +259,63 @@ export default async function HomePage({
         <div className="wp-hero-overlay" />
 
         <div className="container wp-hero-content">
-          <p className="wp-hero-eyebrow">Pedro Soares • Imóveis prontos, na planta e especialista em leilões</p>
+          <p className="wp-hero-eyebrow">Pedro Soares • Especialista em imóveis em Palmas</p>
 
-          <div className="wp-search-tabs" role="tablist" aria-label="Tipos de busca">
-            {modeTabs.map((tab) => (
-              <Link
-                key={tab.key}
-                href={`/?mode=${tab.key}`}
-                className={`wp-search-tab ${searchMode === tab.key ? "active" : ""}`}
-              >
-                {tab.label}
-              </Link>
-            ))}
-          </div>
+          <form className="wp-search-panel" action="/imoveis/prontos" method="GET">
+            <div>
+              <label htmlFor="purpose">Finalidade</label>
+              <select id="purpose" name="purpose" defaultValue="VENDA">
+                <option value="VENDA">Venda</option>
+                <option value="LOCACAO">Locação</option>
+                <option value="INVESTIMENTO">Investimento</option>
+              </select>
+            </div>
+            <div>
+              <label htmlFor="type">Tipo</label>
+              <select id="type" name="type" defaultValue="">
+                <option value="">Todos</option>
+                <option value="CASA">Casa</option>
+                <option value="APARTAMENTO">Apartamento</option>
+                <option value="LOTE">Lote</option>
+                <option value="COMERCIAL">Comercial</option>
+                <option value="RURAL">Rural</option>
+              </select>
+            </div>
+            <button type="submit" className="button button-primary">
+              Buscar
+            </button>
 
-          {searchMode === "planta" ? (
-            <form className="wp-search-panel" action="/lancamentos" method="GET">
-              <div>
-                <label htmlFor="district">Bairro</label>
-                <input id="district" name="district" placeholder="Plano Diretor Sul" />
-              </div>
-              <div>
-                <label htmlFor="maxPrice">Preço inicial até</label>
-                <input id="maxPrice" name="maxPrice" type="number" placeholder="900000" />
-              </div>
-              <button type="submit" className="button button-primary">
-                Buscar
-              </button>
-
-              <details className="wp-search-advanced">
-                <summary>Mais filtros</summary>
-                <div className="wp-search-advanced-content">
-                  <div>
-                    <label htmlFor="publicStage">Status</label>
-                    <select id="publicStage" name="publicStage" defaultValue="">
-                      <option value="">Todos</option>
-                      {Object.entries(developmentPublicStageLabels).map(([value, label]) => (
-                        <option key={value} value={value}>
-                          {label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label htmlFor="minPrice">Preço inicial a partir de</label>
-                    <input id="minPrice" name="minPrice" type="number" placeholder="300000" />
-                  </div>
-                  <div>
-                    <label htmlFor="bedrooms">Quartos</label>
-                    <input id="bedrooms" name="bedrooms" type="number" min={1} placeholder="2" />
-                  </div>
+            <details className="wp-search-advanced">
+              <summary>Mais filtros</summary>
+              <div className="wp-search-advanced-content">
+                <div>
+                  <label htmlFor="district-ready">Bairro ou região</label>
+                  <input id="district-ready" name="district" placeholder="Plano Diretor Sul" />
                 </div>
-              </details>
-            </form>
-          ) : (
-            <form className="wp-search-panel" action={searchMode === "leilao" ? "/imoveis/leilao" : "/imoveis/prontos"} method="GET">
-              {searchMode !== "leilao" ? <input type="hidden" name="purpose" value="VENDA" /> : null}
-              <div>
-                <label htmlFor="district-ready">Região</label>
-                <input id="district-ready" name="district" placeholder="Bairro ou região" />
-              </div>
-              <div>
-                <label htmlFor="maxPrice-ready">Preço até</label>
-                <input id="maxPrice-ready" name="maxPrice" type="number" placeholder="1200000" />
-              </div>
-              <button type="submit" className="button button-primary">
-                Buscar
-              </button>
-
-              <details className="wp-search-advanced">
-                <summary>Mais filtros</summary>
-                <div className="wp-search-advanced-content">
-                  <div>
-                    <label htmlFor="type">Tipo</label>
-                    <select id="type" name="type" defaultValue="">
-                      <option value="">Todos</option>
-                      <option value="CASA">Casa</option>
-                      <option value="APARTAMENTO">Apartamento</option>
-                      <option value="LOTE">Lote</option>
-                      <option value="COMERCIAL">Comercial</option>
-                      <option value="RURAL">Rural</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label htmlFor="bedrooms-ready">Quartos</label>
-                    <input id="bedrooms-ready" name="bedrooms" type="number" min={0} placeholder="3" />
-                  </div>
-                  <div>
-                    <label htmlFor="area-ready">Metragem mínima</label>
-                    <input id="area-ready" name="minAreaM2" type="number" min={0} placeholder="80" />
-                  </div>
+                <div>
+                  <label htmlFor="maxPrice-ready">Preço até</label>
+                  <input id="maxPrice-ready" name="maxPrice" type="number" placeholder="1200000" />
                 </div>
-              </details>
-            </form>
-          )}
+                <div>
+                  <label htmlFor="bedrooms-ready">Quartos</label>
+                  <input id="bedrooms-ready" name="bedrooms" type="number" min={0} placeholder="3" />
+                </div>
+                <div>
+                  <label htmlFor="area-ready">Metragem mínima</label>
+                  <input id="area-ready" name="minAreaM2" type="number" min={0} placeholder="80" />
+                </div>
+              </div>
+            </details>
+          </form>
         </div>
       </section>
 
       <section className="section wp-soft-section">
         <div className="container">
           <div className="wp-section-head">
-            <h2 className="section-title">Imóveis por região</h2>
+            <h2 className="section-title">Bairros em destaque</h2>
             <p className="section-subtitle text-card">
-              Selecione bairros com maior oferta e oportunidades de negociação em Palmas.
+              Bairros com maior oferta e oportunidades de negociação em Palmas.
             </p>
           </div>
           {areaCards.length ? (
@@ -420,7 +353,6 @@ export default async function HomePage({
           </div>
           <div className="wp-type-switches" style={{ marginTop: 18 }}>
             <Link href="/palmas-to/imoveis-na-planta" className="wp-type-chip">Imóveis na Planta em Palmas</Link>
-            <Link href="/palmas-to/imoveis-prontos" className="wp-type-chip">Imóveis Prontos em Palmas</Link>
             <Link href="/palmas-to/imoveis-leilao" className="wp-type-chip">Imóveis de Leilão em Palmas</Link>
             <Link href="/palmas-to/plano-diretor-sul/imoveis" className="wp-type-chip">Plano Diretor Sul</Link>
             <Link href="/palmas-to/plano-diretor-norte/imoveis" className="wp-type-chip">Plano Diretor Norte</Link>
@@ -496,20 +428,8 @@ export default async function HomePage({
       <section className="section" style={{ paddingTop: 24 }}>
         <div className="container">
           <div className="wp-section-head">
-            <h2 className="section-title">Últimos imóveis à venda</h2>
+            <h2 className="section-title">Imóveis em destaque</h2>
             <p className="section-subtitle text-card">Novos anúncios e ativos com melhor momento comercial.</p>
-          </div>
-
-          <div className="wp-type-switches">
-            <Link href="/?mode=prontos" className={`wp-type-chip ${searchMode === "prontos" ? "active" : ""}`}>
-              Imóveis prontos
-            </Link>
-            <Link href="/?mode=planta" className={`wp-type-chip ${searchMode === "planta" ? "active" : ""}`}>
-              Imóveis na planta
-            </Link>
-            <Link href="/?mode=leilao" className={`wp-type-chip ${searchMode === "leilao" ? "active" : ""}`}>
-              Imóveis leilão
-            </Link>
           </div>
 
           {latestProperties.length ? (
@@ -586,7 +506,7 @@ export default async function HomePage({
           ) : (
             <article className="card" style={{ padding: 16 }}>
               <p className="text-card" style={{ margin: 0, color: "var(--text-muted)" }}>
-                Nenhuma categoria com imóveis prontos à venda no backend.
+                Nenhuma categoria com imóveis à venda no backend.
               </p>
             </article>
           )}
@@ -652,7 +572,7 @@ export default async function HomePage({
           <div className="wp-section-head">
             <h2 className="section-title">Nossa equipe</h2>
             <p className="section-subtitle text-card">
-              Atendimento consultivo em imóvel pronto, lançamentos e leilões com padrão comercial único.
+              Atendimento consultivo em imóveis, lançamentos e leilões com padrão comercial único.
             </p>
           </div>
 
