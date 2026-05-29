@@ -50,12 +50,69 @@ export function BlogPostForm({ initial }: Props) {
   const [tagsInput, setTagsInput] = useState(initial?.tagSlugs?.join(", ") ?? "");
   const [saving, setSaving] = useState(false);
   const [generating, setGenerating] = useState(false);
+  const [generatingImage, setGeneratingImage] = useState(false);
   const [uploadingCover, setUploadingCover] = useState(false);
   const [sourceText, setSourceText] = useState("");
   const coverFileRef = useRef<HTMLInputElement | null>(null);
   const [feedback, setFeedback] = useState<{ kind: "success" | "error"; message: string } | null>(
     null
   );
+
+  async function handleGenerateImage() {
+    if (!title.trim() && !excerpt.trim() && !sourceText.trim()) {
+      setFeedback({
+        kind: "error",
+        message: "Preencha o título, resumo ou cole um texto/URL fonte antes de gerar a imagem."
+      });
+      return;
+    }
+    if (coverImageUrl.trim() && !confirm("Isso vai substituir a capa atual. Continuar?")) {
+      return;
+    }
+
+    setGeneratingImage(true);
+    setFeedback(null);
+    try {
+      const response = await fetch("/api/crm/blog/ai-image", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          sourceText: sourceText.trim() || undefined,
+          title: title.trim() || undefined,
+          excerpt: excerpt.trim() || undefined,
+          tagLabels: tagsInput
+            .split(",")
+            .map((part) => part.trim())
+            .filter(Boolean)
+        })
+      });
+      const json = await response.json().catch(() => null);
+
+      if (!response.ok || !json?.success) {
+        const message = json?.error?.message ?? "Não foi possível gerar a imagem.";
+        setFeedback({ kind: "error", message });
+        return;
+      }
+
+      const image = json.data?.image;
+      if (!image?.imageUrl) {
+        setFeedback({ kind: "error", message: "A API não retornou URL de imagem." });
+        return;
+      }
+      setCoverImageUrl(image.imageUrl);
+      setFeedback({
+        kind: "success",
+        message:
+          image.strategy === "og"
+            ? "Capa extraída da URL fonte (og:image)."
+            : "Capa gerada com IA. Revise antes de salvar."
+      });
+    } catch {
+      setFeedback({ kind: "error", message: "Erro de rede ao gerar imagem." });
+    } finally {
+      setGeneratingImage(false);
+    }
+  }
 
   async function handleCoverUpload(file: File) {
     setUploadingCover(true);
@@ -354,12 +411,21 @@ export function BlogPostForm({ initial }: Props) {
             id="blog-cover-file"
             type="file"
             accept="image/*"
-            disabled={uploadingCover}
+            disabled={uploadingCover || generatingImage}
             onChange={(event) => {
               const file = event.target.files?.[0];
               if (file) void handleCoverUpload(file);
             }}
           />
+          <button
+            type="button"
+            className="button button-ghost"
+            onClick={handleGenerateImage}
+            disabled={generatingImage || uploadingCover || saving}
+            title="Se a fonte for URL, busca a capa original (og:image). Se for texto, gera com IA."
+          >
+            {generatingImage ? "Gerando..." : "Buscar/Gerar imagem"}
+          </button>
           {uploadingCover ? (
             <span style={{ color: "var(--text-muted)" }}>Enviando...</span>
           ) : null}
