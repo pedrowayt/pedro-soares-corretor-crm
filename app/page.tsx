@@ -1,9 +1,11 @@
 import { PropertyPurpose, PropertyStatus, PropertyType } from "@prisma/client";
 import Link from "next/link";
-import { listHighlightedDevelopments } from "@/lib/data/developments";
+import { developmentPublicStageLabels, listHighlightedDevelopments } from "@/lib/data/developments";
 import { getDevelopmentStageLabel } from "@/lib/development-investment";
 import { listPublicProperties } from "@/lib/data/properties";
 import { formatCurrencyBRL } from "@/lib/utils";
+
+type SearchMode = "geral" | "planta" | "leilao";
 
 type HomePropertyCard = {
   id: string;
@@ -233,7 +235,20 @@ function formatCountLabel(count: number, singular: string, plural: string) {
   return `${count} ${count === 1 ? singular : plural}`;
 }
 
-export default async function HomePage() {
+function getSearchMode(modeInput: string | string[] | undefined): SearchMode {
+  if (modeInput === "planta") return "planta";
+  if (modeInput === "leilao") return "leilao";
+  return "geral";
+}
+
+export default async function HomePage({
+  searchParams
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
+  const filters = await searchParams;
+  const searchMode = getSearchMode(filters.mode);
+
   const [propertiesRaw, developmentsRaw] = await Promise.all([
     listPublicProperties(),
     listHighlightedDevelopments(8)
@@ -261,52 +276,150 @@ export default async function HomePage() {
         <div className="container wp-hero-content">
           <p className="wp-hero-eyebrow">Pedro Soares • Especialista em imóveis em Palmas</p>
 
-          <form className="wp-search-panel" action="/imoveis/prontos" method="GET">
-            <div>
-              <label htmlFor="purpose">Finalidade</label>
-              <select id="purpose" name="purpose" defaultValue="VENDA">
-                <option value="VENDA">Venda</option>
-                <option value="LOCACAO">Locação</option>
-                <option value="INVESTIMENTO">Investimento</option>
-              </select>
-            </div>
-            <div>
-              <label htmlFor="type">Tipo</label>
-              <select id="type" name="type" defaultValue="">
-                <option value="">Todos</option>
-                <option value="CASA">Casa</option>
-                <option value="APARTAMENTO">Apartamento</option>
-                <option value="LOTE">Lote</option>
-                <option value="COMERCIAL">Comercial</option>
-                <option value="RURAL">Rural</option>
-              </select>
-            </div>
-            <button type="submit" className="button button-primary">
-              Buscar
-            </button>
+          <div className="wp-search-tabs" role="tablist" aria-label="Tipos de busca">
+            {(
+              [
+                { key: "geral", label: "Busca Geral" },
+                { key: "planta", label: "Imóveis na Planta" },
+                { key: "leilao", label: "Imóveis Leilão" }
+              ] as Array<{ key: SearchMode; label: string }>
+            ).map((tab) => (
+              <Link
+                key={tab.key}
+                href={`/?mode=${tab.key}`}
+                className={`wp-search-tab ${searchMode === tab.key ? "active" : ""}`}
+              >
+                {tab.label}
+              </Link>
+            ))}
+          </div>
 
-            <details className="wp-search-advanced">
-              <summary>Mais filtros</summary>
-              <div className="wp-search-advanced-content">
-                <div>
-                  <label htmlFor="district-ready">Bairro ou região</label>
-                  <input id="district-ready" name="district" placeholder="Plano Diretor Sul" />
-                </div>
-                <div>
-                  <label htmlFor="maxPrice-ready">Preço até</label>
-                  <input id="maxPrice-ready" name="maxPrice" type="number" placeholder="1200000" />
-                </div>
-                <div>
-                  <label htmlFor="bedrooms-ready">Quartos</label>
-                  <input id="bedrooms-ready" name="bedrooms" type="number" min={0} placeholder="3" />
-                </div>
-                <div>
-                  <label htmlFor="area-ready">Metragem mínima</label>
-                  <input id="area-ready" name="minAreaM2" type="number" min={0} placeholder="80" />
-                </div>
+          {searchMode === "planta" ? (
+            <form className="wp-search-panel" action="/lancamentos" method="GET">
+              <div>
+                <label htmlFor="district">Bairro</label>
+                <input id="district" name="district" placeholder="Plano Diretor Sul" />
               </div>
-            </details>
-          </form>
+              <div>
+                <label htmlFor="maxPrice">Preço inicial até</label>
+                <input id="maxPrice" name="maxPrice" type="number" placeholder="900000" />
+              </div>
+              <button type="submit" className="button button-primary">
+                Buscar
+              </button>
+
+              <details className="wp-search-advanced">
+                <summary>Mais filtros</summary>
+                <div className="wp-search-advanced-content">
+                  <div>
+                    <label htmlFor="publicStage">Status</label>
+                    <select id="publicStage" name="publicStage" defaultValue="">
+                      <option value="">Todos</option>
+                      {Object.entries(developmentPublicStageLabels).map(([value, label]) => (
+                        <option key={value} value={value}>
+                          {label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label htmlFor="minPrice">Preço inicial a partir de</label>
+                    <input id="minPrice" name="minPrice" type="number" placeholder="300000" />
+                  </div>
+                  <div>
+                    <label htmlFor="bedrooms">Quartos</label>
+                    <input id="bedrooms" name="bedrooms" type="number" min={1} placeholder="2" />
+                  </div>
+                </div>
+              </details>
+            </form>
+          ) : searchMode === "leilao" ? (
+            <form className="wp-search-panel" action="/imoveis/leilao" method="GET">
+              <div>
+                <label htmlFor="district-auction">Região</label>
+                <input id="district-auction" name="district" placeholder="Bairro ou região" />
+              </div>
+              <div>
+                <label htmlFor="type-auction">Tipo</label>
+                <select id="type-auction" name="type" defaultValue="">
+                  <option value="">Todos</option>
+                  <option value="CASA">Casa</option>
+                  <option value="APARTAMENTO">Apartamento</option>
+                  <option value="LOTE">Lote</option>
+                  <option value="COMERCIAL">Comercial</option>
+                  <option value="RURAL">Rural</option>
+                </select>
+              </div>
+              <button type="submit" className="button button-primary">
+                Buscar
+              </button>
+
+              <details className="wp-search-advanced">
+                <summary>Mais filtros</summary>
+                <div className="wp-search-advanced-content">
+                  <div>
+                    <label htmlFor="maxPrice-auction">Preço até</label>
+                    <input id="maxPrice-auction" name="maxPrice" type="number" placeholder="800000" />
+                  </div>
+                  <div>
+                    <label htmlFor="bedrooms-auction">Quartos</label>
+                    <input id="bedrooms-auction" name="bedrooms" type="number" min={0} placeholder="2" />
+                  </div>
+                  <div>
+                    <label htmlFor="area-auction">Metragem mínima</label>
+                    <input id="area-auction" name="minAreaM2" type="number" min={0} placeholder="60" />
+                  </div>
+                </div>
+              </details>
+            </form>
+          ) : (
+            <form className="wp-search-panel" action="/imoveis/prontos" method="GET">
+              <div>
+                <label htmlFor="purpose">Finalidade</label>
+                <select id="purpose" name="purpose" defaultValue="VENDA">
+                  <option value="VENDA">Venda</option>
+                  <option value="LOCACAO">Locação</option>
+                  <option value="INVESTIMENTO">Investimento</option>
+                </select>
+              </div>
+              <div>
+                <label htmlFor="type">Tipo</label>
+                <select id="type" name="type" defaultValue="">
+                  <option value="">Todos</option>
+                  <option value="CASA">Casa</option>
+                  <option value="APARTAMENTO">Apartamento</option>
+                  <option value="LOTE">Lote</option>
+                  <option value="COMERCIAL">Comercial</option>
+                  <option value="RURAL">Rural</option>
+                </select>
+              </div>
+              <button type="submit" className="button button-primary">
+                Buscar
+              </button>
+
+              <details className="wp-search-advanced">
+                <summary>Mais filtros</summary>
+                <div className="wp-search-advanced-content">
+                  <div>
+                    <label htmlFor="district-ready">Bairro ou região</label>
+                    <input id="district-ready" name="district" placeholder="Plano Diretor Sul" />
+                  </div>
+                  <div>
+                    <label htmlFor="maxPrice-ready">Preço até</label>
+                    <input id="maxPrice-ready" name="maxPrice" type="number" placeholder="1200000" />
+                  </div>
+                  <div>
+                    <label htmlFor="bedrooms-ready">Quartos</label>
+                    <input id="bedrooms-ready" name="bedrooms" type="number" min={0} placeholder="3" />
+                  </div>
+                  <div>
+                    <label htmlFor="area-ready">Metragem mínima</label>
+                    <input id="area-ready" name="minAreaM2" type="number" min={0} placeholder="80" />
+                  </div>
+                </div>
+              </details>
+            </form>
+          )}
         </div>
       </section>
 
