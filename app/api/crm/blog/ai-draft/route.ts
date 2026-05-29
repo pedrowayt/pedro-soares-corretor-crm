@@ -9,6 +9,13 @@ export async function POST() {
   const { denied } = await requireCrmWriteAccess();
   if (denied) return denied;
 
+  if (!process.env.OPENAI_API_KEY) {
+    return fail(
+      "OPENAI_API_KEY não está configurada. Adicione a chave nas variáveis de ambiente para usar a geração com IA.",
+      503
+    );
+  }
+
   try {
     const draft = await generateBlogDraftContent();
     return ok({ draft });

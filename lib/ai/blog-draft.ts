@@ -5,7 +5,56 @@ import { listPublicProperties } from "@/lib/data/properties";
 import { parseJsonSafely } from "@/lib/api/http";
 
 const OPENAI_MODEL =
-  process.env.OPENAI_BLOG_MODEL || process.env.OPENAI_MODEL || "gpt-5.4-mini";
+  process.env.OPENAI_BLOG_MODEL || process.env.OPENAI_MODEL || "gpt-4o-mini";
+
+const NEWS_FEED_URL =
+  process.env.BLOG_NEWS_FEED_URL ||
+  "https://news.google.com/rss/search?q=im%C3%B3veis+Palmas+Tocantins&hl=pt-BR&gl=BR&ceid=BR:pt-419";
+
+type NewsHeadline = { title: string; pubDate: string };
+
+async function fetchLatestNews(): Promise<NewsHeadline[]> {
+  try {
+    const response = await fetch(NEWS_FEED_URL, {
+      headers: { "user-agent": "PedroSoaresBlogBot/1.0" },
+      signal: AbortSignal.timeout(8000)
+    });
+    if (!response.ok) return [];
+    const xml = await response.text();
+    const items = xml.match(/<item[\s\S]*?<\/item>/g) ?? [];
+    return items
+      .slice(0, 6)
+      .map((block) => {
+        const titleMatch =
+          block.match(/<title><!\[CDATA\[([\s\S]*?)\]\]><\/title>/) ??
+          block.match(/<title>([\s\S]*?)<\/title>/);
+        const pubMatch = block.match(/<pubDate>([\s\S]*?)<\/pubDate>/);
+        const title = (titleMatch?.[1] ?? "").trim();
+        const pubDate = (pubMatch?.[1] ?? "").trim();
+        return { title, pubDate };
+      })
+      .filter((item) => item.title.length > 0);
+  } catch {
+    return [];
+  }
+}
+
+function translateOpenAiError(message: string, status?: number): string {
+  const lower = message.toLowerCase();
+  if (lower.includes("does not exist") || lower.includes("invalid model")) {
+    return `Modelo OpenAI inválido (${OPENAI_MODEL}). Ajuste OPENAI_BLOG_MODEL ou OPENAI_MODEL para um modelo existente (ex: gpt-4o-mini, gpt-4o).`;
+  }
+  if (status === 401 || lower.includes("invalid api key") || lower.includes("incorrect api key")) {
+    return "Chave OpenAI inválida. Verifique OPENAI_API_KEY.";
+  }
+  if (status === 429 || lower.includes("rate limit") || lower.includes("quota")) {
+    return "OpenAI atingiu o limite de uso/quota. Tente novamente em instantes ou cheque o faturamento.";
+  }
+  if (status === 400 && lower.includes("max_output_tokens")) {
+    return "Resposta da IA excedeu o limite de tokens. Reduza o prompt ou aumente max_output_tokens.";
+  }
+  return `OpenAI: ${message}`;
+}
 
 export type BlogDraftTopic =
   | "LANCAMENTO_NOVO"
@@ -70,13 +119,20 @@ type BlogContext = {
   developmentsBlock: string;
   propertiesBlock: string;
   areasBlock: string;
+  newsBlock: string;
 };
 
 async function buildContext(topic: BlogDraftTopic): Promise<BlogContext> {
-  const [developments, properties] = await Promise.all([
+  const [developments, properties, news] = await Promise.all([
     listHighlightedDevelopments(4),
-    listPublicProperties()
+    listPublicProperties(),
+    fetchLatestNews()
   ]);
+
+  const newsBlock = news
+    .slice(0, 5)
+    .map((item) => `- ${item.title}${item.pubDate ? ` (${item.pubDate})` : ""}`)
+    .join("\n");
 
   const developmentsBlock = developments
     .slice(0, 4)
@@ -111,7 +167,7 @@ async function buildContext(topic: BlogDraftTopic): Promise<BlogContext> {
     .map((a) => `- ${a.district} (${a.city}): ${a.count} imóvel(is) ativo(s).`)
     .join("\n");
 
-  return { topic, developmentsBlock, propertiesBlock, areasBlock };
+  return { topic, developmentsBlock, propertiesBlock, areasBlock, newsBlock };
 }
 
 const topicInstruction: Record<BlogDraftTopic, string> = {
@@ -144,6 +200,12 @@ ${ctx.propertiesBlock || "Sem imóveis listados."}
 <bairros>
 ${ctx.areasBlock || "Sem bairros com listagens."}
 </bairros>
+
+<noticias_recentes>
+${ctx.newsBlock || "Sem notícias relevantes capturadas no momento."}
+</noticias_recentes>
+
+Se houver notícias úteis em <noticias_recentes>, comente brevemente, sem reproduzir manchetes na íntegra e sem inventar conteúdo além do título.
 
 Estrutura obrigatória do bodyMarkdown:
 1. Parágrafo introdutório (sem H1 — o título já é renderizado fora).
@@ -243,11 +305,11 @@ export async function generateBlogDraftContent(): Promise<BlogDraftContent> {
 
   const payload = await response.json().catch(() => null);
   if (!response.ok) {
-    const message =
+    const rawMessage =
       typeof payload?.error?.message === "string"
         ? payload.error.message
-        : "Falha na chamada do OpenAI.";
-    throw new Error(message);
+        : "Falha desconhecida na chamada do OpenAI.";
+    throw new Error(translateOpenAiError(rawMessage, response.status));
   }
 
   const text = extractResponseText(payload);
