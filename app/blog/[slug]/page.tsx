@@ -15,9 +15,8 @@ const SITE_NAME = "Pedro Soares Imóveis";
 const DEFAULT_AUTHOR = "Pedro Soares";
 const AUTHOR_AVATAR_URL = "/brand/pedro-portrait-1.png";
 const SOCIAL_LINKS = [
-  { label: "Instagram", href: "https://instagram.com/pedrosoarescorretor" },
-  { label: "WhatsApp", href: "https://wa.me/5563984845101" },
-  { label: "YouTube", href: "https://www.youtube.com/@pedrosoarescorretor" }
+  { label: "Instagram @pedrosoarespmw", href: "https://www.instagram.com/pedrosoarespmw/" },
+  { label: "WhatsApp", href: "https://wa.me/5563984845101" }
 ];
 
 const blogMarkdownRenderer = new Marked({
