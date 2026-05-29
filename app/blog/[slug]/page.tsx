@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Marked } from "marked";
 import { BlogShareBar } from "@/components/blog/BlogShareBar";
+import { BlogViewTracker } from "@/components/blog/BlogViewTracker";
 import { listPublishedBlogPosts } from "@/lib/data/blog";
 import { listPublicProperties } from "@/lib/data/properties";
 import { prisma } from "@/lib/prisma";
@@ -183,6 +184,7 @@ export default async function BlogPostPage({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
         />
+        <BlogViewTracker slug={post.slug} />
 
         <p style={{ marginTop: 0 }}>
           <Link href="/blog">← Voltar para o blog</Link>

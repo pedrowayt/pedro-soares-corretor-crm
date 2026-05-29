@@ -163,16 +163,23 @@ export async function listCrmBlogPosts() {
   }
 }
 
-export async function listPublishedBlogPosts(limit?: number) {
+export async function listPublishedBlogPosts(limit?: number, tagSlug?: string) {
   if (!hasDatabase) {
     return ensureMemoryStores()
-      .posts.filter((post) => post.status === BlogStatus.PUBLISHED)
+      .posts.filter(
+        (post) =>
+          post.status === BlogStatus.PUBLISHED &&
+          (!tagSlug || post.tags.some((tag) => tag.slug === tagSlug))
+      )
       .slice(0, limit);
   }
 
   try {
     const posts = await prisma.blogPost.findMany({
-      where: { status: BlogStatus.PUBLISHED },
+      where: {
+        status: BlogStatus.PUBLISHED,
+        ...(tagSlug ? { tags: { some: { slug: tagSlug } } } : {})
+      },
       orderBy: [{ publishedAt: "desc" }, { updatedAt: "desc" }],
       take: limit,
       include: { tags: true, author: { select: { id: true, name: true } } }
@@ -180,9 +187,90 @@ export async function listPublishedBlogPosts(limit?: number) {
     return posts.map(normalizeDbPost);
   } catch {
     return ensureMemoryStores()
-      .posts.filter((post) => post.status === BlogStatus.PUBLISHED)
+      .posts.filter(
+        (post) =>
+          post.status === BlogStatus.PUBLISHED &&
+          (!tagSlug || post.tags.some((tag) => tag.slug === tagSlug))
+      )
       .slice(0, limit);
   }
+}
+
+export async function listTopViewedBlogPosts(limit = 3) {
+  if (!hasDatabase) {
+    return ensureMemoryStores()
+      .posts.filter((post) => post.status === BlogStatus.PUBLISHED)
+      .sort((a, b) => (b.views ?? 0) - (a.views ?? 0))
+      .slice(0, limit);
+  }
+  try {
+    const posts = await prisma.blogPost.findMany({
+      where: { status: BlogStatus.PUBLISHED, views: { gt: 0 } },
+      orderBy: [{ views: "desc" }, { publishedAt: "desc" }],
+      take: limit,
+      include: { tags: true, author: { select: { id: true, name: true } } }
+    });
+    return posts.map(normalizeDbPost);
+  } catch {
+    return [];
+  }
+}
+
+export async function listPublishedBlogTagsWithCounts() {
+  if (!hasDatabase) {
+    const tagMap = new Map<string, { slug: string; label: string; count: number }>();
+    for (const post of ensureMemoryStores().posts.filter(
+      (p) => p.status === BlogStatus.PUBLISHED
+    )) {
+      for (const tag of post.tags) {
+        const existing = tagMap.get(tag.slug);
+        if (existing) existing.count += 1;
+        else tagMap.set(tag.slug, { slug: tag.slug, label: tag.label, count: 1 });
+      }
+    }
+    return [...tagMap.values()].sort((a, b) => b.count - a.count);
+  }
+  try {
+    const tags = await prisma.blogTag.findMany({
+      include: {
+        _count: {
+          select: { posts: { where: { status: BlogStatus.PUBLISHED } } }
+        }
+      }
+    });
+    return tags
+      .map((tag) => ({ slug: tag.slug, label: tag.label, count: tag._count.posts }))
+      .filter((tag) => tag.count > 0)
+      .sort((a, b) => b.count - a.count);
+  } catch {
+    return [];
+  }
+}
+
+export async function incrementBlogPostViews(slug: string) {
+  if (!hasDatabase) {
+    const memo = ensureMemoryStores().posts.find((p) => p.slug === slug);
+    if (memo) memo.views = (memo.views ?? 0) + 1;
+    return;
+  }
+  try {
+    await prisma.blogPost.update({
+      where: { slug },
+      data: { views: { increment: 1 } }
+    });
+  } catch {
+    // ignore — slug may not exist
+  }
+}
+
+export async function subscribeBlogNewsletter(email: string, source?: string) {
+  if (!hasDatabase) return { id: "memory", email };
+  const normalized = email.trim().toLowerCase();
+  return prisma.blogNewsletterSubscriber.upsert({
+    where: { email: normalized },
+    update: { source: source ?? undefined },
+    create: { email: normalized, source: source ?? null }
+  });
 }
 
 export async function getCrmBlogPostById(id: string) {
