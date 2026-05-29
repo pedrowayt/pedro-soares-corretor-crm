@@ -220,6 +220,29 @@ Saída JSON estrita:
 - tagSlugs: 2 a 5 slugs em kebab-case (use "${slugify(ctx.topic)}" como uma das tags)`;
 }
 
+function buildSourcePrompt(sourceText: string) {
+  const trimmed = sourceText.trim().slice(0, 12000);
+  return `Você é redator do blog Pedro Soares Imóveis em Palmas TO. Tom consultivo, segunda pessoa do plural ("vocês"), dados factuais, sem superlativos vazios.
+
+Receba o texto bruto abaixo (notícia, fato, release ou anotação) e transforme-o em um post completo do blog. Reescreva com suas próprias palavras (NUNCA copie literalmente trechos longos), corrija ortografia, organize a narrativa, complete lacunas com contexto razoável do mercado imobiliário de Palmas TO, mas NÃO invente dados específicos (preços, datas, nomes próprios) que não estejam no texto.
+
+<texto_fonte>
+${trimmed}
+</texto_fonte>
+
+Tarefas:
+1. Gere um título objetivo (até 70 caracteres).
+2. Gere um slug kebab-case derivado do título.
+3. Escreva um excerpt resumindo o post em 80-280 caracteres.
+4. Escolha de 2 a 5 tagSlugs em kebab-case relevantes ao conteúdo (ex.: "mercado", "palmas", "investimento", "bairro-x", "lancamento", "leilao").
+5. Produza bodyMarkdown polido seguindo a estrutura:
+   - Parágrafo introdutório (sem H1).
+   - 2 a 4 seções com H2 ## e parágrafos curtos ou bullets.
+   - Encerramento com chamada para conversar pelo WhatsApp ou ver imóveis no /imoveis/prontos.
+
+Saída JSON estrita conforme o schema. bodyMarkdown deve ter ao menos 600 caracteres.`;
+}
+
 function extractResponseText(payload: unknown) {
   if (!payload || typeof payload !== "object") return "";
   const direct = (payload as { output_text?: unknown }).output_text;
@@ -266,14 +289,24 @@ export type BlogDraftContent = {
   tagSlugs: string[];
 };
 
-export async function generateBlogDraftContent(): Promise<BlogDraftContent> {
+export type BlogDraftOptions = {
+  sourceText?: string;
+};
+
+export async function generateBlogDraftContent(
+  options: BlogDraftOptions = {}
+): Promise<BlogDraftContent> {
   if (!process.env.OPENAI_API_KEY) {
     throw new Error("OPENAI_API_KEY não configurada.");
   }
 
-  const topic = await pickNextTopic();
-  const context = await buildContext(topic);
-  const prompt = buildPrompt(context);
+  const sourceText = options.sourceText?.trim();
+  const useSource = sourceText && sourceText.length >= 30;
+
+  const topic: BlogDraftTopic = useSource ? "ANALISE_MERCADO" : await pickNextTopic();
+  const prompt = useSource
+    ? buildSourcePrompt(sourceText)
+    : buildPrompt(await buildContext(topic));
 
   const response = await fetch("https://api.openai.com/v1/responses", {
     method: "POST",

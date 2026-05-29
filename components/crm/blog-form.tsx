@@ -2,6 +2,12 @@
 
 import { useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Marked } from "marked";
+
+const previewRenderer = new Marked({ async: false, gfm: true, breaks: false });
+
+const COVER_DIMENSION_HINT =
+  "Sugerido: 1200×630 px (proporção 1.91:1) para Open Graph; mínimo 1080×600. JPG ou PNG, até 5 MB.";
 
 type BlogStatusValue = "DRAFT" | "PUBLISHED" | "ARCHIVED";
 
@@ -45,6 +51,7 @@ export function BlogPostForm({ initial }: Props) {
   const [saving, setSaving] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [uploadingCover, setUploadingCover] = useState(false);
+  const [sourceText, setSourceText] = useState("");
   const coverFileRef = useRef<HTMLInputElement | null>(null);
   const [feedback, setFeedback] = useState<{ kind: "success" | "error"; message: string } | null>(
     null
@@ -101,10 +108,27 @@ export function BlogPostForm({ initial }: Props) {
   }
 
   async function handleGenerateWithAi() {
+    const trimmedSource = sourceText.trim();
+    if (trimmedSource && trimmedSource.length < 30) {
+      setFeedback({
+        kind: "error",
+        message: "Cole pelo menos 30 caracteres para a IA trabalhar em cima — ou deixe vazio para usar dados internos."
+      });
+      return;
+    }
+
+    if ((title || bodyMarkdown) && !confirm("Isso vai sobrescrever os campos preenchidos. Continuar?")) {
+      return;
+    }
+
     setGenerating(true);
     setFeedback(null);
     try {
-      const response = await fetch("/api/crm/blog/ai-draft", { method: "POST" });
+      const response = await fetch("/api/crm/blog/ai-draft", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(trimmedSource ? { sourceText: trimmedSource } : {})
+      });
       const json = await response.json().catch(() => null);
 
       if (!response.ok || !json?.success) {
@@ -131,6 +155,15 @@ export function BlogPostForm({ initial }: Props) {
       setGenerating(false);
     }
   }
+
+  const previewHtml = useMemo(() => {
+    if (!bodyMarkdown.trim()) return "";
+    try {
+      return previewRenderer.parse(bodyMarkdown) as string;
+    } catch {
+      return "";
+    }
+  }, [bodyMarkdown]);
 
   const tagSlugs = useMemo(
     () =>
@@ -212,34 +245,67 @@ export function BlogPostForm({ initial }: Props) {
   }
 
   return (
+    <div style={{ display: "grid", gap: 16 }}>
     <form onSubmit={handleSubmit} className="card" style={{ padding: 16, display: "grid", gap: 12 }}>
       {!isEditing ? (
         <div
           style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            gap: 12,
-            padding: 12,
-            borderRadius: 8,
+            display: "grid",
+            gap: 10,
+            padding: 14,
+            borderRadius: 10,
             background: "var(--surface-muted, #f5f5f5)",
-            flexWrap: "wrap"
+            border: "1px solid var(--border, #e5e5e5)"
           }}
         >
           <div>
             <strong>Gerar rascunho com IA</strong>
-            <div style={{ color: "var(--text-muted)", fontSize: 13 }}>
-              Usa lançamentos e imóveis ativos para escrever um post inicial.
+            <div style={{ color: "var(--text-muted)", fontSize: 13, marginTop: 2 }}>
+              Cole a notícia, release ou anotação abaixo — a IA reescreve com tom consultivo
+              e preenche título, slug, resumo, tags e corpo. Sem texto, gera a partir de
+              lançamentos e imóveis ativos.
             </div>
           </div>
-          <button
-            type="button"
-            className="button button-ghost"
-            onClick={handleGenerateWithAi}
-            disabled={generating || saving}
+          <textarea
+            id="blog-source"
+            value={sourceText}
+            onChange={(event) => setSourceText(event.target.value)}
+            placeholder="Cole aqui o texto da notícia (ou deixe vazio para usar dados internos do site)..."
+            rows={6}
+            style={{
+              fontFamily: "inherit",
+              fontSize: 14,
+              padding: 10,
+              borderRadius: 6,
+              border: "1px solid var(--border, #d4d8e0)",
+              resize: "vertical",
+              background: "#fff"
+            }}
+            disabled={generating}
+          />
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 8,
+              flexWrap: "wrap"
+            }}
           >
-            {generating ? "Gerando..." : "Gerar com IA"}
-          </button>
+            <small style={{ color: "var(--text-muted)" }}>
+              {sourceText.trim().length
+                ? `${sourceText.trim().length} caracteres • modo: a partir do texto`
+                : "Sem texto • modo: a partir dos dados internos"}
+            </small>
+            <button
+              type="button"
+              className="button button-primary"
+              onClick={handleGenerateWithAi}
+              disabled={generating || saving}
+            >
+              {generating ? "Gerando..." : "Gerar com IA"}
+            </button>
+          </div>
         </div>
       ) : null}
 
@@ -281,6 +347,7 @@ export function BlogPostForm({ initial }: Props) {
 
       <div style={{ display: "grid", gap: 4 }}>
         <label htmlFor="blog-cover">Imagem de capa</label>
+        <small style={{ color: "var(--text-muted)" }}>{COVER_DIMENSION_HINT}</small>
         <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
           <input
             ref={coverFileRef}
@@ -400,5 +467,80 @@ export function BlogPostForm({ initial }: Props) {
         ) : null}
       </div>
     </form>
+
+    <section
+      aria-label="Preview da publicação"
+      className="card"
+      style={{ padding: 16, display: "grid", gap: 12 }}
+    >
+      <div
+        style={{
+          display: "flex",
+          alignItems: "baseline",
+          justifyContent: "space-between",
+          gap: 8,
+          flexWrap: "wrap"
+        }}
+      >
+        <h2 className="section-title" style={{ margin: 0, fontSize: 20 }}>
+          Preview
+        </h2>
+        <small style={{ color: "var(--text-muted)" }}>
+          Aproximado de como o post vai aparecer publicado.
+        </small>
+      </div>
+
+      {coverImageUrl ? (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={coverImageUrl}
+          alt={title || "Capa"}
+          style={{
+            width: "100%",
+            maxHeight: 320,
+            objectFit: "cover",
+            borderRadius: 12,
+            border: "1px solid var(--border, #e5e5e5)"
+          }}
+        />
+      ) : null}
+
+      {tagSlugs.length ? (
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+          {tagSlugs.map((tag) => (
+            <span key={tag} className="badge">
+              {tag}
+            </span>
+          ))}
+        </div>
+      ) : null}
+
+      <h1 className="section-title" style={{ marginTop: 4, marginBottom: 0 }}>
+        {title || "Título do post"}
+      </h1>
+
+      <p style={{ color: "var(--text-muted)", margin: 0 }}>
+        Por Pedro Soares · CRECI 5861-TO
+      </p>
+
+      {excerpt ? (
+        <p style={{ marginTop: 0, fontStyle: "italic", color: "var(--text-muted)" }}>
+          {excerpt}
+        </p>
+      ) : null}
+
+      {previewHtml ? (
+        <div
+          className="blog-article"
+          style={{ marginTop: 4 }}
+          dangerouslySetInnerHTML={{ __html: previewHtml }}
+        />
+      ) : (
+        <p style={{ color: "var(--text-muted)", margin: 0 }}>
+          Comece a escrever o conteúdo (ou gere com IA) para ver o preview aqui.
+        </p>
+      )}
+    </section>
+    </div>
   );
 }
