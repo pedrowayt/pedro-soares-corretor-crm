@@ -44,8 +44,15 @@ export default async function CrmBlogListPage() {
               className="card"
               style={{ padding: 14, display: "block" }}
             >
-              <p className="badge">{statusLabel[post.status] ?? post.status}</p>
-              <h3 className="title-luxury" style={{ marginBottom: 8 }}>
+              <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                <span className="badge">{statusLabel[post.status] ?? post.status}</span>
+                {post.source === "AI_GENERATED" ? (
+                  <span className="badge" title="Rascunho gerado por IA — revisar antes de publicar">
+                    🤖 IA
+                  </span>
+                ) : null}
+              </div>
+              <h3 className="title-luxury" style={{ marginTop: 8, marginBottom: 8 }}>
                 {post.title}
               </h3>
               <p className="text-card" style={{ margin: "4px 0", color: "var(--text-muted)" }}>
