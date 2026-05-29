@@ -1,0 +1,36 @@
+name: Blog AI Draft Cron
+
+on:
+  schedule:
+    - cron: "0 12 * * *"
+  workflow_dispatch:
+
+jobs:
+  generate-draft:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Trigger blog draft generation
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          TARGET_URL: ${{ vars.BLOG_CRON_TARGET_URL || 'https://www.pedrosoarescorretor.com.br' }}
+        run: |
+          if [ -z "$CRON_SECRET" ]; then
+            echo "::error::CRON_SECRET secret not configured in repository settings."
+            exit 1
+          fi
+
+          response=$(curl --silent --show-error --fail-with-body \
+            --max-time 90 \
+            --write-out '\nHTTP_STATUS:%{http_code}' \
+            --request POST \
+            --header "Authorization: Bearer $CRON_SECRET" \
+            "$TARGET_URL/api/cron/blog-draft")
+
+          echo "$response"
+
+          status=$(echo "$response" | tail -n 1 | sed 's/HTTP_STATUS://')
+          if [ "$status" != "200" ]; then
+            echo "::error::Endpoint returned HTTP $status"
+            exit 1
+          fi
