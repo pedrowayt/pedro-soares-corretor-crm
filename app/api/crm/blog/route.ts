@@ -1,4 +1,5 @@
 import { Prisma } from "@prisma/client";
+import { revalidatePath } from "next/cache";
 import { fail, ok } from "@/lib/api/http";
 import { requireCrmWriteAccess } from "@/lib/auth/permissions";
 import { createBlogPost, listCrmBlogPosts } from "@/lib/data/blog";
@@ -43,6 +44,10 @@ export async function POST(request: Request) {
     } catch {
       // audit log is best-effort
     }
+
+    revalidatePath("/");
+    revalidatePath("/blog");
+    revalidatePath(`/blog/${post.slug}`);
 
     return ok({ post }, { status: 201 });
   } catch (error) {

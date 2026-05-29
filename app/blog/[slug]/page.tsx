@@ -5,6 +5,8 @@ import { Marked } from "marked";
 import { listPublishedBlogPosts } from "@/lib/data/blog";
 import { prisma } from "@/lib/prisma";
 
+export const revalidate = 60;
+
 const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 
 const blogMarkdownRenderer = new Marked({

@@ -1,5 +1,6 @@
 import { PropertyPurpose, PropertyStatus, PropertyType } from "@prisma/client";
 import Link from "next/link";
+import { listPublishedBlogPosts } from "@/lib/data/blog";
 import { developmentPublicStageLabels, listHighlightedDevelopments } from "@/lib/data/developments";
 import { getDevelopmentStageLabel } from "@/lib/development-investment";
 import { listPublicProperties } from "@/lib/data/properties";
@@ -248,9 +249,10 @@ export default async function HomePage({
   const filters = await searchParams;
   const searchMode = getSearchMode(filters.mode);
 
-  const [propertiesRaw, developmentsRaw] = await Promise.all([
+  const [propertiesRaw, developmentsRaw, blogPosts] = await Promise.all([
     listPublicProperties(),
-    listHighlightedDevelopments(8)
+    listHighlightedDevelopments(8),
+    listPublishedBlogPosts(3)
   ]);
 
   const allCards = propertiesRaw.map(normalizePropertyCard);
@@ -724,6 +726,74 @@ export default async function HomePage({
           </div>
         </div>
       </section>
+
+      {blogPosts.length ? (
+        <section className="section" style={{ paddingTop: 24 }}>
+          <div className="container">
+            <div className="wp-section-head">
+              <h2 className="section-title">Do blog</h2>
+              <p className="section-subtitle text-card">
+                Análises do mercado, dicas para comprar e bastidores de Palmas TO.
+              </p>
+            </div>
+
+            <div className="wp-property-grid wp-property-grid-3" style={{ marginTop: 24 }}>
+              {blogPosts.map((post) => {
+                const cover = post.coverImageUrl ?? "/brand/logo-light-bg.png";
+                return (
+                  <article key={post.id} className="wp-property-card compact">
+                    <div
+                      className="wp-property-media"
+                      style={{
+                        backgroundImage: `linear-gradient(180deg, rgba(7,13,24,0.05), rgba(7,13,24,0.6)), url(${cover})`
+                      }}
+                    >
+                      <div className="wp-media-badges">
+                        {post.tags.slice(0, 2).map((tag) => (
+                          <span key={tag.id} className="badge">
+                            {tag.label}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="wp-property-body">
+                      <p
+                        className="text-card"
+                        style={{ margin: 0, color: "var(--text-muted)", fontSize: "var(--fs-12)" }}
+                      >
+                        {post.publishedAt
+                          ? new Intl.DateTimeFormat("pt-BR", {
+                              day: "2-digit",
+                              month: "long",
+                              year: "numeric"
+                            }).format(post.publishedAt)
+                          : ""}
+                      </p>
+                      <h3 style={{ marginTop: 6 }}>{post.title}</h3>
+                      <p className="text-card" style={{ marginTop: 6 }}>
+                        {post.excerpt}
+                      </p>
+                      <Link
+                        href={`/blog/${post.slug}`}
+                        className="button button-primary"
+                        style={{ width: "100%", marginTop: 12 }}
+                      >
+                        Ler post
+                      </Link>
+                    </div>
+                  </article>
+                );
+              })}
+            </div>
+
+            <div style={{ marginTop: 16, textAlign: "center" }}>
+              <Link href="/blog" className="button button-ghost">
+                Ver todos os posts
+              </Link>
+            </div>
+          </div>
+        </section>
+      ) : null}
 
       <section className="section" style={{ paddingTop: 24 }}>
         <div className="container wp-cta-bar">
