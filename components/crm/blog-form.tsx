@@ -365,6 +365,16 @@ export function BlogPostForm({ initial }: Props) {
         <button type="submit" className="button button-primary" disabled={saving}>
           {saving ? "Salvando..." : isEditing ? "Salvar alterações" : "Criar post"}
         </button>
+        {isEditing && status === "PUBLISHED" && slug ? (
+          <a
+            href={`/blog/${slug}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="button button-ghost"
+          >
+            Ver publicação ↗
+          </a>
+        ) : null}
         {isEditing ? (
           <button
             type="button"
@@ -378,6 +388,14 @@ export function BlogPostForm({ initial }: Props) {
         {feedback ? (
           <span style={{ color: feedback.kind === "success" ? "var(--success)" : "var(--danger)" }}>
             {feedback.message}
+            {feedback.kind === "success" && status === "PUBLISHED" && slug ? (
+              <>
+                {" "}
+                <a href={`/blog/${slug}`} target="_blank" rel="noopener noreferrer">
+                  Clique aqui para ver a publicação ↗
+                </a>
+              </>
+            ) : null}
           </span>
         ) : null}
       </div>

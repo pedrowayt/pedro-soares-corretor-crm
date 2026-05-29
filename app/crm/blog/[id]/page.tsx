@@ -17,9 +17,29 @@ export default async function CrmBlogEditPage({
       <p style={{ marginTop: 0 }}>
         <Link href="/crm/blog">← Voltar para o blog</Link>
       </p>
-      <h1 className="section-title" style={{ marginTop: 0 }}>
-        Editar post
-      </h1>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "baseline",
+          justifyContent: "space-between",
+          gap: 12,
+          flexWrap: "wrap"
+        }}
+      >
+        <h1 className="section-title" style={{ marginTop: 0 }}>
+          Editar post
+        </h1>
+        {post.status === "PUBLISHED" ? (
+          <a
+            href={`/blog/${post.slug}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="button button-ghost"
+          >
+            Ver publicação ↗
+          </a>
+        ) : null}
+      </div>
       <p className="section-subtitle">
         URL pública: <code>/blog/{post.slug}</code>
         {post.publishedAt ? ` • publicado em ${post.publishedAt.toLocaleDateString("pt-BR")}` : ""}
