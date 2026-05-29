@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 
 type BlogStatusValue = "DRAFT" | "PUBLISHED" | "ARCHIVED";
@@ -44,9 +44,61 @@ export function BlogPostForm({ initial }: Props) {
   const [tagsInput, setTagsInput] = useState(initial?.tagSlugs?.join(", ") ?? "");
   const [saving, setSaving] = useState(false);
   const [generating, setGenerating] = useState(false);
+  const [uploadingCover, setUploadingCover] = useState(false);
+  const coverFileRef = useRef<HTMLInputElement | null>(null);
   const [feedback, setFeedback] = useState<{ kind: "success" | "error"; message: string } | null>(
     null
   );
+
+  async function handleCoverUpload(file: File) {
+    setUploadingCover(true);
+    setFeedback(null);
+    try {
+      const directRes = await fetch("/api/media/images/direct-upload", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ metadata: { module: "blog" } })
+      });
+      const directJson = await directRes.json().catch(() => null);
+      if (!directRes.ok || !directJson?.success) {
+        const message = directJson?.error?.message ?? "Não foi possível iniciar o upload.";
+        setFeedback({ kind: "error", message });
+        return;
+      }
+
+      const uploadUrl = directJson.data?.directUpload?.uploadURL as string | undefined;
+      const imageDeliveryUrl = directJson.data?.imageDeliveryUrl as string | null | undefined;
+      if (!uploadUrl) {
+        setFeedback({ kind: "error", message: "URL de upload não retornada." });
+        return;
+      }
+
+      const body = new FormData();
+      body.append("file", file);
+      const cfRes = await fetch(uploadUrl, { method: "POST", body });
+      const cfJson = await cfRes.json().catch(() => null);
+      if (!cfRes.ok || !cfJson?.success) {
+        const message = cfJson?.errors?.[0]?.message ?? `Falha no upload (HTTP ${cfRes.status}).`;
+        setFeedback({ kind: "error", message });
+        return;
+      }
+
+      const variants = cfJson?.result?.variants as string[] | undefined;
+      const finalUrl = imageDeliveryUrl ?? variants?.[0] ?? "";
+      if (!finalUrl) {
+        setFeedback({ kind: "error", message: "Upload concluído, mas a URL pública não veio." });
+        return;
+      }
+
+      setCoverImageUrl(finalUrl);
+      setFeedback({ kind: "success", message: "Imagem enviada." });
+      if (coverFileRef.current) coverFileRef.current.value = "";
+    } catch {
+      setFeedback({ kind: "error", message: "Erro de rede ao enviar imagem." });
+    } finally {
+      setUploadingCover(false);
+    }
+  }
 
   async function handleGenerateWithAi() {
     setGenerating(true);
@@ -228,14 +280,45 @@ export function BlogPostForm({ initial }: Props) {
       </div>
 
       <div style={{ display: "grid", gap: 4 }}>
-        <label htmlFor="blog-cover">URL da imagem de capa</label>
+        <label htmlFor="blog-cover">Imagem de capa</label>
+        <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+          <input
+            ref={coverFileRef}
+            id="blog-cover-file"
+            type="file"
+            accept="image/*"
+            disabled={uploadingCover}
+            onChange={(event) => {
+              const file = event.target.files?.[0];
+              if (file) void handleCoverUpload(file);
+            }}
+          />
+          {uploadingCover ? (
+            <span style={{ color: "var(--text-muted)" }}>Enviando...</span>
+          ) : null}
+        </div>
         <input
           id="blog-cover"
           type="url"
           value={coverImageUrl ?? ""}
           onChange={(event) => setCoverImageUrl(event.target.value)}
-          placeholder="https://imagedelivery.net/..."
+          placeholder="https://imagedelivery.net/... (ou envie um arquivo acima)"
         />
+        {coverImageUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={coverImageUrl}
+            alt="Pré-visualização da capa"
+            style={{
+              marginTop: 4,
+              maxWidth: 240,
+              maxHeight: 160,
+              objectFit: "cover",
+              borderRadius: 6,
+              border: "1px solid var(--border, #e5e5e5)"
+            }}
+          />
+        ) : null}
       </div>
 
       <div style={{ display: "grid", gap: 4 }}>
