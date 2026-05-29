@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { BlogShareBar } from "@/components/blog/BlogShareBar";
 import { listPublishedBlogPosts } from "@/lib/data/blog";
 
 export const revalidate = 60;
 
-const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://www.pedrosoarescorretor.com.br";
 
 export const metadata: Metadata = {
   title: "Blog | Pedro Soares Imóveis em Palmas TO",
@@ -95,6 +96,14 @@ export default async function BlogIndexPage() {
                   >
                     Ler post
                   </Link>
+                  <div style={{ marginTop: 10 }}>
+                    <BlogShareBar
+                      url={`${baseUrl}/blog/${post.slug}`}
+                      title={post.title}
+                      excerpt={post.excerpt}
+                      compact
+                    />
+                  </div>
                 </div>
               </article>
             ))}
