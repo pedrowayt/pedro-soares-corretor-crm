@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { BlogShareBar } from "@/components/blog/BlogShareBar";
 import { listPublishedBlogPosts } from "@/lib/data/blog";
 
 export const revalidate = 60;
@@ -28,93 +27,182 @@ function formatDate(date: Date | null) {
   );
 }
 
+function estimateReadingMinutes(markdown: string) {
+  const words = markdown.replace(/[#>*_`\[\]\(\)\-]+/g, " ").split(/\s+/).filter(Boolean).length;
+  return Math.max(1, Math.round(words / 200));
+}
+
+const DEFAULT_AUTHOR = "Pedro Soares";
+
 export default async function BlogIndexPage() {
   const posts = await listPublishedBlogPosts();
 
-  return (
-    <main className="section">
-      <div className="container">
-        <div className="wp-section-head">
-          <h1 className="section-title">Blog Pedro Soares Imóveis</h1>
-          <p className="section-subtitle text-card">
-            Análises de bairros, dicas para comprador e vendedor, lançamentos em Palmas e bastidores
-            do mercado imobiliário do Tocantins.
-          </p>
-        </div>
-
-        {posts.length ? (
-          <div className="wp-property-grid wp-property-grid-3" style={{ marginTop: 24 }}>
-            {posts.map((post) => (
-              <article key={post.id} className="wp-property-card compact">
-                {post.coverImageUrl ? (
-                  <div
-                    className="wp-property-media"
-                    style={{
-                      backgroundImage: `linear-gradient(180deg, rgba(7,13,24,0.05), rgba(7,13,24,0.6)), url(${post.coverImageUrl})`
-                    }}
-                  >
-                    <div className="wp-media-badges">
-                      {post.tags.slice(0, 2).map((tag) => (
-                        <span key={tag.id} className="badge">
-                          {tag.label}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                ) : (
-                  <div
-                    className="wp-property-media"
-                    style={{
-                      backgroundImage:
-                        "linear-gradient(180deg, rgba(7,13,24,0.05), rgba(7,13,24,0.6)), url(/brand/logo-light-bg.png)"
-                    }}
-                  >
-                    <div className="wp-media-badges">
-                      {post.tags.slice(0, 2).map((tag) => (
-                        <span key={tag.id} className="badge">
-                          {tag.label}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-                )}
-                <div className="wp-property-body">
-                  <p
-                    className="text-card"
-                    style={{ margin: 0, color: "var(--text-muted)", fontSize: "var(--fs-12)" }}
-                  >
-                    {formatDate(post.publishedAt)}
-                  </p>
-                  <h2 style={{ marginTop: 6 }}>{post.title}</h2>
-                  <p className="text-card" style={{ marginTop: 6 }}>
-                    {post.excerpt}
-                  </p>
-                  <Link
-                    href={`/blog/${post.slug}`}
-                    className="button button-primary"
-                    style={{ width: "100%", marginTop: 12 }}
-                  >
-                    Ler post
-                  </Link>
-                  <div style={{ marginTop: 10 }}>
-                    <BlogShareBar
-                      url={`${baseUrl}/blog/${post.slug}`}
-                      title={post.title}
-                      excerpt={post.excerpt}
-                      compact
-                    />
-                  </div>
-                </div>
-              </article>
-            ))}
-          </div>
-        ) : (
+  if (!posts.length) {
+    return (
+      <main className="section">
+        <div className="container" style={{ maxWidth: 760 }}>
+          <header className="blog-magazine-header">
+            <p className="blog-magazine-eyebrow">Blog</p>
+            <h1 className="blog-magazine-title">Análises do mercado imobiliário em Palmas TO</h1>
+            <p className="blog-magazine-lede">
+              Bastidores, dicas para comprador e vendedor, leituras de bairro e lançamentos —
+              direto de Pedro Soares.
+            </p>
+          </header>
           <article className="card" style={{ padding: 16, marginTop: 24 }}>
             <p className="text-card" style={{ margin: 0, color: "var(--text-muted)" }}>
               Nenhum post publicado ainda. Volte em breve.
             </p>
           </article>
-        )}
+        </div>
+      </main>
+    );
+  }
+
+  const [hero, ...rest] = posts;
+  const featured = rest.slice(0, 2);
+  const list = rest.slice(2);
+
+  const heroAuthor = ("author" in hero && hero.author?.name) || DEFAULT_AUTHOR;
+  const heroReading = estimateReadingMinutes(hero.bodyMarkdown);
+
+  return (
+    <main className="section">
+      <div className="container blog-magazine">
+        <header className="blog-magazine-header">
+          <p className="blog-magazine-eyebrow">Blog</p>
+          <h1 className="blog-magazine-title">Mercado imobiliário em Palmas TO</h1>
+          <p className="blog-magazine-lede">
+            Bastidores, dicas para comprador e vendedor, leituras de bairro e lançamentos — direto
+            de Pedro Soares.
+          </p>
+        </header>
+
+        <section aria-labelledby="hero-post" className="blog-hero">
+          {hero.coverImageUrl ? (
+            <Link href={`/blog/${hero.slug}`} className="blog-hero-media" aria-hidden="true">
+              <div
+                style={{
+                  backgroundImage: `linear-gradient(180deg, rgba(7,13,24,0) 0%, rgba(7,13,24,0.35) 100%), url(${hero.coverImageUrl})`
+                }}
+              />
+            </Link>
+          ) : null}
+          <div className="blog-hero-body">
+            <div className="blog-hero-meta">
+              {hero.tags.slice(0, 2).map((tag) => (
+                <span key={tag.id} className="blog-tag-chip">
+                  {tag.label}
+                </span>
+              ))}
+              <span className="blog-meta-dot">·</span>
+              <time dateTime={hero.publishedAt?.toISOString() ?? ""}>
+                {formatDate(hero.publishedAt)}
+              </time>
+            </div>
+            <h2 id="hero-post" className="blog-hero-title">
+              <Link href={`/blog/${hero.slug}`}>{hero.title}</Link>
+            </h2>
+            <p className="blog-hero-lede">{hero.excerpt}</p>
+            <div className="blog-byline">
+              <span>Por {heroAuthor}</span>
+              <span className="blog-meta-dot">·</span>
+              <span>{heroReading} min de leitura</span>
+            </div>
+            <Link href={`/blog/${hero.slug}`} className="blog-read-more">
+              Continuar lendo →
+            </Link>
+          </div>
+        </section>
+
+        {featured.length ? (
+          <section className="blog-featured-grid" aria-label="Em destaque">
+            {featured.map((post) => {
+              const author = ("author" in post && post.author?.name) || DEFAULT_AUTHOR;
+              const reading = estimateReadingMinutes(post.bodyMarkdown);
+              return (
+                <article key={post.id} className="blog-feature-card">
+                  {post.coverImageUrl ? (
+                    <Link
+                      href={`/blog/${post.slug}`}
+                      className="blog-feature-media"
+                      aria-hidden="true"
+                    >
+                      <div
+                        style={{
+                          backgroundImage: `linear-gradient(180deg, rgba(7,13,24,0) 0%, rgba(7,13,24,0.35) 100%), url(${post.coverImageUrl})`
+                        }}
+                      />
+                    </Link>
+                  ) : null}
+                  <div className="blog-feature-body">
+                    <div className="blog-feature-meta">
+                      {post.tags[0] ? (
+                        <span className="blog-tag-chip">{post.tags[0].label}</span>
+                      ) : null}
+                      <time dateTime={post.publishedAt?.toISOString() ?? ""}>
+                        {formatDate(post.publishedAt)}
+                      </time>
+                    </div>
+                    <h3 className="blog-feature-title">
+                      <Link href={`/blog/${post.slug}`}>{post.title}</Link>
+                    </h3>
+                    <p className="blog-feature-excerpt">{post.excerpt}</p>
+                    <div className="blog-byline">
+                      <span>Por {author}</span>
+                      <span className="blog-meta-dot">·</span>
+                      <span>{reading} min</span>
+                    </div>
+                  </div>
+                </article>
+              );
+            })}
+          </section>
+        ) : null}
+
+        {list.length ? (
+          <section className="blog-story-list" aria-label="Mais publicações">
+            <h2 className="blog-list-heading">Mais publicações</h2>
+            <ul>
+              {list.map((post) => {
+                const author = ("author" in post && post.author?.name) || DEFAULT_AUTHOR;
+                const reading = estimateReadingMinutes(post.bodyMarkdown);
+                return (
+                  <li key={post.id} className="blog-story-row">
+                    <div className="blog-story-text">
+                      <div className="blog-feature-meta">
+                        {post.tags[0] ? (
+                          <span className="blog-tag-chip">{post.tags[0].label}</span>
+                        ) : null}
+                        <time dateTime={post.publishedAt?.toISOString() ?? ""}>
+                          {formatDate(post.publishedAt)}
+                        </time>
+                      </div>
+                      <h3 className="blog-story-title">
+                        <Link href={`/blog/${post.slug}`}>{post.title}</Link>
+                      </h3>
+                      <p className="blog-story-excerpt">{post.excerpt}</p>
+                      <div className="blog-byline">
+                        <span>Por {author}</span>
+                        <span className="blog-meta-dot">·</span>
+                        <span>{reading} min</span>
+                      </div>
+                    </div>
+                    {post.coverImageUrl ? (
+                      <Link
+                        href={`/blog/${post.slug}`}
+                        className="blog-story-thumb"
+                        aria-hidden="true"
+                      >
+                        <div style={{ backgroundImage: `url(${post.coverImageUrl})` }} />
+                      </Link>
+                    ) : null}
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
+        ) : null}
       </div>
     </main>
   );
