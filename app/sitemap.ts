@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { listPublishedBlogPosts } from "@/lib/data/blog";
 import { listPublicBuilders, listPublicDevelopments } from "@/lib/data/developments";
 import { listPublicProperties } from "@/lib/data/properties";
 import { listPublishedSeoLandingPages } from "@/lib/data/seo-landing-pages";
@@ -11,11 +12,12 @@ function cityToSeoSlug(city: string) {
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
-  const [properties, developments, seoPages, builders] = await Promise.all([
+  const [properties, developments, seoPages, builders, blogPosts] = await Promise.all([
     listPublicProperties(),
     listPublicDevelopments(),
     listPublishedSeoLandingPages(),
-    listPublicBuilders()
+    listPublicBuilders(),
+    listPublishedBlogPosts()
   ]);
 
   const staticRoutes = [
@@ -27,6 +29,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/imoveis/leilao",
     "/investidores",
     "/venda-seu-imovel",
+    "/blog",
     "/sobre",
     "/contato",
     "/politica-de-cookies",
@@ -91,5 +94,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8
   }));
 
-  return [...staticRoutes, ...propertyRoutes, ...developmentRoutes, ...builderRoutes, ...autoLaunchRoutes, ...seoRoutes];
+  const blogRoutes = blogPosts.map((post) => ({
+    url: `${baseUrl}/blog/${post.slug}`,
+    lastModified: post.updatedAt ?? new Date(),
+    changeFrequency: "weekly" as const,
+    priority: 0.7
+  }));
+
+  return [...staticRoutes, ...propertyRoutes, ...developmentRoutes, ...builderRoutes, ...autoLaunchRoutes, ...seoRoutes, ...blogRoutes];
 }

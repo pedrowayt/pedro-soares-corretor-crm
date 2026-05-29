@@ -35,6 +35,7 @@ export function SiteFooter() {
             <p className="site-footer-group-title">Institucional</p>
             <nav className="site-footer-link-list">
               <Link href="/sobre">Sobre</Link>
+              <Link href="/blog">Blog</Link>
               <Link href="/venda-seu-imovel">Anunciar</Link>
               <Link href="/contato">Contato</Link>
               <Link href="/admin/login">Área admin</Link>

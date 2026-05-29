@@ -23,6 +23,7 @@ const mainNav: NavItem[] = [
   { href: "/", label: "Home" },
   { href: "/imoveis", label: "Imóveis", children: propertySubNav },
   { href: "/sobre", label: "Sobre" },
+  { href: "/blog", label: "Blog" },
   { href: "/venda-seu-imovel", label: "Anunciar" },
   { href: "/contato", label: "Contato" }
 ];
