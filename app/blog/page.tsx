@@ -32,7 +32,8 @@ function estimateReadingMinutes(markdown: string) {
   return Math.max(1, Math.round(words / 200));
 }
 
-const DEFAULT_AUTHOR = "Pedro Soares";
+const AUTHOR_NAME = "Pedro Soares";
+const AUTHOR_CREDENTIAL = "CRECI 5861-TO";
 
 export default async function BlogIndexPage() {
   const posts = await listPublishedBlogPosts();
@@ -63,7 +64,7 @@ export default async function BlogIndexPage() {
   const featured = rest.slice(0, 2);
   const list = rest.slice(2);
 
-  const heroAuthor = ("author" in hero && hero.author?.name) || DEFAULT_AUTHOR;
+  const heroAuthor = AUTHOR_NAME;
   const heroReading = estimateReadingMinutes(hero.bodyMarkdown);
 
   return (
@@ -105,7 +106,10 @@ export default async function BlogIndexPage() {
             </h2>
             <p className="blog-hero-lede">{hero.excerpt}</p>
             <div className="blog-byline">
-              <span>Por {heroAuthor}</span>
+              <span>
+                Por {heroAuthor}{" "}
+                <span className="blog-author-credential">· {AUTHOR_CREDENTIAL}</span>
+              </span>
               <span className="blog-meta-dot">·</span>
               <span>{heroReading} min de leitura</span>
             </div>
@@ -118,7 +122,7 @@ export default async function BlogIndexPage() {
         {featured.length ? (
           <section className="blog-featured-grid" aria-label="Em destaque">
             {featured.map((post) => {
-              const author = ("author" in post && post.author?.name) || DEFAULT_AUTHOR;
+              const author = AUTHOR_NAME;
               const reading = estimateReadingMinutes(post.bodyMarkdown);
               return (
                 <article key={post.id} className="blog-feature-card">
@@ -149,7 +153,10 @@ export default async function BlogIndexPage() {
                     </h3>
                     <p className="blog-feature-excerpt">{post.excerpt}</p>
                     <div className="blog-byline">
-                      <span>Por {author}</span>
+                      <span>
+                        Por {author}{" "}
+                        <span className="blog-author-credential">· {AUTHOR_CREDENTIAL}</span>
+                      </span>
                       <span className="blog-meta-dot">·</span>
                       <span>{reading} min</span>
                     </div>
@@ -165,7 +172,7 @@ export default async function BlogIndexPage() {
             <h2 className="blog-list-heading">Mais publicações</h2>
             <ul>
               {list.map((post) => {
-                const author = ("author" in post && post.author?.name) || DEFAULT_AUTHOR;
+                const author = AUTHOR_NAME;
                 const reading = estimateReadingMinutes(post.bodyMarkdown);
                 return (
                   <li key={post.id} className="blog-story-row">
@@ -183,7 +190,10 @@ export default async function BlogIndexPage() {
                       </h3>
                       <p className="blog-story-excerpt">{post.excerpt}</p>
                       <div className="blog-byline">
-                        <span>Por {author}</span>
+                        <span>
+                          Por {author}{" "}
+                          <span className="blog-author-credential">· {AUTHOR_CREDENTIAL}</span>
+                        </span>
                         <span className="blog-meta-dot">·</span>
                         <span>{reading} min</span>
                       </div>

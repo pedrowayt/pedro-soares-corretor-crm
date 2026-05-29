@@ -12,7 +12,8 @@ export const revalidate = 60;
 
 const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://www.pedrosoarescorretor.com.br";
 const SITE_NAME = "Pedro Soares Imóveis";
-const DEFAULT_AUTHOR = "Pedro Soares";
+const AUTHOR_NAME = "Pedro Soares";
+const AUTHOR_CREDENTIAL = "CRECI 5861-TO";
 const AUTHOR_AVATAR_URL = "/brand/pedro-portrait-1.png";
 const SOCIAL_LINKS = [
   { label: "Instagram @pedrosoarespmw", href: "https://www.instagram.com/pedrosoarespmw/" },
@@ -87,7 +88,7 @@ export async function generateMetadata({
     title: `${post.title} | Blog ${SITE_NAME}`,
     description: post.excerpt,
     keywords: keywords.length ? keywords : undefined,
-    authors: [{ name: DEFAULT_AUTHOR }],
+    authors: [{ name: AUTHOR_NAME }],
     alternates: { canonical: url },
     openGraph: {
       title: post.title,
@@ -99,7 +100,7 @@ export async function generateMetadata({
       images,
       publishedTime: post.publishedAt?.toISOString(),
       modifiedTime: post.updatedAt?.toISOString(),
-      authors: [DEFAULT_AUTHOR],
+      authors: [AUTHOR_NAME],
       tags: keywords
     },
     twitter: {
@@ -122,7 +123,7 @@ export default async function BlogPostPage({
 
   const html = renderMarkdown(post.bodyMarkdown);
   const tags = "tags" in post ? post.tags : [];
-  const authorName = ("author" in post && post.author?.name) || DEFAULT_AUTHOR;
+  const authorName = AUTHOR_NAME;
   const reading = estimateReadingTime(post.bodyMarkdown);
   const publishedAt = post.publishedAt ?? null;
   const updatedAt = post.updatedAt ?? null;
@@ -223,7 +224,10 @@ export default async function BlogPostPage({
                 aria-hidden="true"
               />
               <div>
-                <div className="blog-author-name">Por {authorName}</div>
+                <div className="blog-author-name">
+                  Por {authorName}{" "}
+                  <span className="blog-author-credential">· {AUTHOR_CREDENTIAL}</span>
+                </div>
                 <div className="blog-author-meta">
                   {publishedAt ? (
                     <>
