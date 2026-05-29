@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { PROPERTY_TYPE_OPTIONS } from "@/lib/property-types";
 
 type FormStatus = {
   type: "idle" | "success" | "error";
@@ -141,11 +142,11 @@ export function SellerCaptureForm() {
         <div>
           <label htmlFor="seller-property-type">Tipo de imóvel</label>
           <select id="seller-property-type" name="propertyType" required>
-            <option value="CASA">Casa</option>
-            <option value="APARTAMENTO">Apartamento</option>
-            <option value="LOTE">Lote</option>
-            <option value="COMERCIAL">Comercial</option>
-            <option value="RURAL">Rural</option>
+            {PROPERTY_TYPE_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
           </select>
         </div>
         <div>

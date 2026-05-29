@@ -3,14 +3,7 @@
 import { useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { applyWatermarkToImage } from "@/lib/media/watermark";
-
-const TYPE_OPTIONS = [
-  { value: "CASA", label: "Casa" },
-  { value: "APARTAMENTO", label: "Apartamento" },
-  { value: "LOTE", label: "Lote" },
-  { value: "COMERCIAL", label: "Comercial" },
-  { value: "RURAL", label: "Rural" }
-] as const;
+import { PROPERTY_TYPE_OPTIONS as TYPE_OPTIONS } from "@/lib/property-types";
 
 const PURPOSE_OPTIONS = [
   { value: "VENDA", label: "Venda" },

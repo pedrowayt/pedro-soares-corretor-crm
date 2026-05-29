@@ -1,18 +1,12 @@
 import type { Metadata } from "next";
-import { PropertyType } from "@prisma/client";
 import Link from "next/link";
 import { PropertyCard } from "@/components/public/property-card";
 import { listPublicProperties } from "@/lib/data/properties";
+import { PROPERTY_TYPE_OPTIONS } from "@/lib/property-types";
 
 const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
 
-const typeOptions: Array<{ value: PropertyType; label: string }> = [
-  { value: "CASA", label: "Casa" },
-  { value: "APARTAMENTO", label: "Apartamento" },
-  { value: "LOTE", label: "Lote" },
-  { value: "COMERCIAL", label: "Comercial" },
-  { value: "RURAL", label: "Rural" }
-];
+const typeOptions = PROPERTY_TYPE_OPTIONS;
 
 export const metadata: Metadata = {
   title: "Imóveis de leilão em Palmas TO | Oportunidades",

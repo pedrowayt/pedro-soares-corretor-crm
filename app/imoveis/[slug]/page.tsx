@@ -150,7 +150,13 @@ export default async function PropertyDetailsPage({ params }: { params: Promise<
   const features = property.features ?? [];
   const roomFeature = findFeatureSummary(features, ["sala", "living"]);
   const landFeature = findFeatureSummary(features, ["terreno", "quintal", "lote"]);
-  const isLandProperty = property.type === "LOTE" || property.type === "RURAL";
+  const isLandProperty =
+    property.type === "LOTE" ||
+    property.type === "LOTE_EM_CONDOMINIO" ||
+    property.type === "RURAL" ||
+    property.type === "CHACARA" ||
+    property.type === "CHACARA_EM_CONDOMINIO" ||
+    property.type === "FAZENDA";
   const technicalSummaryItems: Array<{
     label: string;
     value: string;

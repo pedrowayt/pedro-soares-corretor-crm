@@ -3,6 +3,11 @@ import Link from "next/link";
 import { developmentPublicStageLabels, listHighlightedDevelopments } from "@/lib/data/developments";
 import { getDevelopmentStageLabel } from "@/lib/development-investment";
 import { listPublicProperties } from "@/lib/data/properties";
+import {
+  PROPERTY_TYPE_LABELS,
+  PROPERTY_TYPE_OPTIONS,
+  PROPERTY_TYPE_ORDER
+} from "@/lib/property-types";
 import { formatCurrencyBRL } from "@/lib/utils";
 
 type SearchMode = "geral" | "planta" | "leilao";
@@ -57,13 +62,7 @@ const purposeLabelMap: Record<PropertyPurpose, string> = {
   LANCAMENTO: "Lançamento"
 };
 
-const typeLabelMap: Record<PropertyType, string> = {
-  CASA: "Casa",
-  APARTAMENTO: "Apartamento",
-  LOTE: "Lote",
-  COMERCIAL: "Comercial",
-  RURAL: "Rural"
-};
+const typeLabelMap: Record<PropertyType, string> = PROPERTY_TYPE_LABELS;
 
 const featuredAreas: FeaturedArea[] = [
   {
@@ -104,7 +103,7 @@ const featuredAreas: FeaturedArea[] = [
   }
 ];
 
-const propertyTypeOrder: PropertyType[] = ["CASA", "APARTAMENTO", "LOTE", "COMERCIAL", "RURAL"];
+const propertyTypeOrder: PropertyType[] = PROPERTY_TYPE_ORDER;
 
 function normalizePropertyCard(property: {
   id: string;
@@ -343,11 +342,11 @@ export default async function HomePage({
                 <label htmlFor="type-auction">Tipo</label>
                 <select id="type-auction" name="type" defaultValue="">
                   <option value="">Todos</option>
-                  <option value="CASA">Casa</option>
-                  <option value="APARTAMENTO">Apartamento</option>
-                  <option value="LOTE">Lote</option>
-                  <option value="COMERCIAL">Comercial</option>
-                  <option value="RURAL">Rural</option>
+                  {PROPERTY_TYPE_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
                 </select>
               </div>
               <button type="submit" className="button button-primary">
@@ -386,11 +385,11 @@ export default async function HomePage({
                 <label htmlFor="type">Tipo</label>
                 <select id="type" name="type" defaultValue="">
                   <option value="">Todos</option>
-                  <option value="CASA">Casa</option>
-                  <option value="APARTAMENTO">Apartamento</option>
-                  <option value="LOTE">Lote</option>
-                  <option value="COMERCIAL">Comercial</option>
-                  <option value="RURAL">Rural</option>
+                  {PROPERTY_TYPE_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
                 </select>
               </div>
               <button type="submit" className="button button-primary">

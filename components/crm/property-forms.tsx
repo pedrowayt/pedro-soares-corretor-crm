@@ -2,14 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-
-const PROPERTY_TYPE_OPTIONS = [
-  { value: "CASA", label: "Casa" },
-  { value: "APARTAMENTO", label: "Apartamento" },
-  { value: "LOTE", label: "Lote" },
-  { value: "COMERCIAL", label: "Comercial" },
-  { value: "RURAL", label: "Rural" }
-] as const;
+import { PROPERTY_TYPE_OPTIONS } from "@/lib/property-types";
 
 const PROPERTY_PURPOSE_OPTIONS = [
   { value: "VENDA", label: "Venda" },
