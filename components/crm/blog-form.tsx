@@ -43,9 +43,42 @@ export function BlogPostForm({ initial }: Props) {
   const [status, setStatus] = useState<BlogStatusValue>(initial?.status ?? "DRAFT");
   const [tagsInput, setTagsInput] = useState(initial?.tagSlugs?.join(", ") ?? "");
   const [saving, setSaving] = useState(false);
+  const [generating, setGenerating] = useState(false);
   const [feedback, setFeedback] = useState<{ kind: "success" | "error"; message: string } | null>(
     null
   );
+
+  async function handleGenerateWithAi() {
+    setGenerating(true);
+    setFeedback(null);
+    try {
+      const response = await fetch("/api/crm/blog/ai-draft", { method: "POST" });
+      const json = await response.json().catch(() => null);
+
+      if (!response.ok || !json?.success) {
+        const message = json?.error?.message ?? "Não foi possível gerar com IA.";
+        setFeedback({ kind: "error", message });
+        return;
+      }
+
+      const draft = json.data?.draft;
+      if (!draft) {
+        setFeedback({ kind: "error", message: "A IA não retornou um rascunho." });
+        return;
+      }
+
+      setTitle(draft.title ?? "");
+      setSlug(draft.slug ?? "");
+      setExcerpt(draft.excerpt ?? "");
+      setBodyMarkdown(draft.bodyMarkdown ?? "");
+      if (Array.isArray(draft.tagSlugs)) setTagsInput(draft.tagSlugs.join(", "));
+      setFeedback({ kind: "success", message: "Rascunho gerado. Revise e salve." });
+    } catch {
+      setFeedback({ kind: "error", message: "Erro de rede ao gerar com IA." });
+    } finally {
+      setGenerating(false);
+    }
+  }
 
   const tagSlugs = useMemo(
     () =>
@@ -128,6 +161,36 @@ export function BlogPostForm({ initial }: Props) {
 
   return (
     <form onSubmit={handleSubmit} className="card" style={{ padding: 16, display: "grid", gap: 12 }}>
+      {!isEditing ? (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 12,
+            padding: 12,
+            borderRadius: 8,
+            background: "var(--surface-muted, #f5f5f5)",
+            flexWrap: "wrap"
+          }}
+        >
+          <div>
+            <strong>Gerar rascunho com IA</strong>
+            <div style={{ color: "var(--text-muted)", fontSize: 13 }}>
+              Usa lançamentos e imóveis ativos para escrever um post inicial.
+            </div>
+          </div>
+          <button
+            type="button"
+            className="button button-ghost"
+            onClick={handleGenerateWithAi}
+            disabled={generating || saving}
+          >
+            {generating ? "Gerando..." : "Gerar com IA"}
+          </button>
+        </div>
+      ) : null}
+
       <div style={{ display: "grid", gap: 4 }}>
         <label htmlFor="blog-title">Título</label>
         <input

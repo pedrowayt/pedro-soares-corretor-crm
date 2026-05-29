@@ -195,7 +195,16 @@ export type BlogDraftResult = {
   slug: string;
 };
 
-export async function generateBlogDraft(): Promise<BlogDraftResult> {
+export type BlogDraftContent = {
+  topic: BlogDraftTopic;
+  title: string;
+  slug: string;
+  excerpt: string;
+  bodyMarkdown: string;
+  tagSlugs: string[];
+};
+
+export async function generateBlogDraftContent(): Promise<BlogDraftContent> {
   if (!process.env.OPENAI_API_KEY) {
     throw new Error("OPENAI_API_KEY não configurada.");
   }
@@ -254,15 +263,28 @@ export async function generateBlogDraft(): Promise<BlogDraftResult> {
 
   const slug = await ensureUniqueSlug(parsed.data.slug);
 
-  const post = await createBlogPost({
+  return {
+    topic,
     title: parsed.data.title.slice(0, 70),
     slug,
     excerpt: parsed.data.excerpt.slice(0, 280),
     bodyMarkdown: parsed.data.bodyMarkdown,
+    tagSlugs: parsed.data.tagSlugs
+  };
+}
+
+export async function generateBlogDraft(): Promise<BlogDraftResult> {
+  const draft = await generateBlogDraftContent();
+
+  const post = await createBlogPost({
+    title: draft.title,
+    slug: draft.slug,
+    excerpt: draft.excerpt,
+    bodyMarkdown: draft.bodyMarkdown,
     status: "DRAFT",
     source: "AI_GENERATED",
-    tagSlugs: parsed.data.tagSlugs
+    tagSlugs: draft.tagSlugs
   });
 
-  return { topic, postId: post.id, title: post.title, slug: post.slug };
+  return { topic: draft.topic, postId: post.id, title: post.title, slug: post.slug };
 }
