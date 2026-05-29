@@ -2,9 +2,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Marked } from "marked";
+import { BlogNewsletterForm } from "@/components/blog/BlogNewsletterForm";
 import { BlogShareBar } from "@/components/blog/BlogShareBar";
+import { BlogSidebarAuthor } from "@/components/blog/BlogSidebarAuthor";
 import { BlogViewTracker } from "@/components/blog/BlogViewTracker";
-import { listPublishedBlogPosts } from "@/lib/data/blog";
+import { listPublishedBlogPosts, listTopViewedBlogPosts } from "@/lib/data/blog";
 import { listPublicProperties } from "@/lib/data/properties";
 import { prisma } from "@/lib/prisma";
 import { formatCurrencyBRL } from "@/lib/utils";
@@ -16,10 +18,9 @@ const SITE_NAME = "Pedro Soares Imóveis";
 const AUTHOR_NAME = "Pedro Soares";
 const AUTHOR_CREDENTIAL = "CRECI 5861-TO";
 const AUTHOR_AVATAR_URL = "/brand/pedro-portrait-1.png";
-const SOCIAL_LINKS = [
-  { label: "Instagram @pedrosoarespmw", href: "https://www.instagram.com/pedrosoarespmw/" },
-  { label: "WhatsApp", href: "https://wa.me/5563984845101" }
-];
+const WHATSAPP_URL =
+  "https://wa.me/5563984845101?text=Ol%C3%A1%20Pedro%2C%20li%20um%20post%20do%20blog%20e%20quero%20falar%20sobre%20im%C3%B3veis.";
+const INSTAGRAM_URL = "https://www.instagram.com/pedrosoarespmw/";
 
 const blogMarkdownRenderer = new Marked({
   async: false,
@@ -130,15 +131,16 @@ export default async function BlogPostPage({
   const updatedAt = post.updatedAt ?? null;
   const url = `${baseUrl}/blog/${post.slug}`;
 
-  const [allPosts, allProperties] = await Promise.all([
-    listPublishedBlogPosts(6),
-    listPublicProperties()
+  const [allProperties, topViewedRaw] = await Promise.all([
+    listPublicProperties(),
+    listTopViewedBlogPosts(4)
   ]);
 
-  const relatedPosts = allPosts.filter((p) => p.slug !== post.slug).slice(0, 3);
-  const recentProperties = allProperties
+  const sidebarProperties = allProperties
     .filter((p) => p.status === "DISPONIVEL")
     .slice(0, 3);
+
+  const trendingPosts = topViewedRaw.filter((p) => p.slug !== post.slug).slice(0, 3);
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -175,7 +177,7 @@ export default async function BlogPostPage({
 
   return (
     <main className="section">
-      <div className="container" style={{ maxWidth: 820 }}>
+      <div className="container blog-post-layout">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
@@ -186,9 +188,10 @@ export default async function BlogPostPage({
         />
         <BlogViewTracker slug={post.slug} />
 
-        <p style={{ marginTop: 0 }}>
-          <Link href="/blog">← Voltar para o blog</Link>
-        </p>
+        <div className="blog-post-main">
+          <p style={{ marginTop: 0 }}>
+            <Link href="/blog">← Voltar para o blog</Link>
+          </p>
 
         <article>
           <header>
@@ -271,155 +274,109 @@ export default async function BlogPostPage({
           </footer>
         </article>
 
-        <hr style={{ margin: "32px 0", border: 0, borderTop: "1px solid var(--border)" }} />
+          <hr style={{ margin: "32px 0", border: 0, borderTop: "1px solid var(--border)" }} />
 
-        <div className="wp-cta-bar">
-          <h3>Quer conversar sobre imóveis em Palmas?</h3>
-          <div>
-            <a
-              className="button button-whatsapp"
-              href="https://wa.me/5563984845101?text=Ol%C3%A1%20Pedro%2C%20li%20um%20post%20do%20blog%20e%20quero%20falar%20sobre%20im%C3%B3veis."
-              target="_blank"
-              rel="noreferrer"
-            >
-              Falar no WhatsApp
-            </a>
-            <Link className="button button-primary" href="/imoveis/prontos">
-              Ver imóveis
-            </Link>
-          </div>
-        </div>
-
-        <section style={{ marginTop: 36 }} aria-labelledby="follow-heading">
-          <h3 id="follow-heading" style={{ marginBottom: 8 }}>
-            Acompanhe Pedro Soares
-          </h3>
-          <p style={{ color: "var(--text-muted)", margin: "0 0 12px", fontSize: "var(--fs-14)" }}>
-            Conteúdo do mercado, novos imóveis e bastidores de Palmas TO.
-          </p>
-          <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-            {SOCIAL_LINKS.map((social) => (
+          <div className="wp-cta-bar">
+            <h3>Quer conversar sobre imóveis em Palmas?</h3>
+            <div>
               <a
-                key={social.href}
-                href={social.href}
+                className="button button-whatsapp"
+                href={WHATSAPP_URL}
                 target="_blank"
-                rel="noopener noreferrer"
-                className="button button-ghost"
+                rel="noreferrer"
               >
-                {social.label} ↗
+                Falar no WhatsApp
               </a>
-            ))}
+              <Link className="button button-primary" href="/imoveis/prontos">
+                Ver imóveis
+              </Link>
+            </div>
           </div>
-        </section>
+        </div>
+
+        <aside className="blog-post-sidebar" aria-label="Sidebar do post">
+          <div className="blog-sidebar-sticky">
+            <BlogSidebarAuthor whatsappUrl={WHATSAPP_URL} instagramUrl={INSTAGRAM_URL} />
+          </div>
+
+          <BlogNewsletterForm
+            source={`post:${post.slug}`}
+            variant="compact"
+            heading="Receba no e-mail"
+            lede="Um envio semanal com bairros em alta, oportunidades e leituras do mercado."
+          />
+
+          {sidebarProperties.length ? (
+            <section className="blog-sidebar-card" aria-labelledby="sidebar-properties-heading">
+              <p className="blog-sidebar-eyebrow">Imóveis em destaque</p>
+              <h3 id="sidebar-properties-heading" className="blog-sidebar-heading">
+                Para conhecer agora
+              </h3>
+              <ul className="blog-sidebar-properties">
+                {sidebarProperties.map((property) => {
+                  const imageUrl = property.media?.[0]?.url ?? "/brand/logo-light-bg.png";
+                  return (
+                    <li key={property.id}>
+                      <Link
+                        href={`/imoveis/${property.slug}`}
+                        className="blog-sidebar-property"
+                        aria-label={`Ver ${property.title}`}
+                      >
+                        <span
+                          className="blog-sidebar-property-thumb"
+                          style={{ backgroundImage: `url(${imageUrl})` }}
+                          aria-hidden="true"
+                        />
+                        <span className="blog-sidebar-property-info">
+                          <span className="blog-sidebar-property-title">{property.title}</span>
+                          <span className="blog-sidebar-property-meta">
+                            {property.district} · {property.city}
+                          </span>
+                          <span className="blog-sidebar-property-price">
+                            {formatCurrencyBRL(property.priceValue)}
+                          </span>
+                        </span>
+                      </Link>
+                    </li>
+                  );
+                })}
+              </ul>
+              <Link href="/imoveis/prontos" className="blog-sidebar-link">
+                Ver todos os imóveis →
+              </Link>
+            </section>
+          ) : null}
+
+          {trendingPosts.length ? (
+            <section className="blog-sidebar-card" aria-labelledby="sidebar-trending-heading">
+              <p className="blog-sidebar-eyebrow">🔥 Em alta</p>
+              <h3 id="sidebar-trending-heading" className="blog-sidebar-heading">
+                Mais lidos do blog
+              </h3>
+              <ol className="blog-sidebar-trending">
+                {trendingPosts.map((other, index) => (
+                  <li key={other.id}>
+                    <span className="blog-sidebar-trending-rank">
+                      {String(index + 1).padStart(2, "0")}
+                    </span>
+                    <div>
+                      <Link
+                        href={`/blog/${other.slug}`}
+                        className="blog-sidebar-trending-title"
+                      >
+                        {other.title}
+                      </Link>
+                      <span className="blog-sidebar-trending-meta">
+                        {other.views ?? 0} {(other.views ?? 0) === 1 ? "leitura" : "leituras"}
+                      </span>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            </section>
+          ) : null}
+        </aside>
       </div>
-
-      {recentProperties.length ? (
-        <div className="container" style={{ marginTop: 48 }}>
-          <div className="wp-section-head">
-            <h2 className="section-title">Imóveis recentes em Palmas</h2>
-            <p className="section-subtitle text-card">
-              Selecione, agende visita e converse direto pelo WhatsApp.
-            </p>
-          </div>
-
-          <div className="wp-property-grid wp-property-grid-3" style={{ marginTop: 20 }}>
-            {recentProperties.map((property) => {
-              const imageUrl = property.media?.[0]?.url ?? "/brand/logo-light-bg.png";
-              return (
-                <article key={property.id} className="wp-property-card compact">
-                  <div
-                    className="wp-property-media"
-                    style={{
-                      backgroundImage: `linear-gradient(180deg, rgba(7,13,24,0.05), rgba(7,13,24,0.55)), url(${imageUrl})`
-                    }}
-                  />
-                  <div className="wp-property-body">
-                    <p
-                      className="text-card"
-                      style={{
-                        margin: 0,
-                        color: "var(--text-muted)",
-                        fontSize: "var(--fs-12)"
-                      }}
-                    >
-                      {property.district} — {property.city}
-                    </p>
-                    <h3 style={{ marginTop: 6 }}>{property.title}</h3>
-                    <p
-                      className="text-card"
-                      style={{ marginTop: 6, fontWeight: 600 }}
-                    >
-                      {formatCurrencyBRL(property.priceValue)}
-                    </p>
-                    <p
-                      className="text-card"
-                      style={{ marginTop: 4, color: "var(--text-muted)", fontSize: "var(--fs-13)" }}
-                    >
-                      {property.bedrooms ? `${property.bedrooms} quartos` : ""}
-                      {property.areaM2Value ? ` • ${property.areaM2Value} m²` : ""}
-                    </p>
-                    <Link
-                      href={`/imoveis/${property.slug}`}
-                      className="button button-primary"
-                      style={{ width: "100%", marginTop: 12 }}
-                    >
-                      Ver imóvel
-                    </Link>
-                  </div>
-                </article>
-              );
-            })}
-          </div>
-
-          <div style={{ marginTop: 16, textAlign: "center" }}>
-            <Link href="/imoveis/prontos" className="button button-ghost">
-              Ver todos os imóveis
-            </Link>
-          </div>
-        </div>
-      ) : null}
-
-      {relatedPosts.length ? (
-        <div className="container" style={{ marginTop: 56 }}>
-          <div className="wp-section-head">
-            <h2 className="section-title">Mais do blog</h2>
-          </div>
-          <div className="wp-property-grid wp-property-grid-3" style={{ marginTop: 20 }}>
-            {relatedPosts.map((other) => {
-              const cover = other.coverImageUrl ?? "/brand/logo-light-bg.png";
-              return (
-                <article key={other.id} className="wp-property-card compact">
-                  <div
-                    className="wp-property-media"
-                    style={{
-                      backgroundImage: `linear-gradient(180deg, rgba(7,13,24,0.05), rgba(7,13,24,0.6)), url(${cover})`
-                    }}
-                  />
-                  <div className="wp-property-body">
-                    <p
-                      className="text-card"
-                      style={{ margin: 0, color: "var(--text-muted)", fontSize: "var(--fs-12)" }}
-                    >
-                      {formatLongDate(other.publishedAt)}
-                    </p>
-                    <h3 style={{ marginTop: 6 }}>{other.title}</h3>
-                    <p className="text-card" style={{ marginTop: 6 }}>
-                      {other.excerpt}
-                    </p>
-                    <Link
-                      href={`/blog/${other.slug}`}
-                      className="button button-primary"
-                      style={{ width: "100%", marginTop: 12 }}
-                    >
-                      Ler post
-                    </Link>
-                  </div>
-                </article>
-              );
-            })}
-          </div>
-        </div>
-      ) : null}
     </main>
   );
 }

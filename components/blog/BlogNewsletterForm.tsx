@@ -4,9 +4,12 @@ import { useState } from "react";
 
 type Props = {
   source?: string;
+  variant?: "default" | "compact";
+  heading?: string;
+  lede?: string;
 };
 
-export function BlogNewsletterForm({ source }: Props) {
+export function BlogNewsletterForm({ source, variant = "default", heading, lede }: Props) {
   const [email, setEmail] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<{ kind: "success" | "error"; message: string } | null>(
@@ -48,23 +51,30 @@ export function BlogNewsletterForm({ source }: Props) {
     }
   }
 
+  const fieldId = `newsletter-email-${variant}`;
+  const titleId = `newsletter-title-${variant}`;
+  const isCompact = variant === "compact";
+
   return (
-    <aside className="blog-newsletter" aria-labelledby="newsletter-title">
+    <aside
+      className={`blog-newsletter${isCompact ? " blog-newsletter-compact" : ""}`}
+      aria-labelledby={titleId}
+    >
       <div className="blog-newsletter-copy">
         <p className="blog-newsletter-eyebrow">Boletim</p>
-        <h2 id="newsletter-title" className="blog-newsletter-title">
-          Receba lançamentos e leituras do mercado em Palmas
+        <h2 id={titleId} className="blog-newsletter-title">
+          {heading ?? "Receba lançamentos e leituras do mercado em Palmas"}
         </h2>
         <p className="blog-newsletter-lede">
-          Um e-mail semanal com bairros em alta, oportunidades e análises do Pedro. Sem spam.
+          {lede ?? "Um e-mail semanal com bairros em alta, oportunidades e análises do Pedro. Sem spam."}
         </p>
       </div>
       <form onSubmit={handleSubmit} className="blog-newsletter-form">
-        <label htmlFor="newsletter-email" className="sr-only">
+        <label htmlFor={fieldId} className="sr-only">
           E-mail
         </label>
         <input
-          id="newsletter-email"
+          id={fieldId}
           type="email"
           inputMode="email"
           autoComplete="email"
