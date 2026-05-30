@@ -1503,10 +1503,10 @@ body:has(.admin-login-page) .cookie-consent-banner {
 }
 
 .site-logo img {
-  width: 360px;
-  height: 110px;
-  max-width: 52vw;
-  max-height: 110px;
+  width: 480px;
+  height: 150px;
+  max-width: 56vw;
+  max-height: 150px;
   object-fit: contain;
   object-position: left center;
   border-radius: 0;
@@ -5207,9 +5207,10 @@ body:has(.admin-login-page) .cookie-consent-banner {
   }
 
   .site-logo img {
-    width: 170px;
-    max-width: 60vw;
-    max-height: 36px;
+    width: 240px;
+    height: 76px;
+    max-width: 64vw;
+    max-height: 76px;
   }
 
   .site-mobile-drawer-head .site-logo img {
