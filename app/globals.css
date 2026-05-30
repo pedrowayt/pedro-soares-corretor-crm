@@ -7109,6 +7109,34 @@ body:has(.admin-login-page) .cookie-consent-banner {
   font-size: 1.125rem;
 }
 
+.property-list-card-price-label {
+  margin: 0 0 -2px;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+.property-list-card-builder {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+}
+
+.property-list-card-builder svg {
+  width: 14px;
+  height: 14px;
+  stroke-width: 1.75;
+}
+
+.property-list-card-extra {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+}
+
 .property-list-card-foot .button {
   padding: 8px 18px;
   font-size: 0.875rem;
