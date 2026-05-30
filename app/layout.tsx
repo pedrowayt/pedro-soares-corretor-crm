@@ -39,6 +39,18 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="pt-BR">
       <head>
+        {/* Google Consent Mode v2 — default everything to denied (LGPD-friendly).
+            The cookie banner updates these grants when the visitor consents. We
+            also hydrate from the persisted consent cookie BEFORE the GA / GTM
+            loader runs so a returning visitor with consent already given does
+            not lose a page view on first paint. */}
+        {GA_ID || GTM_ID || META_PIXEL_ID ? (
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}window.gtag=window.gtag||gtag;gtag('consent','default',{ad_storage:'denied',ad_user_data:'denied',ad_personalization:'denied',analytics_storage:'denied',functionality_storage:'granted',security_storage:'granted'});try{var c=document.cookie.split(';').map(function(s){return s.trim();}).find(function(s){return s.indexOf('ps_cookie_consent=')===0;});if(c){var v=decodeURIComponent(c.split('=')[1]||'');var p=v.indexOf('{')===0?JSON.parse(v):null;var analytics=p?!!p.analytics:v==='accepted';var marketing=p?!!p.marketing:v==='accepted';gtag('consent','update',{ad_storage:marketing?'granted':'denied',ad_user_data:marketing?'granted':'denied',ad_personalization:marketing?'granted':'denied',analytics_storage:analytics?'granted':'denied'});}}catch(e){}`
+            }}
+          />
+        ) : null}
         {GA_ID ? (
           <>
             {/* Google tag (gtag.js) — rendered as plain <script> so it lands
@@ -50,7 +62,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             />
             <script
               dangerouslySetInnerHTML={{
-                __html: `window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', '${GA_ID}', { anonymize_ip: true });`
+                __html: `gtag('js', new Date());gtag('config', '${GA_ID}', { anonymize_ip: true });`
               }}
             />
           </>
@@ -65,7 +77,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         {META_PIXEL_ID ? (
           <script
             dangerouslySetInnerHTML={{
-              __html: `!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window, document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init', '${META_PIXEL_ID}');fbq('track', 'PageView');`
+              __html: `!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window, document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('consent','revoke');try{var c=document.cookie.split(';').map(function(s){return s.trim();}).find(function(s){return s.indexOf('ps_cookie_consent=')===0;});var v=c?decodeURIComponent(c.split('=')[1]||''):'';var p=v.indexOf('{')===0?JSON.parse(v):null;var mk=p?!!p.marketing:v==='accepted';if(mk){fbq('consent','grant');}}catch(e){}fbq('init', '${META_PIXEL_ID}');fbq('track', 'PageView');`
             }}
           />
         ) : null}

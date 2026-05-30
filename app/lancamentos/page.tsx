@@ -250,6 +250,13 @@ export default async function LancamentosPage({
 
           <div className="listing-layout">
             <aside className="listing-filters" aria-label="Filtros">
+              <details className="listing-filters-details">
+                <summary className="listing-filters-summary">
+                  <span>Filtros</span>
+                  <span className="listing-filters-summary-chevron" aria-hidden="true">
+                    ▾
+                  </span>
+                </summary>
               <form method="GET" className="listing-filters-form">
                 <div className="listing-filters-head">
                   <h2 className="listing-filters-title">Filtros</h2>
@@ -396,6 +403,7 @@ export default async function LancamentosPage({
                   Aplicar filtros
                 </button>
               </form>
+              </details>
             </aside>
 
             <section className="listing-results" aria-label="Resultados">
