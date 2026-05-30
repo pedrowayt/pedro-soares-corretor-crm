@@ -26,7 +26,7 @@ export const metadata: Metadata = {
 };
 
 function parseNumber(value: string | string[] | undefined) {
-  if (typeof value !== "string") return undefined;
+  if (typeof value !== "string" || value.trim() === "") return undefined;
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : undefined;
 }
