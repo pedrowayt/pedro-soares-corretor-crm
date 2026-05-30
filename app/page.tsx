@@ -292,6 +292,11 @@ export default async function HomePage({
       <section className="wp-hero">
         <div className="wp-hero-media" />
         <div className="wp-hero-overlay" />
+        <div
+          className="wp-hero-portrait"
+          aria-hidden="true"
+          style={{ backgroundImage: "url(/brand/eu.png)" }}
+        />
 
         <div className="container wp-hero-content">
           <p className="wp-hero-eyebrow">Pedro Soares • Especialista em imóveis em Palmas</p>
