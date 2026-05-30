@@ -399,8 +399,9 @@ function matchDevelopmentFilters(
   }
 
   if (typeof filters.bedrooms === "number") {
+    const minBedrooms = filters.bedrooms;
     const matchesBedrooms = development.unitTypes.some((unit) =>
-      typeof unit.bedrooms === "number" ? unit.bedrooms === filters.bedrooms : false
+      typeof unit.bedrooms === "number" ? unit.bedrooms >= minBedrooms : false
     );
 
     if (!matchesBedrooms) return false;
@@ -456,7 +457,7 @@ export async function listPublicDevelopments(filters: PublicDevelopmentFilters =
         ? {
             unitTypes: {
               some: {
-                bedrooms: filters.bedrooms
+                bedrooms: { gte: filters.bedrooms }
               }
             }
           }

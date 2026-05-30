@@ -16,6 +16,13 @@ export type PublicPropertyFilters = {
   minAreaM2?: number;
 };
 
+function normalizeForMatch(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase();
+}
+
 function matchPublicFilters(
   property: {
     city: string;
@@ -28,13 +35,19 @@ function matchPublicFilters(
   },
   filters: PublicPropertyFilters
 ) {
-  if (filters.city && property.city !== filters.city) return false;
-  if (filters.district && property.district !== filters.district) return false;
+  if (filters.city) {
+    const needle = normalizeForMatch(filters.city);
+    if (!normalizeForMatch(property.city).includes(needle)) return false;
+  }
+  if (filters.district) {
+    const needle = normalizeForMatch(filters.district);
+    if (!normalizeForMatch(property.district).includes(needle)) return false;
+  }
   if (filters.type && property.type !== filters.type) return false;
   if (filters.purpose && property.purpose !== filters.purpose) return false;
   if (filters.minPrice && property.price < filters.minPrice) return false;
   if (filters.maxPrice && property.price > filters.maxPrice) return false;
-  if (filters.bedrooms !== undefined && property.bedrooms !== filters.bedrooms) return false;
+  if (filters.bedrooms !== undefined && (property.bedrooms ?? 0) < filters.bedrooms) return false;
   if (filters.minAreaM2 && (!property.areaM2 || property.areaM2 < filters.minAreaM2)) return false;
   return true;
 }
@@ -111,16 +124,28 @@ export async function listPublicProperties(filters: PublicPropertyFilters = {}) 
             PropertyStatus.ALUGADO
           ]
         },
-        city: filters.city,
-        district: filters.district,
-        type: filters.type,
-        purpose: filters.purpose,
-        price: {
-          gte: filters.minPrice,
-          lte: filters.maxPrice
-        },
-        bedrooms: filters.bedrooms,
-        areaM2: filters.minAreaM2 ? { gte: filters.minAreaM2 } : undefined
+        ...(filters.city
+          ? { city: { contains: filters.city, mode: "insensitive" } }
+          : {}),
+        ...(filters.district
+          ? { district: { contains: filters.district, mode: "insensitive" } }
+          : {}),
+        ...(filters.type ? { type: filters.type } : {}),
+        ...(filters.purpose ? { purpose: filters.purpose } : {}),
+        ...(typeof filters.minPrice === "number" || typeof filters.maxPrice === "number"
+          ? {
+              price: {
+                ...(typeof filters.minPrice === "number" ? { gte: filters.minPrice } : {}),
+                ...(typeof filters.maxPrice === "number" ? { lte: filters.maxPrice } : {})
+              }
+            }
+          : {}),
+        ...(typeof filters.bedrooms === "number"
+          ? { bedrooms: { gte: filters.bedrooms } }
+          : {}),
+        ...(typeof filters.minAreaM2 === "number"
+          ? { areaM2: { gte: filters.minAreaM2 } }
+          : {})
       },
       include: {
         media: {
