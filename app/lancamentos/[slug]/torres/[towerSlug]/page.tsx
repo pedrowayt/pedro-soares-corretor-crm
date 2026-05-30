@@ -10,8 +10,9 @@ import { getPublicDevelopmentTowerBySlug } from "@/lib/data/developments";
 import { getDevelopmentAmenityIcon } from "@/lib/icons/development";
 import { buildDevelopmentMessage, buildDevelopmentUnitMessage, buildWhatsAppUrl } from "@/lib/integrations/whatsapp-links";
 import { formatCurrencyBRL } from "@/lib/utils";
+import { getSiteUrl } from "@/lib/site-url";
 
-const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+const baseUrl = getSiteUrl();
 
 function formatMonthYear(value: Date | string | null | undefined) {
   if (!value) return "A definir";

@@ -5,6 +5,7 @@ import type { LucideIcon } from "lucide-react";
 import { notFound } from "next/navigation";
 import { PropertyGallery } from "@/components/public/property-gallery";
 import { WhatsAppPropertyButton } from "@/components/public/whatsapp-property-button";
+import { getSiteUrl } from "@/lib/site-url";
 
 const INSTAGRAM_URL =
   "https://www.instagram.com/pedrosoarespmw?igsh=MXQ3ZTA2YW13ZjZmNQ%3D%3D&utm_source=qr";
@@ -12,7 +13,7 @@ import { getPropertyBySlug } from "@/lib/data/properties";
 import { buildGoogleMapsEmbedUrl, buildGoogleMapsOpenUrl } from "@/lib/maps";
 import { formatCurrencyBRL } from "@/lib/utils";
 
-const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+const baseUrl = getSiteUrl();
 
 const purposeLabelMap: Record<string, string> = {
   VENDA: "venda",

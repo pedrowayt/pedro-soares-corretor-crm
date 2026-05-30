@@ -7,8 +7,9 @@ import { PropertyCard } from "@/components/public/property-card";
 import { getPublishedSeoLandingPageByPath } from "@/lib/data/seo-landing-pages";
 import { listPublicDevelopments } from "@/lib/data/developments";
 import { listPublicProperties } from "@/lib/data/properties";
+import { getSiteUrl } from "@/lib/site-url";
 
-const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+const baseUrl = getSiteUrl();
 
 type AutoSeoRoute =
   | { kind: "city"; citySlug: string; city: string }

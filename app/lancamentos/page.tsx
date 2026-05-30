@@ -3,8 +3,9 @@ import Link from "next/link";
 import { DevelopmentPropertyType } from "@prisma/client";
 import { DevelopmentCard } from "@/components/public/development-card";
 import { developmentPublicStageLabels, listPublicDevelopments, type PublicDevelopmentStage } from "@/lib/data/developments";
+import { getSiteUrl } from "@/lib/site-url";
 
-const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+const baseUrl = getSiteUrl();
 
 const propertyTypeOptions: Array<{ value: DevelopmentPropertyType; label: string }> = [
   { value: "COMPLEXO", label: "Complexo" },

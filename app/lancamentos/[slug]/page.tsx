@@ -35,8 +35,9 @@ import {
   buildWhatsAppUrl
 } from "@/lib/integrations/whatsapp-links";
 import { formatCurrencyBRL } from "@/lib/utils";
+import { getSiteUrl } from "@/lib/site-url";
 
-const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+const baseUrl = getSiteUrl();
 
 function normalizeText(value: string) {
   return value

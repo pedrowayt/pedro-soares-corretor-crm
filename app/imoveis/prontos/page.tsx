@@ -4,8 +4,9 @@ import Link from "next/link";
 import { PropertyCard } from "@/components/public/property-card";
 import { listPublicProperties } from "@/lib/data/properties";
 import { PROPERTY_TYPE_OPTIONS } from "@/lib/property-types";
+import { getSiteUrl } from "@/lib/site-url";
 
-const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+const baseUrl = getSiteUrl();
 
 const allowedPurposes: PropertyPurpose[] = ["VENDA", "LOCACAO", "INVESTIMENTO"];
 

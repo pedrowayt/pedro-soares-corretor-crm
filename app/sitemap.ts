@@ -4,6 +4,7 @@ import { listPublicBuilders, listPublicDevelopments } from "@/lib/data/developme
 import { listPublicProperties } from "@/lib/data/properties";
 import { listPublishedSeoLandingPages } from "@/lib/data/seo-landing-pages";
 import { slugify } from "@/lib/crm/slug";
+import { getSiteUrl } from "@/lib/site-url";
 
 function cityToSeoSlug(city: string) {
   const normalized = slugify(city);
@@ -11,7 +12,7 @@ function cityToSeoSlug(city: string) {
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+  const baseUrl = getSiteUrl();
   const [properties, developments, seoPages, builders, blogPosts] = await Promise.all([
     listPublicProperties(),
     listPublicDevelopments(),

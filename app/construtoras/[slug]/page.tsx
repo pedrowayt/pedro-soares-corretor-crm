@@ -6,6 +6,7 @@ import { Marked } from "marked";
 import { DevelopmentCard } from "@/components/public/development-card";
 import { getPublicBuilderBySlug } from "@/lib/data/developments";
 import { buildWhatsAppUrl } from "@/lib/integrations/whatsapp-links";
+import { getSiteUrl } from "@/lib/site-url";
 
 const builderMarkdownRenderer = new Marked({
   async: false,
@@ -21,7 +22,7 @@ function renderBuilderMarkdown(value: string | null | undefined) {
   return builderMarkdownRenderer.parse(trimmed) as string;
 }
 
-const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+const baseUrl = getSiteUrl();
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;

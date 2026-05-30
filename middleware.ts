@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { CRM_SESSION_COOKIE, verifySessionCookie } from "@/lib/auth/session-cookie";
+import { NON_CANONICAL_HOSTS, getCanonicalHost } from "@/lib/site-url";
+
+const CANONICAL_HOST = getCanonicalHost();
 
 function withSecurityHeaders(response: NextResponse) {
   response.headers.set("X-Frame-Options", "SAMEORIGIN");
@@ -8,8 +11,33 @@ function withSecurityHeaders(response: NextResponse) {
   return response;
 }
 
+function canonicalRedirect(request: NextRequest): NextResponse | null {
+  // Prefer the X-Forwarded-Host header (Railway sets this to the public host),
+  // falling back to Host.
+  const host = (
+    request.headers.get("x-forwarded-host") ??
+    request.headers.get("host") ??
+    ""
+  )
+    .split(",")[0]
+    .trim()
+    .toLowerCase();
+
+  if (!host || host === CANONICAL_HOST) return null;
+  if (!NON_CANONICAL_HOSTS.has(host)) return null;
+
+  const target = new URL(request.nextUrl);
+  target.protocol = "https:";
+  target.host = CANONICAL_HOST;
+  target.port = "";
+  return NextResponse.redirect(target.toString(), 308);
+}
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  const canonical = canonicalRedirect(request);
+  if (canonical) return canonical;
 
   if (pathname === "/imoveis/na-planta" || pathname.startsWith("/imoveis/na-planta/")) {
     const target = new URL("/lancamentos", request.url);
@@ -39,5 +67,10 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/crm/:path*", "/api/crm/:path*", "/imoveis/na-planta/:path*"]
+  // Run on every page request (including sitemap.xml and robots.txt) so the
+  // canonical host redirect can fire — exclude static assets and internal
+  // Next.js routes to keep things fast.
+  matcher: [
+    "/((?!_next/|favicon\\.ico|brand/|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|css|js|map)$).*)"
+  ]
 };

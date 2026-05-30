@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Building2, MapPin } from "lucide-react";
 import { listPublicBuilders } from "@/lib/data/developments";
+import { getSiteUrl } from "@/lib/site-url";
 
-const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+const baseUrl = getSiteUrl();
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;

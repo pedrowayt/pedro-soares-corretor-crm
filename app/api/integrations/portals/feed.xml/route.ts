@@ -1,10 +1,11 @@
 import { fail } from "@/lib/api/http";
 import { buildPortalFeedXml } from "@/lib/integrations/portal-feed";
 import { prisma } from "@/lib/prisma";
+import { getSiteUrl } from "@/lib/site-url";
 
 export async function GET() {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000";
+    const baseUrl = getSiteUrl();
     const properties = await prisma.property.findMany({
       where: {
         status: "DISPONIVEL"

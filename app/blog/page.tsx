@@ -6,10 +6,11 @@ import {
   listPublishedBlogTagsWithCounts,
   listTopViewedBlogPosts
 } from "@/lib/data/blog";
+import { getSiteUrl } from "@/lib/site-url";
 
 export const revalidate = 60;
 
-const baseUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://www.pedrosoarescorretor.com.br";
+const baseUrl = getSiteUrl();
 
 const AUTHOR_NAME = "Pedro Soares";
 const AUTHOR_CREDENTIAL = "CRECI 5861-TO";
