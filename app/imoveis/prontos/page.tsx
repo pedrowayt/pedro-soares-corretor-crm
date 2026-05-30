@@ -184,6 +184,8 @@ export default async function ImoveisProntosPage({
                   district={property.district}
                   price={property.priceValue}
                   bedrooms={property.bedrooms}
+                  bathrooms={property.bathrooms}
+                  parkingSpaces={property.parkingSpaces}
                   areaM2={property.areaM2Value}
                   imageUrl={property.media?.[0]?.url}
                   status={property.status}

@@ -6764,6 +6764,69 @@ body:has(.admin-login-page) .cookie-consent-banner {
   }
 }
 
+/* ============ Property specs (icon row on cards) ============ */
+
+.property-specs {
+  list-style: none;
+  padding: 0;
+  margin: 8px 0 14px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  font-size: 0.875rem;
+  color: #1f2937;
+}
+
+.property-specs > li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.05);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+}
+
+.property-specs-icon {
+  display: inline-flex;
+  width: 16px;
+  height: 16px;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.property-specs-icon svg {
+  width: 100%;
+  height: 100%;
+  stroke-width: 1.75;
+}
+
+.property-specs-value {
+  font-weight: 600;
+  color: inherit;
+}
+
+.property-specs-compact {
+  font-size: 0.8125rem;
+  gap: 4px 8px;
+}
+
+.property-specs-compact > li {
+  padding: 3px 8px;
+}
+
+.property-specs-compact .property-specs-icon {
+  width: 14px;
+  height: 14px;
+}
+
+/* Hide the legacy text-only spec row when a .property-specs is also present */
+.wp-property-body .property-specs + .wp-spec-row,
+.wp-property-body .wp-spec-row + .property-specs {
+  display: none;
+}
+
 /* ============ Blog post detail: layout + sidebar ============ */
 
 .blog-post-layout {

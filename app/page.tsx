@@ -1,6 +1,7 @@
 import { PropertyPurpose, PropertyStatus, PropertyType } from "@prisma/client";
 import Link from "next/link";
 import { listPublishedBlogPosts } from "@/lib/data/blog";
+import { PropertySpecs } from "@/components/public/property-specs";
 import {
   developmentPublicStageLabels,
   listHighlightedDevelopments,
@@ -26,6 +27,7 @@ type HomePropertyCard = {
   price: number;
   bedrooms: number | null;
   bathrooms: number | null;
+  parkingSpaces: number | null;
   areaM2: number | null;
   purpose: PropertyPurpose;
   type: PropertyType;
@@ -119,6 +121,7 @@ function normalizePropertyCard(property: {
   priceValue: number;
   bedrooms: number | null;
   bathrooms: number | null;
+  parkingSpaces: number | null;
   areaM2Value: number | null;
   purpose: PropertyPurpose;
   type: PropertyType;
@@ -136,6 +139,7 @@ function normalizePropertyCard(property: {
     price: property.priceValue,
     bedrooms: property.bedrooms,
     bathrooms: property.bathrooms,
+    parkingSpaces: property.parkingSpaces,
     areaM2: property.areaM2Value,
     purpose: property.purpose,
     type: property.type,
@@ -583,11 +587,12 @@ export default async function HomePage({
                     <div className="wp-property-body">
                       <h3>{property.title}</h3>
                       <p className="wp-price">{formatCurrencyBRL(property.price)}</p>
-                      <div className="wp-spec-row">
-                        <span>{property.bedrooms ?? "-"} quartos</span>
-                        <span>{property.bathrooms ?? "-"} banheiros</span>
-                        <span>{property.areaM2 ?? "-"} m²</span>
-                      </div>
+                      <PropertySpecs
+                        bedrooms={property.bedrooms}
+                        bathrooms={property.bathrooms}
+                        parkingSpaces={property.parkingSpaces}
+                        areaM2={property.areaM2}
+                      />
                       <Link
                         href={property.href}
                         className={isSold ? "button button-ghost" : "button button-primary"}
@@ -673,11 +678,12 @@ export default async function HomePage({
                     <div className="wp-property-body">
                       <h3>{property.title}</h3>
                       <p className="wp-price">{formatCurrencyBRL(property.price)}</p>
-                      <div className="wp-spec-row">
-                        <span>{property.bedrooms ?? "-"} quartos</span>
-                        <span>{property.bathrooms ?? "-"} banheiros</span>
-                        <span>{property.areaM2 ?? "-"} m²</span>
-                      </div>
+                      <PropertySpecs
+                        bedrooms={property.bedrooms}
+                        bathrooms={property.bathrooms}
+                        parkingSpaces={property.parkingSpaces}
+                        areaM2={property.areaM2}
+                      />
                       <Link href={property.href} className="button button-ghost" style={{ width: "100%" }}>
                         {isSold ? "Ver imóvel vendido" : "Analisar oportunidade"}
                       </Link>

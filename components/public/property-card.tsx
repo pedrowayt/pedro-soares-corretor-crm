@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { PropertySpecs } from "@/components/public/property-specs";
 import { formatCurrencyBRL } from "@/lib/utils";
 
 type PropertyCardProps = {
@@ -9,7 +10,9 @@ type PropertyCardProps = {
   price: number;
   imageUrl?: string;
   bedrooms?: number | null;
+  bathrooms?: number | null;
   areaM2?: number | null;
+  parkingSpaces?: number | null;
   status?: string | null;
 };
 
@@ -27,7 +30,9 @@ export function PropertyCard({
   price,
   imageUrl,
   bedrooms,
+  bathrooms,
   areaM2,
+  parkingSpaces,
   status
 }: PropertyCardProps) {
   const statusBadge = status ? STATUS_BADGE[status] : undefined;
@@ -56,9 +61,12 @@ export function PropertyCard({
           {title}
         </h3>
         <p style={{ margin: 0, color: "var(--sophistication-gold-300)", fontWeight: 700 }}>{formatCurrencyBRL(price)}</p>
-        <p style={{ margin: "8px 0 14px", color: "var(--text-muted)", fontSize: "var(--fs-14)" }}>
-          {bedrooms ? `${bedrooms} quartos` : "-"} • {areaM2 ? `${areaM2} m²` : "-"}
-        </p>
+        <PropertySpecs
+          bedrooms={bedrooms}
+          bathrooms={bathrooms}
+          parkingSpaces={parkingSpaces}
+          areaM2={areaM2}
+        />
         <Link
           href={`/imoveis/${slug}`}
           className={isSold ? "button button-ghost" : "button button-primary"}
