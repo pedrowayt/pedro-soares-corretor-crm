@@ -1494,7 +1494,7 @@ body:has(.admin-login-page) .cookie-consent-banner {
   grid-template-columns: auto 1fr auto;
   align-items: center;
   gap: 22px;
-  padding: 10px 0;
+  padding: 6px 0;
 }
 
 .site-logo {
@@ -1503,10 +1503,10 @@ body:has(.admin-login-page) .cookie-consent-banner {
 }
 
 .site-logo img {
-  width: 480px;
-  height: 150px;
-  max-width: 56vw;
-  max-height: 150px;
+  width: 380px;
+  height: 88px;
+  max-width: 50vw;
+  max-height: 88px;
   object-fit: contain;
   object-position: left center;
   border-radius: 0;
@@ -5207,10 +5207,10 @@ body:has(.admin-login-page) .cookie-consent-banner {
   }
 
   .site-logo img {
-    width: 240px;
-    height: 76px;
-    max-width: 64vw;
-    max-height: 76px;
+    width: 220px;
+    height: 52px;
+    max-width: 62vw;
+    max-height: 52px;
   }
 
   .site-mobile-drawer-head .site-logo img {
