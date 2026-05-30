@@ -1,7 +1,11 @@
 import { PropertyPurpose, PropertyStatus, PropertyType } from "@prisma/client";
 import Link from "next/link";
 import { listPublishedBlogPosts } from "@/lib/data/blog";
-import { developmentPublicStageLabels, listHighlightedDevelopments } from "@/lib/data/developments";
+import {
+  developmentPublicStageLabels,
+  listHighlightedDevelopments,
+  listPublicDevelopments
+} from "@/lib/data/developments";
 import { getDevelopmentStageLabel } from "@/lib/development-investment";
 import { listPublicProperties } from "@/lib/data/properties";
 import {
@@ -249,9 +253,10 @@ export default async function HomePage({
   const filters = await searchParams;
   const searchMode = getSearchMode(filters.mode);
 
-  const [propertiesRaw, developmentsRaw, blogPosts] = await Promise.all([
+  const [propertiesRaw, developmentsRaw, allDevelopmentsRaw, blogPosts] = await Promise.all([
     listPublicProperties(),
     listHighlightedDevelopments(8),
+    listPublicDevelopments(),
     listPublishedBlogPosts(3)
   ]);
 
@@ -264,6 +269,16 @@ export default async function HomePage({
   const auctionCards = allCards.filter(isAuctionCard).slice(0, 3);
 
   const developmentCards = developmentsRaw.slice(0, 3);
+
+  const readyForSaleCount = allCards.filter(
+    (card) => card.purpose === "VENDA" && !isAuctionCard(card)
+  ).length;
+  const developmentsCount = allDevelopmentsRaw.length;
+  const auctionCount = allCards.filter(isAuctionCard).length;
+
+  function pluralize(count: number, singular: string, plural: string) {
+    return `${count} ${count === 1 ? singular : plural}`;
+  }
 
   const categoryCards = buildCategoryCards(readySaleCards);
   const areaCards = buildAreaCards(readySaleCards);
@@ -306,7 +321,7 @@ export default async function HomePage({
                 <input id="maxPrice" name="maxPrice" type="number" placeholder="900000" />
               </div>
               <button type="submit" className="button button-primary">
-                Buscar
+                Buscar{developmentsCount ? ` ${pluralize(developmentsCount, "lançamento", "lançamentos")}` : ""}
               </button>
 
               <details className="wp-search-advanced">
@@ -352,7 +367,7 @@ export default async function HomePage({
                 </select>
               </div>
               <button type="submit" className="button button-primary">
-                Buscar
+                Buscar{auctionCount ? ` ${pluralize(auctionCount, "oportunidade", "oportunidades")}` : ""}
               </button>
 
               <details className="wp-search-advanced">
@@ -394,17 +409,17 @@ export default async function HomePage({
                   ))}
                 </select>
               </div>
+              <div>
+                <label htmlFor="district-ready">Bairro ou região</label>
+                <input id="district-ready" name="district" placeholder="Plano Diretor Sul" />
+              </div>
               <button type="submit" className="button button-primary">
-                Buscar
+                Buscar{readyForSaleCount ? ` ${pluralize(readyForSaleCount, "imóvel", "imóveis")}` : ""}
               </button>
 
               <details className="wp-search-advanced">
                 <summary>Mais filtros</summary>
                 <div className="wp-search-advanced-content">
-                  <div>
-                    <label htmlFor="district-ready">Bairro ou região</label>
-                    <input id="district-ready" name="district" placeholder="Plano Diretor Sul" />
-                  </div>
                   <div>
                     <label htmlFor="maxPrice-ready">Preço até</label>
                     <input id="maxPrice-ready" name="maxPrice" type="number" placeholder="1200000" />

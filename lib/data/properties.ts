@@ -14,7 +14,21 @@ export type PublicPropertyFilters = {
   purpose?: PropertyPurpose;
   bedrooms?: number;
   minAreaM2?: number;
+  /** When false (default), VENDIDO and ALUGADO are excluded from results. */
+  includeInactive?: boolean;
 };
+
+const ACTIVE_PUBLIC_STATUSES = [
+  PropertyStatus.DISPONIVEL,
+  PropertyStatus.RESERVADO
+];
+
+const ALL_PUBLIC_STATUSES = [
+  PropertyStatus.DISPONIVEL,
+  PropertyStatus.RESERVADO,
+  PropertyStatus.VENDIDO,
+  PropertyStatus.ALUGADO
+];
 
 function normalizeForMatch(value: string) {
   return value
@@ -54,16 +68,21 @@ function matchPublicFilters(
 
 async function fallbackPublicProperties(filters: PublicPropertyFilters = {}) {
   const crmProperties = await listCrmProperties();
+  const allowedStatuses = filters.includeInactive ? ALL_PUBLIC_STATUSES : ACTIVE_PUBLIC_STATUSES;
 
-  const fromCrm = crmProperties.map((property) => ({
-    ...property,
-    priceValue: Number(property.price),
-    areaM2Value: property.areaM2 ? Number(property.areaM2) : null,
-    landAreaM2Value: property.landAreaM2 ? Number(property.landAreaM2) : null,
-    media: [],
-    investorOpportunity: property.investorOpportunity ?? null,
-    auctionCase: property.auctionCase ?? null
-  }));
+  const fromCrm = crmProperties
+    .filter((property) =>
+      (allowedStatuses as PropertyStatus[]).includes(property.status as PropertyStatus)
+    )
+    .map((property) => ({
+      ...property,
+      priceValue: Number(property.price),
+      areaM2Value: property.areaM2 ? Number(property.areaM2) : null,
+      landAreaM2Value: property.landAreaM2 ? Number(property.landAreaM2) : null,
+      media: [],
+      investorOpportunity: property.investorOpportunity ?? null,
+      auctionCase: property.auctionCase ?? null
+    }));
 
   if (fromCrm.length) {
     return fromCrm.filter((property) =>
@@ -117,12 +136,7 @@ export async function listPublicProperties(filters: PublicPropertyFilters = {}) 
     const properties = await prisma.property.findMany({
       where: {
         status: {
-          in: [
-            PropertyStatus.DISPONIVEL,
-            PropertyStatus.RESERVADO,
-            PropertyStatus.VENDIDO,
-            PropertyStatus.ALUGADO
-          ]
+          in: filters.includeInactive ? ALL_PUBLIC_STATUSES : ACTIVE_PUBLIC_STATUSES
         },
         ...(filters.city
           ? { city: { contains: filters.city, mode: "insensitive" } }
