@@ -1482,8 +1482,8 @@ body:has(.admin-login-page) .cookie-consent-banner {
 }
 
 .site-header {
-  border-bottom: 1px solid var(--border);
-  background: #ffffff;
+  border-bottom: 1px solid rgba(216, 154, 59, 0.3);
+  background: #0b0b0b;
   position: sticky;
   top: 0;
   z-index: 40;
@@ -1503,9 +1503,9 @@ body:has(.admin-login-page) .cookie-consent-banner {
 }
 
 .site-logo img {
-  width: 300px;
-  max-width: 36vw;
-  max-height: 52px;
+  width: 280px;
+  max-width: 40vw;
+  max-height: 56px;
   height: auto;
   object-fit: contain;
   object-position: left center;
@@ -1520,7 +1520,7 @@ body:has(.admin-login-page) .cookie-consent-banner {
   justify-content: center;
   flex-wrap: nowrap;
   font-size: var(--fs-14);
-  color: #25344d;
+  color: var(--sophistication-gold-500);
   position: relative;
 }
 
@@ -1535,12 +1535,14 @@ body:has(.admin-login-page) .cookie-consent-banner {
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  color: var(--sophistication-gold-500);
+  font-weight: 600;
   transition: color 0.2s ease, border-color 0.2s ease;
 }
 
 .site-nav-link:hover {
-  color: #0e2545;
-  border-bottom-color: rgba(216, 154, 59, 0.45);
+  color: var(--sophistication-gold-300);
+  border-bottom-color: var(--sophistication-gold-300);
 }
 
 .site-nav-caret {
@@ -1558,9 +1560,9 @@ body:has(.admin-login-page) .cookie-consent-banner {
   display: grid;
   gap: 4px;
   border-radius: 12px;
-  border: 1px solid #dbe3ef;
-  background: #ffffff;
-  box-shadow: 0 20px 30px rgba(7, 13, 24, 0.14);
+  border: 1px solid rgba(216, 154, 59, 0.35);
+  background: #0b0b0b;
+  box-shadow: 0 20px 30px rgba(0, 0, 0, 0.45);
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
@@ -1571,16 +1573,16 @@ body:has(.admin-login-page) .cookie-consent-banner {
 .site-nav-dropdown-link {
   border-radius: 8px;
   padding: 0.56rem 0.64rem;
-  color: #23354d;
+  color: var(--sophistication-gold-500);
   font-weight: 600;
   font-size: var(--fs-14);
   border: 1px solid transparent;
 }
 
 .site-nav-dropdown-link:hover {
-  background: #f5f8fc;
-  border-color: #dbe3ef;
-  color: #0f223d;
+  background: rgba(216, 154, 59, 0.12);
+  border-color: rgba(216, 154, 59, 0.35);
+  color: var(--sophistication-gold-300);
 }
 
 .site-nav-item-has-children:hover .site-nav-dropdown,
@@ -1613,6 +1615,14 @@ body:has(.admin-login-page) .cookie-consent-banner {
   min-width: 132px;
 }
 
+.site-actions .button-primary {
+  color: #ffffff;
+}
+
+.site-actions .button-primary:hover {
+  color: #ffffff;
+}
+
 .site-phone {
   font-weight: 700;
   color: #1b2940;
@@ -1621,10 +1631,10 @@ body:has(.admin-login-page) .cookie-consent-banner {
 }
 
 .site-footer {
-  border-top: 1px solid rgba(23, 18, 14, 0.22);
+  border-top: 1px solid rgba(216, 154, 59, 0.3);
   margin-top: 42px;
-  background: linear-gradient(135deg, #bd8434 0%, #d89a3b 46%, #f2c27a 100%);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  background: #0b0b0b;
+  color: var(--sophistication-gold-500);
   position: relative;
   overflow: hidden;
   font-family: var(--font-ui), "Helvetica Neue", Arial, sans-serif;
@@ -1634,7 +1644,7 @@ body:has(.admin-login-page) .cookie-consent-banner {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(23, 18, 14, 0.02) 0%, rgba(23, 18, 14, 0.1) 100%);
+  background: linear-gradient(180deg, rgba(216, 154, 59, 0.04) 0%, rgba(0, 0, 0, 0.2) 100%);
   pointer-events: none;
 }
 
@@ -1659,16 +1669,18 @@ body:has(.admin-login-page) .cookie-consent-banner {
 }
 
 .site-footer-logo {
-  width: min(320px, 100%);
-  height: auto;
+  width: 140px;
+  height: 140px;
+  max-width: 140px;
   display: block;
   object-fit: contain;
-  filter: drop-shadow(0 2px 6px rgba(7, 13, 24, 0.22));
+  border-radius: 999px;
+  filter: drop-shadow(0 2px 10px rgba(216, 154, 59, 0.2));
 }
 
 .site-footer-impact {
   margin: 0;
-  color: #17120e;
+  color: var(--sophistication-gold-500);
   font-size: var(--fs-14);
   font-weight: 600;
   width: 100%;
@@ -1678,7 +1690,7 @@ body:has(.admin-login-page) .cookie-consent-banner {
 
 .site-footer-location {
   margin: 0;
-  color: rgba(23, 18, 14, 0.82);
+  color: var(--sophistication-gold-300);
   font-size: var(--fs-14);
   font-weight: 500;
   width: 100%;
@@ -1701,7 +1713,7 @@ body:has(.admin-login-page) .cookie-consent-banner {
 
 .site-footer-group-title {
   margin: 0;
-  color: #1a120a;
+  color: var(--sophistication-gold-300);
   font-size: var(--fs-12);
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -1715,7 +1727,7 @@ body:has(.admin-login-page) .cookie-consent-banner {
 
 .site-footer-link-list a {
   font-size: var(--fs-14);
-  color: #17120e;
+  color: var(--sophistication-gold-500);
   font-weight: 600;
   border-bottom: 1px solid transparent;
   transition: color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
@@ -1723,8 +1735,8 @@ body:has(.admin-login-page) .cookie-consent-banner {
 }
 
 .site-footer-link-list a:hover {
-  color: #0f223d;
-  border-bottom-color: rgba(15, 34, 61, 0.42);
+  color: var(--sophistication-gold-300);
+  border-bottom-color: rgba(216, 154, 59, 0.55);
   transform: translateX(2px);
 }
 
@@ -1757,7 +1769,7 @@ body:has(.admin-login-page) .cookie-consent-banner {
 
 .site-footer-contact a {
   font-size: var(--fs-14);
-  color: #17120e;
+  color: var(--sophistication-gold-500);
   font-weight: 600;
   white-space: normal;
   text-align: right;
@@ -1765,11 +1777,11 @@ body:has(.admin-login-page) .cookie-consent-banner {
 }
 
 .site-footer-contact > a:not(.site-footer-whatsapp):hover {
-  color: #0f223d;
+  color: var(--sophistication-gold-300);
 }
 
 .site-footer-bottom {
-  border-top: 1px solid rgba(23, 18, 14, 0.2);
+  border-top: 1px solid rgba(216, 154, 59, 0.25);
   margin-top: 14px;
   padding: 12px 0 16px;
   display: grid;
@@ -1780,7 +1792,7 @@ body:has(.admin-login-page) .cookie-consent-banner {
 
 .site-footer-bottom p {
   margin: 0;
-  color: rgba(23, 18, 14, 0.78);
+  color: var(--sophistication-gold-300);
   font-size: var(--fs-12);
   font-weight: 600;
 }
@@ -1793,7 +1805,7 @@ body:has(.admin-login-page) .cookie-consent-banner {
 }
 
 .site-footer-legal-nav a {
-  color: #17120e;
+  color: var(--sophistication-gold-500);
   font-size: var(--fs-12);
   font-weight: 600;
   border-bottom: 1px solid transparent;
@@ -1804,7 +1816,7 @@ body:has(.admin-login-page) .cookie-consent-banner {
   background: transparent;
   margin: 0;
   padding: 0;
-  color: #17120e;
+  color: var(--sophistication-gold-500);
   font-size: var(--fs-12);
   font-weight: 600;
   border-bottom: 1px solid transparent;
@@ -1812,13 +1824,13 @@ body:has(.admin-login-page) .cookie-consent-banner {
 }
 
 .site-footer-legal-nav a:hover {
-  color: #0f223d;
-  border-bottom-color: rgba(15, 34, 61, 0.38);
+  color: var(--sophistication-gold-300);
+  border-bottom-color: rgba(216, 154, 59, 0.5);
 }
 
 .site-footer-cookie-action:hover {
-  color: #0f223d;
-  border-bottom-color: rgba(15, 34, 61, 0.38);
+  color: var(--sophistication-gold-300);
+  border-bottom-color: rgba(216, 154, 59, 0.5);
 }
 
 .site-footer-legal-mobile {
@@ -1836,8 +1848,8 @@ body:has(.admin-login-page) .cookie-consent-banner {
   width: 34px;
   height: 34px;
   border-radius: 9px;
-  border: 1px solid rgba(23, 18, 14, 0.32);
-  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(216, 154, 59, 0.4);
+  background: rgba(216, 154, 59, 0.08);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1845,20 +1857,20 @@ body:has(.admin-login-page) .cookie-consent-banner {
 }
 
 .site-footer-social a:hover {
-  background: rgba(255, 255, 255, 0.35);
-  border-color: rgba(15, 34, 61, 0.45);
+  background: rgba(216, 154, 59, 0.18);
+  border-color: var(--sophistication-gold-500);
 }
 
 .site-footer-social svg {
   width: 18px;
   height: 18px;
-  fill: #17120e;
+  fill: var(--sophistication-gold-500);
 }
 
 .site-footer-seo {
   position: relative;
   z-index: 1;
-  border-top: 1px solid rgba(23, 18, 14, 0.18);
+  border-top: 1px solid rgba(216, 154, 59, 0.22);
   padding: 22px 0 10px;
 }
 
@@ -1874,14 +1886,14 @@ body:has(.admin-login-page) .cookie-consent-banner {
 
 .site-footer-seo-head h2 {
   margin: 0;
-  color: #17120e;
+  color: var(--sophistication-gold-500);
   font-size: var(--fs-16);
   font-weight: 800;
 }
 
 .site-footer-seo-head p {
   margin: 0;
-  color: rgba(23, 18, 14, 0.78);
+  color: var(--sophistication-gold-300);
   font-size: var(--fs-13);
   font-weight: 600;
 }
@@ -1898,7 +1910,7 @@ body:has(.admin-login-page) .cookie-consent-banner {
 
 .site-footer-seo-group h3 {
   margin: 0 0 8px;
-  color: #1a120a;
+  color: var(--sophistication-gold-300);
   font-size: var(--fs-12);
   font-weight: 800;
   letter-spacing: 0.08em;
@@ -1914,7 +1926,7 @@ body:has(.admin-login-page) .cookie-consent-banner {
 }
 
 .site-footer-seo-group a {
-  color: #17120e;
+  color: var(--sophistication-gold-500);
   font-size: var(--fs-13);
   font-weight: 600;
   line-height: 1.35;
@@ -1923,8 +1935,8 @@ body:has(.admin-login-page) .cookie-consent-banner {
 }
 
 .site-footer-seo-group a:hover {
-  color: #0f223d;
-  border-bottom-color: rgba(15, 34, 61, 0.42);
+  color: var(--sophistication-gold-300);
+  border-bottom-color: rgba(216, 154, 59, 0.45);
 }
 
 .cookie-consent-banner {
@@ -2070,8 +2082,8 @@ body:has(.admin-login-page) .cookie-consent-banner {
   width: 44px;
   height: 44px;
   border-radius: 10px;
-  border: 1px solid #d5deeb;
-  background: #ffffff;
+  border: 1px solid rgba(216, 154, 59, 0.45);
+  background: #0b0b0b;
   align-items: center;
   justify-content: center;
   flex-direction: column;
@@ -2083,7 +2095,7 @@ body:has(.admin-login-page) .cookie-consent-banner {
   width: 18px;
   height: 2px;
   border-radius: 99px;
-  background: #1f2f45;
+  background: var(--sophistication-gold-500);
 }
 
 .site-mobile-backdrop {
@@ -2109,12 +2121,13 @@ body:has(.admin-login-page) .cookie-consent-banner {
   right: 0;
   height: 100vh;
   width: min(84vw, 360px);
-  background: #ffffff;
+  background: #0b0b0b;
+  color: var(--sophistication-gold-500);
   z-index: 50;
   transform: translateX(104%);
   transition: transform 0.24s ease;
   grid-template-rows: auto 1fr auto;
-  border-left: 1px solid #d7dfec;
+  border-left: 1px solid rgba(216, 154, 59, 0.35);
 }
 
 .site-mobile-drawer.open {
@@ -2123,7 +2136,7 @@ body:has(.admin-login-page) .cookie-consent-banner {
 
 .site-mobile-drawer-head {
   padding: 14px 16px;
-  border-bottom: 1px solid #e3e8f1;
+  border-bottom: 1px solid rgba(216, 154, 59, 0.25);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -2134,15 +2147,17 @@ body:has(.admin-login-page) .cookie-consent-banner {
   width: 190px;
   max-width: 56vw;
   max-height: 40px;
+  height: auto;
+  border-radius: 0;
 }
 
 .site-mobile-close {
   width: 36px;
   height: 36px;
   border-radius: 10px;
-  border: 1px solid #d7dfec;
-  background: #ffffff;
-  color: #25344d;
+  border: 1px solid rgba(216, 154, 59, 0.35);
+  background: #0b0b0b;
+  color: var(--sophistication-gold-500);
   font-size: var(--fs-20);
   line-height: 1;
   cursor: pointer;
@@ -2156,18 +2171,18 @@ body:has(.admin-login-page) .cookie-consent-banner {
 }
 
 .site-mobile-nav a {
-  border: 1px solid #e2e8f3;
+  border: 1px solid rgba(216, 154, 59, 0.3);
   border-radius: 10px;
   padding: 0.72rem 0.8rem;
   font-weight: 600;
-  color: #24344d;
-  background: #f8fbff;
+  color: var(--sophistication-gold-500);
+  background: rgba(216, 154, 59, 0.06);
 }
 
 .site-mobile-group {
-  border: 1px solid #e2e8f3;
+  border: 1px solid rgba(216, 154, 59, 0.3);
   border-radius: 10px;
-  background: #f8fbff;
+  background: rgba(216, 154, 59, 0.06);
 }
 
 .site-mobile-group summary {
@@ -2179,7 +2194,7 @@ body:has(.admin-login-page) .cookie-consent-banner {
   cursor: pointer;
   list-style: none;
   font-weight: 700;
-  color: #24344d;
+  color: var(--sophistication-gold-500);
 }
 
 .site-mobile-group summary::-webkit-details-marker {
@@ -2202,20 +2217,28 @@ body:has(.admin-login-page) .cookie-consent-banner {
 }
 
 .site-mobile-subnav a {
-  border: 1px solid #dbe3ef;
+  border: 1px solid rgba(216, 154, 59, 0.25);
   border-radius: 8px;
-  background: #ffffff;
+  background: rgba(216, 154, 59, 0.04);
   padding: 0.64rem 0.72rem;
   font-weight: 600;
-  color: #2a3b53;
+  color: var(--sophistication-gold-300);
   font-size: var(--fs-14);
 }
 
 .site-mobile-actions {
   padding: 14px 16px 18px;
-  border-top: 1px solid #e3e8f1;
+  border-top: 1px solid rgba(216, 154, 59, 0.25);
   display: grid;
   gap: 10px;
+}
+
+.site-mobile-actions .site-creci {
+  color: var(--sophistication-gold-500);
+}
+
+.site-mobile-actions .button-primary {
+  color: #ffffff;
 }
 
 .site-mobile-actions .button {
@@ -5193,10 +5216,14 @@ body:has(.admin-login-page) .cookie-consent-banner {
     width: 170px;
     max-width: 58vw;
     max-height: 36px;
+    height: auto;
+    border-radius: 0;
   }
 
   .site-footer-logo {
-    width: min(220px, 84vw);
+    width: 110px;
+    height: 110px;
+    max-width: 110px;
   }
 
   .site-footer-brand {
@@ -5216,7 +5243,7 @@ body:has(.admin-login-page) .cookie-consent-banner {
   .site-footer-group {
     width: 100%;
     padding-top: 10px;
-    border-top: 1px solid rgba(23, 18, 14, 0.16);
+    border-top: 1px solid rgba(216, 154, 59, 0.22);
   }
 
   .site-footer-link-list {
@@ -5251,14 +5278,14 @@ body:has(.admin-login-page) .cookie-consent-banner {
     display: grid;
     width: 100%;
     max-width: 340px;
-    border-top: 1px solid rgba(23, 18, 14, 0.2);
+    border-top: 1px solid rgba(216, 154, 59, 0.25);
     padding-top: 8px;
   }
 
   .site-footer-legal-mobile summary {
     cursor: pointer;
     list-style: none;
-    color: #17120e;
+    color: var(--sophistication-gold-500);
     font-size: var(--fs-12);
     font-weight: 700;
     letter-spacing: 0.03em;
@@ -5275,13 +5302,13 @@ body:has(.admin-login-page) .cookie-consent-banner {
   }
 
   .site-footer-legal-mobile-links a {
-    color: #17120e;
+    color: var(--sophistication-gold-500);
     font-size: var(--fs-12);
     font-weight: 600;
   }
 
   .site-footer-legal-mobile-links .site-footer-cookie-action {
-    color: #17120e;
+    color: var(--sophistication-gold-500);
     font-size: var(--fs-12);
     font-weight: 600;
     justify-self: center;
@@ -6908,27 +6935,16 @@ body:has(.admin-login-page) .cookie-consent-banner {
   top: 92px;
 }
 
-.listing-filters-details {
+.mobile-filter-toggle {
   display: block;
 }
 
-.listing-filters-summary {
+.mobile-filter-toggle-button {
   display: none;
 }
 
-.listing-filters-details > summary {
-  list-style: none;
-  cursor: pointer;
-}
-
-.listing-filters-details > summary::-webkit-details-marker {
-  display: none;
-}
-
-@media (min-width: 961px) {
-  .listing-filters-details > .listing-filters-form {
-    display: flex !important;
-  }
+.mobile-filter-toggle-panel {
+  display: block;
 }
 
 .listing-filters-form {
@@ -7236,39 +7252,6 @@ body:has(.admin-login-page) .cookie-consent-banner {
     position: static;
     top: auto;
   }
-  .listing-filters-summary {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 8px;
-    padding: 12px 16px;
-    background: #fff;
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    font-weight: 700;
-    font-size: 0.9375rem;
-    color: #0b1220;
-    user-select: none;
-  }
-  .listing-filters-summary-chevron {
-    transition: transform 0.15s ease;
-    font-size: 0.875rem;
-    color: var(--text-muted);
-  }
-  .listing-filters-details[open] .listing-filters-summary {
-    border-radius: 12px 12px 0 0;
-    border-bottom: none;
-  }
-  .listing-filters-details[open] .listing-filters-summary-chevron {
-    transform: rotate(180deg);
-  }
-  .listing-filters-details[open] .listing-filters-form {
-    border-top-left-radius: 0;
-    border-top-right-radius: 0;
-  }
-  .listing-filters-details > .listing-filters-form > .listing-filters-head {
-    display: none;
-  }
   .listing-filters-form {
     max-height: none;
     overflow-y: visible;
@@ -7279,6 +7262,47 @@ body:has(.admin-login-page) .cookie-consent-banner {
   .property-list-card-image {
     min-height: 200px;
     aspect-ratio: 4 / 3;
+  }
+}
+
+@media (max-width: 640px) {
+  .mobile-filter-toggle-button {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 12px 16px;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.9375rem;
+    color: #0b1220;
+    cursor: pointer;
+  }
+  .mobile-filter-toggle-chevron {
+    transition: transform 0.15s ease;
+    font-size: 0.875rem;
+    color: var(--text-muted);
+  }
+  .mobile-filter-toggle.is-open .mobile-filter-toggle-button {
+    border-radius: 12px 12px 0 0;
+    border-bottom: none;
+  }
+  .mobile-filter-toggle.is-open .mobile-filter-toggle-chevron {
+    transform: rotate(180deg);
+  }
+  .mobile-filter-toggle:not(.is-open) .mobile-filter-toggle-panel {
+    display: none;
+  }
+  .mobile-filter-toggle.is-open .listing-filters-form {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+  }
+  .mobile-filter-toggle > .listing-filters-form > .listing-filters-head,
+  .mobile-filter-toggle-panel > .listing-filters-form > .listing-filters-head {
+    display: none;
   }
 }
 

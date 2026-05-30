@@ -12,10 +12,10 @@ export function SiteFooter() {
         <div className="site-footer-brand">
           <Image
             className="site-footer-logo"
-            src="/brand/logo-footer-hq.png"
+            src="/brand/logo-icon-dark.png"
             alt="Pedro Soares Corretor de Imóveis"
-            width={681}
-            height={152}
+            width={1254}
+            height={1254}
           />
           <p className="site-footer-impact">Especialista em imóveis prontos, na planta e leilões em Palmas.</p>
         </div>

@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { PropertyPurpose } from "@prisma/client";
 import Link from "next/link";
+import { AutoSubmitForm } from "@/components/public/auto-submit-form";
+import { MobileFilterToggle } from "@/components/public/mobile-filter-toggle";
 import { PropertyCardHorizontal } from "@/components/public/property-card-horizontal";
 import { listPublicProperties } from "@/lib/data/properties";
 import { PROPERTY_TYPE_OPTIONS } from "@/lib/property-types";
@@ -206,7 +208,7 @@ export default async function ImoveisProntosPage({
               </h1>
               <p className="listing-page-subtitle">em {headingLocation}</p>
             </div>
-            <form method="GET" className="listing-sort">
+            <AutoSubmitForm method="GET" className="listing-sort">
               <label htmlFor="sort">Ordenar por</label>
               <select id="sort" name="sort" defaultValue={sort} aria-label="Ordenar resultados">
                 {sortOptions.map((option) => (
@@ -225,19 +227,13 @@ export default async function ImoveisProntosPage({
               {typeof bedrooms === "number" ? <input type="hidden" name="bedrooms" value={String(bedrooms)} /> : null}
               {typeof minAreaM2 === "number" ? <input type="hidden" name="minAreaM2" value={String(minAreaM2)} /> : null}
               <button type="submit" className="visually-hidden">Aplicar</button>
-            </form>
+            </AutoSubmitForm>
           </div>
 
           <div className="listing-layout">
             <aside className="listing-filters" aria-label="Filtros">
-              <details className="listing-filters-details">
-                <summary className="listing-filters-summary">
-                  <span>Filtros</span>
-                  <span className="listing-filters-summary-chevron" aria-hidden="true">
-                    ▾
-                  </span>
-                </summary>
-              <form method="GET" className="listing-filters-form">
+              <MobileFilterToggle>
+              <AutoSubmitForm method="GET" className="listing-filters-form">
                 <div className="listing-filters-head">
                   <h2 className="listing-filters-title">Filtros</h2>
                   <Link href="/imoveis/prontos" className="listing-filters-clear">
@@ -351,8 +347,8 @@ export default async function ImoveisProntosPage({
                 <button type="submit" className="button button-primary listing-filters-apply">
                   Aplicar filtros
                 </button>
-              </form>
-              </details>
+              </AutoSubmitForm>
+              </MobileFilterToggle>
             </aside>
 
             <section className="listing-results" aria-label="Resultados">
