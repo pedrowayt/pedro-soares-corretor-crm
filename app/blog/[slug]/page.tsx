@@ -138,7 +138,7 @@ export default async function BlogPostPage({
 
   const sidebarProperties = allProperties
     .filter((p) => p.status === "DISPONIVEL")
-    .slice(0, 3);
+    .slice(0, 5);
 
   const trendingPosts = topViewedRaw.filter((p) => p.slug !== post.slug).slice(0, 3);
 
@@ -195,6 +195,43 @@ export default async function BlogPostPage({
 
         <article>
           <header>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 10 }}>
+              {tags.map((tag: { id: string; label: string }) => (
+                <span key={tag.id} className="badge">
+                  {tag.label}
+                </span>
+              ))}
+            </div>
+
+            <h1 className="section-title" style={{ marginTop: 0 }}>
+              {post.title}
+            </h1>
+
+            <div style={{ marginTop: 16 }}>
+              <BlogShareBar url={url} title={post.title} excerpt={post.excerpt} />
+            </div>
+
+            <p className="blog-post-meta-line">
+              Por {authorName}{" "}
+              <span className="blog-author-credential">· {AUTHOR_CREDENTIAL}</span>
+              {publishedAt ? (
+                <>
+                  {" · "}Publicado em{" "}
+                  <time dateTime={publishedAt.toISOString()}>
+                    {formatLongDate(publishedAt)} às {formatTime(publishedAt)}
+                  </time>
+                </>
+              ) : null}
+              {" · "}
+              {reading.minutes} min de leitura
+              {updatedAt && publishedAt && updatedAt.getTime() - publishedAt.getTime() > 60_000 ? (
+                <>
+                  {" · "}Atualizado em{" "}
+                  <time dateTime={updatedAt.toISOString()}>{formatLongDate(updatedAt)}</time>
+                </>
+              ) : null}
+            </p>
+
             {post.coverImageUrl ? (
               <div
                 style={{
@@ -203,61 +240,12 @@ export default async function BlogPostPage({
                   backgroundImage: `linear-gradient(180deg, rgba(7,13,24,0.05), rgba(7,13,24,0.35)), url(${post.coverImageUrl})`,
                   backgroundSize: "cover",
                   backgroundPosition: "center",
-                  marginBottom: 20
+                  marginTop: 18
                 }}
                 role="img"
                 aria-label={post.title}
               />
             ) : null}
-
-            <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 8 }}>
-              {tags.map((tag: { id: string; label: string }) => (
-                <span key={tag.id} className="badge">
-                  {tag.label}
-                </span>
-              ))}
-            </div>
-
-            <h1 className="section-title" style={{ marginTop: 4 }}>
-              {post.title}
-            </h1>
-
-            <div className="blog-author">
-              <div
-                className="blog-author-avatar"
-                style={{ backgroundImage: `url(${AUTHOR_AVATAR_URL})` }}
-                aria-hidden="true"
-              />
-              <div>
-                <div className="blog-author-name">
-                  Por {authorName}{" "}
-                  <span className="blog-author-credential">· {AUTHOR_CREDENTIAL}</span>
-                </div>
-                <div className="blog-author-meta">
-                  {publishedAt ? (
-                    <>
-                      Publicado em{" "}
-                      <time dateTime={publishedAt.toISOString()}>
-                        {formatLongDate(publishedAt)} às {formatTime(publishedAt)}
-                      </time>
-                    </>
-                  ) : null}
-                  {" • "}
-                  {reading.minutes} min de leitura
-                  {updatedAt && publishedAt && updatedAt.getTime() - publishedAt.getTime() > 60_000 ? (
-                    <>
-                      {" • "}
-                      Atualizado em{" "}
-                      <time dateTime={updatedAt.toISOString()}>{formatLongDate(updatedAt)}</time>
-                    </>
-                  ) : null}
-                </div>
-              </div>
-            </div>
-
-            <div style={{ marginTop: 16 }}>
-              <BlogShareBar url={url} title={post.title} excerpt={post.excerpt} />
-            </div>
           </header>
 
           <div
@@ -295,10 +283,6 @@ export default async function BlogPostPage({
         </div>
 
         <aside className="blog-post-sidebar" aria-label="Sidebar do post">
-          <div className="blog-sidebar-sticky">
-            <BlogSidebarAuthor whatsappUrl={WHATSAPP_URL} instagramUrl={INSTAGRAM_URL} />
-          </div>
-
           <BlogNewsletterForm
             source={`post:${post.slug}`}
             variant="compact"
@@ -375,6 +359,8 @@ export default async function BlogPostPage({
               </ol>
             </section>
           ) : null}
+
+          <BlogSidebarAuthor whatsappUrl={WHATSAPP_URL} instagramUrl={INSTAGRAM_URL} />
         </aside>
       </div>
     </main>

@@ -6780,14 +6780,27 @@ body:has(.admin-login-page) .cookie-consent-banner {
 }
 
 .blog-post-sidebar {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   gap: 20px;
   position: relative;
+  align-self: stretch;
 }
 
-.blog-sidebar-sticky {
+/* Sticky author card sits as the last sidebar item but follows the reader
+   as they scroll the article. Containing block (.blog-post-sidebar)
+   stretches to the article height, giving sticky 'room' to pin. */
+.blog-sidebar-author {
   position: sticky;
   top: 96px;
+  align-self: stretch;
+}
+
+.blog-post-meta-line {
+  margin: 14px 0 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--text-muted);
 }
 
 .blog-sidebar-card {
@@ -7029,7 +7042,7 @@ body:has(.admin-login-page) .cookie-consent-banner {
   .blog-post-main {
     max-width: 100%;
   }
-  .blog-sidebar-sticky {
+  .blog-sidebar-author {
     position: static;
     top: auto;
   }
