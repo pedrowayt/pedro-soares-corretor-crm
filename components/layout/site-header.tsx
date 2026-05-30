@@ -52,10 +52,10 @@ export function SiteHeader() {
       <div className="container site-header-inner">
         <Link href="/" className="site-logo" aria-label="Pedro Soares Corretor de Imóveis">
           <Image
-            src="/brand/logo-home-top-mobile-new.png"
+            src="/brand/logo-home-2026.png"
             alt="Pedro Soares Corretor de Imóveis"
-            width={618}
-            height={138}
+            width={1920}
+            height={1080}
             priority
           />
         </Link>
@@ -121,10 +121,10 @@ export function SiteHeader() {
         <div className="site-mobile-drawer-head">
           <Link href="/" className="site-logo" aria-label="Pedro Soares Corretor de Imóveis" onClick={() => setIsMenuOpen(false)}>
             <Image
-              src="/brand/logo-home-top-mobile-new.png"
+              src="/brand/logo-home-2026.png"
               alt="Pedro Soares Corretor de Imóveis"
-              width={618}
-              height={138}
+              width={1920}
+              height={1080}
               priority
             />
           </Link>
