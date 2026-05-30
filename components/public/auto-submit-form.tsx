@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, type FormEvent, type FormHTMLAttributes, type ReactNode } from "react";
+import { useRef, type ChangeEvent, type FormHTMLAttributes, type ReactNode } from "react";
 
 type Props = {
   children: ReactNode;
@@ -25,11 +25,14 @@ export function AutoSubmitForm({ children, debounceMs = 600, onChange, ...rest }
     formRef.current?.requestSubmit();
   };
 
-  const handleChange = (event: FormEvent<HTMLFormElement>) => {
+  const handleChange = (event: ChangeEvent<HTMLFormElement>) => {
     onChange?.(event);
     if (event.defaultPrevented) return;
 
-    const target = event.target as HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
+    const target = event.target as unknown as
+      | HTMLInputElement
+      | HTMLSelectElement
+      | HTMLTextAreaElement;
     const tag = target.tagName;
 
     if (tag === "SELECT") {
