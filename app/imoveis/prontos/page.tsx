@@ -78,9 +78,20 @@ type CardProperty = {
   district: string;
   priceValue: number;
   areaM2Value: number | null;
+  landAreaM2Value?: number | null;
   bedrooms: number | null;
   bathrooms: number | null;
+  suites?: number | null;
+  livingRooms?: number | null;
   parkingSpaces: number | null;
+  frontMeters?: number | null;
+  backMeters?: number | null;
+  sideLeftMeters?: number | null;
+  sideRightMeters?: number | null;
+  ceilingHeightM?: number | null;
+  floorNumber?: number | null;
+  floorCount?: number | null;
+  unitCount?: number | null;
   status: string;
   type: string;
   purpose: PropertyPurpose;
@@ -362,10 +373,22 @@ export default async function ImoveisProntosPage({
                         city={property.city}
                         district={property.district}
                         price={property.priceValue}
+                        type={property.type}
                         bedrooms={property.bedrooms}
                         bathrooms={property.bathrooms}
+                        suites={property.suites}
+                        livingRooms={property.livingRooms}
                         parkingSpaces={property.parkingSpaces}
                         areaM2={property.areaM2Value}
+                        landAreaM2={property.landAreaM2Value}
+                        frontMeters={property.frontMeters}
+                        backMeters={property.backMeters}
+                        sideLeftMeters={property.sideLeftMeters}
+                        sideRightMeters={property.sideRightMeters}
+                        ceilingHeightM={property.ceilingHeightM}
+                        floorNumber={property.floorNumber}
+                        floorCount={property.floorCount}
+                        unitCount={property.unitCount}
                         imageUrl={property.media?.[0]?.url}
                         status={property.status}
                         purposeLabel={purposeLabelFor(property.purpose)}

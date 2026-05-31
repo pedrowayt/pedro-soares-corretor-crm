@@ -79,6 +79,14 @@ async function fallbackPublicProperties(filters: PublicPropertyFilters = {}) {
       priceValue: Number(property.price),
       areaM2Value: property.areaM2 ? Number(property.areaM2) : null,
       landAreaM2Value: property.landAreaM2 ? Number(property.landAreaM2) : null,
+      frontMeters: property.frontMeters ?? null,
+      backMeters: property.backMeters ?? null,
+      sideLeftMeters: property.sideLeftMeters ?? null,
+      sideRightMeters: property.sideRightMeters ?? null,
+      ceilingHeightM: property.ceilingHeightM ?? null,
+      floorNumber: property.floorNumber ?? null,
+      floorCount: property.floorCount ?? null,
+      unitCount: property.unitCount ?? null,
       media: [],
       investorOpportunity: property.investorOpportunity ?? null,
       auctionCase: property.auctionCase ?? null
@@ -107,6 +115,14 @@ async function fallbackPublicProperties(filters: PublicPropertyFilters = {}) {
       priceValue: property.price,
       areaM2Value: property.areaM2,
       landAreaM2Value: property.landAreaM2,
+      frontMeters: null,
+      backMeters: null,
+      sideLeftMeters: null,
+      sideRightMeters: null,
+      ceilingHeightM: null,
+      floorNumber: null,
+      floorCount: null,
+      unitCount: null,
       media: property.media,
       investorOpportunity: null,
       auctionCase: null
@@ -183,7 +199,15 @@ export async function listPublicProperties(filters: PublicPropertyFilters = {}) 
       ...property,
       priceValue: Number(property.price),
       areaM2Value: property.areaM2 ? Number(property.areaM2) : null,
-      landAreaM2Value: property.landAreaM2 ? Number(property.landAreaM2) : null
+      landAreaM2Value: property.landAreaM2 ? Number(property.landAreaM2) : null,
+      frontMeters: property.frontMeters ? Number(property.frontMeters) : null,
+      backMeters: property.backMeters ? Number(property.backMeters) : null,
+      sideLeftMeters: property.sideLeftMeters ? Number(property.sideLeftMeters) : null,
+      sideRightMeters: property.sideRightMeters ? Number(property.sideRightMeters) : null,
+      ceilingHeightM: property.ceilingHeightM ? Number(property.ceilingHeightM) : null,
+      floorNumber: property.floorNumber ?? null,
+      floorCount: property.floorCount ?? null,
+      unitCount: property.unitCount ?? null
     }));
   } catch {
     return fallbackPublicProperties(filters);

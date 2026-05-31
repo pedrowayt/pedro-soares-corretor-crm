@@ -451,10 +451,22 @@ export default async function SeoLandingPage({
                   city={property.city}
                   district={property.district}
                   price={property.priceValue}
+                  type={property.type}
                   bedrooms={property.bedrooms}
                   bathrooms={property.bathrooms}
+                  suites={property.suites}
+                  livingRooms={property.livingRooms}
                   parkingSpaces={property.parkingSpaces}
                   areaM2={property.areaM2Value}
+                  landAreaM2={property.landAreaM2Value}
+                  frontMeters={property.frontMeters}
+                  backMeters={property.backMeters}
+                  sideLeftMeters={property.sideLeftMeters}
+                  sideRightMeters={property.sideRightMeters}
+                  ceilingHeightM={property.ceilingHeightM}
+                  floorNumber={property.floorNumber}
+                  floorCount={property.floorCount}
+                  unitCount={property.unitCount}
                   imageUrl={property.media?.[0]?.url}
                   status={property.status}
                 />

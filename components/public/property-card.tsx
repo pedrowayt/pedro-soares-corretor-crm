@@ -9,9 +9,21 @@ type PropertyCardProps = {
   district: string;
   price: number;
   imageUrl?: string;
+  type?: string | null;
   bedrooms?: number | null;
   bathrooms?: number | null;
+  suites?: number | null;
+  livingRooms?: number | null;
   areaM2?: number | null;
+  landAreaM2?: number | null;
+  frontMeters?: number | null;
+  backMeters?: number | null;
+  sideLeftMeters?: number | null;
+  sideRightMeters?: number | null;
+  ceilingHeightM?: number | null;
+  floorNumber?: number | null;
+  floorCount?: number | null;
+  unitCount?: number | null;
   parkingSpaces?: number | null;
   status?: string | null;
 };
@@ -29,9 +41,21 @@ export function PropertyCard({
   district,
   price,
   imageUrl,
+  type,
   bedrooms,
   bathrooms,
+  suites,
+  livingRooms,
   areaM2,
+  landAreaM2,
+  frontMeters,
+  backMeters,
+  sideLeftMeters,
+  sideRightMeters,
+  ceilingHeightM,
+  floorNumber,
+  floorCount,
+  unitCount,
   parkingSpaces,
   status
 }: PropertyCardProps) {
@@ -62,10 +86,22 @@ export function PropertyCard({
         </h3>
         <p style={{ margin: 0, color: "var(--sophistication-gold-300)", fontWeight: 700 }}>{formatCurrencyBRL(price)}</p>
         <PropertySpecs
+          type={type}
           bedrooms={bedrooms}
           bathrooms={bathrooms}
+          suites={suites}
+          livingRooms={livingRooms}
           parkingSpaces={parkingSpaces}
           areaM2={areaM2}
+          landAreaM2={landAreaM2}
+          frontMeters={frontMeters}
+          backMeters={backMeters}
+          sideLeftMeters={sideLeftMeters}
+          sideRightMeters={sideRightMeters}
+          ceilingHeightM={ceilingHeightM}
+          floorNumber={floorNumber}
+          floorCount={floorCount}
+          unitCount={unitCount}
         />
         <Link
           href={`/imoveis/${slug}`}

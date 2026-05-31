@@ -1,79 +1,185 @@
-import { Bath, BedDouble, Car, Maximize } from "lucide-react";
+import {
+  ArrowUpFromLine,
+  Bath,
+  Bed,
+  BedDouble,
+  Car,
+  DoorOpen,
+  LandPlot,
+  Layers,
+  Maximize,
+  Ruler,
+  Sofa
+} from "lucide-react";
+import type { ReactNode } from "react";
+import { getPropertyCategory } from "@/lib/property-categories";
+import type { CounterFieldId, DimensionFieldId } from "@/lib/property-categories";
 
 type Props = {
+  type?: string | null;
   bedrooms?: number | null;
+  livingRooms?: number | null;
   bathrooms?: number | null;
-  areaM2?: number | null;
+  suites?: number | null;
   parkingSpaces?: number | null;
+  areaM2?: number | null;
+  landAreaM2?: number | null;
+  frontMeters?: number | null;
+  backMeters?: number | null;
+  sideLeftMeters?: number | null;
+  sideRightMeters?: number | null;
+  ceilingHeightM?: number | null;
+  floorNumber?: number | null;
+  floorCount?: number | null;
+  unitCount?: number | null;
   compact?: boolean;
   className?: string;
+  /** Cap on the number of icons rendered (default 4). */
+  maxItems?: number;
 };
 
 function formatArea(value: number) {
   if (Number.isInteger(value)) return value.toString();
-  return value
-    .toLocaleString("pt-BR", { maximumFractionDigits: 1 })
-    .replace(",0", "");
+  return value.toLocaleString("pt-BR", { maximumFractionDigits: 1 }).replace(",0", "");
 }
 
+function formatMetersValue(value: number) {
+  if (Number.isInteger(value)) return `${value} m`;
+  return `${value.toLocaleString("pt-BR", { maximumFractionDigits: 1 }).replace(",0", "")} m`;
+}
+
+const COUNTER_ICONS: Record<CounterFieldId, ReactNode> = {
+  bedrooms: <BedDouble aria-hidden="true" />,
+  livingRooms: <Sofa aria-hidden="true" />,
+  suites: <Bed aria-hidden="true" />,
+  bathrooms: <Bath aria-hidden="true" />,
+  parkingSpaces: <Car aria-hidden="true" />,
+  floorNumber: <ArrowUpFromLine aria-hidden="true" />,
+  floorCount: <Layers aria-hidden="true" />,
+  unitCount: <DoorOpen aria-hidden="true" />
+};
+
+const COUNTER_NAMES: Record<CounterFieldId, { singular: string; plural: string }> = {
+  bedrooms: { singular: "quarto", plural: "quartos" },
+  livingRooms: { singular: "sala", plural: "salas" },
+  suites: { singular: "suíte", plural: "suítes" },
+  bathrooms: { singular: "banheiro", plural: "banheiros" },
+  parkingSpaces: { singular: "vaga", plural: "vagas" },
+  floorNumber: { singular: "andar", plural: "andar" },
+  floorCount: { singular: "andar", plural: "andares" },
+  unitCount: { singular: "unidade", plural: "unidades" }
+};
+
+const DIMENSION_LABELS: Record<DimensionFieldId, string> = {
+  areaM2: "área",
+  landAreaM2: "de terreno",
+  frontMeters: "de frente",
+  backMeters: "de fundo",
+  sideLeftMeters: "lateral esquerda",
+  sideRightMeters: "lateral direita",
+  ceilingHeightM: "de pé-direito"
+};
+
+const DIMENSION_ICONS: Record<DimensionFieldId, ReactNode> = {
+  areaM2: <Maximize aria-hidden="true" />,
+  landAreaM2: <LandPlot aria-hidden="true" />,
+  frontMeters: <LandPlot aria-hidden="true" />,
+  backMeters: <LandPlot aria-hidden="true" />,
+  sideLeftMeters: <LandPlot aria-hidden="true" />,
+  sideRightMeters: <LandPlot aria-hidden="true" />,
+  ceilingHeightM: <Ruler aria-hidden="true" />
+};
+
+type SpecItem = { key: string; icon: ReactNode; label: string; title: string };
+
 /**
- * Compact icon row showing the headline property specs (quartos, banheiros,
- * vagas, área). Items with falsy values are hidden so cards stay clean.
+ * Compact icon row showing the headline property specs. The fields shown
+ * follow the property category (Casa/Apartamento/Terreno/Rural/Comercial/Prédio)
+ * — only items with a real value get rendered, capped at `maxItems` (4 by
+ * default).
  */
 export function PropertySpecs({
+  type,
   bedrooms,
+  livingRooms,
   bathrooms,
-  areaM2,
+  suites,
   parkingSpaces,
+  areaM2,
+  landAreaM2,
+  frontMeters,
+  backMeters,
+  sideLeftMeters,
+  sideRightMeters,
+  ceilingHeightM,
+  floorNumber,
+  floorCount,
+  unitCount,
   compact,
-  className
+  className,
+  maxItems = 4
 }: Props) {
-  const items: Array<{ key: string; icon: React.ReactNode; label: string; title: string }> = [];
+  const category = getPropertyCategory(type ?? null);
 
-  if (bedrooms && bedrooms > 0) {
-    items.push({
-      key: "bedrooms",
-      icon: <BedDouble aria-hidden="true" />,
-      label: `${bedrooms}`,
-      title: `${bedrooms} ${bedrooms === 1 ? "quarto" : "quartos"}`
-    });
+  const dimensionValues: Record<DimensionFieldId, number | null | undefined> = {
+    areaM2,
+    landAreaM2,
+    frontMeters,
+    backMeters,
+    sideLeftMeters,
+    sideRightMeters,
+    ceilingHeightM
+  };
+
+  const counterValues: Record<CounterFieldId, number | null | undefined> = {
+    bedrooms,
+    livingRooms,
+    suites,
+    bathrooms,
+    parkingSpaces,
+    floorNumber,
+    floorCount,
+    unitCount
+  };
+
+  const items: SpecItem[] = [];
+
+  for (const id of category.counters) {
+    const raw = counterValues[id];
+    if (raw && raw > 0) {
+      const name = COUNTER_NAMES[id];
+      items.push({
+        key: `c-${id}`,
+        icon: COUNTER_ICONS[id],
+        label: `${raw}`,
+        title: `${raw} ${raw === 1 ? name.singular : name.plural}`
+      });
+    }
   }
 
-  if (bathrooms && bathrooms > 0) {
-    items.push({
-      key: "bathrooms",
-      icon: <Bath aria-hidden="true" />,
-      label: `${bathrooms}`,
-      title: `${bathrooms} ${bathrooms === 1 ? "banheiro" : "banheiros"}`
-    });
+  for (const id of category.dimensions) {
+    const raw = dimensionValues[id];
+    if (raw && raw > 0) {
+      const isArea = id === "areaM2" || id === "landAreaM2";
+      const label = isArea ? `${formatArea(raw)} m²` : formatMetersValue(raw);
+      items.push({
+        key: `d-${id}`,
+        icon: DIMENSION_ICONS[id],
+        label,
+        title: `${label} ${DIMENSION_LABELS[id]}`
+      });
+    }
   }
 
-  if (parkingSpaces && parkingSpaces > 0) {
-    items.push({
-      key: "parking",
-      icon: <Car aria-hidden="true" />,
-      label: `${parkingSpaces}`,
-      title: `${parkingSpaces} ${parkingSpaces === 1 ? "vaga" : "vagas"}`
-    });
-  }
-
-  if (areaM2 && areaM2 > 0) {
-    items.push({
-      key: "area",
-      icon: <Maximize aria-hidden="true" />,
-      label: `${formatArea(areaM2)} m²`,
-      title: `${formatArea(areaM2)} m² de área`
-    });
-  }
-
-  if (!items.length) return null;
+  const trimmed = items.slice(0, maxItems);
+  if (!trimmed.length) return null;
 
   return (
     <ul
       className={`property-specs${compact ? " property-specs-compact" : ""}${className ? ` ${className}` : ""}`}
       aria-label="Características do imóvel"
     >
-      {items.map((item) => (
+      {trimmed.map((item) => (
         <li key={item.key} title={item.title}>
           <span className="property-specs-icon">{item.icon}</span>
           <span className="property-specs-value">{item.label}</span>

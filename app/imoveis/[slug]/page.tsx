@@ -222,36 +222,50 @@ export default async function PropertyDetailsPage({ params }: { params: Promise<
     sideRightMeters: LandPlot,
     ceilingHeightM: Ruler
   };
-  const dimensionValueFor = (id: DimensionFieldId): string => {
+  const dimensionRawValue = (id: DimensionFieldId): number | null => {
     switch (id) {
       case "areaM2":
-        return formatAreaM2(property.areaM2Value);
+        return property.areaM2Value ?? null;
       case "landAreaM2":
-        return property.landAreaM2Value
-          ? formatAreaM2(property.landAreaM2Value)
-          : landFeature ?? "Sob consulta";
+        return property.landAreaM2Value ?? null;
       case "frontMeters":
-        return formatMetersValue(property.frontMeters);
+        return property.frontMeters ?? null;
       case "backMeters":
-        return formatMetersValue(property.backMeters);
+        return property.backMeters ?? null;
       case "sideLeftMeters":
-        return formatMetersValue(property.sideLeftMeters);
+        return property.sideLeftMeters ?? null;
       case "sideRightMeters":
-        return formatMetersValue(property.sideRightMeters);
+        return property.sideRightMeters ?? null;
       case "ceilingHeightM":
-        return formatMetersValue(property.ceilingHeightM);
+        return property.ceilingHeightM ?? null;
     }
   };
 
-  const counterValueFor = (id: CounterFieldId): string => {
-    const meta = counterLabelMap[id];
-    const value = (property as unknown as Record<CounterFieldId, number | null | undefined>)[id];
-    if (id === "livingRooms") {
-      return value !== null && value !== undefined
-        ? formatCount(value, meta.singular, meta.plural)
-        : roomFeature ?? "Sob consulta";
+  const dimensionDisplay = (id: DimensionFieldId): string | null => {
+    if (id === "areaM2" || id === "landAreaM2") {
+      const value = dimensionRawValue(id);
+      return value && value > 0 ? formatAreaM2(value) : null;
     }
-    return formatCount(value ?? null, meta.singular, meta.plural);
+    const value = dimensionRawValue(id);
+    return value && value > 0 ? formatMetersValue(value) : null;
+  };
+
+  const counterRawValue = (id: CounterFieldId): number | null => {
+    const raw = (property as unknown as Record<CounterFieldId, number | null | undefined>)[id];
+    return raw ?? null;
+  };
+
+  const counterDisplay = (id: CounterFieldId): string | null => {
+    const meta = counterLabelMap[id];
+    const value = counterRawValue(id);
+    if (value !== null && value > 0) {
+      return formatCount(value, meta.singular, meta.plural);
+    }
+    // livingRooms may still be implied by a feature like "3 salas".
+    if (id === "livingRooms" && roomFeature) {
+      return roomFeature;
+    }
+    return null;
   };
 
   const technicalSummaryItems: Array<{
@@ -259,16 +273,18 @@ export default async function PropertyDetailsPage({ params }: { params: Promise<
     value: string;
     Icon: LucideIcon;
   }> = [
-    ...propertyCategory.dimensions.map((id) => ({
-      label: dimensionLabelMap[id],
-      value: dimensionValueFor(id),
-      Icon: dimensionIconMap[id]
-    })),
-    ...propertyCategory.counters.map((id) => ({
-      label: counterLabelMap[id].label,
-      value: counterValueFor(id),
-      Icon: counterIconMap[id]
-    }))
+    ...propertyCategory.dimensions.flatMap((id) => {
+      const value = dimensionDisplay(id);
+      return value
+        ? [{ label: dimensionLabelMap[id], value, Icon: dimensionIconMap[id] }]
+        : [];
+    }),
+    ...propertyCategory.counters.flatMap((id) => {
+      const value = counterDisplay(id);
+      return value
+        ? [{ label: counterLabelMap[id].label, value, Icon: counterIconMap[id] }]
+        : [];
+    })
   ];
 
   const faqItems = [
