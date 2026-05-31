@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { MessageCircle } from "lucide-react";
 import { PropertyWizard, type WizardMedia, type WizardProperty } from "@/components/crm/property-wizard";
 import { findCrmPropertyById } from "@/lib/data/crm-properties";
 import { formatCurrencyBRL } from "@/lib/utils";
@@ -88,8 +89,10 @@ export default async function CrmImovelEditPage({ params }: { params: Promise<{ 
             target="_blank"
             rel="noopener noreferrer"
             title={`Falar com ${owner?.name ?? "proprietário"} no WhatsApp`}
+            style={{ display: "inline-flex", alignItems: "center", gap: 6 }}
           >
-            💬 WhatsApp do proprietário
+            <MessageCircle size={16} strokeWidth={1.75} aria-hidden="true" />
+            WhatsApp do proprietário
           </a>
         ) : null}
       </div>

@@ -2,7 +2,16 @@
 
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { List } from "lucide-react";
+import {
+  Briefcase,
+  Building,
+  Home,
+  Leaf,
+  List,
+  Mountain,
+  Warehouse,
+  type LucideIcon
+} from "lucide-react";
 import { applyWatermarkToImage } from "@/lib/media/watermark";
 import {
   COUNTER_FIELDS,
@@ -12,13 +21,19 @@ import {
   type DimensionFieldId
 } from "@/lib/property-categories";
 
-const TYPE_OPTIONS = [
-  { value: "CASA", label: "Casa", icon: "🏠", hint: "Residencial unifamiliar" },
-  { value: "APARTAMENTO", label: "Apartamento", icon: "🏢", hint: "Edifício / condomínio" },
-  { value: "LOTE", label: "Lote", icon: "📐", hint: "Terreno urbano" },
-  { value: "COMERCIAL", label: "Comercial", icon: "🏪", hint: "Salas, lojas, galpões" },
-  { value: "RURAL", label: "Rural", icon: "🌾", hint: "Chácara, sítio, fazenda" }
-] as const;
+const TYPE_OPTIONS: ReadonlyArray<{
+  value: string;
+  label: string;
+  Icon: LucideIcon;
+  hint: string;
+}> = [
+  { value: "CASA", label: "Casa", Icon: Home, hint: "Residencial unifamiliar" },
+  { value: "APARTAMENTO", label: "Apartamento", Icon: Building, hint: "Edifício / condomínio" },
+  { value: "LOTE", label: "Lote", Icon: Mountain, hint: "Terreno urbano" },
+  { value: "COMERCIAL", label: "Comercial", Icon: Briefcase, hint: "Salas, lojas, galpões" },
+  { value: "RURAL", label: "Rural", Icon: Leaf, hint: "Chácara, sítio, fazenda" },
+  { value: "PREDIO", label: "Prédio", Icon: Warehouse, hint: "Edifício inteiro" }
+];
 
 const PURPOSE_OPTIONS = [
   { value: "VENDA", label: "Venda" },
@@ -522,18 +537,23 @@ function StepTipo({ state, onChange }: { state: FormState; onChange: (partial: P
       <p className="wiz-step__hint">Comece pelo tipo, a finalidade do anúncio e o status comercial atual.</p>
 
       <div className="wiz-tiles">
-        {TYPE_OPTIONS.map((option) => (
-          <button
-            key={option.value}
-            type="button"
-            className={`wiz-tile ${state.type === option.value ? "is-active" : ""}`}
-            onClick={() => onChange({ type: option.value })}
-          >
-            <span className="wiz-tile__icon" aria-hidden>{option.icon}</span>
-            <span className="wiz-tile__label">{option.label}</span>
-            <span className="wiz-tile__hint">{option.hint}</span>
-          </button>
-        ))}
+        {TYPE_OPTIONS.map((option) => {
+          const TileIcon = option.Icon;
+          return (
+            <button
+              key={option.value}
+              type="button"
+              className={`wiz-tile ${state.type === option.value ? "is-active" : ""}`}
+              onClick={() => onChange({ type: option.value })}
+            >
+              <span className="wiz-tile__icon" aria-hidden="true">
+                <TileIcon size={22} strokeWidth={1.6} />
+              </span>
+              <span className="wiz-tile__label">{option.label}</span>
+              <span className="wiz-tile__hint">{option.hint}</span>
+            </button>
+          );
+        })}
       </div>
 
       <h3 className="wiz-step__subtitle">Finalidade do anúncio</h3>

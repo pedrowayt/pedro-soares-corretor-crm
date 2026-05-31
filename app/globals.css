@@ -893,7 +893,7 @@ a.property-instagram-button:hover {
 
 .wiz-tiles {
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 10px;
 }
 
@@ -901,8 +901,8 @@ a.property-instagram-button:hover {
   border: 1px solid #d5deeb;
   border-radius: 12px;
   background: #ffffff;
-  min-height: 118px;
-  padding: 12px;
+  min-height: 124px;
+  padding: 14px 12px;
   display: grid;
   gap: 6px;
   justify-items: start;
@@ -919,13 +919,26 @@ a.property-instagram-button:hover {
   background: rgba(242, 194, 122, 0.12);
 }
 
+.wiz-tile.is-active .wiz-tile__icon {
+  background: var(--sophistication-gold-500);
+  color: #fff;
+}
+
 .wiz-tile:hover {
   transform: translateY(-1px);
 }
 
 .wiz-tile__icon {
-  font-size: 1.55rem;
-  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(216, 154, 59, 0.12);
+  color: var(--sophistication-gold-500);
+  margin-bottom: 4px;
+  transition: background 0.18s ease, color 0.18s ease;
 }
 
 .wiz-tile__label {
@@ -6716,6 +6729,9 @@ body:has(.admin-login-page) .cookie-consent-banner {
 }
 
 .blog-trending-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   text-transform: uppercase;
   letter-spacing: 0.14em;
   font-size: 0.72rem;
@@ -7595,6 +7611,9 @@ body:has(.admin-login-page) .cookie-consent-banner {
 }
 
 .blog-sidebar-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   text-transform: uppercase;
   letter-spacing: 0.16em;
   font-size: 0.7rem;

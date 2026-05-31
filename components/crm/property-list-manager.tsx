@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { MessageCircle } from "lucide-react";
 import { PropertyStatusActions } from "@/components/crm/property-status-actions";
 import { PropertyWizard } from "@/components/crm/property-wizard";
 import { formatCurrencyBRL } from "@/lib/utils";
@@ -267,7 +268,8 @@ export function PropertyListManager({ properties }: { properties: PropertyListIt
                           rel="noopener noreferrer"
                           title={`Falar com ${property.ownerName ?? "proprietário"} no WhatsApp`}
                         >
-                          <span aria-hidden="true">💬</span> {property.ownerPhone}
+                          <MessageCircle size={14} strokeWidth={1.75} aria-hidden="true" />
+                          {property.ownerPhone}
                         </a>
                       ) : null}
                     </td>

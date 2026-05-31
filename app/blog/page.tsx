@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Flame } from "lucide-react";
 import { BlogNewsletterForm } from "@/components/blog/BlogNewsletterForm";
 import {
   listPublishedBlogPosts,
@@ -233,7 +234,10 @@ export default async function BlogIndexPage({
         {topViewed.length && !activeTag ? (
           <section className="blog-trending" aria-labelledby="trending-heading">
             <div className="blog-trending-head">
-              <span className="blog-trending-eyebrow">🔥 Em alta</span>
+              <span className="blog-trending-eyebrow">
+                <Flame size={14} strokeWidth={1.75} aria-hidden="true" />
+                Em alta
+              </span>
               <h2 id="trending-heading" className="blog-list-heading">
                 Mais lidos esta semana
               </h2>

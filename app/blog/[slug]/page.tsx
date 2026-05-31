@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Marked } from "marked";
+import { Flame } from "lucide-react";
 import { BlogNewsletterForm } from "@/components/blog/BlogNewsletterForm";
 import { BlogShareBar } from "@/components/blog/BlogShareBar";
 import { BlogSidebarAuthor } from "@/components/blog/BlogSidebarAuthor";
@@ -334,7 +335,10 @@ export default async function BlogPostPage({
 
           {trendingPosts.length ? (
             <section className="blog-sidebar-card" aria-labelledby="sidebar-trending-heading">
-              <p className="blog-sidebar-eyebrow">🔥 Em alta</p>
+              <p className="blog-sidebar-eyebrow">
+                <Flame size={14} strokeWidth={1.75} aria-hidden="true" />
+                Em alta
+              </p>
               <h3 id="sidebar-trending-heading" className="blog-sidebar-heading">
                 Mais lidos do blog
               </h3>
