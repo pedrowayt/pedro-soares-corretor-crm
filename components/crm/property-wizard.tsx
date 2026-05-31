@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { List } from "lucide-react";
 import { applyWatermarkToImage } from "@/lib/media/watermark";
 import {
   COUNTER_FIELDS,
@@ -746,10 +747,13 @@ function StepFeatures({
     />
   );
 
+  const CategoryIcon = category.Icon;
+
   return (
     <div className="wiz-step">
-      <h2 className="wiz-step__title">
-        <span aria-hidden="true">{category.icon}</span> {category.label}
+      <h2 className="wiz-step__title wiz-step__title--with-icon">
+        <CategoryIcon size={20} strokeWidth={1.75} aria-hidden="true" />
+        <span>{category.label}</span>
       </h2>
       <p className="wiz-step__hint">
         {category.hint ??
@@ -764,31 +768,50 @@ function StepFeatures({
         <div className="wiz-steppers">{category.counters.map(renderCounterField)}</div>
       ) : null}
 
-      {category.groups.map((group) => (
-        <div key={group.id} className="wiz-feature-group">
-          <h3 className="wiz-step__subtitle">
-            <span aria-hidden="true">{group.icon}</span> {group.title}
-          </h3>
-          <div className="wiz-chips wiz-chips--multi">
-            {group.presets.map((feature) => (
-              <button
-                key={feature}
-                type="button"
-                className={`wiz-chip ${state.features.includes(feature) ? "is-active" : ""}`}
-                onClick={() => onToggleFeature(feature)}
-              >
-                {feature}
-              </button>
-            ))}
-          </div>
-        </div>
-      ))}
+      {category.groups.map((group) => {
+        const GroupIcon = group.Icon;
+        const selectedCount = group.presets.reduce(
+          (count, preset) => (state.features.includes(preset) ? count + 1 : count),
+          0
+        );
+        return (
+          <section key={group.id} className="wiz-feature-group">
+            <header className="wiz-feature-group__header">
+              <span className="wiz-feature-group__title">
+                <GroupIcon size={16} strokeWidth={1.75} aria-hidden="true" />
+                {group.title}
+              </span>
+              <span className="wiz-feature-group__count" aria-label={`${selectedCount} de ${group.presets.length} selecionados`}>
+                {selectedCount}/{group.presets.length}
+              </span>
+            </header>
+            <div className="wiz-chips wiz-chips--multi">
+              {group.presets.map((feature) => (
+                <button
+                  key={feature}
+                  type="button"
+                  className={`wiz-chip ${state.features.includes(feature) ? "is-active" : ""}`}
+                  onClick={() => onToggleFeature(feature)}
+                >
+                  {feature}
+                </button>
+              ))}
+            </div>
+          </section>
+        );
+      })}
 
       {customFeatures.length ? (
-        <div className="wiz-feature-group">
-          <h3 className="wiz-step__subtitle">
-            <span aria-hidden="true">✨</span> Características personalizadas
-          </h3>
+        <section className="wiz-feature-group">
+          <header className="wiz-feature-group__header">
+            <span className="wiz-feature-group__title">
+              <List size={16} strokeWidth={1.75} aria-hidden="true" />
+              Características personalizadas
+            </span>
+            <span className="wiz-feature-group__count" aria-label={`${customFeatures.length} características personalizadas`}>
+              {customFeatures.length}
+            </span>
+          </header>
           <div className="wiz-chips wiz-chips--multi">
             {customFeatures.map((feature) => (
               <button
@@ -801,7 +824,7 @@ function StepFeatures({
               </button>
             ))}
           </div>
-        </div>
+        </section>
       ) : null}
 
       <div className="wiz-form">

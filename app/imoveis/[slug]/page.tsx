@@ -495,24 +495,27 @@ export default async function PropertyDetailsPage({ params }: { params: Promise<
 
               <h3 className="title-luxury">Características</h3>
               {groupedFeatures.length ? (
-                <div className="property-land-feature-groups">
-                  {groupedFeatures.map((group) => (
-                    <div className="property-land-feature-group" key={group.id}>
-                      <h4 className="property-land-feature-group-title">
-                        <span aria-hidden="true">{group.icon}</span> {group.title}
-                      </h4>
-                      <div
-                        className="property-feature-badges"
-                        style={{ display: "flex", gap: 8, flexWrap: "wrap" }}
-                      >
-                        {group.items.map((feature) => (
-                          <span className="badge" key={feature}>
-                            {feature}
+                <div className="property-feature-groups">
+                  {groupedFeatures.map((group) => {
+                    const GroupIcon = group.Icon;
+                    return (
+                      <article className="property-feature-group" key={group.id}>
+                        <header className="property-feature-group__header">
+                          <span className="property-feature-group__icon" aria-hidden="true">
+                            <GroupIcon size={16} strokeWidth={1.75} />
                           </span>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
+                          <h4 className="property-feature-group__title">{group.title}</h4>
+                        </header>
+                        <ul className="property-feature-group__list">
+                          {group.items.map((feature) => (
+                            <li className="property-feature-pill" key={feature}>
+                              {feature}
+                            </li>
+                          ))}
+                        </ul>
+                      </article>
+                    );
+                  })}
                 </div>
               ) : (
                 <p className="text-card" style={{ margin: 0, color: "var(--text-muted)" }}>

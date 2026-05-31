@@ -1,3 +1,26 @@
+import {
+  Briefcase,
+  Building,
+  Building2,
+  Droplets,
+  Dumbbell,
+  FileText,
+  Home,
+  Leaf,
+  List,
+  MapPin,
+  Mountain,
+  Plug,
+  Shield,
+  Sofa,
+  Sparkles,
+  TreePalm,
+  Tractor,
+  Users,
+  Warehouse,
+  Zap,
+  type LucideIcon
+} from "lucide-react";
 import type { PropertyType } from "@prisma/client";
 
 /* -------------------------------------------------------------------------- */
@@ -43,7 +66,7 @@ export type CounterFieldId = keyof typeof COUNTER_FIELDS;
 export type FeatureGroup = {
   id: string;
   title: string;
-  icon: string;
+  Icon: LucideIcon;
   presets: ReadonlyArray<string>;
 };
 
@@ -51,19 +74,19 @@ const HOUSE_GROUPS: FeatureGroup[] = [
   {
     id: "house-leisure",
     title: "Lazer e área externa",
-    icon: "🏡",
+    Icon: TreePalm,
     presets: ["Piscina", "Área gourmet", "Churrasqueira", "Quintal", "Jardim", "Espaço pet"]
   },
   {
     id: "house-condo",
     title: "Condomínio e segurança",
-    icon: "🔒",
+    Icon: Shield,
     presets: ["Condomínio fechado", "Portaria 24h", "Câmeras", "Salão de festas", "Playground"]
   },
   {
     id: "house-comfort",
     title: "Conforto",
-    icon: "⚙️",
+    Icon: Sofa,
     presets: [
       "Mobiliado",
       "Energia solar",
@@ -76,7 +99,7 @@ const HOUSE_GROUPS: FeatureGroup[] = [
   {
     id: "house-docs",
     title: "Documentação",
-    icon: "📑",
+    Icon: FileText,
     presets: [
       "Escriturado",
       "Registrado",
@@ -89,7 +112,7 @@ const HOUSE_GROUPS: FeatureGroup[] = [
   {
     id: "house-extras",
     title: "Diferenciais",
-    icon: "⭐",
+    Icon: Sparkles,
     presets: [
       "Vista panorâmica",
       "Próximo a escolas",
@@ -104,7 +127,7 @@ const APARTMENT_GROUPS: FeatureGroup[] = [
   {
     id: "apt-building",
     title: "Edifício",
-    icon: "🛗",
+    Icon: Building,
     presets: [
       "Elevador",
       "Portaria 24h",
@@ -118,13 +141,13 @@ const APARTMENT_GROUPS: FeatureGroup[] = [
   {
     id: "apt-leisure",
     title: "Lazer do condomínio",
-    icon: "🏋️",
+    Icon: Dumbbell,
     presets: ["Academia", "Piscina", "Quadra", "Sauna", "Spa", "Playground", "Espaço pet"]
   },
   {
     id: "apt-unit",
     title: "Unidade",
-    icon: "🌅",
+    Icon: Home,
     presets: [
       "Varanda",
       "Varanda gourmet",
@@ -138,7 +161,7 @@ const APARTMENT_GROUPS: FeatureGroup[] = [
   {
     id: "apt-docs",
     title: "Documentação",
-    icon: "📑",
+    Icon: FileText,
     presets: [
       "Escriturado",
       "Registrado",
@@ -151,7 +174,7 @@ const APARTMENT_GROUPS: FeatureGroup[] = [
   {
     id: "apt-extras",
     title: "Diferenciais",
-    icon: "⭐",
+    Icon: Sparkles,
     presets: [
       "Vista panorâmica",
       "Vista para o lago",
@@ -166,7 +189,7 @@ const LAND_GROUPS: FeatureGroup[] = [
   {
     id: "land-topo",
     title: "Características do terreno",
-    icon: "🏗️",
+    Icon: Mountain,
     presets: [
       "Plano",
       "Semi-plano",
@@ -182,7 +205,7 @@ const LAND_GROUPS: FeatureGroup[] = [
   {
     id: "land-docs",
     title: "Documentação",
-    icon: "📑",
+    Icon: FileText,
     presets: [
       "Matrícula individualizada",
       "Escriturado",
@@ -195,7 +218,7 @@ const LAND_GROUPS: FeatureGroup[] = [
   {
     id: "land-infra",
     title: "Infraestrutura",
-    icon: "⚡",
+    Icon: Zap,
     presets: [
       "Água encanada",
       "Energia elétrica",
@@ -208,13 +231,13 @@ const LAND_GROUPS: FeatureGroup[] = [
   {
     id: "land-zoning",
     title: "Zoneamento e uso",
-    icon: "🏘️",
+    Icon: Building2,
     presets: ["Residencial", "Comercial", "Misto", "Industrial", "Rural"]
   },
   {
     id: "land-extras",
     title: "Diferenciais",
-    icon: "⭐",
+    Icon: Sparkles,
     presets: [
       "Esquina",
       "Frente para avenida",
@@ -231,13 +254,13 @@ const RURAL_GROUPS: FeatureGroup[] = [
   {
     id: "rural-water",
     title: "Recursos hídricos",
-    icon: "💧",
+    Icon: Droplets,
     presets: ["Poço artesiano", "Nascente", "Rio", "Açude", "Lago"]
   },
   {
     id: "rural-vegetation",
     title: "Vegetação e uso",
-    icon: "🌳",
+    Icon: Leaf,
     presets: [
       "Mata nativa",
       "Pastagem",
@@ -250,7 +273,7 @@ const RURAL_GROUPS: FeatureGroup[] = [
   {
     id: "rural-structure",
     title: "Estrutura",
-    icon: "🚜",
+    Icon: Tractor,
     presets: [
       "Sede principal",
       "Casa de caseiro",
@@ -263,7 +286,7 @@ const RURAL_GROUPS: FeatureGroup[] = [
   {
     id: "rural-docs",
     title: "Documentação",
-    icon: "📑",
+    Icon: FileText,
     presets: [
       "Escriturado",
       "Registrado",
@@ -276,7 +299,7 @@ const RURAL_GROUPS: FeatureGroup[] = [
   {
     id: "rural-extras",
     title: "Diferenciais",
-    icon: "⭐",
+    Icon: Sparkles,
     presets: [
       "Topografia plana",
       "Acesso por asfalto",
@@ -290,7 +313,7 @@ const COMMERCIAL_GROUPS: FeatureGroup[] = [
   {
     id: "com-structure",
     title: "Estrutura",
-    icon: "🏢",
+    Icon: Briefcase,
     presets: [
       "Ar-condicionado central",
       "Recepção",
@@ -305,7 +328,7 @@ const COMMERCIAL_GROUPS: FeatureGroup[] = [
   {
     id: "com-location",
     title: "Localização",
-    icon: "🚪",
+    Icon: MapPin,
     presets: [
       "Térreo",
       "Esquina",
@@ -318,7 +341,7 @@ const COMMERCIAL_GROUPS: FeatureGroup[] = [
   {
     id: "com-infra",
     title: "Infraestrutura",
-    icon: "🔌",
+    Icon: Plug,
     presets: [
       "Energia trifásica",
       "Internet/fibra",
@@ -331,7 +354,7 @@ const COMMERCIAL_GROUPS: FeatureGroup[] = [
   {
     id: "com-docs",
     title: "Documentação",
-    icon: "📑",
+    Icon: FileText,
     presets: [
       "Escriturado",
       "Habite-se",
@@ -344,7 +367,7 @@ const COMMERCIAL_GROUPS: FeatureGroup[] = [
   {
     id: "com-extras",
     title: "Diferenciais",
-    icon: "⭐",
+    Icon: Sparkles,
     presets: [
       "Estacionamento amplo",
       "Próximo ao centro",
@@ -358,7 +381,7 @@ const BUILDING_GROUPS: FeatureGroup[] = [
   {
     id: "bld-structure",
     title: "Estrutura",
-    icon: "🛗",
+    Icon: Warehouse,
     presets: [
       "Elevadores",
       "Hall recepção",
@@ -371,13 +394,13 @@ const BUILDING_GROUPS: FeatureGroup[] = [
   {
     id: "bld-common",
     title: "Áreas comuns",
-    icon: "🏢",
+    Icon: Users,
     presets: ["Salão de festas", "Coworking", "Lavanderia coletiva", "Bicicletário", "Academia"]
   },
   {
     id: "bld-docs",
     title: "Documentação",
-    icon: "📑",
+    Icon: FileText,
     presets: [
       "Escriturado",
       "Habite-se",
@@ -389,7 +412,7 @@ const BUILDING_GROUPS: FeatureGroup[] = [
   {
     id: "bld-extras",
     title: "Diferenciais",
-    icon: "⭐",
+    Icon: Sparkles,
     presets: [
       "Recém-construído",
       "Reformado",
@@ -406,7 +429,7 @@ const BUILDING_GROUPS: FeatureGroup[] = [
 export type PropertyCategory = {
   id: string;
   label: string;
-  icon: string;
+  Icon: LucideIcon;
   /** Types that resolve to this category. The first category that lists a type wins. */
   types: ReadonlyArray<PropertyType>;
   /** Dimension inputs to render (in order). */
@@ -423,7 +446,7 @@ export const PROPERTY_CATEGORIES: ReadonlyArray<PropertyCategory> = [
   {
     id: "house",
     label: "Residencial — Casa",
-    icon: "🏠",
+    Icon: Home,
     types: ["CASA", "CASA_EM_CONDOMINIO", "CASA_GEMINADA", "SOBRADO"],
     dimensions: ["areaM2", "landAreaM2"],
     counters: ["bedrooms", "suites", "bathrooms", "livingRooms", "parkingSpaces"],
@@ -433,7 +456,7 @@ export const PROPERTY_CATEGORIES: ReadonlyArray<PropertyCategory> = [
   {
     id: "apartment",
     label: "Residencial — Apartamento",
-    icon: "🏢",
+    Icon: Building,
     types: ["APARTAMENTO", "AREA_PRIVATIVA", "COBERTURA", "FLAT"],
     dimensions: ["areaM2"],
     counters: ["bedrooms", "suites", "bathrooms", "livingRooms", "parkingSpaces", "floorNumber"],
@@ -443,7 +466,7 @@ export const PROPERTY_CATEGORIES: ReadonlyArray<PropertyCategory> = [
   {
     id: "land",
     label: "Terreno",
-    icon: "📐",
+    Icon: Mountain,
     types: ["LOTE", "LOTE_EM_CONDOMINIO"],
     dimensions: ["areaM2", "frontMeters", "backMeters", "sideLeftMeters", "sideRightMeters"],
     counters: [],
@@ -453,7 +476,7 @@ export const PROPERTY_CATEGORIES: ReadonlyArray<PropertyCategory> = [
   {
     id: "rural",
     label: "Rural",
-    icon: "🌾",
+    Icon: Leaf,
     types: ["CHACARA", "CHACARA_EM_CONDOMINIO", "FAZENDA", "RURAL"],
     dimensions: ["areaM2", "landAreaM2"],
     counters: ["bedrooms", "bathrooms", "parkingSpaces"],
@@ -463,7 +486,7 @@ export const PROPERTY_CATEGORIES: ReadonlyArray<PropertyCategory> = [
   {
     id: "commercial",
     label: "Comercial",
-    icon: "🏪",
+    Icon: Briefcase,
     types: ["COMERCIAL", "LOJA", "SALA", "GALPAO"],
     dimensions: ["areaM2", "ceilingHeightM"],
     counters: ["bathrooms", "parkingSpaces"],
@@ -473,7 +496,7 @@ export const PROPERTY_CATEGORIES: ReadonlyArray<PropertyCategory> = [
   {
     id: "building",
     label: "Prédio",
-    icon: "🏨",
+    Icon: Warehouse,
     types: ["PREDIO"],
     dimensions: ["areaM2", "landAreaM2"],
     counters: ["floorCount", "unitCount", "parkingSpaces"],
@@ -511,11 +534,11 @@ export const ALL_FEATURE_PRESETS: ReadonlyArray<string> = Array.from(
 export function groupFeaturesForCategory(
   features: ReadonlyArray<string>,
   category: PropertyCategory
-): Array<{ id: string; title: string; icon: string; items: string[] }> {
+): Array<{ id: string; title: string; Icon: LucideIcon; items: string[] }> {
   const buckets = category.groups.map((group) => ({
     id: group.id,
     title: group.title,
-    icon: group.icon,
+    Icon: group.Icon,
     items: [] as string[]
   }));
   const others: string[] = [];
@@ -533,7 +556,7 @@ export function groupFeaturesForCategory(
 
   const result = buckets.filter((bucket) => bucket.items.length > 0);
   if (others.length) {
-    result.push({ id: "outros", title: "Outros", icon: "✨", items: others });
+    result.push({ id: "outros", title: "Outros", Icon: List, items: others });
   }
   return result;
 }
