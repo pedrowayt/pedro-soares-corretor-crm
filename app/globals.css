@@ -3939,6 +3939,18 @@ body:has(.admin-login-page) .cookie-consent-banner {
   font-size: clamp(1.45rem, 2vw, 1.9rem);
 }
 
+.property-detail-price-box--inline {
+  display: none;
+  width: 100%;
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin: 0 0 12px;
+}
+
+.property-detail-price-box--inline strong {
+  font-size: clamp(1.5rem, 5vw, 1.9rem);
+}
+
 .property-sold-alert {
   margin: 0;
   border: 1px solid rgba(220, 38, 38, 0.3);
@@ -4994,6 +5006,14 @@ body:has(.admin-login-page) .cookie-consent-banner {
 
   .property-detail-sidebar {
     order: 2;
+  }
+
+  .property-detail-price-box--inline {
+    display: grid;
+  }
+
+  .property-detail-price-box--sidebar {
+    display: none;
   }
 
   .property-detail-price-box {

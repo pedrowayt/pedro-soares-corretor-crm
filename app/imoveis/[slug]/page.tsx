@@ -328,6 +328,16 @@ export default async function PropertyDetailsPage({ params }: { params: Promise<
             </h1>
           </div>
         </div>
+
+        <div
+          className="property-detail-price-box property-detail-price-box--inline"
+          aria-hidden="true"
+        >
+          <span>{purposeLabel}</span>
+          <strong>{formatCurrencyBRL(property.priceValue)}</strong>
+          <small>Valor anunciado do imóvel</small>
+        </div>
+
         {property.status === "VENDIDO" ? (
           <p className="property-sold-alert">
             Este imóvel já foi vendido. Posso te apresentar oportunidades semelhantes — fale comigo no WhatsApp.
