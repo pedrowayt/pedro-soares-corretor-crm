@@ -200,6 +200,18 @@ export async function getPropertyBySlug(slug: string) {
       priceValue: property.priceValue,
       areaM2Value: property.areaM2Value,
       landAreaM2Value: property.landAreaM2Value,
+      frontMeters:
+        "frontMeters" in property ? (property as { frontMeters?: number | null }).frontMeters ?? null : null,
+      backMeters:
+        "backMeters" in property ? (property as { backMeters?: number | null }).backMeters ?? null : null,
+      sideLeftMeters:
+        "sideLeftMeters" in property
+          ? (property as { sideLeftMeters?: number | null }).sideLeftMeters ?? null
+          : null,
+      sideRightMeters:
+        "sideRightMeters" in property
+          ? (property as { sideRightMeters?: number | null }).sideRightMeters ?? null
+          : null,
       marketAskingValueNumber: null,
       marketEstimatedValueNumber: null,
       marketOpportunityNumber: null,
@@ -231,6 +243,10 @@ export async function getPropertyBySlug(slug: string) {
       priceValue: Number(property.price),
       areaM2Value: property.areaM2 ? Number(property.areaM2) : null,
       landAreaM2Value: property.landAreaM2 ? Number(property.landAreaM2) : null,
+      frontMeters: property.frontMeters ? Number(property.frontMeters) : null,
+      backMeters: property.backMeters ? Number(property.backMeters) : null,
+      sideLeftMeters: property.sideLeftMeters ? Number(property.sideLeftMeters) : null,
+      sideRightMeters: property.sideRightMeters ? Number(property.sideRightMeters) : null,
       marketAskingValueNumber: property.marketAskingValue ? Number(property.marketAskingValue) : null,
       marketEstimatedValueNumber: property.marketEstimatedValue
         ? Number(property.marketEstimatedValue)
@@ -246,6 +262,18 @@ export async function getPropertyBySlug(slug: string) {
       priceValue: property.priceValue,
       areaM2Value: property.areaM2Value,
       landAreaM2Value: property.landAreaM2Value,
+      frontMeters:
+        "frontMeters" in property ? (property as { frontMeters?: number | null }).frontMeters ?? null : null,
+      backMeters:
+        "backMeters" in property ? (property as { backMeters?: number | null }).backMeters ?? null : null,
+      sideLeftMeters:
+        "sideLeftMeters" in property
+          ? (property as { sideLeftMeters?: number | null }).sideLeftMeters ?? null
+          : null,
+      sideRightMeters:
+        "sideRightMeters" in property
+          ? (property as { sideRightMeters?: number | null }).sideRightMeters ?? null
+          : null,
       marketAskingValueNumber: null,
       marketEstimatedValueNumber: null,
       marketOpportunityNumber: null,

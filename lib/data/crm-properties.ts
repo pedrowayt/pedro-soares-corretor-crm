@@ -23,6 +23,10 @@ export type CrmPropertyPayload = {
   longitude?: number | null;
   areaM2?: number | null;
   landAreaM2?: number | null;
+  frontMeters?: number | null;
+  backMeters?: number | null;
+  sideLeftMeters?: number | null;
+  sideRightMeters?: number | null;
   bedrooms?: number | null;
   livingRooms?: number | null;
   suites?: number | null;
@@ -74,6 +78,10 @@ type MemoryProperty = {
   longitude: NullableNumber;
   areaM2: NullableNumber;
   landAreaM2: NullableNumber;
+  frontMeters: NullableNumber;
+  backMeters: NullableNumber;
+  sideLeftMeters: NullableNumber;
+  sideRightMeters: NullableNumber;
   bedrooms: number | null;
   livingRooms: number | null;
   suites: number | null;
@@ -183,6 +191,10 @@ function normalizeDbProperty(property: DbPropertyWithRelations) {
     price: Number(property.price),
     areaM2: toNumber(property.areaM2),
     landAreaM2: toNumber(property.landAreaM2),
+    frontMeters: toNumber(property.frontMeters),
+    backMeters: toNumber(property.backMeters),
+    sideLeftMeters: toNumber(property.sideLeftMeters),
+    sideRightMeters: toNumber(property.sideRightMeters),
     latitude: toNumber(property.latitude),
     longitude: toNumber(property.longitude),
     commissionPct: toNumber(property.commissionPct),
@@ -220,6 +232,10 @@ function fromMockProperty(property: (typeof mockProperties)[number], index: numb
     longitude: null,
     areaM2: property.areaM2,
     landAreaM2: property.landAreaM2,
+    frontMeters: null,
+    backMeters: null,
+    sideLeftMeters: null,
+    sideRightMeters: null,
     bedrooms: property.bedrooms,
     livingRooms: property.livingRooms,
     suites: property.suites,
@@ -273,6 +289,10 @@ function normalizeForCreate(input: CrmPropertyPayload): CrmPropertyPayload {
     longitude: optionalNumber(input.longitude),
     areaM2: optionalNumber(input.areaM2),
     landAreaM2: optionalNumber(input.landAreaM2),
+    frontMeters: optionalNumber(input.frontMeters),
+    backMeters: optionalNumber(input.backMeters),
+    sideLeftMeters: optionalNumber(input.sideLeftMeters),
+    sideRightMeters: optionalNumber(input.sideRightMeters),
     commissionPct: optionalNumber(input.commissionPct),
     marketAskingValue: optionalNumber(input.marketAskingValue),
     marketEstimatedValue: optionalNumber(input.marketEstimatedValue),
@@ -345,6 +365,10 @@ export async function createCrmProperty(payload: CrmPropertyPayload) {
           longitude: normalized.longitude,
           areaM2: normalized.areaM2,
           landAreaM2: normalized.landAreaM2,
+          frontMeters: normalized.frontMeters,
+          backMeters: normalized.backMeters,
+          sideLeftMeters: normalized.sideLeftMeters,
+          sideRightMeters: normalized.sideRightMeters,
           bedrooms: normalized.bedrooms,
           livingRooms: normalized.livingRooms,
           suites: normalized.suites,
@@ -402,6 +426,10 @@ export async function createCrmProperty(payload: CrmPropertyPayload) {
     longitude: normalized.longitude ?? null,
     areaM2: normalized.areaM2 ?? null,
     landAreaM2: normalized.landAreaM2 ?? null,
+    frontMeters: normalized.frontMeters ?? null,
+    backMeters: normalized.backMeters ?? null,
+    sideLeftMeters: normalized.sideLeftMeters ?? null,
+    sideRightMeters: normalized.sideRightMeters ?? null,
     bedrooms: normalized.bedrooms ?? null,
     livingRooms: normalized.livingRooms ?? null,
     suites: normalized.suites ?? null,
@@ -458,6 +486,10 @@ export async function updateCrmProperty(id: string, payload: Partial<CrmProperty
     longitude: optionalNumber(payload.longitude),
     areaM2: optionalNumber(payload.areaM2),
     landAreaM2: optionalNumber(payload.landAreaM2),
+    frontMeters: optionalNumber(payload.frontMeters),
+    backMeters: optionalNumber(payload.backMeters),
+    sideLeftMeters: optionalNumber(payload.sideLeftMeters),
+    sideRightMeters: optionalNumber(payload.sideRightMeters),
     commissionPct: optionalNumber(payload.commissionPct),
     marketAskingValue: optionalNumber(payload.marketAskingValue),
     marketEstimatedValue: optionalNumber(payload.marketEstimatedValue),
@@ -519,6 +551,12 @@ export async function updateCrmProperty(id: string, payload: Partial<CrmProperty
     longitude: partial.longitude === undefined ? current.longitude : partial.longitude,
     areaM2: partial.areaM2 === undefined ? current.areaM2 : partial.areaM2,
     landAreaM2: partial.landAreaM2 === undefined ? current.landAreaM2 : partial.landAreaM2,
+    frontMeters: partial.frontMeters === undefined ? current.frontMeters : partial.frontMeters,
+    backMeters: partial.backMeters === undefined ? current.backMeters : partial.backMeters,
+    sideLeftMeters:
+      partial.sideLeftMeters === undefined ? current.sideLeftMeters : partial.sideLeftMeters,
+    sideRightMeters:
+      partial.sideRightMeters === undefined ? current.sideRightMeters : partial.sideRightMeters,
     bedrooms: partial.bedrooms === undefined ? current.bedrooms : partial.bedrooms,
     livingRooms: partial.livingRooms === undefined ? current.livingRooms : partial.livingRooms,
     suites: partial.suites === undefined ? current.suites : partial.suites,

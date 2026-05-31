@@ -741,6 +741,10 @@ model Property {
   longitude             Decimal?        @db.Decimal(10, 7)
   areaM2                Decimal?        @db.Decimal(10, 2)
   landAreaM2            Decimal?        @db.Decimal(12, 2)
+  frontMeters           Decimal?        @db.Decimal(8, 2)
+  backMeters            Decimal?        @db.Decimal(8, 2)
+  sideLeftMeters        Decimal?        @db.Decimal(8, 2)
+  sideRightMeters       Decimal?        @db.Decimal(8, 2)
   bedrooms              Int?
   livingRooms           Int?
   suites                Int?

@@ -981,6 +981,22 @@ a.property-instagram-button:hover {
   gap: 12px;
 }
 
+.wiz-form--cols-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.wiz-feature-group {
+  display: grid;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.wiz-feature-group .wiz-step__subtitle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .wiz-field {
   min-width: 0;
 }
@@ -3949,6 +3965,28 @@ body:has(.admin-login-page) .cookie-consent-banner {
 
 .property-detail-price-box--inline strong {
   font-size: clamp(1.5rem, 5vw, 1.9rem);
+}
+
+.property-land-feature-groups {
+  display: grid;
+  gap: 14px;
+}
+
+.property-land-feature-group {
+  display: grid;
+  gap: 6px;
+}
+
+.property-land-feature-group-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
 }
 
 .property-sold-alert {

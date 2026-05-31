@@ -10,6 +10,7 @@ import { getSiteUrl } from "@/lib/site-url";
 const INSTAGRAM_URL =
   "https://www.instagram.com/pedrosoarespmw?igsh=MXQ3ZTA2YW13ZjZmNQ%3D%3D&utm_source=qr";
 import { getPropertyBySlug } from "@/lib/data/properties";
+import { groupLandFeatures, isLandPropertyType } from "@/lib/land-property";
 import { buildGoogleMapsEmbedUrl, buildGoogleMapsOpenUrl } from "@/lib/maps";
 import { formatCurrencyBRL } from "@/lib/utils";
 
@@ -158,53 +159,87 @@ export default async function PropertyDetailsPage({ params }: { params: Promise<
     property.type === "CHACARA" ||
     property.type === "CHACARA_EM_CONDOMINIO" ||
     property.type === "FAZENDA";
+  const isLotProperty = isLandPropertyType(property.type);
+  const groupedLandFeatures = isLotProperty ? groupLandFeatures(features) : [];
+  const formatMeters = (value: number | null | undefined) =>
+    typeof value === "number" && value > 0 ? `${value.toLocaleString("pt-BR")} m` : "Sob consulta";
+
   const technicalSummaryItems: Array<{
     label: string;
     value: string;
     Icon: LucideIcon;
-  }> = [
-    {
-      label: "Metragem",
-      value: formatAreaM2(property.areaM2Value),
-      Icon: Ruler
-    },
-    {
-      label: "Quartos",
-      value: formatCount(property.bedrooms, "quarto", "quartos"),
-      Icon: Bed
-    },
-    {
-      label: "Salas",
-      value: property.livingRooms !== null && property.livingRooms !== undefined
-        ? formatCount(property.livingRooms, "sala", "salas")
-        : roomFeature ?? "Sob consulta",
-      Icon: Sofa
-    },
-    {
-      label: "Suítes",
-      value: formatCount(property.suites, "suíte", "suítes"),
-      Icon: BedDouble
-    },
-    {
-      label: "Banheiros",
-      value: formatCount(property.bathrooms, "banheiro", "banheiros"),
-      Icon: Bath
-    },
-    {
-      label: "Vagas",
-      value: formatCount(property.parkingSpaces, "vaga", "vagas"),
-      Icon: Car
-    },
-    {
-      label: "Terreno",
-      value: property.landAreaM2Value
-        ? formatAreaM2(property.landAreaM2Value)
-        : isLandProperty
-          ? formatAreaM2(property.areaM2Value)
-          : landFeature ?? "Sob consulta",
-      Icon: LandPlot
-    }
-  ];
+  }> = isLotProperty
+    ? [
+        {
+          label: "Área total",
+          value: formatAreaM2(property.areaM2Value),
+          Icon: Ruler
+        },
+        {
+          label: "Frente",
+          value: formatMeters(property.frontMeters),
+          Icon: LandPlot
+        },
+        {
+          label: "Fundo",
+          value: formatMeters(property.backMeters),
+          Icon: LandPlot
+        },
+        {
+          label: "Lateral esq.",
+          value: formatMeters(property.sideLeftMeters),
+          Icon: LandPlot
+        },
+        {
+          label: "Lateral dir.",
+          value: formatMeters(property.sideRightMeters),
+          Icon: LandPlot
+        }
+      ]
+    : [
+        {
+          label: "Metragem",
+          value: formatAreaM2(property.areaM2Value),
+          Icon: Ruler
+        },
+        {
+          label: "Quartos",
+          value: formatCount(property.bedrooms, "quarto", "quartos"),
+          Icon: Bed
+        },
+        {
+          label: "Salas",
+          value:
+            property.livingRooms !== null && property.livingRooms !== undefined
+              ? formatCount(property.livingRooms, "sala", "salas")
+              : roomFeature ?? "Sob consulta",
+          Icon: Sofa
+        },
+        {
+          label: "Suítes",
+          value: formatCount(property.suites, "suíte", "suítes"),
+          Icon: BedDouble
+        },
+        {
+          label: "Banheiros",
+          value: formatCount(property.bathrooms, "banheiro", "banheiros"),
+          Icon: Bath
+        },
+        {
+          label: "Vagas",
+          value: formatCount(property.parkingSpaces, "vaga", "vagas"),
+          Icon: Car
+        },
+        {
+          label: "Terreno",
+          value: property.landAreaM2Value
+            ? formatAreaM2(property.landAreaM2Value)
+            : isLandProperty
+              ? formatAreaM2(property.areaM2Value)
+              : landFeature ?? "Sob consulta",
+          Icon: LandPlot
+        }
+      ];
 
   const faqItems = [
     {
@@ -413,13 +448,44 @@ export default async function PropertyDetailsPage({ params }: { params: Promise<
               <p className="section-subtitle text-card">{property.description}</p>
 
               <h3 className="title-luxury">Características</h3>
-              <div className="property-feature-badges" style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                {(property.features ?? []).map((feature) => (
-                  <span className="badge" key={feature}>
-                    {feature}
-                  </span>
-                ))}
-              </div>
+              {isLotProperty ? (
+                <div className="property-land-feature-groups">
+                  {groupedLandFeatures.length ? (
+                    groupedLandFeatures.map((group) => (
+                      <div className="property-land-feature-group" key={group.id}>
+                        <h4 className="property-land-feature-group-title">
+                          <span aria-hidden="true">{group.icon}</span> {group.title}
+                        </h4>
+                        <div
+                          className="property-feature-badges"
+                          style={{ display: "flex", gap: 8, flexWrap: "wrap" }}
+                        >
+                          {group.items.map((feature) => (
+                            <span className="badge" key={feature}>
+                              {feature}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-card" style={{ margin: 0, color: "var(--text-muted)" }}>
+                      Características complementares serão adicionadas em breve.
+                    </p>
+                  )}
+                </div>
+              ) : (
+                <div
+                  className="property-feature-badges"
+                  style={{ display: "flex", gap: 8, flexWrap: "wrap" }}
+                >
+                  {(property.features ?? []).map((feature) => (
+                    <span className="badge" key={feature}>
+                      {feature}
+                    </span>
+                  ))}
+                </div>
+              )}
 
               <h3 className="title-luxury" style={{ marginBottom: 8 }}>
                 Resumo técnico
