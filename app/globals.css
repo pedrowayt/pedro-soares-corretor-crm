@@ -4988,6 +4988,14 @@ body:has(.admin-login-page) .cookie-consent-banner {
     grid-row: auto;
   }
 
+  .property-detail-main {
+    order: 1;
+  }
+
+  .property-detail-sidebar {
+    order: 2;
+  }
+
   .property-detail-price-box {
     width: 100%;
   }
