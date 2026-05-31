@@ -1,6 +1,17 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import { Bath, Bed, BedDouble, Car, LandPlot, Ruler, Sofa } from "lucide-react";
+import {
+  ArrowUpFromLine,
+  Bath,
+  Bed,
+  BedDouble,
+  Car,
+  DoorOpen,
+  LandPlot,
+  Layers,
+  Ruler,
+  Sofa
+} from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { notFound } from "next/navigation";
 import { PropertyGallery } from "@/components/public/property-gallery";
@@ -10,7 +21,12 @@ import { getSiteUrl } from "@/lib/site-url";
 const INSTAGRAM_URL =
   "https://www.instagram.com/pedrosoarespmw?igsh=MXQ3ZTA2YW13ZjZmNQ%3D%3D&utm_source=qr";
 import { getPropertyBySlug } from "@/lib/data/properties";
-import { groupLandFeatures, isLandPropertyType } from "@/lib/land-property";
+import {
+  getPropertyCategory,
+  groupFeaturesForCategory,
+  type CounterFieldId,
+  type DimensionFieldId
+} from "@/lib/property-categories";
 import { buildGoogleMapsEmbedUrl, buildGoogleMapsOpenUrl } from "@/lib/maps";
 import { formatCurrencyBRL } from "@/lib/utils";
 
@@ -159,87 +175,101 @@ export default async function PropertyDetailsPage({ params }: { params: Promise<
     property.type === "CHACARA" ||
     property.type === "CHACARA_EM_CONDOMINIO" ||
     property.type === "FAZENDA";
-  const isLotProperty = isLandPropertyType(property.type);
-  const groupedLandFeatures = isLotProperty ? groupLandFeatures(features) : [];
-  const formatMeters = (value: number | null | undefined) =>
+  const propertyCategory = getPropertyCategory(property.type);
+  const groupedFeatures = groupFeaturesForCategory(features, propertyCategory);
+
+  const formatMetersValue = (value: number | null | undefined) =>
     typeof value === "number" && value > 0 ? `${value.toLocaleString("pt-BR")} m` : "Sob consulta";
+
+  const dimensionLabelMap: Record<DimensionFieldId, string> = {
+    areaM2: "Área",
+    landAreaM2: "Terreno",
+    frontMeters: "Frente",
+    backMeters: "Fundo",
+    sideLeftMeters: "Lateral esq.",
+    sideRightMeters: "Lateral dir.",
+    ceilingHeightM: "Pé-direito"
+  };
+
+  const counterLabelMap: Record<CounterFieldId, { label: string; singular: string; plural: string }> = {
+    bedrooms: { label: "Quartos", singular: "quarto", plural: "quartos" },
+    livingRooms: { label: "Salas", singular: "sala", plural: "salas" },
+    suites: { label: "Suítes", singular: "suíte", plural: "suítes" },
+    bathrooms: { label: "Banheiros", singular: "banheiro", plural: "banheiros" },
+    parkingSpaces: { label: "Vagas", singular: "vaga", plural: "vagas" },
+    floorNumber: { label: "Andar", singular: "andar", plural: "andares" },
+    floorCount: { label: "Andares", singular: "andar", plural: "andares" },
+    unitCount: { label: "Unidades", singular: "unidade", plural: "unidades" }
+  };
+
+  const counterIconMap: Record<CounterFieldId, LucideIcon> = {
+    bedrooms: Bed,
+    livingRooms: Sofa,
+    suites: BedDouble,
+    bathrooms: Bath,
+    parkingSpaces: Car,
+    floorNumber: ArrowUpFromLine,
+    floorCount: Layers,
+    unitCount: DoorOpen
+  };
+
+  const dimensionIconMap: Record<DimensionFieldId, LucideIcon> = {
+    areaM2: Ruler,
+    landAreaM2: LandPlot,
+    frontMeters: LandPlot,
+    backMeters: LandPlot,
+    sideLeftMeters: LandPlot,
+    sideRightMeters: LandPlot,
+    ceilingHeightM: Ruler
+  };
+  const dimensionValueFor = (id: DimensionFieldId): string => {
+    switch (id) {
+      case "areaM2":
+        return formatAreaM2(property.areaM2Value);
+      case "landAreaM2":
+        return property.landAreaM2Value
+          ? formatAreaM2(property.landAreaM2Value)
+          : landFeature ?? "Sob consulta";
+      case "frontMeters":
+        return formatMetersValue(property.frontMeters);
+      case "backMeters":
+        return formatMetersValue(property.backMeters);
+      case "sideLeftMeters":
+        return formatMetersValue(property.sideLeftMeters);
+      case "sideRightMeters":
+        return formatMetersValue(property.sideRightMeters);
+      case "ceilingHeightM":
+        return formatMetersValue(property.ceilingHeightM);
+    }
+  };
+
+  const counterValueFor = (id: CounterFieldId): string => {
+    const meta = counterLabelMap[id];
+    const value = (property as unknown as Record<CounterFieldId, number | null | undefined>)[id];
+    if (id === "livingRooms") {
+      return value !== null && value !== undefined
+        ? formatCount(value, meta.singular, meta.plural)
+        : roomFeature ?? "Sob consulta";
+    }
+    return formatCount(value ?? null, meta.singular, meta.plural);
+  };
 
   const technicalSummaryItems: Array<{
     label: string;
     value: string;
     Icon: LucideIcon;
-  }> = isLotProperty
-    ? [
-        {
-          label: "Área total",
-          value: formatAreaM2(property.areaM2Value),
-          Icon: Ruler
-        },
-        {
-          label: "Frente",
-          value: formatMeters(property.frontMeters),
-          Icon: LandPlot
-        },
-        {
-          label: "Fundo",
-          value: formatMeters(property.backMeters),
-          Icon: LandPlot
-        },
-        {
-          label: "Lateral esq.",
-          value: formatMeters(property.sideLeftMeters),
-          Icon: LandPlot
-        },
-        {
-          label: "Lateral dir.",
-          value: formatMeters(property.sideRightMeters),
-          Icon: LandPlot
-        }
-      ]
-    : [
-        {
-          label: "Metragem",
-          value: formatAreaM2(property.areaM2Value),
-          Icon: Ruler
-        },
-        {
-          label: "Quartos",
-          value: formatCount(property.bedrooms, "quarto", "quartos"),
-          Icon: Bed
-        },
-        {
-          label: "Salas",
-          value:
-            property.livingRooms !== null && property.livingRooms !== undefined
-              ? formatCount(property.livingRooms, "sala", "salas")
-              : roomFeature ?? "Sob consulta",
-          Icon: Sofa
-        },
-        {
-          label: "Suítes",
-          value: formatCount(property.suites, "suíte", "suítes"),
-          Icon: BedDouble
-        },
-        {
-          label: "Banheiros",
-          value: formatCount(property.bathrooms, "banheiro", "banheiros"),
-          Icon: Bath
-        },
-        {
-          label: "Vagas",
-          value: formatCount(property.parkingSpaces, "vaga", "vagas"),
-          Icon: Car
-        },
-        {
-          label: "Terreno",
-          value: property.landAreaM2Value
-            ? formatAreaM2(property.landAreaM2Value)
-            : isLandProperty
-              ? formatAreaM2(property.areaM2Value)
-              : landFeature ?? "Sob consulta",
-          Icon: LandPlot
-        }
-      ];
+  }> = [
+    ...propertyCategory.dimensions.map((id) => ({
+      label: dimensionLabelMap[id],
+      value: dimensionValueFor(id),
+      Icon: dimensionIconMap[id]
+    })),
+    ...propertyCategory.counters.map((id) => ({
+      label: counterLabelMap[id].label,
+      value: counterValueFor(id),
+      Icon: counterIconMap[id]
+    }))
+  ];
 
   const faqItems = [
     {
@@ -448,43 +478,30 @@ export default async function PropertyDetailsPage({ params }: { params: Promise<
               <p className="section-subtitle text-card">{property.description}</p>
 
               <h3 className="title-luxury">Características</h3>
-              {isLotProperty ? (
+              {groupedFeatures.length ? (
                 <div className="property-land-feature-groups">
-                  {groupedLandFeatures.length ? (
-                    groupedLandFeatures.map((group) => (
-                      <div className="property-land-feature-group" key={group.id}>
-                        <h4 className="property-land-feature-group-title">
-                          <span aria-hidden="true">{group.icon}</span> {group.title}
-                        </h4>
-                        <div
-                          className="property-feature-badges"
-                          style={{ display: "flex", gap: 8, flexWrap: "wrap" }}
-                        >
-                          {group.items.map((feature) => (
-                            <span className="badge" key={feature}>
-                              {feature}
-                            </span>
-                          ))}
-                        </div>
+                  {groupedFeatures.map((group) => (
+                    <div className="property-land-feature-group" key={group.id}>
+                      <h4 className="property-land-feature-group-title">
+                        <span aria-hidden="true">{group.icon}</span> {group.title}
+                      </h4>
+                      <div
+                        className="property-feature-badges"
+                        style={{ display: "flex", gap: 8, flexWrap: "wrap" }}
+                      >
+                        {group.items.map((feature) => (
+                          <span className="badge" key={feature}>
+                            {feature}
+                          </span>
+                        ))}
                       </div>
-                    ))
-                  ) : (
-                    <p className="text-card" style={{ margin: 0, color: "var(--text-muted)" }}>
-                      Características complementares serão adicionadas em breve.
-                    </p>
-                  )}
-                </div>
-              ) : (
-                <div
-                  className="property-feature-badges"
-                  style={{ display: "flex", gap: 8, flexWrap: "wrap" }}
-                >
-                  {(property.features ?? []).map((feature) => (
-                    <span className="badge" key={feature}>
-                      {feature}
-                    </span>
+                    </div>
                   ))}
                 </div>
+              ) : (
+                <p className="text-card" style={{ margin: 0, color: "var(--text-muted)" }}>
+                  Características complementares serão adicionadas em breve.
+                </p>
               )}
 
               <h3 className="title-luxury" style={{ marginBottom: 8 }}>

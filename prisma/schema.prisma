@@ -745,11 +745,15 @@ model Property {
   backMeters            Decimal?        @db.Decimal(8, 2)
   sideLeftMeters        Decimal?        @db.Decimal(8, 2)
   sideRightMeters       Decimal?        @db.Decimal(8, 2)
+  ceilingHeightM        Decimal?        @db.Decimal(5, 2)
   bedrooms              Int?
   livingRooms           Int?
   suites                Int?
   bathrooms             Int?
   parkingSpaces         Int?
+  floorNumber           Int?
+  floorCount            Int?
+  unitCount             Int?
   description           String
   features              String[]
   legalNotes            String?

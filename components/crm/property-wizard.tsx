@@ -4,10 +4,12 @@ import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { applyWatermarkToImage } from "@/lib/media/watermark";
 import {
-  LAND_FEATURE_GROUPS,
-  LAND_FEATURE_PRESETS,
-  isLandPropertyType
-} from "@/lib/land-property";
+  COUNTER_FIELDS,
+  DIMENSION_FIELDS,
+  getPropertyCategory,
+  type CounterFieldId,
+  type DimensionFieldId
+} from "@/lib/property-categories";
 
 const TYPE_OPTIONS = [
   { value: "CASA", label: "Casa", icon: "🏠", hint: "Residencial unifamiliar" },
@@ -32,27 +34,6 @@ const STATUS_OPTIONS = [
   { value: "ALUGADO", label: "Alugado" },
   { value: "EM_ANALISE", label: "Em análise" }
 ] as const;
-
-const FEATURE_PRESETS = [
-  "Piscina",
-  "Área gourmet",
-  "Condomínio fechado",
-  "Energia solar",
-  "Academia",
-  "Elevador",
-  "Mobiliado",
-  "Ar-condicionado",
-  "Aceita pet",
-  "Aceita financiamento",
-  "Aceita permuta",
-  "Vista panorâmica",
-  "Varanda gourmet",
-  "Sacada",
-  "Quintal",
-  "Piso superior",
-  "Cobertura",
-  "Garagem coberta"
-];
 
 const STEPS = [
   { id: "tipo", label: "Tipo", short: "Tipo" },
@@ -91,11 +72,15 @@ export type WizardProperty = {
   backMeters: number | null;
   sideLeftMeters: number | null;
   sideRightMeters: number | null;
+  ceilingHeightM: number | null;
   bedrooms: number | null;
   livingRooms: number | null;
   suites: number | null;
   bathrooms: number | null;
   parkingSpaces: number | null;
+  floorNumber: number | null;
+  floorCount: number | null;
+  unitCount: number | null;
   description: string;
   features: string[];
   legalNotes: string | null;
@@ -150,11 +135,15 @@ function makeInitialState(initial?: WizardProperty): FormState {
     backMeters: initial?.backMeters ?? null,
     sideLeftMeters: initial?.sideLeftMeters ?? null,
     sideRightMeters: initial?.sideRightMeters ?? null,
+    ceilingHeightM: initial?.ceilingHeightM ?? null,
     bedrooms: initial?.bedrooms ?? null,
     livingRooms: initial?.livingRooms ?? null,
     suites: initial?.suites ?? null,
     bathrooms: initial?.bathrooms ?? null,
     parkingSpaces: initial?.parkingSpaces ?? null,
+    floorNumber: initial?.floorNumber ?? null,
+    floorCount: initial?.floorCount ?? null,
+    unitCount: initial?.unitCount ?? null,
     description: initial?.description ?? "",
     features: initial?.features ?? [],
     legalNotes: initial?.legalNotes ?? null,
@@ -305,11 +294,15 @@ export function PropertyWizard({ mode, initial }: Props) {
       backMeters: state.backMeters ?? undefined,
       sideLeftMeters: state.sideLeftMeters ?? undefined,
       sideRightMeters: state.sideRightMeters ?? undefined,
+      ceilingHeightM: state.ceilingHeightM ?? undefined,
       bedrooms: state.bedrooms ?? undefined,
       livingRooms: state.livingRooms ?? undefined,
       suites: state.suites ?? undefined,
       bathrooms: state.bathrooms ?? undefined,
       parkingSpaces: state.parkingSpaces ?? undefined,
+      floorNumber: state.floorNumber ?? undefined,
+      floorCount: state.floorCount ?? undefined,
+      unitCount: state.unitCount ?? undefined,
       description: state.description || "Aguardando descrição final do imóvel.",
       features: state.features,
       legalNotes: state.legalNotes,
@@ -715,177 +708,69 @@ function StepFeatures({
   onToggleFeature: (value: string) => void;
 }) {
   const [customFeature, setCustomFeature] = useState("");
-  const isLand = isLandPropertyType(state.type);
+  const category = getPropertyCategory(state.type);
+  const allCategoryPresets = useMemo(
+    () => new Set(category.groups.flatMap((group) => group.presets)),
+    [category]
+  );
+  const customFeatures = state.features.filter((feature) => !allCategoryPresets.has(feature));
 
-  const customFeatures = state.features.filter((feature) =>
-    isLand
-      ? !(LAND_FEATURE_PRESETS as ReadonlyArray<string>).includes(feature)
-      : !FEATURE_PRESETS.includes(feature)
+  const renderDimensionField = (id: DimensionFieldId) => {
+    const meta = DIMENSION_FIELDS[id];
+    const value = state[id];
+    return (
+      <div className="wiz-field" key={id}>
+        <label>{meta.label}</label>
+        <input
+          type="number"
+          min={0}
+          step={meta.step}
+          value={value ?? ""}
+          onChange={(event) =>
+            onChange({
+              [id]: event.target.value === "" ? null : Number(event.target.value)
+            } as Partial<FormState>)
+          }
+          placeholder={meta.placeholder}
+        />
+      </div>
+    );
+  };
+
+  const renderCounterField = (id: CounterFieldId) => (
+    <NumberStepper
+      key={id}
+      label={COUNTER_FIELDS[id]}
+      value={state[id]}
+      onChange={(v) => onChange({ [id]: v } as Partial<FormState>)}
+    />
   );
 
   return (
     <div className="wiz-step">
       <h2 className="wiz-step__title">
-        {isLand ? "Características do terreno" : "Características do imóvel"}
+        <span aria-hidden="true">{category.icon}</span> {category.label}
       </h2>
       <p className="wiz-step__hint">
-        {isLand
-          ? "Adicione dimensões, topografia, documentação e infraestrutura — assim o comprador vê tudo que importa em um terreno."
-          : "Quanto mais completo, melhor o filtro funciona pra compradores e investidores."}
+        {category.hint ??
+          "Quanto mais completo, melhor o filtro funciona pra compradores e investidores."}
       </p>
 
-      <div className="wiz-form">
-        <div className="wiz-field">
-          <label>{isLand ? "Área total (m²)" : "Área (m²)"}</label>
-          <input
-            type="number"
-            min={0}
-            step="0.01"
-            value={state.areaM2 ?? ""}
-            onChange={(event) =>
-              onChange({ areaM2: event.target.value === "" ? null : Number(event.target.value) })
-            }
-            placeholder={isLand ? "450" : "180"}
-          />
-        </div>
-        {!isLand ? (
-          <div className="wiz-field">
-            <label>Terreno (m²)</label>
-            <input
-              type="number"
-              min={0}
-              step="0.01"
-              value={state.landAreaM2 ?? ""}
-              onChange={(event) =>
-                onChange({ landAreaM2: event.target.value === "" ? null : Number(event.target.value) })
-              }
-              placeholder="360"
-            />
-          </div>
-        ) : null}
-      </div>
+      {category.dimensions.length ? (
+        <div className="wiz-form wiz-form--cols-2">{category.dimensions.map(renderDimensionField)}</div>
+      ) : null}
 
-      {isLand ? (
-        <>
-          <h3 className="wiz-step__subtitle">Dimensões do lote</h3>
-          <div className="wiz-form wiz-form--cols-2">
-            <div className="wiz-field">
-              <label>Frente (m)</label>
-              <input
-                type="number"
-                min={0}
-                step="0.01"
-                value={state.frontMeters ?? ""}
-                onChange={(event) =>
-                  onChange({
-                    frontMeters: event.target.value === "" ? null : Number(event.target.value)
-                  })
-                }
-                placeholder="15"
-              />
-            </div>
-            <div className="wiz-field">
-              <label>Fundo (m)</label>
-              <input
-                type="number"
-                min={0}
-                step="0.01"
-                value={state.backMeters ?? ""}
-                onChange={(event) =>
-                  onChange({
-                    backMeters: event.target.value === "" ? null : Number(event.target.value)
-                  })
-                }
-                placeholder="15"
-              />
-            </div>
-            <div className="wiz-field">
-              <label>Lateral esquerda (m)</label>
-              <input
-                type="number"
-                min={0}
-                step="0.01"
-                value={state.sideLeftMeters ?? ""}
-                onChange={(event) =>
-                  onChange({
-                    sideLeftMeters: event.target.value === "" ? null : Number(event.target.value)
-                  })
-                }
-                placeholder="30"
-              />
-            </div>
-            <div className="wiz-field">
-              <label>Lateral direita (m)</label>
-              <input
-                type="number"
-                min={0}
-                step="0.01"
-                value={state.sideRightMeters ?? ""}
-                onChange={(event) =>
-                  onChange({
-                    sideRightMeters: event.target.value === "" ? null : Number(event.target.value)
-                  })
-                }
-                placeholder="30"
-              />
-            </div>
-          </div>
-        </>
-      ) : (
-        <div className="wiz-steppers">
-          <NumberStepper
-            label="Quartos"
-            value={state.bedrooms}
-            onChange={(v) => onChange({ bedrooms: v })}
-          />
-          <NumberStepper
-            label="Salas"
-            value={state.livingRooms}
-            onChange={(v) => onChange({ livingRooms: v })}
-          />
-          <NumberStepper
-            label="Suítes"
-            value={state.suites}
-            onChange={(v) => onChange({ suites: v })}
-          />
-          <NumberStepper
-            label="Banheiros"
-            value={state.bathrooms}
-            onChange={(v) => onChange({ bathrooms: v })}
-          />
-          <NumberStepper
-            label="Vagas"
-            value={state.parkingSpaces}
-            onChange={(v) => onChange({ parkingSpaces: v })}
-          />
-        </div>
-      )}
+      {category.counters.length ? (
+        <div className="wiz-steppers">{category.counters.map(renderCounterField)}</div>
+      ) : null}
 
-      {isLand ? (
-        LAND_FEATURE_GROUPS.map((group) => (
-          <div key={group.id} className="wiz-feature-group">
-            <h3 className="wiz-step__subtitle">
-              <span aria-hidden="true">{group.icon}</span> {group.title}
-            </h3>
-            <div className="wiz-chips wiz-chips--multi">
-              {group.presets.map((feature) => (
-                <button
-                  key={feature}
-                  type="button"
-                  className={`wiz-chip ${state.features.includes(feature) ? "is-active" : ""}`}
-                  onClick={() => onToggleFeature(feature)}
-                >
-                  {feature}
-                </button>
-              ))}
-            </div>
-          </div>
-        ))
-      ) : (
-        <>
-          <h3 className="wiz-step__subtitle">Diferenciais</h3>
+      {category.groups.map((group) => (
+        <div key={group.id} className="wiz-feature-group">
+          <h3 className="wiz-step__subtitle">
+            <span aria-hidden="true">{group.icon}</span> {group.title}
+          </h3>
           <div className="wiz-chips wiz-chips--multi">
-            {FEATURE_PRESETS.map((feature) => (
+            {group.presets.map((feature) => (
               <button
                 key={feature}
                 type="button"
@@ -896,8 +781,8 @@ function StepFeatures({
               </button>
             ))}
           </div>
-        </>
-      )}
+        </div>
+      ))}
 
       {customFeatures.length ? (
         <div className="wiz-feature-group">
@@ -926,7 +811,7 @@ function StepFeatures({
             <input
               value={customFeature}
               onChange={(event) => setCustomFeature(event.target.value)}
-              placeholder={isLand ? "Ex: Poço artesiano" : "Ex: Sistema de automação"}
+              placeholder="Ex: Sistema de automação"
               onKeyDown={(event) => {
                 if (event.key === "Enter") {
                   event.preventDefault();

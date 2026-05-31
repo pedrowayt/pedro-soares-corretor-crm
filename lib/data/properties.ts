@@ -212,6 +212,16 @@ export async function getPropertyBySlug(slug: string) {
         "sideRightMeters" in property
           ? (property as { sideRightMeters?: number | null }).sideRightMeters ?? null
           : null,
+      ceilingHeightM:
+        "ceilingHeightM" in property
+          ? (property as { ceilingHeightM?: number | null }).ceilingHeightM ?? null
+          : null,
+      floorNumber:
+        "floorNumber" in property ? (property as { floorNumber?: number | null }).floorNumber ?? null : null,
+      floorCount:
+        "floorCount" in property ? (property as { floorCount?: number | null }).floorCount ?? null : null,
+      unitCount:
+        "unitCount" in property ? (property as { unitCount?: number | null }).unitCount ?? null : null,
       marketAskingValueNumber: null,
       marketEstimatedValueNumber: null,
       marketOpportunityNumber: null,
@@ -247,6 +257,7 @@ export async function getPropertyBySlug(slug: string) {
       backMeters: property.backMeters ? Number(property.backMeters) : null,
       sideLeftMeters: property.sideLeftMeters ? Number(property.sideLeftMeters) : null,
       sideRightMeters: property.sideRightMeters ? Number(property.sideRightMeters) : null,
+      ceilingHeightM: property.ceilingHeightM ? Number(property.ceilingHeightM) : null,
       marketAskingValueNumber: property.marketAskingValue ? Number(property.marketAskingValue) : null,
       marketEstimatedValueNumber: property.marketEstimatedValue
         ? Number(property.marketEstimatedValue)
@@ -274,6 +285,16 @@ export async function getPropertyBySlug(slug: string) {
         "sideRightMeters" in property
           ? (property as { sideRightMeters?: number | null }).sideRightMeters ?? null
           : null,
+      ceilingHeightM:
+        "ceilingHeightM" in property
+          ? (property as { ceilingHeightM?: number | null }).ceilingHeightM ?? null
+          : null,
+      floorNumber:
+        "floorNumber" in property ? (property as { floorNumber?: number | null }).floorNumber ?? null : null,
+      floorCount:
+        "floorCount" in property ? (property as { floorCount?: number | null }).floorCount ?? null : null,
+      unitCount:
+        "unitCount" in property ? (property as { unitCount?: number | null }).unitCount ?? null : null,
       marketAskingValueNumber: null,
       marketEstimatedValueNumber: null,
       marketOpportunityNumber: null,

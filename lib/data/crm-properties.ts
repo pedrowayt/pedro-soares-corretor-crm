@@ -27,11 +27,15 @@ export type CrmPropertyPayload = {
   backMeters?: number | null;
   sideLeftMeters?: number | null;
   sideRightMeters?: number | null;
+  ceilingHeightM?: number | null;
   bedrooms?: number | null;
   livingRooms?: number | null;
   suites?: number | null;
   bathrooms?: number | null;
   parkingSpaces?: number | null;
+  floorNumber?: number | null;
+  floorCount?: number | null;
+  unitCount?: number | null;
   description: string;
   features: string[];
   legalNotes?: string | null;
@@ -82,11 +86,15 @@ type MemoryProperty = {
   backMeters: NullableNumber;
   sideLeftMeters: NullableNumber;
   sideRightMeters: NullableNumber;
+  ceilingHeightM: NullableNumber;
   bedrooms: number | null;
   livingRooms: number | null;
   suites: number | null;
   bathrooms: number | null;
   parkingSpaces: number | null;
+  floorNumber: number | null;
+  floorCount: number | null;
+  unitCount: number | null;
   description: string;
   features: string[];
   legalNotes: string | null;
@@ -195,6 +203,7 @@ function normalizeDbProperty(property: DbPropertyWithRelations) {
     backMeters: toNumber(property.backMeters),
     sideLeftMeters: toNumber(property.sideLeftMeters),
     sideRightMeters: toNumber(property.sideRightMeters),
+    ceilingHeightM: toNumber(property.ceilingHeightM),
     latitude: toNumber(property.latitude),
     longitude: toNumber(property.longitude),
     commissionPct: toNumber(property.commissionPct),
@@ -236,11 +245,15 @@ function fromMockProperty(property: (typeof mockProperties)[number], index: numb
     backMeters: null,
     sideLeftMeters: null,
     sideRightMeters: null,
+    ceilingHeightM: null,
     bedrooms: property.bedrooms,
     livingRooms: property.livingRooms,
     suites: property.suites,
     bathrooms: property.bathrooms,
     parkingSpaces: property.parkingSpaces,
+    floorNumber: null,
+    floorCount: null,
+    unitCount: null,
     description: property.description,
     features: [...property.features],
     legalNotes: null,
@@ -293,6 +306,10 @@ function normalizeForCreate(input: CrmPropertyPayload): CrmPropertyPayload {
     backMeters: optionalNumber(input.backMeters),
     sideLeftMeters: optionalNumber(input.sideLeftMeters),
     sideRightMeters: optionalNumber(input.sideRightMeters),
+    ceilingHeightM: optionalNumber(input.ceilingHeightM),
+    floorNumber: input.floorNumber ?? null,
+    floorCount: input.floorCount ?? null,
+    unitCount: input.unitCount ?? null,
     commissionPct: optionalNumber(input.commissionPct),
     marketAskingValue: optionalNumber(input.marketAskingValue),
     marketEstimatedValue: optionalNumber(input.marketEstimatedValue),
@@ -369,11 +386,15 @@ export async function createCrmProperty(payload: CrmPropertyPayload) {
           backMeters: normalized.backMeters,
           sideLeftMeters: normalized.sideLeftMeters,
           sideRightMeters: normalized.sideRightMeters,
+          ceilingHeightM: normalized.ceilingHeightM,
           bedrooms: normalized.bedrooms,
           livingRooms: normalized.livingRooms,
           suites: normalized.suites,
           bathrooms: normalized.bathrooms,
           parkingSpaces: normalized.parkingSpaces,
+          floorNumber: normalized.floorNumber,
+          floorCount: normalized.floorCount,
+          unitCount: normalized.unitCount,
           description: normalized.description,
           features: normalized.features,
           legalNotes: normalized.legalNotes,
@@ -430,11 +451,15 @@ export async function createCrmProperty(payload: CrmPropertyPayload) {
     backMeters: normalized.backMeters ?? null,
     sideLeftMeters: normalized.sideLeftMeters ?? null,
     sideRightMeters: normalized.sideRightMeters ?? null,
+    ceilingHeightM: normalized.ceilingHeightM ?? null,
     bedrooms: normalized.bedrooms ?? null,
     livingRooms: normalized.livingRooms ?? null,
     suites: normalized.suites ?? null,
     bathrooms: normalized.bathrooms ?? null,
     parkingSpaces: normalized.parkingSpaces ?? null,
+    floorNumber: normalized.floorNumber ?? null,
+    floorCount: normalized.floorCount ?? null,
+    unitCount: normalized.unitCount ?? null,
     description: normalized.description,
     features: normalized.features,
     legalNotes: normalized.legalNotes ?? null,
@@ -490,6 +515,10 @@ export async function updateCrmProperty(id: string, payload: Partial<CrmProperty
     backMeters: optionalNumber(payload.backMeters),
     sideLeftMeters: optionalNumber(payload.sideLeftMeters),
     sideRightMeters: optionalNumber(payload.sideRightMeters),
+    ceilingHeightM: optionalNumber(payload.ceilingHeightM),
+    floorNumber: payload.floorNumber === undefined ? undefined : payload.floorNumber,
+    floorCount: payload.floorCount === undefined ? undefined : payload.floorCount,
+    unitCount: payload.unitCount === undefined ? undefined : payload.unitCount,
     commissionPct: optionalNumber(payload.commissionPct),
     marketAskingValue: optionalNumber(payload.marketAskingValue),
     marketEstimatedValue: optionalNumber(payload.marketEstimatedValue),
@@ -557,11 +586,16 @@ export async function updateCrmProperty(id: string, payload: Partial<CrmProperty
       partial.sideLeftMeters === undefined ? current.sideLeftMeters : partial.sideLeftMeters,
     sideRightMeters:
       partial.sideRightMeters === undefined ? current.sideRightMeters : partial.sideRightMeters,
+    ceilingHeightM:
+      partial.ceilingHeightM === undefined ? current.ceilingHeightM : partial.ceilingHeightM,
     bedrooms: partial.bedrooms === undefined ? current.bedrooms : partial.bedrooms,
     livingRooms: partial.livingRooms === undefined ? current.livingRooms : partial.livingRooms,
     suites: partial.suites === undefined ? current.suites : partial.suites,
     bathrooms: partial.bathrooms === undefined ? current.bathrooms : partial.bathrooms,
     parkingSpaces: partial.parkingSpaces === undefined ? current.parkingSpaces : partial.parkingSpaces,
+    floorNumber: partial.floorNumber === undefined ? current.floorNumber : partial.floorNumber,
+    floorCount: partial.floorCount === undefined ? current.floorCount : partial.floorCount,
+    unitCount: partial.unitCount === undefined ? current.unitCount : partial.unitCount,
     description: partial.description ?? current.description,
     features: partial.features ?? current.features,
     legalNotes: partial.legalNotes === undefined ? current.legalNotes : partial.legalNotes,
