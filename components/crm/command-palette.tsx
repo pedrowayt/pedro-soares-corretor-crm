@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ArrowRight,
   BarChart3,
@@ -78,6 +78,12 @@ export function CommandPalette({ leads, properties }: Props) {
   const [activeIndex, setActiveIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
+  const openPalette = useCallback(() => {
+    setQuery("");
+    setActiveIndex(0);
+    setOpen(true);
+  }, []);
+
   const items = useMemo<CommandItem[]>(() => {
     const leadItems: CommandItem[] = leads.slice(0, 50).map((lead) => ({
       id: `lead-${lead.id}`,
@@ -124,35 +130,38 @@ export function CommandPalette({ leads, properties }: Props) {
   }, [filtered]);
 
   useEffect(() => {
+    const openFromChrome = () => openPalette();
     const handler = (event: KeyboardEvent) => {
       const isMac = navigator.platform.toUpperCase().includes("MAC");
       const trigger = isMac ? event.metaKey : event.ctrlKey;
       if (trigger && event.key.toLowerCase() === "k") {
         event.preventDefault();
-        setOpen((value) => !value);
+        if (open) {
+          setOpen(false);
+        } else {
+          openPalette();
+        }
       } else if (event.key === "Escape" && open) {
         setOpen(false);
       }
     };
+    window.addEventListener("crm:open-command-palette", openFromChrome);
     window.addEventListener("keydown", handler);
-    return () => window.removeEventListener("keydown", handler);
-  }, [open]);
+    return () => {
+      window.removeEventListener("crm:open-command-palette", openFromChrome);
+      window.removeEventListener("keydown", handler);
+    };
+  }, [open, openPalette]);
 
   useEffect(() => {
     if (!open) return;
     document.body.style.overflow = "hidden";
-    setQuery("");
-    setActiveIndex(0);
     const timer = window.setTimeout(() => inputRef.current?.focus(), 30);
     return () => {
       document.body.style.overflow = "";
       window.clearTimeout(timer);
     };
   }, [open]);
-
-  useEffect(() => {
-    setActiveIndex(0);
-  }, [query]);
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === "ArrowDown") {
@@ -202,7 +211,10 @@ export function CommandPalette({ leads, properties }: Props) {
             type="text"
             placeholder="Buscar leads, imóveis, navegar… (⌘K)"
             value={query}
-            onChange={(event) => setQuery(event.target.value)}
+            onChange={(event) => {
+              setQuery(event.target.value);
+              setActiveIndex(0);
+            }}
             onKeyDown={handleKeyDown}
             autoComplete="off"
             spellCheck={false}

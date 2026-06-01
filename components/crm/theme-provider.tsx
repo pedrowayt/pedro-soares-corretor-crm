@@ -14,7 +14,7 @@ function resolveInitial(): "light" | "dark" {
   if (typeof window === "undefined") return "light";
   const stored = window.localStorage.getItem(STORAGE_KEY);
   if (stored === "light" || stored === "dark") return stored;
-  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  return "dark";
 }
 
 /**
@@ -22,17 +22,16 @@ function resolveInitial(): "light" | "dark" {
  * (avoids the white flash on reload).
  */
 export function ThemeBootScript() {
-  const code = `(function(){try{var k='${STORAGE_KEY}';var v=localStorage.getItem(k);if(!v){v=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';}document.documentElement.dataset.theme=v;}catch(_){}})()`;
+  const code = `(function(){try{var k='${STORAGE_KEY}';var v=localStorage.getItem(k);if(!v){v='dark';}document.documentElement.dataset.theme=v;}catch(_){}})()`;
   return <script dangerouslySetInnerHTML={{ __html: code }} />;
 }
 
 export function ThemeToggle({ compact = false }: { compact?: boolean }) {
-  const [theme, setTheme] = useState<"light" | "dark">("light");
-  const [mounted, setMounted] = useState(false);
+  const [theme, setTheme] = useState<"light" | "dark">("dark");
 
   useEffect(() => {
-    setMounted(true);
-    setTheme(resolveInitial());
+    const timer = window.setTimeout(() => setTheme(resolveInitial()), 0);
+    return () => window.clearTimeout(timer);
   }, []);
 
   const toggle = () => {
@@ -45,14 +44,6 @@ export function ThemeToggle({ compact = false }: { compact?: boolean }) {
       /* ignore */
     }
   };
-
-  if (!mounted) {
-    return (
-      <button type="button" className="crm-theme-toggle" aria-hidden="true">
-        <Sun size={18} strokeWidth={1.75} aria-hidden="true" />
-      </button>
-    );
-  }
 
   const Icon = theme === "dark" ? Sun : Moon;
   const label = theme === "dark" ? "Tema claro" : "Tema escuro";

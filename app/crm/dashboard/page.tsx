@@ -1,11 +1,11 @@
 import Link from "next/link";
+import type { CSSProperties } from "react";
 import {
-  ArrowDownRight,
-  ArrowUpRight,
+  Bell,
   CalendarCheck,
   CheckCircle2,
   Flame,
-  Minus,
+  Home,
   Plus,
   Receipt,
   Sparkles,
@@ -15,14 +15,20 @@ import {
 } from "lucide-react";
 import { LeadScorePill } from "@/components/crm/lead-score-pill";
 import { computeLeadScore } from "@/lib/crm/lead-scoring";
-import { getDashboardFeaturedProperties, getDashboardSnapshot } from "@/lib/data/dashboard";
+import { getSession } from "@/lib/auth/session";
+import { getSaasDashboardSnapshot, type SaasDashboardSnapshot } from "@/lib/data/dashboard";
 import { formatCurrencyBRL } from "@/lib/utils";
 
-function formatDelta(delta: number) {
-  if (delta === 0) return { Icon: Minus, label: "estável", tone: "neutral" as const };
-  if (delta > 0) return { Icon: ArrowUpRight, label: `+${delta} vs ontem`, tone: "up" as const };
-  return { Icon: ArrowDownRight, label: `${delta} vs ontem`, tone: "down" as const };
-}
+type ProgressCard = SaasDashboardSnapshot["progressCards"][number];
+type MonthlyPoint = SaasDashboardSnapshot["charts"]["monthly"][number];
+type BarPoint = { label: string; count: number; percent: number };
+
+const CARD_ICONS: Record<string, typeof Home> = {
+  properties: Home,
+  leads: Users,
+  pipeline: TrendingUp,
+  revenue: Receipt
+};
 
 function formatRelativeDate(value: Date | string | null | undefined) {
   if (!value) return "—";
@@ -63,65 +69,240 @@ function getGreeting() {
   return "Boa noite";
 }
 
-const TYPE_LABEL_SHORT: Record<string, string> = {
-  CASA: "Casa",
-  CASA_EM_CONDOMINIO: "Casa cond.",
-  APARTAMENTO: "Apto",
-  COBERTURA: "Cobertura",
-  LOTE: "Lote",
-  LOTE_EM_CONDOMINIO: "Lote cond.",
-  SOBRADO: "Sobrado",
-  COMERCIAL: "Comercial",
-  RURAL: "Rural",
-  FAZENDA: "Fazenda",
-  CHACARA: "Chácara",
-  GALPAO: "Galpão"
-};
+function formatStage(stage: string) {
+  return stage
+    .toLowerCase()
+    .replaceAll("_", " ")
+    .replace(/^\w/, (letter) => letter.toUpperCase());
+}
 
-const PURPOSE_LABEL_SHORT: Record<string, string> = {
-  VENDA: "Venda",
-  LOCACAO: "Locação",
-  INVESTIMENTO: "Investimento",
-  LEILAO: "Leilão",
-  LANCAMENTO: "Lançamento"
-};
+function formatCardValue(card: ProgressCard) {
+  if (card.id === "pipeline" || card.id === "revenue") return formatCurrencyBRL(Number(card.value));
+  return new Intl.NumberFormat("pt-BR").format(Number(card.value));
+}
 
-export default async function CrmDashboardPage() {
-  const [snapshot, featuredProperties] = await Promise.all([
-    getDashboardSnapshot(),
-    getDashboardFeaturedProperties()
-  ]);
+function formatArea(value: number | null) {
+  if (!value) return null;
+  return `${new Intl.NumberFormat("pt-BR", { maximumFractionDigits: 0 }).format(value)} m²`;
+}
 
-  const { kpis, hotLeads, upcomingAppointments, leadsBySource, pipeline } = snapshot;
-  const wonValue =
-    "wonValueThisMonth" in kpis ? (kpis as { wonValueThisMonth?: number }).wonValueThisMonth ?? 0 : 0;
-  const delta = formatDelta(kpis.newLeadsTodayDelta);
-  const DeltaIcon = delta.Icon;
-  const totalLeadsThisStage = pipeline.reduce((sum, p) => sum + p._count._all, 0);
-  const maxSource = Math.max(...leadsBySource.map((s) => s._count._all), 1);
+function ProgressRing({ value }: { value: number }) {
+  return (
+    <span
+      className="crm-saas-progress-ring"
+      style={{ "--progress": `${Math.max(0, Math.min(100, value)) * 3.6}deg` } as CSSProperties}
+      aria-hidden="true"
+    >
+      <span>{value}%</span>
+    </span>
+  );
+}
+
+function ProgressCardTile({ card }: { card: ProgressCard }) {
+  const Icon = CARD_ICONS[card.id] ?? TrendingUp;
+  return (
+    <article className={`crm-saas-kpi-card is-${card.tone}`}>
+      <div className="crm-saas-kpi-card__copy">
+        <span className="crm-saas-kpi-card__label">
+          <Icon size={15} strokeWidth={1.8} aria-hidden="true" /> {card.label}
+        </span>
+        <strong>{formatCardValue(card)}</strong>
+        <small>{card.detail}</small>
+      </div>
+      <ProgressRing value={card.progress} />
+    </article>
+  );
+}
+
+function MonthlyPerformanceChart({ data }: { data: MonthlyPoint[] }) {
+  if (data.length === 0) return <p className="crm-panel__empty">Sem dados nos últimos 6 meses.</p>;
+
+  const width = 720;
+  const height = 236;
+  const chartHeight = 158;
+  const max = Math.max(...data.flatMap((item) => [item.created, item.won, item.lost]), 1);
+  const slot = width / data.length;
+  const barWidth = Math.min(26, slot * 0.18);
 
   return (
-    <div className="crm-dashboard">
-      {/* Hero header */}
-      <header className="crm-dash-hero">
-        <div className="crm-dash-hero__copy">
-          <p className="crm-dash-hero__eyebrow">
+    <svg
+      viewBox={`0 0 ${width} ${height}`}
+      className="crm-saas-monthly-chart"
+      role="img"
+      aria-label="Leads criados, ganhos e perdidos nos últimos 6 meses"
+    >
+      {[0, 1, 2, 3].map((line) => {
+        const y = 24 + (chartHeight / 3) * line;
+        return <line key={line} x1="0" x2={width} y1={y} y2={y} className="grid-line" />;
+      })}
+
+      {data.map((item, index) => {
+        const baseX = index * slot + slot / 2;
+        const createdH = (item.created / max) * chartHeight;
+        const wonH = (item.won / max) * chartHeight;
+        const lostH = (item.lost / max) * chartHeight;
+        const yBase = 24 + chartHeight;
+        return (
+          <g key={item.label}>
+            <rect x={baseX - barWidth * 1.7} y={yBase - createdH} width={barWidth} height={createdH} rx="5" className="bar-created">
+              <title>{`${item.label}: ${item.created} criados`}</title>
+            </rect>
+            <rect x={baseX - barWidth / 2} y={yBase - wonH} width={barWidth} height={wonH} rx="5" className="bar-won">
+              <title>{`${item.label}: ${item.won} ganhos`}</title>
+            </rect>
+            <rect x={baseX + barWidth * 0.7} y={yBase - lostH} width={barWidth} height={lostH} rx="5" className="bar-lost">
+              <title>{`${item.label}: ${item.lost} perdidos`}</title>
+            </rect>
+            <text x={baseX} y={height - 18} textAnchor="middle">
+              {item.label}
+            </text>
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
+function BarList({ data, emptyLabel }: { data: BarPoint[]; emptyLabel: string }) {
+  if (data.length === 0) return <p className="crm-panel__empty">{emptyLabel}</p>;
+  return (
+    <ul className="crm-saas-bar-list">
+      {data.map((item) => (
+        <li key={item.label}>
+          <span>{item.label}</span>
+          <div className="crm-saas-bar-list__track">
+            <i style={{ width: `${Math.max(item.percent, 4)}%` }} aria-hidden="true" />
+          </div>
+          <strong>{item.count}</strong>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+function FunnelChart({ data }: { data: SaasDashboardSnapshot["charts"]["funnel"] }) {
+  const max = Math.max(...data.map((item) => item.count), 1);
+  return (
+    <ol className="crm-saas-funnel">
+      {data.map((item) => (
+        <li key={item.stage}>
+          <span>{formatStage(item.stage)}</span>
+          <div>
+            <i style={{ width: `${Math.max((item.count / max) * 100, 4)}%` }} aria-hidden="true" />
+            <strong>{item.count}</strong>
+          </div>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+function PropertyBreakdown({ snapshot }: { snapshot: SaasDashboardSnapshot }) {
+  return (
+    <div className="crm-saas-breakdown">
+      <div>
+        <h3>Tipos de imóvel</h3>
+        <BarList data={snapshot.charts.propertyTypes} emptyLabel="Sem imóveis cadastrados." />
+      </div>
+      <div className="crm-saas-breakdown__chips">
+        <h3>Finalidade</h3>
+        <ul>
+          {snapshot.charts.propertyPurposes.map((item) => (
+            <li key={item.key}>
+              <span>{item.label}</span>
+              <strong>{item.count}</strong>
+            </li>
+          ))}
+          {snapshot.charts.propertyPurposes.length === 0 ? <li>Sem dados.</li> : null}
+        </ul>
+      </div>
+      <div className="crm-saas-breakdown__chips">
+        <h3>Status</h3>
+        <ul>
+          {snapshot.charts.propertyStatuses.map((item) => (
+            <li key={item.key}>
+              <span>{item.label}</span>
+              <strong>{item.count}</strong>
+            </li>
+          ))}
+          {snapshot.charts.propertyStatuses.length === 0 ? <li>Sem dados.</li> : null}
+        </ul>
+      </div>
+    </div>
+  );
+}
+
+function PopularProperties({ properties }: { properties: SaasDashboardSnapshot["popularProperties"] }) {
+  if (properties.length === 0) {
+    return <p className="crm-panel__empty">Sem imóveis disponíveis para destacar.</p>;
+  }
+
+  return (
+    <ul className="crm-saas-property-list">
+      {properties.map((property) => {
+        const area = formatArea(property.areaM2 ?? property.landAreaM2);
+        return (
+          <li key={property.id}>
+            <Link href={property.href} className="crm-saas-property-card">
+              <div
+                className={`crm-saas-property-card__media${property.imageUrl ? "" : " is-empty"}`}
+                style={{
+                  backgroundImage: property.imageUrl ? `url(${property.imageUrl})` : undefined
+                }}
+              >
+                <span>{property.purpose}</span>
+                {property.isInvestorHighlight ? <strong>Investidor</strong> : null}
+              </div>
+              <div className="crm-saas-property-card__body">
+                <span className="crm-saas-property-card__price">{formatCurrencyBRL(property.price)}</span>
+                <h3>{property.title}</h3>
+                <p>{property.location || property.type}</p>
+                <div className="crm-saas-property-card__specs">
+                  {property.suites ? <span>{property.suites} suítes</span> : null}
+                  {property.bedrooms ? <span>{property.bedrooms} quartos</span> : null}
+                  {property.parkingSpaces ? <span>{property.parkingSpaces} vagas</span> : null}
+                  {area ? <span>{area}</span> : null}
+                </div>
+                <footer>
+                  <span>{property.leadsCount} leads</span>
+                  <span>{property.visitsCount} visitas</span>
+                  <span>{property.proposalsCount} propostas</span>
+                </footer>
+              </div>
+            </Link>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
+export default async function CrmDashboardPage() {
+  const session = await getSession();
+  const snapshot = await getSaasDashboardSnapshot({
+    name: session?.name,
+    role: session?.role
+  });
+
+  return (
+    <div className="crm-dashboard crm-saas-dashboard">
+      <header className="crm-saas-hero">
+        <div className="crm-saas-hero__copy">
+          <span className="crm-saas-hero__eyebrow">
             {new Date().toLocaleDateString("pt-BR", {
               weekday: "long",
               day: "2-digit",
               month: "long"
             })}
-          </p>
+          </span>
           <h1>
-            {getGreeting()}, <span>Pedro</span>
+            {getGreeting()}, <span>{snapshot.profile.name.split(" ")[0]}</span>
           </h1>
-          <p className="crm-dash-hero__sub">
-            {kpis.newLeadsToday > 0
-              ? `Você tem ${kpis.newLeadsToday} ${kpis.newLeadsToday === 1 ? "lead novo" : "leads novos"} para atender.`
-              : "Nenhum lead novo hoje — bom momento para reaquecer carteira."}
+          <p>
+            Visão executiva do estoque, funil, receita e rotina comercial em um único painel.
           </p>
         </div>
-        <div className="crm-dash-hero__actions">
+        <div className="crm-saas-hero__actions">
           <Link href="/crm/leads#quick-create" className="button button-primary">
             <Plus size={16} strokeWidth={2} aria-hidden="true" /> Novo lead
           </Link>
@@ -131,74 +312,82 @@ export default async function CrmDashboardPage() {
         </div>
       </header>
 
-      {/* 6 KPIs */}
-      <section className="crm-kpi-strip" aria-label="Indicadores do dia">
-        <article className="crm-kpi-tile">
-          <span className="crm-kpi-tile__label">
-            <Users size={14} strokeWidth={1.75} aria-hidden="true" /> Leads novos
-          </span>
-          <strong>{kpis.newLeadsToday}</strong>
-          <span className={`crm-kpi-tile__delta is-${delta.tone}`}>
-            <DeltaIcon size={12} strokeWidth={2} aria-hidden="true" /> {delta.label}
-          </span>
-        </article>
-        <article className="crm-kpi-tile">
-          <span className="crm-kpi-tile__label">
-            <CalendarCheck size={14} strokeWidth={1.75} aria-hidden="true" /> Visitas hoje
-          </span>
-          <strong>{kpis.visitsToday}</strong>
-          <span className="crm-kpi-tile__delta is-neutral">Próximas 24h</span>
-        </article>
-        <article className="crm-kpi-tile">
-          <span className="crm-kpi-tile__label">
-            <Wallet size={14} strokeWidth={1.75} aria-hidden="true" /> Propostas
-          </span>
-          <strong>{kpis.proposalsPending}</strong>
-          <span className="crm-kpi-tile__delta is-neutral">Em aberto</span>
-        </article>
-        <article className="crm-kpi-tile crm-kpi-tile--highlight">
-          <span className="crm-kpi-tile__label">
-            <TrendingUp size={14} strokeWidth={1.75} aria-hidden="true" /> Pipeline
-          </span>
-          <strong>{formatCurrencyBRL(kpis.pipelineValue)}</strong>
-          <span className="crm-kpi-tile__delta is-up">{totalLeadsThisStage} leads ativos</span>
-        </article>
-        <article className="crm-kpi-tile">
-          <span className="crm-kpi-tile__label">
-            <CheckCircle2 size={14} strokeWidth={1.75} aria-hidden="true" /> Fechados (mês)
-          </span>
-          <strong>{kpis.wonThisMonth}</strong>
-          <span className="crm-kpi-tile__delta is-up">Encerrados</span>
-        </article>
-        <article className="crm-kpi-tile">
-          <span className="crm-kpi-tile__label">
-            <Receipt size={14} strokeWidth={1.75} aria-hidden="true" /> Receita (mês)
-          </span>
-          <strong>{wonValue > 0 ? formatCurrencyBRL(wonValue) : "—"}</strong>
-          <span className="crm-kpi-tile__delta is-up">GMV fechado</span>
-        </article>
+      <section className="crm-saas-kpi-grid" aria-label="Indicadores principais">
+        {snapshot.progressCards.map((card) => (
+          <ProgressCardTile key={card.id} card={card} />
+        ))}
       </section>
 
-      {/* Main grid 8/4 */}
-      <div className="crm-dash-grid">
-        {/* Left column (8/12) */}
-        <div className="crm-dash-grid__main">
-          <section className="crm-panel" aria-labelledby="hot-leads-heading">
-            <header className="crm-panel__head">
-              <h2 id="hot-leads-heading">
-                <Flame size={16} strokeWidth={1.75} aria-hidden="true" /> Hot leads · precisam follow-up
-              </h2>
-              <Link href="/crm/leads" className="crm-panel__more">
-                Ver todos →
-              </Link>
+      <div className="crm-saas-layout">
+        <main className="crm-saas-main">
+          <section className="crm-saas-panel crm-saas-panel--wide">
+            <header className="crm-saas-panel__head">
+              <div>
+                <h2>
+                  <TrendingUp size={17} strokeWidth={1.8} aria-hidden="true" /> Performance comercial
+                </h2>
+                <p>Leads criados, ganhos e perdidos nos últimos 6 meses.</p>
+              </div>
+              <div className="crm-saas-chart-legend">
+                <span><i className="is-created" /> Criados</span>
+                <span><i className="is-won" /> Ganhos</span>
+                <span><i className="is-lost" /> Perdidos</span>
+              </div>
             </header>
-            {hotLeads.length === 0 ? (
-              <p className="crm-panel__empty">
-                Nenhum lead esfriando. Você está em dia com o follow-up.
-              </p>
+            <MonthlyPerformanceChart data={snapshot.charts.monthly} />
+          </section>
+
+          <section className="crm-saas-panel">
+            <header className="crm-saas-panel__head">
+              <div>
+                <h2>
+                  <Wallet size={17} strokeWidth={1.8} aria-hidden="true" /> Funil de conversão
+                </h2>
+                <p>Volume por etapa do pipeline.</p>
+              </div>
+            </header>
+            <FunnelChart data={snapshot.charts.funnel} />
+          </section>
+
+          <section className="crm-saas-panel">
+            <header className="crm-saas-panel__head">
+              <div>
+                <h2>
+                  <Users size={17} strokeWidth={1.8} aria-hidden="true" /> Origem dos leads
+                </h2>
+                <p>Canais que mais alimentam a carteira.</p>
+              </div>
+            </header>
+            <BarList data={snapshot.charts.sources} emptyLabel="Sem leads cadastrados." />
+          </section>
+
+          <section className="crm-saas-panel crm-saas-panel--wide">
+            <header className="crm-saas-panel__head">
+              <div>
+                <h2>
+                  <Home size={17} strokeWidth={1.8} aria-hidden="true" /> Breakdown do estoque
+                </h2>
+                <p>Distribuição por tipo, finalidade e status.</p>
+              </div>
+            </header>
+            <PropertyBreakdown snapshot={snapshot} />
+          </section>
+
+          <section className="crm-saas-panel">
+            <header className="crm-saas-panel__head">
+              <div>
+                <h2>
+                  <Flame size={17} strokeWidth={1.8} aria-hidden="true" /> Hot leads
+                </h2>
+                <p>Leads ativos sem contato recente.</p>
+              </div>
+              <Link href="/crm/leads">Ver todos</Link>
+            </header>
+            {snapshot.hotLeads.length === 0 ? (
+              <p className="crm-panel__empty">Nenhum lead esfriando. Você está em dia com o follow-up.</p>
             ) : (
-              <ul className="crm-hot-leads">
-                {hotLeads.map((lead) => {
+              <ul className="crm-saas-hot-list">
+                {snapshot.hotLeads.map((lead) => {
                   const idle = daysSince(lead.lastContactAt ?? lead.createdAt);
                   const score = computeLeadScore({
                     stage: lead.stage,
@@ -214,22 +403,15 @@ export default async function CrmDashboardPage() {
                   });
                   return (
                     <li key={lead.id}>
-                      <Link href={`/crm/leads/${lead.id}`} className="crm-hot-lead">
-                        <div className="crm-hot-lead__main">
+                      <Link href={`/crm/leads/${lead.id}`}>
+                        <div>
                           <strong>{lead.name}</strong>
-                          <span className="crm-hot-lead__meta">
-                            {lead.intent} ·{" "}
-                            {lead.linkedProperty?.title ??
-                              lead.linkedDevelopment?.title ??
-                              "Sem imóvel"}
+                          <span>
+                            {lead.intent} · {lead.linkedProperty?.title ?? lead.linkedDevelopment?.title ?? "Sem imóvel"}
                           </span>
                         </div>
-                        <div className="crm-hot-lead__right">
-                          <LeadScorePill score={score} compact />
-                          <span className="crm-hot-lead__idle">
-                            {idle === null ? "Sem contato" : `${idle}d`}
-                          </span>
-                        </div>
+                        <LeadScorePill score={score} compact />
+                        <small>{idle === null ? "Sem contato" : `${idle}d`}</small>
                       </Link>
                     </li>
                   );
@@ -238,106 +420,32 @@ export default async function CrmDashboardPage() {
             )}
           </section>
 
-          <section className="crm-panel" aria-labelledby="pipeline-heading">
-            <header className="crm-panel__head">
-              <h2 id="pipeline-heading">
-                <TrendingUp size={16} strokeWidth={1.75} aria-hidden="true" /> Funil
-              </h2>
-              <Link href="/crm/funil" className="crm-panel__more">
-                Ver board →
-              </Link>
+          <section className="crm-saas-panel">
+            <header className="crm-saas-panel__head">
+              <div>
+                <h2>
+                  <CalendarCheck size={17} strokeWidth={1.8} aria-hidden="true" /> Agenda
+                </h2>
+                <p>Visitas e tarefas dos próximos dias.</p>
+              </div>
+              <Link href="/crm/visitas">Abrir agenda</Link>
             </header>
-            {pipeline.length === 0 ? (
-              <p className="crm-panel__empty">Sem dados de funil.</p>
+            {snapshot.agenda.length === 0 ? (
+              <p className="crm-panel__empty">Sem compromissos programados.</p>
             ) : (
-              <ol className="crm-dash-funnel">
-                {pipeline
-                  .filter((p) => p.stage !== "PERDIDO")
-                  .map((entry) => {
-                    const max = Math.max(...pipeline.map((p) => p._count._all), 1);
-                    const widthPct = (entry._count._all / max) * 100;
-                    return (
-                      <li key={entry.stage}>
-                        <span className="crm-dash-funnel__stage">{entry.stage}</span>
-                        <div className="crm-dash-funnel__bar-wrap">
-                          <div
-                            className="crm-dash-funnel__bar"
-                            style={{ width: `${Math.max(widthPct, 6)}%` }}
-                            aria-hidden="true"
-                          />
-                          <strong>{entry._count._all}</strong>
-                        </div>
-                      </li>
-                    );
-                  })}
-              </ol>
-            )}
-          </section>
-
-          <section className="crm-panel" aria-labelledby="sources-heading">
-            <header className="crm-panel__head">
-              <h2 id="sources-heading">
-                <Users size={16} strokeWidth={1.75} aria-hidden="true" /> Origem dos leads
-              </h2>
-              <Link href="/crm/relatorios" className="crm-panel__more">
-                Relatórios →
-              </Link>
-            </header>
-            {leadsBySource.length === 0 ? (
-              <p className="crm-panel__empty">Sem dados.</p>
-            ) : (
-              <ul className="crm-dash-sources">
-                {leadsBySource.map((item) => {
-                  const widthPct = (item._count._all / maxSource) * 100;
-                  return (
-                    <li key={item.source}>
-                      <span className="crm-dash-sources__name">{item.source}</span>
-                      <div className="crm-dash-sources__bar-wrap">
-                        <div
-                          className="crm-dash-sources__bar"
-                          style={{ width: `${Math.max(widthPct, 4)}%` }}
-                          aria-hidden="true"
-                        />
-                      </div>
-                      <strong>{item._count._all}</strong>
-                    </li>
-                  );
-                })}
-              </ul>
-            )}
-          </section>
-        </div>
-
-        {/* Right column (4/12) */}
-        <aside className="crm-dash-grid__side">
-          <section className="crm-panel crm-dash-agenda" aria-labelledby="agenda-heading">
-            <header className="crm-panel__head">
-              <h2 id="agenda-heading">
-                <CalendarCheck size={16} strokeWidth={1.75} aria-hidden="true" /> Agenda
-              </h2>
-              <Link href="/crm/visitas" className="crm-panel__more">
-                Completa →
-              </Link>
-            </header>
-            {upcomingAppointments.length === 0 ? (
-              <p className="crm-panel__empty">Sem compromissos.</p>
-            ) : (
-              <ul className="crm-dash-agenda__list">
-                {upcomingAppointments.slice(0, 5).map((item) => (
+              <ul className="crm-saas-agenda-list">
+                {snapshot.agenda.slice(0, 6).map((item) => (
                   <li key={item.id}>
-                    <Link
-                      href={item.leadId ? `/crm/leads/${item.leadId}` : "/crm/tarefas"}
-                      className="crm-dash-agenda__row"
-                    >
-                      <span className={`crm-dash-agenda__kind crm-dash-agenda__kind--${item.kind}`}>
+                    <Link href={item.leadId ? `/crm/leads/${item.leadId}` : "/crm/tarefas"}>
+                      <span className={`crm-saas-agenda-list__kind is-${item.kind}`}>
                         {item.kind === "visit" ? "V" : "T"}
                       </span>
                       <div>
                         <strong>{item.subject}</strong>
-                        <span>
+                        <small>
                           {formatRelativeDate(item.when)}
                           {item.leadName ? ` · ${item.leadName}` : ""}
-                        </span>
+                        </small>
                       </div>
                     </Link>
                   </li>
@@ -345,66 +453,47 @@ export default async function CrmDashboardPage() {
               </ul>
             )}
           </section>
+        </main>
 
-          <section className="crm-panel crm-dash-featured" aria-labelledby="featured-heading">
-            <header className="crm-panel__head">
-              <h2 id="featured-heading">
-                <Sparkles size={16} strokeWidth={1.75} aria-hidden="true" /> Estoque em destaque
+        <aside className="crm-saas-side">
+          <section className="crm-saas-side-card crm-saas-profile-card">
+            <div className="crm-saas-profile-card__avatar">{snapshot.profile.initials}</div>
+            <div>
+              <strong>{snapshot.profile.name}</strong>
+              <span>{snapshot.profile.roleLabel} · CRECI 5861-TO</span>
+            </div>
+            <small>{snapshot.totals.newLeadsToday + snapshot.totals.visitsToday} atendimentos hoje</small>
+          </section>
+
+          <section className="crm-saas-side-card">
+            <header className="crm-saas-side-card__head">
+              <h2>
+                <Bell size={17} strokeWidth={1.8} aria-hidden="true" /> Notificações
               </h2>
-              <Link href="/crm/imoveis" className="crm-panel__more">
-                Ver todos →
-              </Link>
             </header>
-            {featuredProperties.length === 0 ? (
-              <p className="crm-panel__empty">Sem imóveis cadastrados.</p>
+            {snapshot.notifications.length === 0 ? (
+              <p className="crm-panel__empty">Sem alertas no momento.</p>
             ) : (
-              <ul className="crm-dash-featured__grid">
-                {featuredProperties.slice(0, 4).map((property) => (
-                  <li key={property.id}>
-                    <Link href={`/crm/imoveis/${property.id}`} className="crm-dash-featured__card">
-                      <div
-                        className="crm-dash-featured__media"
-                        style={{
-                          backgroundImage: property.media[0]?.url
-                            ? `url(${property.media[0].url})`
-                            : undefined
-                        }}
-                      >
-                        <span className="crm-dash-featured__badge">
-                          {PURPOSE_LABEL_SHORT[String(property.purpose)] ?? property.purpose}
-                        </span>
-                      </div>
-                      <div className="crm-dash-featured__body">
-                        <strong>{property.title}</strong>
-                        <span className="crm-dash-featured__meta">
-                          {TYPE_LABEL_SHORT[String(property.type)] ?? property.type} ·{" "}
-                          {property.district}
-                        </span>
-                        <span className="crm-dash-featured__price">
-                          {formatCurrencyBRL(Number(property.price))}
-                        </span>
-                      </div>
-                    </Link>
+              <ul className="crm-saas-notification-list">
+                {snapshot.notifications.map((item) => (
+                  <li key={item.id} className={`is-${item.tone}`}>
+                    <span>{item.label}</span>
+                    <strong>{item.title}</strong>
+                    <small>{item.detail}</small>
                   </li>
                 ))}
               </ul>
             )}
           </section>
 
-          <section className="crm-panel crm-dash-broker" aria-labelledby="broker-heading">
-            <h2 id="broker-heading" className="visually-hidden">
-              Perfil do corretor
-            </h2>
-            <div className="crm-dash-broker__avatar" aria-hidden="true">
-              PS
-            </div>
-            <div className="crm-dash-broker__copy">
-              <strong>Pedro Soares</strong>
-              <span>Corretor · CRECI 5861-TO</span>
-              <span className="crm-dash-broker__stat">
-                {kpis.newLeadsToday + kpis.visitsToday} atendimentos hoje
-              </span>
-            </div>
+          <section className="crm-saas-side-card">
+            <header className="crm-saas-side-card__head">
+              <h2>
+                <CheckCircle2 size={17} strokeWidth={1.8} aria-hidden="true" /> Imóveis em destaque
+              </h2>
+              <Link href="/crm/imoveis">Ver todos</Link>
+            </header>
+            <PopularProperties properties={snapshot.popularProperties} />
           </section>
         </aside>
       </div>
