@@ -211,7 +211,8 @@ export function PropertyListManager({ properties }: { properties: PropertyListIt
         ) : null}
 
         {properties.length ? (
-          <div className="crm-property-table-wrap">
+          <>
+          <div className="crm-property-table-wrap crm-table-host">
             <table className="crm-property-table">
               <thead>
                 <tr>
@@ -306,6 +307,92 @@ export function PropertyListManager({ properties }: { properties: PropertyListIt
               </tbody>
             </table>
           </div>
+
+          {/* Mobile card list */}
+          <ul className="crm-property-cards" aria-label="Imóveis">
+            {properties.map((property) => (
+              <li className="crm-property-card" key={`mcard-${property.id}`}>
+                <div className="crm-property-card__head">
+                  {property.thumbnailUrl ? (
+                    <Link
+                      href={`/crm/imoveis/${property.id}`}
+                      className="crm-property-card__thumb"
+                      style={{ backgroundImage: `url(${property.thumbnailUrl})` }}
+                      aria-label={`Editar ${property.title}`}
+                    />
+                  ) : (
+                    <Link
+                      href={`/crm/imoveis/${property.id}#fotos`}
+                      className="crm-property-card__thumb is-empty"
+                      aria-label={`Adicionar foto para ${property.title}`}
+                    >
+                      + Foto
+                    </Link>
+                  )}
+                  <div className="crm-property-card__copy">
+                    <Link href={`/crm/imoveis/${property.id}`} className="crm-property-card__title">
+                      {property.title}
+                    </Link>
+                    <span className="crm-property-card__meta">
+                      {TYPE_LABELS[property.type] ?? property.type} ·{" "}
+                      {PURPOSE_LABELS[property.purpose] ?? property.purpose}
+                    </span>
+                    <span className="crm-property-card__meta">{formatSpecs(property)}</span>
+                  </div>
+                </div>
+
+                <div className="crm-property-card__row">
+                  <span className="crm-property-card__label">Localização</span>
+                  <span>
+                    {property.district}, {property.city}
+                  </span>
+                </div>
+                <div className="crm-property-card__row">
+                  <span className="crm-property-card__label">Proprietário</span>
+                  <span>{property.ownerName ?? "Não vinculado"}</span>
+                </div>
+                {property.ownerPhone ? (
+                  <a
+                    className="crm-property-card__whatsapp"
+                    href={buildWhatsappLink(property.ownerPhone, property.title)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <MessageCircle size={14} strokeWidth={1.75} aria-hidden="true" />
+                    {property.ownerPhone}
+                  </a>
+                ) : null}
+
+                <div className="crm-property-card__price">{formatCurrencyBRL(property.price)}</div>
+
+                <div className="crm-property-card__status">
+                  <PropertyStatusActions
+                    propertyId={property.id}
+                    currentStatus={property.status}
+                    compact
+                  />
+                </div>
+
+                <div className="crm-property-card__actions" data-row-menu>
+                  <Link className="button button-primary" href={`/crm/imoveis/${property.id}`}>
+                    Editar
+                  </Link>
+                  <button
+                    type="button"
+                    className="button button-ghost crm-property-actions__kebab"
+                    onClick={(event) => toggleMenu(property.id, event.currentTarget)}
+                    aria-haspopup="menu"
+                    aria-expanded={openMenu?.id === property.id}
+                    aria-label="Mais ações"
+                    disabled={pendingId === property.id}
+                  >
+                    <span aria-hidden="true">⋯</span>
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
+          </>
         ) : (
           <div className="crm-property-empty">
             <p>Nenhum imóvel cadastrado ainda.</p>

@@ -8,20 +8,23 @@ export default async function CrmFunilPage() {
       <h1 className="section-title" style={{ marginTop: 0 }}>Funil de vendas</h1>
       <p className="section-subtitle">Controle visual por etapa para não perder timing de follow-up.</p>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, minmax(0, 1fr))", gap: 12, marginTop: 16 }}>
+      <div className="crm-pipeline-board">
         {board.map((column) => (
-          <article className="card" key={column.stage} style={{ padding: 12 }}>
-            <p className="badge">{column.stage}</p>
-            <h3 style={{ marginTop: 8 }}>{column.leads.length} lead(s)</h3>
-            <div style={{ display: "grid", gap: 8 }}>
-              {column.leads.slice(0, 4).map((lead) => (
-                <div key={lead.id} style={{ border: "1px solid rgba(242,194,122,.2)", borderRadius: 10, padding: 8 }}>
+          <article className="crm-pipeline-column" key={column.stage}>
+            <header className="crm-pipeline-column__head">
+              <span className="crm-pipeline-column__stage">{column.stage}</span>
+              <span className="crm-pipeline-column__count">{column.leads.length}</span>
+            </header>
+            <div className="crm-pipeline-column__list">
+              {column.leads.slice(0, 6).map((lead) => (
+                <div key={lead.id} className="crm-pipeline-lead">
                   <strong>{lead.name}</strong>
-                  <p style={{ margin: "4px 0 0", color: "var(--text-muted)", fontSize: "var(--fs-12)" }}>
-                    {lead.linkedProperty?.title ?? "Sem imóvel vinculado"}
-                  </p>
+                  <p>{lead.linkedProperty?.title ?? "Sem imóvel vinculado"}</p>
                 </div>
               ))}
+              {column.leads.length === 0 ? (
+                <p className="crm-pipeline-column__empty">Nenhum lead nesta etapa.</p>
+              ) : null}
             </div>
           </article>
         ))}

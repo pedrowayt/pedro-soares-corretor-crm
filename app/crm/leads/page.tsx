@@ -3,6 +3,16 @@ import { LeadDevelopmentStatusControl } from "@/components/crm/lead-development-
 import { QuickLeadForm } from "@/components/crm/quick-forms";
 import { listLeads } from "@/lib/data/crm";
 
+function buildContext(lead: Awaited<ReturnType<typeof listLeads>>[number]) {
+  if (lead.linkedProperty?.title) return lead.linkedProperty.title;
+  if (lead.linkedDevelopment) {
+    const dev = lead.linkedDevelopment.title;
+    const unit = lead.linkedDevelopmentUnitType?.name;
+    return unit ? `${dev} • ${unit}` : dev;
+  }
+  return "—";
+}
+
 export default async function CrmLeadsPage() {
   const leads = await listLeads();
 
@@ -15,7 +25,8 @@ export default async function CrmLeadsPage() {
         <QuickLeadForm />
       </div>
 
-      <div className="card" style={{ overflowX: "auto" }}>
+      {/* Desktop table */}
+      <div className="card crm-table-host" style={{ overflowX: "auto" }}>
         <table style={{ width: "100%", borderCollapse: "collapse" }}>
           <thead>
             <tr>
@@ -36,16 +47,7 @@ export default async function CrmLeadsPage() {
                 <td style={tdStyle}>{lead.source}</td>
                 <td style={tdStyle}>{lead.intent}</td>
                 <td style={tdStyle}>{lead.stage}</td>
-                <td style={tdStyle}>
-                  {lead.linkedProperty?.title ??
-                    (lead.linkedDevelopment
-                      ? `${lead.linkedDevelopment.title}${
-                          lead.linkedDevelopmentUnitType?.name
-                            ? ` • ${lead.linkedDevelopmentUnitType.name}`
-                            : ""
-                        }`
-                      : "-")}
-                </td>
+                <td style={tdStyle}>{buildContext(lead)}</td>
                 <td style={tdStyle}>
                   <LeadDevelopmentStatusControl
                     leadId={lead.id}
@@ -58,6 +60,43 @@ export default async function CrmLeadsPage() {
           </tbody>
         </table>
       </div>
+
+      {/* Mobile card list */}
+      <ul className="crm-record-cards" aria-label="Leads">
+        {leads.map((lead) => (
+          <li className="crm-record-card" key={`m-${lead.id}`}>
+            <header className="crm-record-card__head">
+              <strong className="crm-record-card__title">{lead.name}</strong>
+              <span className="crm-record-card__pill">{lead.stage}</span>
+            </header>
+            <dl className="crm-record-card__fields">
+              <div>
+                <dt>Contato</dt>
+                <dd>{lead.phone}</dd>
+              </div>
+              <div>
+                <dt>Origem</dt>
+                <dd>{lead.source}</dd>
+              </div>
+              <div>
+                <dt>Interesse</dt>
+                <dd>{lead.intent}</dd>
+              </div>
+              <div className="crm-record-card__fields-wide">
+                <dt>Contexto</dt>
+                <dd>{buildContext(lead)}</dd>
+              </div>
+            </dl>
+            <footer className="crm-record-card__footer">
+              <LeadDevelopmentStatusControl
+                leadId={lead.id}
+                initialStatus={lead.developmentLeadStatus}
+                disabled={!lead.linkedDevelopmentId}
+              />
+            </footer>
+          </li>
+        ))}
+      </ul>
     </>
   );
 }
