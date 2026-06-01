@@ -5,11 +5,13 @@ import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   ArrowRight,
+  BarChart3,
   Building2,
   CalendarCheck,
   CornerDownLeft,
   FileSignature,
   Hammer,
+  Inbox,
   LayoutDashboard,
   ListTodo,
   Newspaper,
@@ -39,6 +41,7 @@ type Props = {
 
 const NAV_ITEMS: ReadonlyArray<CommandItem> = [
   { id: "nav-dashboard", label: "Dashboard", href: "/crm/dashboard", Icon: LayoutDashboard, group: "Navegação" },
+  { id: "nav-inbox", label: "Inbox", href: "/crm/inbox", Icon: Inbox, group: "Navegação" },
   { id: "nav-leads", label: "Leads", href: "/crm/leads", Icon: Users, group: "Navegação" },
   { id: "nav-funil", label: "Funil de vendas", href: "/crm/funil", Icon: Workflow, group: "Navegação" },
   { id: "nav-imoveis", label: "Imóveis", href: "/crm/imoveis", Icon: Building2, group: "Navegação" },
@@ -48,6 +51,7 @@ const NAV_ITEMS: ReadonlyArray<CommandItem> = [
   { id: "nav-visitas", label: "Visitas", href: "/crm/visitas", Icon: CalendarCheck, group: "Navegação" },
   { id: "nav-propostas", label: "Propostas", href: "/crm/propostas", Icon: FileSignature, group: "Navegação" },
   { id: "nav-tarefas", label: "Tarefas", href: "/crm/tarefas", Icon: ListTodo, group: "Navegação" },
+  { id: "nav-relatorios", label: "Relatórios", href: "/crm/relatorios", Icon: BarChart3, group: "Navegação" },
   { id: "nav-blog", label: "Blog", href: "/crm/blog", Icon: Newspaper, group: "Navegação" },
   { id: "nav-config", label: "Configurações", href: "/crm/configuracoes", Icon: Settings, group: "Navegação" }
 ];

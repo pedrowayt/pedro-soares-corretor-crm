@@ -13,6 +13,7 @@ import { ThemeToggle } from "@/components/crm/theme-provider";
 const PAGE_TITLES: Readonly<Record<string, string>> = {
   "/crm": "CRM",
   "/crm/dashboard": "Dashboard",
+  "/crm/inbox": "Inbox",
   "/crm/leads": "Leads",
   "/crm/funil": "Funil de vendas",
   "/crm/imoveis": "Imóveis",

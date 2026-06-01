@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MessageCircle } from "lucide-react";
+import { PropertyShareButton } from "@/components/crm/property-share-button";
 import { PropertyWizard, type WizardMedia, type WizardProperty } from "@/components/crm/property-wizard";
 import { findCrmPropertyById } from "@/lib/data/crm-properties";
+import { getSiteUrl } from "@/lib/site-url";
 import { formatCurrencyBRL } from "@/lib/utils";
 
 export default async function CrmImovelEditPage({ params }: { params: Promise<{ id: string }> }) {
@@ -107,6 +109,21 @@ export default async function CrmImovelEditPage({ params }: { params: Promise<{ 
           {owner.phone ? <> · {owner.phone}</> : null}
         </p>
       ) : null}
+
+      <div style={{ marginTop: 18 }}>
+        <PropertyShareButton
+          property={{
+            title: property.title,
+            slug: property.slug,
+            city: property.city,
+            district: property.district,
+            price: Number(property.price),
+            areaM2: property.areaM2 ? Number(property.areaM2) : null,
+            bedrooms: property.bedrooms ?? null
+          }}
+          siteUrl={getSiteUrl()}
+        />
+      </div>
 
       <div style={{ marginTop: 18 }}>
         <PropertyWizard mode="edit" initial={wizardProperty} />

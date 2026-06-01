@@ -9781,3 +9781,317 @@ body:has(.admin-login-page) .cookie-consent-banner {
   gap: 8px;
   flex-shrink: 0;
 }
+
+/* ============================================================
+ * Onda 3 — Activity Inbox
+ * ============================================================ */
+
+.crm-inbox { display: grid; gap: 14px; }
+
+.crm-inbox__filters {
+  display: grid;
+  gap: 10px;
+}
+
+.crm-inbox__filters input[type="search"] {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  font-family: inherit;
+  font-size: 0.875rem;
+  color: var(--text);
+}
+
+.crm-inbox__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.crm-inbox__chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 12px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.crm-inbox__chip.is-active {
+  background: var(--sophistication-gold-500);
+  color: #1f1306;
+  border-color: var(--sophistication-gold-500);
+}
+
+.crm-inbox__feed {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.crm-inbox__row {
+  display: grid;
+  grid-template-columns: 36px 1fr auto;
+  gap: 12px;
+  padding: 12px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  align-items: flex-start;
+}
+
+.crm-inbox__icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(216, 154, 59, 0.14);
+  color: var(--sophistication-gold-500);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.crm-inbox__main { display: grid; gap: 4px; min-width: 0; }
+
+.crm-inbox__line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.crm-inbox__lead {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--text-strong);
+  text-decoration: none;
+}
+
+.crm-inbox__badge {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  background: var(--surface-soft);
+  border: 1px solid var(--border);
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.crm-inbox__body {
+  margin: 0;
+  font-size: 0.8125rem;
+  color: var(--text);
+  white-space: pre-wrap;
+}
+
+.crm-inbox__time {
+  font-size: 0.6875rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.crm-inbox__open {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  text-decoration: none;
+  align-self: center;
+}
+
+.crm-inbox__open:hover { color: var(--sophistication-gold-500); border-color: var(--sophistication-gold-500); }
+
+/* ============================================================
+ * Onda 3 — Relatórios (charts)
+ * ============================================================ */
+
+.crm-reports { display: grid; gap: 16px; }
+
+.crm-funnel-chart {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.crm-funnel-chart__row {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 10px;
+  align-items: center;
+}
+
+.crm-funnel-chart__label {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.crm-funnel-chart__bar-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.crm-funnel-chart__bar {
+  background: linear-gradient(90deg, var(--sophistication-gold-500), var(--sophistication-gold-300));
+  height: 26px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 12px;
+  color: #1f1306;
+  font-size: 0.8125rem;
+  font-weight: 800;
+  min-width: 38px;
+  transition: width 0.2s ease;
+}
+
+.crm-funnel-chart__drop {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.crm-bar-chart {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.crm-bar-chart li {
+  display: grid;
+  grid-template-columns: 130px 1fr;
+  gap: 10px;
+  align-items: center;
+}
+
+.crm-bar-chart__label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.crm-bar-chart__bar-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.crm-bar-chart__bar {
+  height: 18px;
+  border-radius: 6px;
+  background: rgba(216, 154, 59, 0.45);
+  flex: 1;
+  min-width: 4px;
+}
+
+.crm-bar-chart strong {
+  font-size: 0.8125rem;
+  color: var(--text-strong);
+  font-variant-numeric: tabular-nums;
+}
+
+.crm-monthly-chart {
+  width: 100%;
+  max-height: 220px;
+  color: var(--text);
+}
+
+.crm-chart-legend {
+  display: flex;
+  gap: 12px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  align-items: center;
+}
+
+.crm-chart-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.crm-chart-legend i {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
+
+/* ============================================================
+ * Onda 3 — Property share button
+ * ============================================================ */
+
+.crm-property-share {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px;
+  display: grid;
+  gap: 10px;
+}
+
+.crm-property-share > header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.crm-property-share header svg { color: var(--success-whatsapp); }
+
+.crm-property-share h3 {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-strong);
+}
+
+.crm-property-share textarea {
+  width: 100%;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--surface-soft);
+  font-family: inherit;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  resize: vertical;
+  color: var(--text);
+}
+
+.crm-property-share__actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.crm-property-share__actions .button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 38px;
+}

@@ -3,6 +3,7 @@ import { ThemeToggle } from "@/components/crm/theme-provider";
 
 const crmMenu = [
   { href: "/crm/dashboard", label: "Dashboard" },
+  { href: "/crm/inbox", label: "Inbox" },
   { href: "/crm/leads", label: "Leads" },
   { href: "/crm/funil", label: "Funil de vendas" },
   { href: "/crm/imoveis", label: "Imóveis" },
