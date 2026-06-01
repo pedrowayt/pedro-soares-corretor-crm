@@ -56,7 +56,7 @@ export default async function CrmLayout({ children }: { children: React.ReactNod
   }).length;
 
   return (
-    <div className="crm-shell container" style={{ width: "min(1480px, 96vw)", marginTop: 18 }}>
+    <div className="crm-shell">
       <ThemeBootScript />
       <CrmTopbar
         user={{

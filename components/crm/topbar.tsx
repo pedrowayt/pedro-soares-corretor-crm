@@ -81,13 +81,13 @@ export function CrmTopbar({ user, notificationCount }: Props) {
 
   return (
     <header className="crm-topbar">
-      <Link href="/crm/dashboard" className="crm-topbar__brand" aria-label="Dashboard CRM">
+      <Link href="/crm/dashboard" className="crm-topbar__brand" aria-label="Dashboard CRM imobiliário">
         <span className="crm-topbar__mark" aria-hidden="true">
-          PS
+          <Building2 size={19} strokeWidth={2} />
         </span>
         <span className="crm-topbar__brand-copy">
-          <strong>Pedro Soares</strong>
-          <small>CRM Imobiliário</small>
+          <strong>CRM</strong>
+          <small>Imobiliário</small>
         </span>
       </Link>
 
@@ -151,7 +151,12 @@ export function CrmTopbar({ user, notificationCount }: Props) {
           {notificationCount > 0 ? <span>{Math.min(notificationCount, 99)}</span> : null}
         </Link>
 
-        <div className="crm-topbar__profile">
+        <Link
+          href="/crm/configuracoes"
+          className={`crm-topbar__profile${isActive(pathname, "/crm/configuracoes") ? " is-active" : ""}`}
+          aria-label="Abrir perfil e configurações"
+          title="Perfil e configurações"
+        >
           <span className="crm-topbar__avatar" aria-hidden="true">
             {user.profilePhotoUrl ? <img src={user.profilePhotoUrl} alt="" /> : initials(user.name)}
           </span>
@@ -159,7 +164,7 @@ export function CrmTopbar({ user, notificationCount }: Props) {
             <strong>{user.name}</strong>
             <small>{user.jobTitle || ROLE_LABELS[user.role] || user.role}</small>
           </span>
-        </div>
+        </Link>
 
         <form action="/admin/logout" method="post" className="crm-topbar__logout-form">
           <button type="submit" className="crm-topbar__icon" aria-label="Sair do CRM">
