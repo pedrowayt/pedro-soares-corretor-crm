@@ -13,6 +13,7 @@ import { isPlacaSize, PLACA_SIZES, type PlacaSize, typeToDefaultSize } from "@/l
 export const runtime = "nodejs";
 
 const LOGO_PATH = path.join(process.cwd(), "public/brand/logo-home-2026.png");
+const FALLBACK_PORTRAIT_PATH = path.join(process.cwd(), "public/brand/eu.png");
 
 async function fetchAsBuffer(url: string): Promise<Buffer | null> {
   try {
@@ -56,7 +57,19 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
 
   const logoBuffer = await readFile(LOGO_PATH);
 
-  const corretorPhotoBuffer = session?.profilePhotoUrl ? await fetchAsBuffer(session.profilePhotoUrl) : null;
+  // Prefer the corretor's uploaded profile photo; fall back to the bundled
+  // brand portrait (public/brand/eu.png) so freshly seeded users still get a
+  // proper placa without having to upload a photo first.
+  let corretorPhotoBuffer: Buffer | null = session?.profilePhotoUrl
+    ? await fetchAsBuffer(session.profilePhotoUrl)
+    : null;
+  if (!corretorPhotoBuffer) {
+    try {
+      corretorPhotoBuffer = await readFile(FALLBACK_PORTRAIT_PATH);
+    } catch {
+      corretorPhotoBuffer = null;
+    }
+  }
 
   const corretorExtras = session?.userId
     ? await prisma.user
