@@ -2,10 +2,11 @@ import React from "react";
 import { Document, Page, View, Text, Image, StyleSheet } from "@react-pdf/renderer";
 import { PLACA_SIZES, type PlacaSize, mmToPt, purposeToCTA } from "@/lib/placa/templates";
 
+const BG = "#0a0a0a";
 const GOLD = "#d89a3b";
-const NAVY = "#0f223d";
-const PAPER = "#ffffff";
-const INK_SOFT = "#3a4a66";
+const GOLD_SOFT = "rgba(216, 154, 59, 0.35)";
+const WHITE = "#ffffff";
+const WHITE_MUTE = "rgba(255, 255, 255, 0.65)";
 
 type Specs = {
   bedrooms: number | null;
@@ -37,9 +38,7 @@ type PlacaProps = {
   size: PlacaSize;
   property: PlacaProperty;
   corretor: PlacaCorretor;
-  // Either Buffer or remote URL — react-pdf accepts both.
   logoSrc: Buffer | string;
-  photoSrc: Buffer | string | null;
   corretorPhotoSrc: Buffer | string | null;
   qrSrc: string;
 };
@@ -49,29 +48,31 @@ function formatSpec(label: string, value: number | null) {
   return { label, value: String(value) };
 }
 
-export function Placa({ size, property, corretor, logoSrc, photoSrc, corretorPhotoSrc, qrSrc }: PlacaProps) {
+export function Placa({ size, property, corretor, logoSrc, corretorPhotoSrc, qrSrc }: PlacaProps) {
   const meta = PLACA_SIZES[size];
   const widthPt = mmToPt(meta.widthMm);
   const heightPt = mmToPt(meta.heightMm);
 
-  // Relative scale based on width — keeps proportions across the 3 sizes.
-  const u = widthPt / 600; // 1u = 1pt at residencial width
+  // Proportional unit anchored on residencial width.
+  const u = widthPt / 600;
 
   const styles = StyleSheet.create({
     page: {
       width: widthPt,
       height: heightPt,
-      backgroundColor: PAPER,
+      backgroundColor: BG,
       padding: 28 * u,
       flexDirection: "column",
       fontFamily: "Helvetica",
-      color: NAVY
+      color: WHITE
     },
     header: {
       flexDirection: "row",
       justifyContent: "space-between",
       alignItems: "center",
-      marginBottom: 14 * u
+      paddingBottom: 14 * u,
+      borderBottomWidth: 1,
+      borderBottomColor: GOLD_SOFT
     },
     logo: {
       height: 56 * u,
@@ -83,106 +84,90 @@ export function Placa({ size, property, corretor, logoSrc, photoSrc, corretorPho
     },
     qr: {
       width: 96 * u,
-      height: 96 * u
+      height: 96 * u,
+      // White padding around the QR so the scanner reads cleanly on a black bg.
+      padding: 4 * u,
+      backgroundColor: WHITE,
+      borderRadius: 4 * u
     },
     qrCaption: {
-      marginTop: 4 * u,
+      marginTop: 5 * u,
       fontSize: 8 * u,
-      color: INK_SOFT,
+      color: GOLD,
       fontFamily: "Helvetica-Bold",
       letterSpacing: 1
     },
+    body: {
+      flexDirection: "row",
+      flexGrow: 1,
+      marginTop: 18 * u,
+      gap: 24 * u
+    },
+    bodyLeft: {
+      flex: 1,
+      justifyContent: "space-between"
+    },
     cta: {
-      fontSize: 130 * u,
+      fontSize: 140 * u,
       fontFamily: "Helvetica-Bold",
       color: GOLD,
       letterSpacing: 4 * u,
       lineHeight: 1
     },
-    titleCard: {
-      marginTop: 10 * u,
-      paddingVertical: 14 * u,
-      paddingHorizontal: 18 * u,
-      backgroundColor: NAVY,
-      borderRadius: 8 * u,
-      maxWidth: "85%"
-    },
     title: {
-      color: PAPER,
-      fontSize: 22 * u,
+      marginTop: 18 * u,
+      color: WHITE,
+      fontSize: 28 * u,
       fontFamily: "Helvetica-Bold",
       lineHeight: 1.15
     },
     location: {
-      color: PAPER,
-      fontSize: 12 * u,
-      marginTop: 4 * u,
-      opacity: 0.85
-    },
-    mediaRow: {
-      flexDirection: "row",
-      gap: 14 * u,
-      marginTop: 16 * u,
-      flexGrow: 1
-    },
-    photo: {
-      flex: 1,
-      borderRadius: 10 * u,
-      backgroundColor: "#e7ecf3",
-      objectFit: "cover"
-    },
-    photoPlaceholder: {
-      flex: 1,
-      borderRadius: 10 * u,
-      backgroundColor: "#e7ecf3",
-      alignItems: "center",
-      justifyContent: "center"
-    },
-    photoPlaceholderText: {
+      marginTop: 6 * u,
+      color: WHITE_MUTE,
       fontSize: 14 * u,
-      color: INK_SOFT
-    },
-    corretorBlock: {
-      width: 170 * u,
-      alignItems: "center",
-      justifyContent: "flex-end"
-    },
-    corretorPhoto: {
-      width: 170 * u,
-      height: 220 * u,
-      objectFit: "contain"
+      letterSpacing: 0.8
     },
     specsRow: {
       flexDirection: "row",
       flexWrap: "wrap",
-      gap: 18 * u,
-      marginTop: 14 * u
+      gap: 22 * u,
+      marginTop: 22 * u
     },
     specItem: {
-      flexDirection: "row",
-      alignItems: "baseline",
-      gap: 6 * u
+      flexDirection: "column"
     },
     specValue: {
       fontFamily: "Helvetica-Bold",
-      fontSize: 18 * u,
-      color: NAVY
+      fontSize: 26 * u,
+      color: WHITE,
+      lineHeight: 1
     },
     specLabel: {
-      fontSize: 10 * u,
-      color: INK_SOFT,
+      marginTop: 4 * u,
+      fontSize: 9 * u,
+      color: GOLD,
       textTransform: "uppercase",
-      letterSpacing: 0.6
+      letterSpacing: 1.2
     },
     price: {
-      marginTop: 10 * u,
-      fontSize: 24 * u,
+      marginTop: 18 * u,
+      fontSize: 30 * u,
       fontFamily: "Helvetica-Bold",
       color: GOLD
     },
+    bodyRight: {
+      width: 220 * u,
+      alignItems: "center",
+      justifyContent: "flex-end"
+    },
+    corretorPhoto: {
+      width: 220 * u,
+      height: 320 * u,
+      objectFit: "contain"
+    },
     footer: {
-      marginTop: 14 * u,
-      paddingTop: 12 * u,
+      marginTop: 18 * u,
+      paddingTop: 14 * u,
       borderTopWidth: 2,
       borderTopColor: GOLD,
       flexDirection: "row",
@@ -191,16 +176,28 @@ export function Placa({ size, property, corretor, logoSrc, photoSrc, corretorPho
     },
     footerName: {
       fontFamily: "Helvetica-Bold",
-      fontSize: 14 * u,
-      color: NAVY
+      fontSize: 16 * u,
+      color: WHITE
     },
-    footerLine: {
+    footerCreci: {
+      marginTop: 3 * u,
       fontSize: 11 * u,
-      color: INK_SOFT,
-      marginTop: 2 * u
+      color: GOLD,
+      letterSpacing: 0.8
     },
     contactCol: {
       alignItems: "flex-end"
+    },
+    contactLine: {
+      fontSize: 11 * u,
+      color: WHITE_MUTE,
+      marginTop: 2 * u
+    },
+    contactSite: {
+      fontSize: 11 * u,
+      color: GOLD,
+      marginTop: 2 * u,
+      fontFamily: "Helvetica-Bold"
     }
   });
 
@@ -224,52 +221,46 @@ export function Placa({ size, property, corretor, logoSrc, photoSrc, corretorPho
           </View>
         </View>
 
-        <Text style={styles.cta}>{purposeToCTA(property.purpose)}</Text>
+        <View style={styles.body}>
+          <View style={styles.bodyLeft}>
+            <View>
+              <Text style={styles.cta}>{purposeToCTA(property.purpose)}</Text>
+              <Text style={styles.title}>{property.title}</Text>
+              <Text style={styles.location}>
+                {property.district} · {property.city}
+              </Text>
 
-        <View style={styles.titleCard}>
-          <Text style={styles.title}>{property.title}</Text>
-          <Text style={styles.location}>
-            {property.district} · {property.city}
-          </Text>
-        </View>
+              {specs.length ? (
+                <View style={styles.specsRow}>
+                  {specs.map((spec) => (
+                    <View key={spec.label} style={styles.specItem}>
+                      <Text style={styles.specValue}>{spec.value}</Text>
+                      <Text style={styles.specLabel}>{spec.label}</Text>
+                    </View>
+                  ))}
+                </View>
+              ) : null}
 
-        <View style={styles.mediaRow}>
-          {photoSrc ? (
-            <Image style={styles.photo} src={photoSrc} />
-          ) : (
-            <View style={styles.photoPlaceholder}>
-              <Text style={styles.photoPlaceholderText}>Foto do imóvel</Text>
+              <Text style={styles.price}>{property.priceFormatted ?? "Consulte valor"}</Text>
             </View>
-          )}
-          <View style={styles.corretorBlock}>
+          </View>
+
+          <View style={styles.bodyRight}>
             {corretorPhotoSrc ? <Image style={styles.corretorPhoto} src={corretorPhotoSrc} /> : null}
           </View>
         </View>
 
-        {specs.length ? (
-          <View style={styles.specsRow}>
-            {specs.map((spec) => (
-              <View key={spec.label} style={styles.specItem}>
-                <Text style={styles.specValue}>{spec.value}</Text>
-                <Text style={styles.specLabel}>{spec.label}</Text>
-              </View>
-            ))}
-          </View>
-        ) : null}
-
-        <Text style={styles.price}>{property.priceFormatted ?? "Consulte valor"}</Text>
-
         <View style={styles.footer}>
           <View>
             <Text style={styles.footerName}>{corretor.name}</Text>
-            {corretor.creci ? <Text style={styles.footerLine}>CRECI {corretor.creci}</Text> : null}
+            {corretor.creci ? <Text style={styles.footerCreci}>CRECI {corretor.creci}</Text> : null}
           </View>
           <View style={styles.contactCol}>
-            {corretor.phone ? <Text style={styles.footerLine}>WhatsApp {corretor.phone}</Text> : null}
+            {corretor.phone ? <Text style={styles.contactLine}>WhatsApp {corretor.phone}</Text> : null}
             {corretor.instagramHandle ? (
-              <Text style={styles.footerLine}>@{corretor.instagramHandle}</Text>
+              <Text style={styles.contactLine}>@{corretor.instagramHandle}</Text>
             ) : null}
-            <Text style={styles.footerLine}>{corretor.site}</Text>
+            <Text style={styles.contactSite}>{corretor.site}</Text>
           </View>
         </View>
       </Page>

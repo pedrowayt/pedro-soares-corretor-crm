@@ -56,9 +56,6 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
 
   const logoBuffer = await readFile(LOGO_PATH);
 
-  const firstImage = property.media?.find((item) => item.kind === "IMAGE") ?? null;
-  const photoBuffer = firstImage ? await fetchAsBuffer(firstImage.url) : null;
-
   const corretorPhotoBuffer = session?.profilePhotoUrl ? await fetchAsBuffer(session.profilePhotoUrl) : null;
 
   const corretorExtras = session?.userId
@@ -96,7 +93,6 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
       property: placaProperty,
       corretor,
       logoSrc: logoBuffer,
-      photoSrc: photoBuffer,
       corretorPhotoSrc: corretorPhotoBuffer,
       qrSrc
     })
