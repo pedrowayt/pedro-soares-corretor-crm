@@ -14,7 +14,8 @@
     "db:seed": "tsx prisma/seed.ts",
     "builders:backfill": "tsx scripts/backfill-builders.ts",
     "crm:set-password": "tsx scripts/set-user-password.ts",
-    "cloudflare:setup:variants": "tsx scripts/cloudflare-setup-variants.ts"
+    "cloudflare:setup:variants": "tsx scripts/cloudflare-setup-variants.ts",
+    "placa:preview": "tsx scripts/preview-placa.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.18.0",

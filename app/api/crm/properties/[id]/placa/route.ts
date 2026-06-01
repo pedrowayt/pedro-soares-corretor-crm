@@ -64,6 +64,12 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
         .catch(() => null)
     : null;
 
+  const badges = [
+    property.purpose === "LANCAMENTO" ? "LANÇAMENTO" : null,
+    property.isInvestorHighlight ? "OPORTUNIDADE" : null,
+    property.isAuctionOpportunity || property.purpose === "LEILAO" ? "LEILÃO" : null
+  ].filter((value): value is string => Boolean(value));
+
   const placaProperty: PlacaProperty = {
     title: property.title,
     type: property.type,
@@ -76,7 +82,8 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     parkingSpaces: property.parkingSpaces,
     areaM2: property.areaM2 ?? null,
     landAreaM2: property.landAreaM2 ?? null,
-    priceFormatted: showPrice ? formatCurrencyBRL(property.price) : null
+    priceFormatted: showPrice ? formatCurrencyBRL(property.price) : null,
+    badges: badges.slice(0, 2)
   };
 
   const corretor: PlacaCorretor = {
