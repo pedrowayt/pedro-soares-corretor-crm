@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ThemeToggle } from "@/components/crm/theme-provider";
 
 const crmMenu = [
   { href: "/crm/dashboard", label: "Dashboard" },
@@ -23,6 +24,9 @@ export function CrmSidebar() {
       <div>
         <p className="badge">CRM Pedro Soares</p>
         <h2>Operação comercial</h2>
+        <p className="crm-sidebar-shortcut" aria-hidden="true">
+          Pressione <kbd>⌘</kbd>+<kbd>K</kbd> para buscar
+        </p>
       </div>
 
       <nav className="crm-sidebar-nav" aria-label="Menu do CRM">
@@ -33,11 +37,14 @@ export function CrmSidebar() {
         ))}
       </nav>
 
-      <form action="/admin/logout" method="post" className="crm-sidebar-logout-form">
-        <button type="submit" className="crm-sidebar-logout">
-          Sair do CRM
-        </button>
-      </form>
+      <div className="crm-sidebar-foot">
+        <ThemeToggle />
+        <form action="/admin/logout" method="post" className="crm-sidebar-logout-form">
+          <button type="submit" className="crm-sidebar-logout">
+            Sair do CRM
+          </button>
+        </form>
+      </div>
     </aside>
   );
 }

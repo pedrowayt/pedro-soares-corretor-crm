@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { CSSProperties } from "react";
 import { LeadDevelopmentStatusControl } from "@/components/crm/lead-development-status-control";
 import { QuickLeadForm } from "@/components/crm/quick-forms";
@@ -42,7 +43,11 @@ export default async function CrmLeadsPage() {
           <tbody>
             {leads.map((lead) => (
               <tr key={lead.id}>
-                <td style={tdStyle}>{lead.name}</td>
+                <td style={tdStyle}>
+                  <Link href={`/crm/leads/${lead.id}`} className="crm-lead-link">
+                    {lead.name}
+                  </Link>
+                </td>
                 <td style={tdStyle}>{lead.phone}</td>
                 <td style={tdStyle}>{lead.source}</td>
                 <td style={tdStyle}>{lead.intent}</td>
@@ -66,7 +71,9 @@ export default async function CrmLeadsPage() {
         {leads.map((lead) => (
           <li className="crm-record-card" key={`m-${lead.id}`}>
             <header className="crm-record-card__head">
-              <strong className="crm-record-card__title">{lead.name}</strong>
+              <Link href={`/crm/leads/${lead.id}`} className="crm-record-card__title">
+                {lead.name}
+              </Link>
               <span className="crm-record-card__pill">{lead.stage}</span>
             </header>
             <dl className="crm-record-card__fields">

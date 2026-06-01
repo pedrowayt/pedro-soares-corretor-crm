@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
+import { ThemeToggle } from "@/components/crm/theme-provider";
 
 /**
  * Top-level CRM routes mapped to a human title. Used by the mobile header to
@@ -57,7 +58,7 @@ export function CrmMobileHeader() {
         <span className="crm-mobile-header__spacer" aria-hidden="true" />
       )}
       <h1 className="crm-mobile-header__title">{title}</h1>
-      <span className="crm-mobile-header__spacer" aria-hidden="true" />
+      <ThemeToggle compact />
     </header>
   );
 }
