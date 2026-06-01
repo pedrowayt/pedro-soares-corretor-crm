@@ -8,18 +8,34 @@ export default async function CrmProprietariosPage() {
       <h1 className="section-title" style={{ marginTop: 0 }}>Proprietários</h1>
       <p className="section-subtitle">Base de proprietários para captação, documentação e relacionamento.</p>
 
-      <div style={{ marginTop: 16 }} className="grid-3">
-        {owners.map((owner) => (
-          <article className="card" key={owner.id} style={{ padding: 14 }}>
-            <h3 style={{ marginTop: 0 }}>{owner.name}</h3>
-            <p style={{ margin: "6px 0", color: "var(--text-muted)" }}>{owner.phone}</p>
-            <p style={{ margin: "6px 0", color: "var(--text-muted)" }}>
-              {owner.city ?? "-"} • {owner.district ?? "-"}
-            </p>
-            <p className="badge">{owner.properties.length} imóvel(is)</p>
-          </article>
-        ))}
-      </div>
+      <ul className="crm-summary-grid" aria-label="Proprietários">
+        {owners.map((owner) => {
+          const count = owner.properties.length;
+          return (
+            <li className="crm-summary-card" key={owner.id}>
+              <header className="crm-summary-card__head">
+                <strong className="crm-summary-card__title">{owner.name}</strong>
+                <span className="crm-summary-card__pill">
+                  {count} {count === 1 ? "imóvel" : "imóveis"}
+                </span>
+              </header>
+              <dl className="crm-summary-card__fields">
+                <div>
+                  <dt>Contato</dt>
+                  <dd>{owner.phone}</dd>
+                </div>
+                <div>
+                  <dt>Região</dt>
+                  <dd>
+                    {owner.city ?? "-"}
+                    {owner.district ? ` · ${owner.district}` : ""}
+                  </dd>
+                </div>
+              </dl>
+            </li>
+          );
+        })}
+      </ul>
     </>
   );
 }

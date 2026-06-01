@@ -21,7 +21,7 @@ export default async function CrmLeadsPage() {
       <h1 className="section-title" style={{ marginTop: 0 }}>Leads</h1>
       <p className="section-subtitle">Cadastro e acompanhamento de origem, interesse e próximo passo.</p>
 
-      <div style={{ marginTop: 18, marginBottom: 20 }}>
+      <div id="quick-create" className="crm-quick-form-target" style={{ marginTop: 18, marginBottom: 20 }}>
         <QuickLeadForm />
       </div>
 

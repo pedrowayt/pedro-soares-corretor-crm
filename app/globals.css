@@ -1730,6 +1730,143 @@ body:has(.admin-login-page) .cookie-consent-banner {
   }
 }
 
+/* ============ CRM summary cards (used outside the table-swap pattern) ============ */
+
+.crm-summary-grid {
+  list-style: none;
+  margin: 16px 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 12px;
+}
+
+.crm-summary-card {
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px;
+  display: grid;
+  gap: 10px;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.crm-summary-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.crm-summary-card__title {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: #0f172a;
+  flex: 1;
+  min-width: 0;
+  line-height: 1.3;
+}
+
+.crm-summary-card__pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: rgba(216, 154, 59, 0.14);
+  color: #92400e;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.crm-summary-card__fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 12px;
+  margin: 0;
+}
+
+.crm-summary-card__fields > div {
+  display: grid;
+  gap: 2px;
+}
+
+.crm-summary-card__fields-wide {
+  grid-column: 1 / -1;
+}
+
+.crm-summary-card__fields dt {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.crm-summary-card__fields dd {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+  word-break: break-word;
+}
+
+.crm-summary-card__price {
+  margin: 0;
+  font-size: 1.0625rem;
+  font-weight: 800;
+  color: var(--sophistication-gold-500);
+}
+
+/* ============ Quick-create flash + FAB ============ */
+
+.crm-quick-form-target {
+  transition: background 0.4s ease, box-shadow 0.4s ease;
+  border-radius: 14px;
+}
+
+.crm-quick-form-target.is-flash {
+  animation: crm-flash 1s ease-out;
+}
+
+@keyframes crm-flash {
+  0% {
+    box-shadow: 0 0 0 0 rgba(216, 154, 59, 0.55);
+  }
+  100% {
+    box-shadow: 0 0 0 14px rgba(216, 154, 59, 0);
+  }
+}
+
+.crm-create-fab {
+  display: none;
+  position: fixed;
+  right: 16px;
+  bottom: calc(76px + env(safe-area-inset-bottom));
+  z-index: 38;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 18px 12px 14px;
+  border-radius: 999px;
+  background: var(--sophistication-gold-500);
+  color: #1f1306;
+  font-weight: 800;
+  font-size: 0.875rem;
+  text-decoration: none;
+  box-shadow: 0 10px 24px rgba(216, 154, 59, 0.45);
+}
+
+.crm-create-fab:hover {
+  background: var(--sophistication-gold-300);
+}
+
+.crm-create-fab__label {
+  white-space: nowrap;
+}
+
 /* ============ CRM pipeline board ============ */
 
 .crm-pipeline-board {
@@ -5660,6 +5797,10 @@ body:has(.admin-login-page) .cookie-consent-banner {
 
   .crm-bottom-nav {
     display: grid;
+  }
+
+  .crm-create-fab {
+    display: inline-flex;
   }
 
   .crm-main {

@@ -9,22 +9,30 @@ export default async function CrmVisitasPage() {
       <h1 className="section-title" style={{ marginTop: 0 }}>Visitas</h1>
       <p className="section-subtitle">Agendamento, confirmação e histórico de visitas por lead e imóvel.</p>
 
-      <div style={{ marginTop: 16, marginBottom: 18 }}>
+      <div id="quick-create" className="crm-quick-form-target" style={{ marginTop: 16, marginBottom: 18 }}>
         <QuickVisitForm />
       </div>
 
-      <div className="grid-3">
+      <ul className="crm-summary-grid" aria-label="Visitas">
         {visits.map((visit) => (
-          <article className="card" key={visit.id} style={{ padding: 14 }}>
-            <p className="badge">{visit.status}</p>
-            <h3 style={{ marginBottom: 8 }}>{visit.lead.name}</h3>
-            <p style={{ margin: "4px 0", color: "var(--text-muted)" }}>{visit.property.title}</p>
-            <p style={{ margin: "4px 0", color: "var(--text-muted)" }}>
-              {new Date(visit.scheduledAt).toLocaleString("pt-BR")}
-            </p>
-          </article>
+          <li className="crm-summary-card" key={visit.id}>
+            <header className="crm-summary-card__head">
+              <strong className="crm-summary-card__title">{visit.lead.name}</strong>
+              <span className="crm-summary-card__pill">{visit.status}</span>
+            </header>
+            <dl className="crm-summary-card__fields">
+              <div className="crm-summary-card__fields-wide">
+                <dt>Imóvel</dt>
+                <dd>{visit.property.title}</dd>
+              </div>
+              <div className="crm-summary-card__fields-wide">
+                <dt>Quando</dt>
+                <dd>{new Date(visit.scheduledAt).toLocaleString("pt-BR")}</dd>
+              </div>
+            </dl>
+          </li>
         ))}
-      </div>
+      </ul>
     </>
   );
 }

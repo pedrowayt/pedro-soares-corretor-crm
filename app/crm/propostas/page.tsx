@@ -10,22 +10,29 @@ export default async function CrmPropostasPage() {
       <h1 className="section-title" style={{ marginTop: 0 }}>Propostas</h1>
       <p className="section-subtitle">Gestão de propostas enviadas, negociação e fechamento.</p>
 
-      <div style={{ marginTop: 16, marginBottom: 18 }}>
+      <div id="quick-create" className="crm-quick-form-target" style={{ marginTop: 16, marginBottom: 18 }}>
         <QuickProposalForm />
       </div>
 
-      <div className="grid-3">
+      <ul className="crm-summary-grid" aria-label="Propostas">
         {proposals.map((proposal) => (
-          <article className="card" key={proposal.id} style={{ padding: 14 }}>
-            <p className="badge">{proposal.status}</p>
-            <h3 style={{ marginBottom: 8 }}>{proposal.lead.name}</h3>
-            <p style={{ margin: "4px 0", color: "var(--text-muted)" }}>{proposal.property.title}</p>
-            <p style={{ margin: "4px 0", color: "var(--sophistication-gold-300)", fontWeight: 700 }}>
+          <li className="crm-summary-card" key={proposal.id}>
+            <header className="crm-summary-card__head">
+              <strong className="crm-summary-card__title">{proposal.lead.name}</strong>
+              <span className="crm-summary-card__pill">{proposal.status}</span>
+            </header>
+            <dl className="crm-summary-card__fields">
+              <div className="crm-summary-card__fields-wide">
+                <dt>Imóvel</dt>
+                <dd>{proposal.property.title}</dd>
+              </div>
+            </dl>
+            <p className="crm-summary-card__price">
               {formatCurrencyBRL(Number(proposal.offeredValue))}
             </p>
-          </article>
+          </li>
         ))}
-      </div>
+      </ul>
     </>
   );
 }

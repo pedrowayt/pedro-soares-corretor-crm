@@ -1,6 +1,7 @@
 import { Role } from "@prisma/client";
 import { redirect } from "next/navigation";
 import { CrmBottomNav } from "@/components/crm/bottom-nav";
+import { CrmCreateFAB } from "@/components/crm/create-fab";
 import { CrmMobileHeader } from "@/components/crm/mobile-header";
 import { CrmSidebar } from "@/components/crm/sidebar";
 import { getSession, hasAnyRole } from "@/lib/auth/session";
@@ -17,6 +18,7 @@ export default async function CrmLayout({ children }: { children: React.ReactNod
       <CrmSidebar />
       <CrmMobileHeader />
       <section className="crm-main">{children}</section>
+      <CrmCreateFAB />
       <CrmBottomNav />
     </div>
   );
