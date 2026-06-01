@@ -684,6 +684,128 @@ a.property-instagram-button:hover {
   background: rgba(179, 38, 30, 0.08);
 }
 
+.placa-picker-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(15, 34, 61, 0.55);
+  padding: 16px;
+}
+
+.placa-picker {
+  width: 100%;
+  max-width: 420px;
+  background: #ffffff;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+  box-shadow: 0 24px 60px -20px rgba(15, 23, 42, 0.4);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.placa-picker__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.placa-picker__title {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.placa-picker__subtitle {
+  margin: 4px 0 0;
+  font-size: 0.85rem;
+  color: #64748b;
+}
+
+.placa-picker__close {
+  border: none;
+  background: transparent;
+  font-size: 1.6rem;
+  line-height: 1;
+  color: #64748b;
+  cursor: pointer;
+  padding: 0 4px;
+}
+
+.placa-picker__close:hover {
+  color: #0f172a;
+}
+
+.placa-picker__group {
+  border: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.placa-picker__group legend {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 4px;
+}
+
+.placa-picker__option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 0.92rem;
+  color: #0f172a;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.placa-picker__option:hover {
+  border-color: rgba(216, 154, 59, 0.55);
+  background: rgba(216, 154, 59, 0.06);
+}
+
+.placa-picker__option.is-active {
+  border-color: #0f223d;
+  background: rgba(15, 34, 61, 0.04);
+}
+
+.placa-picker__option input {
+  accent-color: #0f223d;
+}
+
+.placa-picker__toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.88rem;
+  color: #334155;
+  cursor: pointer;
+}
+
+.placa-picker__toggle input {
+  accent-color: #d89a3b;
+}
+
+.placa-picker__foot {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
 .crm-property-list__error {
   margin: 8px 14px 0;
   padding: 8px 12px;

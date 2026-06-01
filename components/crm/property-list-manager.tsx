@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { MessageCircle } from "lucide-react";
+import { PlacaPicker } from "@/components/crm/placa-picker";
 import { PropertyStatusActions } from "@/components/crm/property-status-actions";
 import { PropertyWizard } from "@/components/crm/property-wizard";
 import { formatCurrencyBRL } from "@/lib/utils";
@@ -72,6 +73,7 @@ export function PropertyListManager({ properties }: { properties: PropertyListIt
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const [openMenu, setOpenMenu] = useState<{ id: string; top: number; right: number } | null>(null);
+  const [placaTarget, setPlacaTarget] = useState<PropertyListItem | null>(null);
   const wizardRef = useRef<HTMLDivElement | null>(null);
 
   function toggleMenu(propertyId: string, anchor: HTMLElement) {
@@ -429,6 +431,17 @@ export function PropertyListManager({ properties }: { properties: PropertyListIt
                   className="crm-property-actions__menu-item"
                   onClick={() => {
                     setOpenMenu(null);
+                    setPlacaTarget(property);
+                  }}
+                >
+                  Gerar placa
+                </button>
+                <button
+                  type="button"
+                  role="menuitem"
+                  className="crm-property-actions__menu-item"
+                  onClick={() => {
+                    setOpenMenu(null);
                     unpublishProperty(property);
                   }}
                   disabled={pendingId === property.id}
@@ -451,6 +464,13 @@ export function PropertyListManager({ properties }: { properties: PropertyListIt
             );
           })()
         : null}
+
+      {placaTarget ? (
+        <PlacaPicker
+          property={{ id: placaTarget.id, title: placaTarget.title, type: placaTarget.type }}
+          onClose={() => setPlacaTarget(null)}
+        />
+      ) : null}
     </div>
   );
 }
