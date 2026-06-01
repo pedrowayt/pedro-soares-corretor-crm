@@ -1523,6 +1523,282 @@ body:has(.admin-login-page) .cookie-consent-banner {
   padding: 28px;
 }
 
+/* ============ CRM mobile chrome ============ */
+
+.crm-mobile-header,
+.crm-bottom-nav {
+  display: none;
+}
+
+.crm-mobile-header {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 12px 14px;
+  background: #ffffff;
+  border-bottom: 1px solid var(--border);
+}
+
+.crm-mobile-header__back,
+.crm-mobile-header__spacer {
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.crm-mobile-header__back {
+  border-radius: 10px;
+  color: #0f172a;
+  text-decoration: none;
+  border: 1px solid var(--border);
+  background: #f8fafc;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.crm-mobile-header__back:hover,
+.crm-mobile-header__back:focus-visible {
+  background: #eef2f7;
+  border-color: #cbd5e1;
+}
+
+.crm-mobile-header__title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: #0f172a;
+  text-align: center;
+  flex: 1;
+  line-height: 1.2;
+}
+
+.crm-bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 40;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 2px;
+  background: #ffffff;
+  border-top: 1px solid var(--border);
+  padding: 6px 6px calc(6px + env(safe-area-inset-bottom));
+  box-shadow: 0 -8px 24px rgba(15, 23, 42, 0.08);
+}
+
+.crm-bottom-nav__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 8px 4px;
+  border-radius: 10px;
+  background: transparent;
+  border: 0;
+  color: var(--text-muted);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  text-decoration: none;
+  min-height: 54px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.crm-bottom-nav__item.is-active {
+  color: var(--sophistication-gold-500);
+  background: rgba(216, 154, 59, 0.12);
+}
+
+.crm-bottom-nav__item svg {
+  flex-shrink: 0;
+}
+
+/* ============ Bottom sheet "Mais" ============ */
+
+.crm-more-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(7, 13, 24, 0.55);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+  z-index: 45;
+}
+
+.crm-more-backdrop.is-open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.crm-more-sheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 50;
+  max-height: 88vh;
+  background: #ffffff;
+  border-radius: 20px 20px 0 0;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  transform: translateY(100%);
+  transition: transform 0.25s ease;
+  box-shadow: 0 -20px 50px rgba(7, 13, 24, 0.28);
+  visibility: hidden;
+}
+
+.crm-more-sheet.is-open {
+  transform: translateY(0);
+  visibility: visible;
+}
+
+.crm-more-sheet__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px 10px;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+}
+
+.crm-more-sheet__head::before {
+  content: "";
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  width: 38px;
+  height: 4px;
+  background: #cbd5e1;
+  border-radius: 99px;
+  transform: translateX(-50%);
+}
+
+.crm-more-sheet__head h2 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.crm-more-sheet__close {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  width: 34px;
+  height: 34px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #475569;
+}
+
+.crm-more-sheet__body {
+  overflow-y: auto;
+  padding: 14px 16px calc(20px + env(safe-area-inset-bottom));
+  display: grid;
+  gap: 20px;
+}
+
+.crm-more-sheet__group {
+  display: grid;
+  gap: 8px;
+}
+
+.crm-more-sheet__group-title {
+  margin: 0 4px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.crm-more-sheet__list {
+  list-style: none;
+  margin: 0;
+  padding: 4px;
+  display: grid;
+  gap: 2px;
+  background: #f8fafc;
+  border-radius: 14px;
+  border: 1px solid var(--border);
+}
+
+.crm-more-sheet__link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  text-decoration: none;
+  color: #1f2937;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 10px;
+  min-height: 52px;
+}
+
+.crm-more-sheet__link.is-active {
+  background: rgba(216, 154, 59, 0.14);
+  color: #1f2937;
+}
+
+.crm-more-sheet__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: #ffffff;
+  border: 1px solid var(--border);
+  color: var(--sophistication-gold-500);
+  flex-shrink: 0;
+}
+
+.crm-more-sheet__label {
+  flex: 1;
+  min-width: 0;
+}
+
+.crm-more-sheet__chevron {
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.crm-more-sheet__logout-form {
+  margin: 4px 0 0;
+}
+
+.crm-more-sheet__logout {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(185, 28, 28, 0.22);
+  background: #ffffff;
+  color: #9f1d1d;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.crm-more-sheet__logout:hover {
+  background: #fff3f3;
+}
+
 .metric-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -5083,15 +5359,25 @@ body:has(.admin-login-page) .cookie-consent-banner {
 
   .crm-shell {
     grid-template-columns: 1fr;
+    margin-top: 0 !important;
+    width: 100% !important;
   }
 
   .crm-sidebar {
-    border-right: 0;
-    border-bottom: 1px solid var(--border);
+    display: none;
   }
 
-  .crm-sidebar-nav {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+  .crm-mobile-header {
+    display: flex;
+  }
+
+  .crm-bottom-nav {
+    display: grid;
+  }
+
+  .crm-main {
+    padding: 16px 14px calc(82px + env(safe-area-inset-bottom));
+    min-height: calc(100vh - 60px);
   }
 
   .development-layout {
@@ -5263,12 +5549,8 @@ body:has(.admin-login-page) .cookie-consent-banner {
     padding: 18px;
   }
 
-  .crm-sidebar-nav {
-    grid-template-columns: 1fr;
-  }
-
   .crm-main {
-    padding: 20px 0;
+    padding: 14px 12px calc(82px + env(safe-area-inset-bottom));
   }
 
   .grid-3,
