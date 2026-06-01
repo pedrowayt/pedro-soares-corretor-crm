@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
@@ -44,6 +45,7 @@ function resolveTitle(pathname: string): { title: string; backHref?: string } {
 export function CrmMobileHeader() {
   const pathname = usePathname() ?? "";
   const { title, backHref } = resolveTitle(pathname);
+  const isDashboard = pathname === "/crm/dashboard" || pathname === "/crm";
 
   return (
     <header className="crm-mobile-header">
@@ -58,7 +60,19 @@ export function CrmMobileHeader() {
       ) : (
         <span className="crm-mobile-header__spacer" aria-hidden="true" />
       )}
-      <h1 className="crm-mobile-header__title">{title}</h1>
+      {isDashboard ? (
+        <span className="crm-mobile-header__brand" aria-label="Pedro Soares">
+          <Image
+            src="/brand/pedro-logo-horizontal.jpg"
+            alt="Pedro Soares"
+            width={160}
+            height={32}
+            priority
+          />
+        </span>
+      ) : (
+        <h1 className="crm-mobile-header__title">{title}</h1>
+      )}
       <ThemeToggle compact />
     </header>
   );

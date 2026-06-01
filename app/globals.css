@@ -2480,6 +2480,22 @@ body:has(.crm-shell) > main {
   line-height: 1.2;
 }
 
+.crm-mobile-header__brand {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+}
+
+.crm-mobile-header__brand img {
+  height: 32px;
+  width: auto;
+  max-width: 100%;
+  object-fit: contain;
+  display: block;
+}
+
 .crm-bottom-nav {
   position: fixed;
   bottom: 0;
