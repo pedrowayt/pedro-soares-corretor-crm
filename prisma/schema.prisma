@@ -262,16 +262,20 @@ enum SeoListingMode {
 }
 
 model User {
-  id           String   @id @default(cuid())
-  name         String
-  email        String   @unique
-  phone        String?
-  creci        String?
-  role         Role     @default(CORRETOR)
-  passwordHash String?
-  active       Boolean  @default(true)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id              String   @id @default(cuid())
+  name            String
+  email           String   @unique
+  phone           String?
+  creci           String?
+  profilePhotoUrl String?
+  jobTitle        String?
+  bio             String?
+  instagramUrl    String?
+  role            Role     @default(CORRETOR)
+  passwordHash    String?
+  active          Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   ownedLeads    Lead[]                 @relation("LeadOwnerUser")
   interactions  LeadInteraction[]      @relation("InteractionUser")

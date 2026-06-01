@@ -14,6 +14,10 @@ export type AppSession = {
   sessionId: string;
   email: string;
   name: string;
+  phone?: string | null;
+  creci?: string | null;
+  profilePhotoUrl?: string | null;
+  jobTitle?: string | null;
   role: Role;
 };
 
@@ -59,6 +63,10 @@ export async function getSession(): Promise<AppSession | null> {
     sessionId: session.id,
     email: session.user.email,
     name: session.user.name,
+    phone: session.user.phone,
+    creci: session.user.creci,
+    profilePhotoUrl: session.user.profilePhotoUrl,
+    jobTitle: session.user.jobTitle,
     role: session.user.role
   };
 }

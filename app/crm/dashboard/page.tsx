@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import Link from "next/link";
 import type { CSSProperties } from "react";
 import {
@@ -281,7 +282,10 @@ export default async function CrmDashboardPage() {
   const session = await getSession();
   const snapshot = await getSaasDashboardSnapshot({
     name: session?.name,
-    role: session?.role
+    role: session?.role,
+    profilePhotoUrl: session?.profilePhotoUrl,
+    creci: session?.creci,
+    jobTitle: session?.jobTitle
   });
 
   return (
@@ -457,10 +461,19 @@ export default async function CrmDashboardPage() {
 
         <aside className="crm-saas-side">
           <section className="crm-saas-side-card crm-saas-profile-card">
-            <div className="crm-saas-profile-card__avatar">{snapshot.profile.initials}</div>
+            <div className="crm-saas-profile-card__avatar">
+              {snapshot.profile.photoUrl ? (
+                <img src={snapshot.profile.photoUrl} alt={`Foto de ${snapshot.profile.name}`} />
+              ) : (
+                snapshot.profile.initials
+              )}
+            </div>
             <div>
               <strong>{snapshot.profile.name}</strong>
-              <span>{snapshot.profile.roleLabel} · CRECI 5861-TO</span>
+              <span>
+                {snapshot.profile.jobTitle || snapshot.profile.roleLabel}
+                {snapshot.profile.creci ? ` · ${snapshot.profile.creci}` : ""}
+              </span>
             </div>
             <small>{snapshot.totals.newLeadsToday + snapshot.totals.visitsToday} atendimentos hoje</small>
           </section>

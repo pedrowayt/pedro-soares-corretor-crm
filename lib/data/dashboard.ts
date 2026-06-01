@@ -157,6 +157,9 @@ export type SaasDashboardSnapshot = Awaited<ReturnType<typeof getSaasDashboardSn
 export async function getSaasDashboardSnapshot(profile?: {
   name?: string | null;
   role?: Role | null;
+  profilePhotoUrl?: string | null;
+  creci?: string | null;
+  jobTitle?: string | null;
 }) {
   const today = new Date();
   const dayStart = startOfDay(today);
@@ -175,6 +178,9 @@ export async function getSaasDashboardSnapshot(profile?: {
     name: profileName,
     role: profileRole,
     roleLabel: ROLE_LABELS[profileRole],
+    photoUrl: profile?.profilePhotoUrl ?? null,
+    creci: profile?.creci ?? null,
+    jobTitle: profile?.jobTitle ?? null,
     initials: profileInitials(profileName)
   };
 

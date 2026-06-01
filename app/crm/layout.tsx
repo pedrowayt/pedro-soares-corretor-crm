@@ -61,7 +61,9 @@ export default async function CrmLayout({ children }: { children: React.ReactNod
       <CrmTopbar
         user={{
           name: session?.name ?? "Pedro Soares",
-          role: session?.role ?? Role.CORRETOR
+          role: session?.role ?? Role.CORRETOR,
+          profilePhotoUrl: session?.profilePhotoUrl,
+          jobTitle: session?.jobTitle
         }}
         notificationCount={notificationCount}
       />

@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import Link from "next/link";
@@ -27,6 +28,8 @@ type Props = {
   user: {
     name: string;
     role: string;
+    profilePhotoUrl?: string | null;
+    jobTitle?: string | null;
   };
   notificationCount: number;
 };
@@ -131,10 +134,14 @@ export function CrmTopbar({ user, notificationCount }: Props) {
       </nav>
 
       <div className="crm-topbar__actions">
-        <button type="button" className="crm-topbar__search" onClick={openCommandPalette}>
+        <button
+          type="button"
+          className="crm-topbar__search"
+          onClick={openCommandPalette}
+          aria-label="Buscar no CRM"
+          title="Buscar no CRM"
+        >
           <Search size={16} strokeWidth={1.8} aria-hidden="true" />
-          <span>Buscar</span>
-          <kbd>⌘K</kbd>
         </button>
 
         <ThemeToggle compact />
@@ -146,11 +153,11 @@ export function CrmTopbar({ user, notificationCount }: Props) {
 
         <div className="crm-topbar__profile">
           <span className="crm-topbar__avatar" aria-hidden="true">
-            {initials(user.name)}
+            {user.profilePhotoUrl ? <img src={user.profilePhotoUrl} alt="" /> : initials(user.name)}
           </span>
           <span className="crm-topbar__profile-copy">
             <strong>{user.name}</strong>
-            <small>{ROLE_LABELS[user.role] ?? user.role}</small>
+            <small>{user.jobTitle || ROLE_LABELS[user.role] || user.role}</small>
           </span>
         </div>
 

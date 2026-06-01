@@ -204,6 +204,16 @@ export const cloudflareStreamDirectUploadSchema = z.object({
   metadata: z.record(z.string(), z.unknown()).optional()
 });
 
+export const crmUpdateProfileSchema = z.object({
+  name: z.string().trim().min(2).max(120),
+  phone: z.string().trim().max(40).optional().or(z.literal("")),
+  creci: z.string().trim().max(40).optional().or(z.literal("")),
+  jobTitle: z.string().trim().max(80).optional().or(z.literal("")),
+  bio: z.string().trim().max(500).optional().or(z.literal("")),
+  instagramUrl: z.string().trim().url().optional().or(z.literal("")),
+  profilePhotoUrl: z.string().trim().url().optional().or(z.literal(""))
+});
+
 export const whatsappTemplateSchema = z.object({
   to: z.string().min(8),
   templateName: z.string().min(2),
