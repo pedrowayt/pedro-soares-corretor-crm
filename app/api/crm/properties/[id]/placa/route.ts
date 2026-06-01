@@ -57,18 +57,15 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
 
   const logoBuffer = await readFile(LOGO_PATH);
 
-  // Prefer the corretor's uploaded profile photo; fall back to the bundled
-  // brand portrait (public/brand/eu.png) so freshly seeded users still get a
-  // proper placa without having to upload a photo first.
-  let corretorPhotoBuffer: Buffer | null = session?.profilePhotoUrl
-    ? await fetchAsBuffer(session.profilePhotoUrl)
-    : null;
-  if (!corretorPhotoBuffer) {
-    try {
-      corretorPhotoBuffer = await readFile(FALLBACK_PORTRAIT_PATH);
-    } catch {
-      corretorPhotoBuffer = null;
-    }
+  // Always use the bundled brand portrait (public/brand/eu.png) on the placa,
+  // regardless of whatever the corretor uploaded as their profile photo. This
+  // is intentional: the placa portrait is treated as part of the brand asset
+  // set, not a per-user setting.
+  let corretorPhotoBuffer: Buffer | null = null;
+  try {
+    corretorPhotoBuffer = await readFile(FALLBACK_PORTRAIT_PATH);
+  } catch {
+    corretorPhotoBuffer = null;
   }
 
   const corretorExtras = session?.userId
