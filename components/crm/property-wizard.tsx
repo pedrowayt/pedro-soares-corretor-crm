@@ -121,6 +121,10 @@ type Props = {
   initial?: WizardProperty;
 };
 
+function normalizeFeatureKey(value: string) {
+  return value.trim().toLocaleLowerCase("pt-BR");
+}
+
 function slugify(input: string) {
   return input
     .normalize("NFD")
@@ -280,11 +284,17 @@ export function PropertyWizard({ mode, initial }: Props) {
   }
 
   function toggleFeature(value: string) {
+    const nextFeature = value.trim();
+    if (!nextFeature) return;
+
     setState((prev) => {
-      const exists = prev.features.includes(value);
+      const nextKey = normalizeFeatureKey(nextFeature);
+      const exists = prev.features.some((item) => normalizeFeatureKey(item) === nextKey);
       return {
         ...prev,
-        features: exists ? prev.features.filter((item) => item !== value) : [...prev.features, value]
+        features: exists
+          ? prev.features.filter((item) => normalizeFeatureKey(item) !== nextKey)
+          : [...prev.features, nextFeature]
       };
     });
   }
@@ -734,7 +744,12 @@ function StepFeatures({
     () => new Set(category.groups.flatMap((group) => group.presets)),
     [category]
   );
+  const selectedFeatureKeys = useMemo(
+    () => new Set(state.features.map((feature) => normalizeFeatureKey(feature))),
+    [state.features]
+  );
   const customFeatures = state.features.filter((feature) => !allCategoryPresets.has(feature));
+  const isFeatureSelected = (feature: string) => selectedFeatureKeys.has(normalizeFeatureKey(feature));
 
   const renderDimensionField = (id: DimensionFieldId) => {
     const meta = DIMENSION_FIELDS[id];
@@ -790,10 +805,7 @@ function StepFeatures({
 
       {category.groups.map((group) => {
         const GroupIcon = group.Icon;
-        const selectedCount = group.presets.reduce(
-          (count, preset) => (state.features.includes(preset) ? count + 1 : count),
-          0
-        );
+        const selectedCount = group.presets.reduce((count, preset) => (isFeatureSelected(preset) ? count + 1 : count), 0);
         return (
           <section key={group.id} className="wiz-feature-group">
             <header className="wiz-feature-group__header">
@@ -810,7 +822,8 @@ function StepFeatures({
                 <button
                   key={feature}
                   type="button"
-                  className={`wiz-chip ${state.features.includes(feature) ? "is-active" : ""}`}
+                  className={`wiz-chip ${isFeatureSelected(feature) ? "is-active" : ""}`}
+                  aria-pressed={isFeatureSelected(feature)}
                   onClick={() => onToggleFeature(feature)}
                 >
                   {feature}
@@ -838,6 +851,7 @@ function StepFeatures({
                 key={feature}
                 type="button"
                 className="wiz-chip is-active is-custom"
+                aria-pressed="true"
                 onClick={() => onToggleFeature(feature)}
               >
                 {feature} ×
