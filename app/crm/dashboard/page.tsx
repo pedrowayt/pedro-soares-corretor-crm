@@ -9,6 +9,8 @@ import {
   Users,
   Wallet
 } from "lucide-react";
+import { LeadScorePill } from "@/components/crm/lead-score-pill";
+import { computeLeadScore } from "@/lib/crm/lead-scoring";
 import { getDashboardSnapshot } from "@/lib/data/dashboard";
 import { formatCurrencyBRL } from "@/lib/utils";
 
@@ -126,6 +128,18 @@ export default async function CrmDashboardPage() {
             <ul className="crm-hot-leads">
               {hotLeads.map((lead) => {
                 const idle = daysSince(lead.lastContactAt ?? lead.createdAt);
+                const score = computeLeadScore({
+                  stage: lead.stage,
+                  createdAt: lead.createdAt,
+                  lastContactAt: lead.lastContactAt,
+                  hasLinkedProperty: Boolean(lead.linkedProperty),
+                  hasLinkedDevelopment: Boolean(lead.linkedDevelopment),
+                  visitsCount: 0,
+                  proposalsCount: 0,
+                  interactionsCount: 0,
+                  budgetMin: null,
+                  budgetMax: null
+                });
                 return (
                   <li key={lead.id}>
                     <Link href={`/crm/leads/${lead.id}`} className="crm-hot-lead">
@@ -138,9 +152,12 @@ export default async function CrmDashboardPage() {
                             "Sem imóvel"}
                         </span>
                       </div>
-                      <span className="crm-hot-lead__idle">
-                        {idle === null ? "Sem contato" : `${idle}d sem contato`}
-                      </span>
+                      <div className="crm-hot-lead__right">
+                        <LeadScorePill score={score} compact />
+                        <span className="crm-hot-lead__idle">
+                          {idle === null ? "Sem contato" : `${idle}d`}
+                        </span>
+                      </div>
                     </Link>
                   </li>
                 );

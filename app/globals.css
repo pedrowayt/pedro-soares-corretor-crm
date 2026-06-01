@@ -9470,3 +9470,314 @@ body:has(.admin-login-page) .cookie-consent-banner {
   padding: 1px 5px;
   margin: 0 2px;
 }
+
+/* ============================================================
+ * Onda 2 — Lead score pill
+ * ============================================================ */
+
+.crm-score-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border: 1px solid transparent;
+  background: var(--surface-soft);
+  color: var(--text-strong);
+}
+
+.crm-score-pill__value {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+
+.crm-score-pill__label {
+  font-size: 0.6875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+.crm-score-pill.is-cold { background: rgba(14, 165, 233, 0.14); border-color: rgba(14, 165, 233, 0.32); color: #0c4a6e; }
+.crm-score-pill.is-warm { background: rgba(245, 158, 11, 0.18); border-color: rgba(245, 158, 11, 0.4); color: #92400e; }
+.crm-score-pill.is-hot { background: rgba(220, 38, 38, 0.16); border-color: rgba(220, 38, 38, 0.4); color: #991b1b; }
+.crm-score-pill.is-won { background: rgba(22, 163, 74, 0.18); border-color: rgba(22, 163, 74, 0.4); color: #14532d; }
+.crm-score-pill.is-lost { background: rgba(100, 116, 139, 0.18); border-color: rgba(100, 116, 139, 0.32); color: #334155; }
+
+.crm-score-pill.is-cold .crm-score-pill__label,
+.crm-score-pill.is-warm .crm-score-pill__label,
+.crm-score-pill.is-hot .crm-score-pill__label,
+.crm-score-pill.is-won .crm-score-pill__label,
+.crm-score-pill.is-lost .crm-score-pill__label { color: inherit; opacity: 0.78; }
+
+.crm-score-pill.is-compact { padding: 2px 7px; font-size: 0.6875rem; }
+.crm-score-pill.is-compact .crm-score-pill__label { display: none; }
+
+/* ============================================================
+ * Onda 2 — Property matching list (Lead 360 right column)
+ * ============================================================ */
+
+.crm-match-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+
+.crm-match-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface-soft);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.crm-match-row:hover { border-color: var(--sophistication-gold-500); }
+.crm-match-row > div { display: grid; gap: 2px; min-width: 0; flex: 1; }
+.crm-match-row strong { font-size: 0.875rem; color: var(--text-strong); }
+.crm-match-row__meta { font-size: 0.75rem; color: var(--text-muted); }
+.crm-match-row__hits { font-size: 0.6875rem; font-weight: 700; color: var(--sophistication-gold-500); letter-spacing: 0.04em; text-transform: uppercase; }
+.crm-match-row__score {
+  font-size: 1.125rem;
+  font-weight: 800;
+  color: var(--sophistication-gold-500);
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+
+/* ============================================================
+ * Onda 2 — WhatsApp template picker
+ * ============================================================ */
+
+.crm-whatsapp-picker { display: grid; gap: 12px; }
+
+.crm-whatsapp-picker__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.crm-whatsapp-picker__head svg { color: var(--success-whatsapp); }
+
+.crm-whatsapp-picker__head h3 {
+  margin: 0;
+  font-size: 0.875rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-strong);
+}
+
+.crm-whatsapp-picker__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.crm-whatsapp-picker__chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 11px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface-soft);
+  color: var(--text);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.crm-whatsapp-picker__chip.is-active {
+  background: var(--sophistication-gold-500);
+  color: #1f1306;
+  border-color: var(--sophistication-gold-500);
+}
+
+.crm-whatsapp-picker__preview {
+  width: 100%;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--surface-soft);
+  font-family: inherit;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  resize: vertical;
+  color: var(--text);
+}
+
+.crm-whatsapp-picker__actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.crm-whatsapp-picker__actions .button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 38px;
+}
+
+/* ============================================================
+ * Onda 2 — Pipeline Kanban (drag-and-drop)
+ * ============================================================ */
+
+.crm-kanban { display: grid; gap: 10px; margin-top: 16px; }
+
+.crm-kanban__error {
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: rgba(220, 38, 38, 0.12);
+  color: #991b1b;
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.crm-kanban__board {
+  display: grid;
+  grid-template-columns: repeat(9, minmax(220px, 1fr));
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+}
+
+@media (max-width: 1320px) {
+  .crm-kanban__board { grid-template-columns: repeat(9, minmax(220px, 250px)); }
+}
+
+@media (max-width: 720px) {
+  .crm-kanban__board { grid-template-columns: repeat(9, 78vw); }
+}
+
+.crm-kanban__column {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 12px;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 10px;
+  min-height: 320px;
+  transition: border-color 0.15s ease, background 0.15s ease, opacity 0.15s ease;
+}
+
+.crm-kanban__column.is-target {
+  border-color: var(--sophistication-gold-500);
+  background: rgba(216, 154, 59, 0.08);
+}
+
+.crm-kanban__column.is-disabled { opacity: 0.45; }
+
+.crm-kanban__col-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.crm-kanban__col-head > div { display: flex; align-items: baseline; gap: 8px; }
+
+.crm-kanban__stage {
+  font-size: 0.6875rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.crm-kanban__count {
+  font-size: 0.875rem;
+  font-weight: 800;
+  color: var(--text-strong);
+  font-variant-numeric: tabular-nums;
+}
+
+.crm-kanban__total {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: var(--sophistication-gold-500);
+  background: rgba(216, 154, 59, 0.14);
+  padding: 2px 8px;
+  border-radius: 999px;
+}
+
+.crm-kanban__cards {
+  display: grid;
+  gap: 8px;
+  align-content: start;
+}
+
+.crm-kanban__empty {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-style: italic;
+  text-align: center;
+  padding: 20px 0;
+}
+
+.crm-kanban__card {
+  background: var(--surface-soft);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 12px;
+  display: grid;
+  gap: 4px;
+  cursor: grab;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+.crm-kanban__card:hover { border-color: var(--sophistication-gold-500); box-shadow: var(--shadow-sm); }
+
+.crm-kanban__card.is-dragging {
+  opacity: 0.6;
+  transform: rotate(-1.5deg);
+}
+
+.crm-kanban__card-title {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--text-strong);
+  text-decoration: none;
+}
+
+.crm-kanban__card-meta { font-size: 0.6875rem; color: var(--text-muted); margin: 0; }
+
+.crm-kanban__card-property {
+  margin: 4px 0 0;
+  font-size: 0.75rem;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.crm-kanban__card-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 6px;
+  gap: 6px;
+}
+
+.crm-kanban__card-price {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--sophistication-gold-500);
+  font-variant-numeric: tabular-nums;
+}
+
+.crm-kanban__card-price.is-soft { color: var(--text-muted); font-weight: 600; }
+
+.crm-hot-lead__right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}

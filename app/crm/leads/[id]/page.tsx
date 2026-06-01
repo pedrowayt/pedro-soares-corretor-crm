@@ -11,9 +11,15 @@ import {
   Mail,
   MessageCircle,
   Phone,
+  Sparkles,
   StickyNote,
   Tag
 } from "lucide-react";
+import { LeadScorePill } from "@/components/crm/lead-score-pill";
+import { WhatsappTemplatePicker } from "@/components/crm/whatsapp-template-picker";
+import { computeLeadScore } from "@/lib/crm/lead-scoring";
+import { matchPropertiesForLead } from "@/lib/crm/property-matching";
+import { listCrmProperties } from "@/lib/data/crm-properties";
 import { getLeadDetail } from "@/lib/data/dashboard";
 import { formatCurrencyBRL } from "@/lib/utils";
 
@@ -60,14 +66,46 @@ export default async function CrmLeadDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const lead = await getLeadDetail(id);
+  const [lead, properties] = await Promise.all([getLeadDetail(id), listCrmProperties()]);
 
   if (!lead) notFound();
 
-  const wa = whatsappLink(
-    lead.phone,
-    `Olá ${lead.name.split(" ")[0]}, sou o Pedro Soares, corretor. Posso ajudar?`
+  const score = computeLeadScore({
+    stage: lead.stage,
+    createdAt: lead.createdAt,
+    lastContactAt: lead.lastContactAt,
+    hasLinkedProperty: Boolean(lead.linkedPropertyId),
+    hasLinkedDevelopment: Boolean(lead.linkedDevelopmentId),
+    visitsCount: lead.visits.length,
+    proposalsCount: lead.proposals.length,
+    interactionsCount: lead.interactions.length,
+    budgetMin: lead.budgetMin ? Number(lead.budgetMin) : null,
+    budgetMax: lead.budgetMax ? Number(lead.budgetMax) : null
+  });
+
+  const matches = matchPropertiesForLead(
+    {
+      desiredType: lead.desiredType,
+      desiredPurpose: lead.desiredPurpose,
+      desiredCity: lead.desiredCity,
+      desiredDistrict: lead.desiredDistrict,
+      budgetMin: lead.budgetMin ? Number(lead.budgetMin) : null,
+      budgetMax: lead.budgetMax ? Number(lead.budgetMax) : null
+    },
+    properties.map((property) => ({
+      id: property.id,
+      slug: property.slug,
+      title: property.title,
+      city: property.city,
+      district: property.district,
+      type: property.type,
+      purpose: property.purpose,
+      price: property.price
+    }))
   );
+
+  const firstName = lead.name.split(" ")[0] ?? lead.name;
+  const wa = whatsappLink(lead.phone, `Olá ${firstName}, sou o Pedro Soares, corretor. Posso ajudar?`);
   const tel = lead.phone ? `tel:${lead.phone.replace(/\D/g, "")}` : null;
   const email = lead.email ? `mailto:${lead.email}` : null;
 
@@ -93,6 +131,7 @@ export default async function CrmLeadDetailPage({
           <div>
             <h1>{lead.name}</h1>
             <p className="crm-lead-detail__sub">
+              <LeadScorePill score={score} />
               <span className="badge">{lead.stage}</span>
               <span className="badge">{lead.intent}</span>
               <span className="badge">{lead.source}</span>
@@ -191,6 +230,53 @@ export default async function CrmLeadDetailPage({
               </ul>
             </section>
           ) : null}
+
+          {matches.length ? (
+            <section className="crm-panel">
+              <header className="crm-panel__head">
+                <h2>
+                  <Sparkles size={16} strokeWidth={1.75} aria-hidden="true" /> Imóveis recomendados
+                </h2>
+              </header>
+              <ul className="crm-match-list">
+                {matches.map((match) => (
+                  <li key={match.property.id}>
+                    <Link href={`/crm/imoveis/${match.property.id}`} className="crm-match-row">
+                      <div>
+                        <strong>{match.property.title}</strong>
+                        <span className="crm-match-row__meta">
+                          {match.property.district}, {match.property.city} ·{" "}
+                          {formatCurrencyBRL(Number(match.property.price))}
+                        </span>
+                        <span className="crm-match-row__hits">{match.hits.join(" · ")}</span>
+                      </div>
+                      <span className="crm-match-row__score" aria-label={`Match ${match.score}%`}>
+                        {match.score}%
+                      </span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          ) : null}
+
+          <section className="crm-panel">
+            <WhatsappTemplatePicker
+              leadFirstName={firstName}
+              phone={lead.phone}
+              propertyTitle={lead.linkedProperty?.title ?? undefined}
+              propertyUrl={
+                lead.linkedProperty
+                  ? `https://www.pedrosoarescorretor.com.br/imoveis/${lead.linkedProperty.slug}`
+                  : undefined
+              }
+              budgetRange={
+                lead.budgetMax
+                  ? `${lead.budgetMin ? formatCurrencyBRL(Number(lead.budgetMin)) + " – " : "até "}${formatCurrencyBRL(Number(lead.budgetMax))}`
+                  : undefined
+              }
+            />
+          </section>
 
           {lead.notes ? (
             <section className="crm-panel">

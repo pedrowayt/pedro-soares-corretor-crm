@@ -1,34 +1,43 @@
-import { listPipelineBoard } from "@/lib/data/crm";
+import { PipelineKanban } from "@/components/crm/pipeline-kanban";
+import { listPipelineBoardWithSignals } from "@/lib/data/crm";
 
 export default async function CrmFunilPage() {
-  const board = await listPipelineBoard();
+  const board = await listPipelineBoardWithSignals();
+
+  const initialColumns = board.map((column) => ({
+    stage: column.stage,
+    leads: column.leads.map((lead) => {
+      const counts = (lead as { _count?: { visits: number; proposals: number; interactions: number } })._count;
+      const linkedProperty = (lead as { linkedProperty?: { title?: string; price?: unknown } | null })
+        .linkedProperty;
+      return {
+        id: lead.id,
+        name: lead.name,
+        stage: lead.stage,
+        source: lead.source,
+        intent: lead.intent,
+        createdAt: lead.createdAt.toISOString(),
+        lastContactAt: lead.lastContactAt ? lead.lastContactAt.toISOString() : null,
+        linkedPropertyTitle: linkedProperty?.title ?? null,
+        linkedPropertyPrice: linkedProperty?.price ? Number(linkedProperty.price) : null,
+        budgetMax: lead.budgetMax ? Number(lead.budgetMax) : null,
+        visitsCount: counts?.visits ?? 0,
+        proposalsCount: counts?.proposals ?? 0,
+        interactionsCount: counts?.interactions ?? 0
+      };
+    })
+  }));
 
   return (
     <>
-      <h1 className="section-title" style={{ marginTop: 0 }}>Funil de vendas</h1>
-      <p className="section-subtitle">Controle visual por etapa para não perder timing de follow-up.</p>
+      <h1 className="section-title" style={{ marginTop: 0 }}>
+        Funil de vendas
+      </h1>
+      <p className="section-subtitle">
+        Arraste e solte os cards para mover entre etapas. As transições inválidas ficam bloqueadas.
+      </p>
 
-      <div className="crm-pipeline-board">
-        {board.map((column) => (
-          <article className="crm-pipeline-column" key={column.stage}>
-            <header className="crm-pipeline-column__head">
-              <span className="crm-pipeline-column__stage">{column.stage}</span>
-              <span className="crm-pipeline-column__count">{column.leads.length}</span>
-            </header>
-            <div className="crm-pipeline-column__list">
-              {column.leads.slice(0, 6).map((lead) => (
-                <div key={lead.id} className="crm-pipeline-lead">
-                  <strong>{lead.name}</strong>
-                  <p>{lead.linkedProperty?.title ?? "Sem imóvel vinculado"}</p>
-                </div>
-              ))}
-              {column.leads.length === 0 ? (
-                <p className="crm-pipeline-column__empty">Nenhum lead nesta etapa.</p>
-              ) : null}
-            </div>
-          </article>
-        ))}
-      </div>
+      <PipelineKanban initialColumns={initialColumns} />
     </>
   );
 }

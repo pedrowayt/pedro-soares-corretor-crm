@@ -122,6 +122,39 @@ export async function listPipelineBoard() {
   }
 }
 
+/**
+ * Variant of listPipelineBoard that also includes lightweight activity counts
+ * (visits, proposals, interactions) so the Kanban can render the lead score
+ * inline without N+1 queries.
+ */
+export async function listPipelineBoardWithSignals() {
+  if (!hasDatabase) {
+    return PIPELINE_ORDER.map((stage) => ({ stage, leads: [] as LeadWithSignals[] }));
+  }
+
+  try {
+    const leads = await prisma.lead.findMany({
+      orderBy: { updatedAt: "desc" },
+      include: {
+        linkedProperty: { select: { title: true, price: true } },
+        _count: { select: { visits: true, proposals: true, interactions: true } }
+      }
+    });
+
+    return PIPELINE_ORDER.map((stage) => ({
+      stage,
+      leads: leads.filter((lead) => lead.stage === stage)
+    }));
+  } catch {
+    return PIPELINE_ORDER.map((stage) => ({ stage, leads: [] as LeadWithSignals[] }));
+  }
+}
+
+type LeadWithSignals = Awaited<ReturnType<typeof prisma.lead.findMany>>[number] & {
+  linkedProperty?: { title: string; price: unknown } | null;
+  _count?: { visits: number; proposals: number; interactions: number };
+};
+
 export async function getReportSummary() {
   if (!hasDatabase) {
     return {
