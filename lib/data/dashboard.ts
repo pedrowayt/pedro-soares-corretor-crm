@@ -33,6 +33,37 @@ function daysAgo(days: number) {
 
 export type DashboardSnapshot = Awaited<ReturnType<typeof getDashboardSnapshot>>;
 
+export async function getDashboardFeaturedProperties() {
+  if (!hasDatabase) return [];
+  try {
+    return await prisma.property.findMany({
+      where: { status: "DISPONIVEL" },
+      orderBy: { updatedAt: "desc" },
+      take: 6,
+      select: {
+        id: true,
+        slug: true,
+        title: true,
+        price: true,
+        city: true,
+        district: true,
+        type: true,
+        purpose: true,
+        bedrooms: true,
+        areaM2: true,
+        media: {
+          where: { kind: "IMAGE" },
+          orderBy: { position: "asc" },
+          take: 1,
+          select: { url: true }
+        }
+      }
+    });
+  } catch {
+    return [];
+  }
+}
+
 export async function getDashboardSnapshot() {
   const today = new Date();
   const dayStart = startOfDay(today);

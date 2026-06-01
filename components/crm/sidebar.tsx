@@ -1,22 +1,45 @@
 import Link from "next/link";
 import { ThemeToggle } from "@/components/crm/theme-provider";
 
-const crmMenu = [
-  { href: "/crm/dashboard", label: "Dashboard" },
-  { href: "/crm/inbox", label: "Inbox" },
-  { href: "/crm/leads", label: "Leads" },
-  { href: "/crm/funil", label: "Funil de vendas" },
-  { href: "/crm/imoveis", label: "Imóveis" },
-  { href: "/crm/empreendimentos", label: "Empreendimentos" },
-  { href: "/crm/construtoras", label: "Construtoras" },
-  { href: "/crm/proprietarios", label: "Proprietários" },
-  { href: "/crm/visitas", label: "Visitas" },
-  { href: "/crm/propostas", label: "Propostas" },
-  { href: "/crm/tarefas", label: "Tarefas" },
-  { href: "/crm/paginas-seo", label: "Páginas SEO" },
-  { href: "/crm/blog", label: "Blog" },
-  { href: "/crm/relatorios", label: "Relatórios" },
-  { href: "/crm/configuracoes", label: "Configurações" }
+type SidebarItem = { href: string; label: string };
+type SidebarSection = { title: string; items: SidebarItem[] };
+
+const SIDEBAR_SECTIONS: ReadonlyArray<SidebarSection> = [
+  {
+    title: "Hoje",
+    items: [
+      { href: "/crm/dashboard", label: "Dashboard" },
+      { href: "/crm/inbox", label: "Inbox" },
+      { href: "/crm/leads", label: "Leads" },
+      { href: "/crm/funil", label: "Funil de vendas" },
+      { href: "/crm/visitas", label: "Visitas" },
+      { href: "/crm/tarefas", label: "Tarefas" }
+    ]
+  },
+  {
+    title: "Estoque",
+    items: [
+      { href: "/crm/imoveis", label: "Imóveis" },
+      { href: "/crm/empreendimentos", label: "Empreendimentos" },
+      { href: "/crm/construtoras", label: "Construtoras" },
+      { href: "/crm/proprietarios", label: "Proprietários" },
+      { href: "/crm/propostas", label: "Propostas" }
+    ]
+  },
+  {
+    title: "Conteúdo",
+    items: [
+      { href: "/crm/paginas-seo", label: "Páginas SEO" },
+      { href: "/crm/blog", label: "Blog" }
+    ]
+  },
+  {
+    title: "Análise & Config",
+    items: [
+      { href: "/crm/relatorios", label: "Relatórios" },
+      { href: "/crm/configuracoes", label: "Configurações" }
+    ]
+  }
 ];
 
 export function CrmSidebar() {
@@ -31,10 +54,17 @@ export function CrmSidebar() {
       </div>
 
       <nav className="crm-sidebar-nav" aria-label="Menu do CRM">
-        {crmMenu.map((item) => (
-          <Link key={item.href} href={item.href} className="crm-sidebar-link">
-            {item.label}
-          </Link>
+        {SIDEBAR_SECTIONS.map((section) => (
+          <section key={section.title} className="crm-sidebar-section">
+            <p className="crm-sidebar-section__title">{section.title}</p>
+            <div className="crm-sidebar-section__items">
+              {section.items.map((item) => (
+                <Link key={item.href} href={item.href} className="crm-sidebar-link">
+                  {item.label}
+                </Link>
+              ))}
+            </div>
+          </section>
         ))}
       </nav>
 
