@@ -63,7 +63,7 @@ export function CrmMobileHeader() {
       {isDashboard ? (
         <span className="crm-mobile-header__brand" aria-label="Pedro Soares">
           <Image
-            src="/brand/logo-home-2026.PNG"
+            src="/brand/logo-home-2026.png"
             alt="Pedro Soares — Corretor de Imóveis"
             width={180}
             height={40}

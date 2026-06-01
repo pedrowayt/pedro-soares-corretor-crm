@@ -12,7 +12,7 @@ import { isPlacaSize, PLACA_SIZES, type PlacaSize, typeToDefaultSize } from "@/l
 
 export const runtime = "nodejs";
 
-const LOGO_PATH = path.join(process.cwd(), "public/brand/logo-home-2026.PNG");
+const LOGO_PATH = path.join(process.cwd(), "public/brand/logo-home-2026.png");
 
 async function fetchAsBuffer(url: string): Promise<Buffer | null> {
   try {
