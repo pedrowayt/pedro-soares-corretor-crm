@@ -481,6 +481,91 @@ a.property-instagram-button:hover {
   font-size: var(--fs-14);
 }
 
+.crm-property-filters {
+  display: grid;
+  grid-template-columns: minmax(240px, 1.5fr) repeat(4, minmax(140px, 1fr)) minmax(170px, 0.9fr) auto;
+  gap: 12px;
+  align-items: end;
+  padding: 14px 16px;
+  border-bottom: 1px solid #e3e9f2;
+  background: #ffffff;
+}
+
+.crm-property-filters__field {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.crm-property-filters__field label {
+  color: #526174;
+  font-size: var(--fs-12);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.crm-property-filters input,
+.crm-property-filters select {
+  width: 100%;
+  min-width: 0;
+  min-height: 42px;
+  border: 1px solid #dbe3ee;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #17243a;
+  font-size: var(--fs-14);
+  font-weight: 600;
+  outline: none;
+  padding: 0 11px;
+}
+
+.crm-property-filters input::placeholder {
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+.crm-property-filters input:focus,
+.crm-property-filters select:focus {
+  border-color: var(--sophistication-gold-500);
+  box-shadow: 0 0 0 3px rgba(216, 154, 59, 0.16);
+}
+
+.crm-property-filters__search-control {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.crm-property-filters__search-control svg {
+  position: absolute;
+  left: 12px;
+  color: #64748b;
+  pointer-events: none;
+}
+
+.crm-property-filters__search-control input {
+  padding-left: 38px;
+}
+
+.crm-property-filters__price-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.crm-property-filters__actions .button {
+  min-height: 42px;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.crm-property-filters__actions .button:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
+  transform: none;
+}
+
 .crm-property-table-wrap {
   width: 100%;
   overflow-x: auto;
@@ -6467,6 +6552,19 @@ body:has(.crm-shell) > main {
     min-width: 860px;
   }
 
+  .crm-property-filters {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .crm-property-filters__field--search,
+  .crm-property-filters__actions {
+    grid-column: 1 / -1;
+  }
+
+  .crm-property-filters__actions .button {
+    width: 100%;
+  }
+
   .property-detail-layout,
   .property-media-showcase {
     grid-template-columns: 1fr;
@@ -6655,6 +6753,15 @@ body:has(.crm-shell) > main {
     display: grid;
     grid-template-columns: 1fr;
     gap: 4px;
+  }
+
+  .crm-property-filters {
+    grid-template-columns: 1fr;
+    padding: 12px;
+  }
+
+  .crm-property-filters__field--price {
+    grid-column: auto;
   }
 
   .crm-property-table {

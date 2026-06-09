@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { MessageCircle } from "lucide-react";
+import { MessageCircle, Search, X } from "lucide-react";
 import { PlacaPicker } from "@/components/crm/placa-picker";
 import { PropertyStatusActions } from "@/components/crm/property-status-actions";
 import { PropertyWizard } from "@/components/crm/property-wizard";
@@ -51,7 +51,29 @@ const TYPE_LABELS: Record<string, string> = {
   APARTAMENTO: "Apartamento",
   LOTE: "Lote",
   COMERCIAL: "Comercial",
-  RURAL: "Rural"
+  RURAL: "Rural",
+  AREA_PRIVATIVA: "Área privativa",
+  CASA_EM_CONDOMINIO: "Casa em condomínio",
+  CASA_GEMINADA: "Casa geminada",
+  CHACARA: "Chácara",
+  CHACARA_EM_CONDOMINIO: "Chácara em condomínio",
+  COBERTURA: "Cobertura",
+  FAZENDA: "Fazenda",
+  FLAT: "Flat",
+  GALPAO: "Galpão",
+  LOJA: "Loja",
+  LOTE_EM_CONDOMINIO: "Lote em condomínio",
+  PREDIO: "Prédio",
+  SALA: "Sala",
+  SOBRADO: "Sobrado"
+};
+
+const STATUS_LABELS: Record<string, string> = {
+  DISPONIVEL: "Disponível",
+  RESERVADO: "Reservado",
+  VENDIDO: "Vendido",
+  ALUGADO: "Alugado",
+  EM_ANALISE: "Em análise"
 };
 
 function formatSpecs(property: PropertyListItem) {
@@ -67,6 +89,70 @@ function formatSpecs(property: PropertyListItem) {
   return specs.length ? specs.join(" • ") : "Sem métricas";
 }
 
+type PropertyFilters = {
+  query: string;
+  status: string;
+  purpose: string;
+  type: string;
+  location: string;
+  priceMin: string;
+  priceMax: string;
+};
+
+const EMPTY_FILTERS: PropertyFilters = {
+  query: "",
+  status: "",
+  purpose: "",
+  type: "",
+  location: "",
+  priceMin: "",
+  priceMax: ""
+};
+
+function normalizeSearchTerm(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+}
+
+function parsePriceInput(value: string) {
+  const normalized = value
+    .trim()
+    .replace(/[^\d,.-]/g, "")
+    .replace(/\./g, "")
+    .replace(",", ".");
+  if (!normalized) return null;
+  const parsed = Number(normalized);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function buildOptionList(
+  properties: PropertyListItem[],
+  pickValue: (property: PropertyListItem) => string,
+  labels: Record<string, string> = {}
+) {
+  return Array.from(new Set(properties.map(pickValue).filter(Boolean)))
+    .sort((first, second) => (labels[first] ?? first).localeCompare(labels[second] ?? second, "pt-BR"))
+    .map((value) => ({ value, label: labels[value] ?? value }));
+}
+
+function buildLocationOptions(properties: PropertyListItem[]) {
+  const options = new Map<string, string>();
+  properties.forEach((property) => {
+    const city = property.city.trim();
+    const district = property.district.trim();
+    const label = [district, city].filter(Boolean).join(", ");
+    if (!label) return;
+    options.set(`${city}||${district}`, label);
+  });
+
+  return Array.from(options, ([value, label]) => ({ value, label })).sort((first, second) =>
+    first.label.localeCompare(second.label, "pt-BR")
+  );
+}
+
 export function PropertyListManager({ properties }: { properties: PropertyListItem[] }) {
   const router = useRouter();
   const [showWizard, setShowWizard] = useState(false);
@@ -74,7 +160,77 @@ export function PropertyListManager({ properties }: { properties: PropertyListIt
   const [actionError, setActionError] = useState<string | null>(null);
   const [openMenu, setOpenMenu] = useState<{ id: string; top: number; right: number } | null>(null);
   const [placaTarget, setPlacaTarget] = useState<PropertyListItem | null>(null);
+  const [filters, setFilters] = useState<PropertyFilters>(EMPTY_FILTERS);
   const wizardRef = useRef<HTMLDivElement | null>(null);
+
+  const statusOptions = useMemo(
+    () => buildOptionList(properties, (property) => property.status, STATUS_LABELS),
+    [properties]
+  );
+  const purposeOptions = useMemo(
+    () => buildOptionList(properties, (property) => property.purpose, PURPOSE_LABELS),
+    [properties]
+  );
+  const typeOptions = useMemo(
+    () => buildOptionList(properties, (property) => property.type, TYPE_LABELS),
+    [properties]
+  );
+  const locationOptions = useMemo(() => buildLocationOptions(properties), [properties]);
+
+  const activeFilterCount = Object.values(filters).filter((value) => value.trim().length > 0).length;
+  const hasActiveFilters = activeFilterCount > 0;
+
+  const filteredProperties = useMemo(() => {
+    const queryTokens = normalizeSearchTerm(filters.query).split(/\s+/).filter(Boolean);
+    const minPrice = parsePriceInput(filters.priceMin);
+    const maxPrice = parsePriceInput(filters.priceMax);
+    const [filterCity, filterDistrict] = filters.location.split("||");
+
+    return properties.filter((property) => {
+      if (filters.status && property.status !== filters.status) return false;
+      if (filters.purpose && property.purpose !== filters.purpose) return false;
+      if (filters.type && property.type !== filters.type) return false;
+      if (filterCity && property.city.trim() !== filterCity) return false;
+      if (filterDistrict && property.district.trim() !== filterDistrict) return false;
+      if (minPrice !== null && property.price < minPrice) return false;
+      if (maxPrice !== null && property.price > maxPrice) return false;
+
+      if (queryTokens.length) {
+        const searchable = normalizeSearchTerm(
+          [
+            property.title,
+            property.slug,
+            property.city,
+            property.district,
+            property.ownerName,
+            property.ownerPhone,
+            property.status,
+            STATUS_LABELS[property.status],
+            property.purpose,
+            PURPOSE_LABELS[property.purpose],
+            property.type,
+            TYPE_LABELS[property.type],
+            String(property.price)
+          ]
+            .filter(Boolean)
+            .join(" ")
+        );
+        if (queryTokens.some((token) => !searchable.includes(token))) return false;
+      }
+
+      return true;
+    });
+  }, [filters, properties]);
+
+  function updateFilter(field: keyof PropertyFilters, value: string) {
+    setOpenMenu(null);
+    setFilters((current) => ({ ...current, [field]: value }));
+  }
+
+  function clearFilters() {
+    setOpenMenu(null);
+    setFilters(EMPTY_FILTERS);
+  }
 
   function toggleMenu(propertyId: string, anchor: HTMLElement) {
     if (openMenu?.id === propertyId) {
@@ -204,15 +360,127 @@ export function PropertyListManager({ properties }: { properties: PropertyListIt
 
       <section className="crm-property-list" aria-label="Lista de imóveis">
         <div className="crm-property-list__toolbar">
-          <strong>{properties.length} {properties.length === 1 ? "imóvel" : "imóveis"}</strong>
-          <span>Ordenados pelos mais recentes</span>
+          <strong>
+            {filteredProperties.length} de {properties.length} {properties.length === 1 ? "imóvel" : "imóveis"}
+          </strong>
+          <span>
+            {hasActiveFilters
+              ? `${activeFilterCount} ${activeFilterCount === 1 ? "filtro ativo" : "filtros ativos"}`
+              : "Ordenados pelos mais recentes"}
+          </span>
         </div>
+
+        <form className="crm-property-filters" onSubmit={(event) => event.preventDefault()}>
+          <div className="crm-property-filters__field crm-property-filters__field--search">
+            <label htmlFor="property-filter-query">Buscar</label>
+            <div className="crm-property-filters__search-control">
+              <Search size={16} strokeWidth={1.75} aria-hidden="true" />
+              <input
+                id="property-filter-query"
+                type="search"
+                value={filters.query}
+                onChange={(event) => updateFilter("query", event.target.value)}
+                placeholder="Título, bairro ou proprietário"
+              />
+            </div>
+          </div>
+
+          <div className="crm-property-filters__field">
+            <label htmlFor="property-filter-status">Status</label>
+            <select
+              id="property-filter-status"
+              value={filters.status}
+              onChange={(event) => updateFilter("status", event.target.value)}
+            >
+              <option value="">Todos</option>
+              {statusOptions.map((option) => (
+                <option key={option.value} value={option.value}>{option.label}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="crm-property-filters__field">
+            <label htmlFor="property-filter-purpose">Finalidade</label>
+            <select
+              id="property-filter-purpose"
+              value={filters.purpose}
+              onChange={(event) => updateFilter("purpose", event.target.value)}
+            >
+              <option value="">Todas</option>
+              {purposeOptions.map((option) => (
+                <option key={option.value} value={option.value}>{option.label}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="crm-property-filters__field">
+            <label htmlFor="property-filter-type">Tipo</label>
+            <select
+              id="property-filter-type"
+              value={filters.type}
+              onChange={(event) => updateFilter("type", event.target.value)}
+            >
+              <option value="">Todos</option>
+              {typeOptions.map((option) => (
+                <option key={option.value} value={option.value}>{option.label}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="crm-property-filters__field">
+            <label htmlFor="property-filter-location">Cidade/bairro</label>
+            <select
+              id="property-filter-location"
+              value={filters.location}
+              onChange={(event) => updateFilter("location", event.target.value)}
+            >
+              <option value="">Todos</option>
+              {locationOptions.map((option) => (
+                <option key={option.value} value={option.value}>{option.label}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="crm-property-filters__field crm-property-filters__field--price">
+            <label>Preço</label>
+            <div className="crm-property-filters__price-grid">
+              <input
+                type="text"
+                inputMode="decimal"
+                value={filters.priceMin}
+                onChange={(event) => updateFilter("priceMin", event.target.value)}
+                placeholder="Mín."
+                aria-label="Preço mínimo"
+              />
+              <input
+                type="text"
+                inputMode="decimal"
+                value={filters.priceMax}
+                onChange={(event) => updateFilter("priceMax", event.target.value)}
+                placeholder="Máx."
+                aria-label="Preço máximo"
+              />
+            </div>
+          </div>
+
+          <div className="crm-property-filters__actions">
+            <button
+              type="button"
+              className="button button-ghost"
+              onClick={clearFilters}
+              disabled={!hasActiveFilters}
+            >
+              <X size={16} strokeWidth={1.75} aria-hidden="true" />
+              Limpar
+            </button>
+          </div>
+        </form>
 
         {actionError ? (
           <p className="crm-property-list__error" role="alert">{actionError}</p>
         ) : null}
 
-        {properties.length ? (
+        {filteredProperties.length ? (
           <>
           <div className="crm-property-table-wrap crm-table-host">
             <table className="crm-property-table">
@@ -226,7 +494,7 @@ export function PropertyListManager({ properties }: { properties: PropertyListIt
                 </tr>
               </thead>
               <tbody>
-                {properties.map((property) => (
+                {filteredProperties.map((property) => (
                   <tr key={property.id}>
                     <td>
                       <div className="crm-property-row-main">
@@ -312,7 +580,7 @@ export function PropertyListManager({ properties }: { properties: PropertyListIt
 
           {/* Mobile card list */}
           <ul className="crm-property-cards" aria-label="Imóveis">
-            {properties.map((property) => (
+            {filteredProperties.map((property) => (
               <li className="crm-property-card" key={`mcard-${property.id}`}>
                 <div className="crm-property-card__head">
                   {property.thumbnailUrl ? (
@@ -397,10 +665,21 @@ export function PropertyListManager({ properties }: { properties: PropertyListIt
           </>
         ) : (
           <div className="crm-property-empty">
-            <p>Nenhum imóvel cadastrado ainda.</p>
-            <button type="button" className="button button-primary" onClick={openWizard}>
-              Adicionar primeiro imóvel
-            </button>
+            {properties.length ? (
+              <>
+                <p>Nenhum imóvel encontrado com os filtros atuais.</p>
+                <button type="button" className="button button-primary" onClick={clearFilters}>
+                  Limpar filtros
+                </button>
+              </>
+            ) : (
+              <>
+                <p>Nenhum imóvel cadastrado ainda.</p>
+                <button type="button" className="button button-primary" onClick={openWizard}>
+                  Adicionar primeiro imóvel
+                </button>
+              </>
+            )}
           </div>
         )}
       </section>
