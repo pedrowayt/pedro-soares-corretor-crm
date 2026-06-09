@@ -1,11 +1,47 @@
-import { Prisma, type AuctionCase, type InvestorOpportunity, type Owner, type Property, type PropertyMedia } from "@prisma/client";
+import {
+  Prisma,
+  type AuctionCase,
+  type AuctionRisk,
+  type InvestorOpportunity,
+  type Owner,
+  type Property,
+  type PropertyMedia
+} from "@prisma/client";
 import { mockProperties } from "@/lib/data/mock";
 import { slugify } from "@/lib/crm/slug";
+import { refreshAuctionImportChecklistForProperty } from "@/lib/data/auction-imports";
 import { prisma } from "@/lib/prisma";
 
 const hasDatabase = Boolean(process.env.DATABASE_URL);
 
 type NullableNumber = number | null;
+
+export type CrmAuctionCasePayload = {
+  caseNumber?: string | null;
+  courtName?: string | null;
+  auctionDate?: string | Date | null;
+  firstAuctionDate?: string | Date | null;
+  secondAuctionDate?: string | Date | null;
+  minimumBid?: number | null;
+  appraisedValue?: number | null;
+  estimatedCosts?: number | null;
+  documentaryRisk?: AuctionRisk | null;
+  legalStatus?: string | null;
+  editalUrl?: string | null;
+  appraisalUrl?: string | null;
+  registryUrl?: string | null;
+  bidUrl?: string | null;
+  lotCode?: string | null;
+  auctioneerName?: string | null;
+  auctionType?: string | null;
+  auctionMode?: string | null;
+  registryNumber?: string | null;
+  registryOffice?: string | null;
+  occupancyStatus?: string | null;
+  debtsInfo?: string | null;
+  notes?: string | null;
+  documentLinks?: unknown;
+};
 
 export type CrmPropertyPayload = {
   title: string;
@@ -40,6 +76,7 @@ export type CrmPropertyPayload = {
   features: string[];
   legalNotes?: string | null;
   internalNotes?: string | null;
+  documents?: unknown;
   commissionPct?: number | null;
   marketAskingValue?: number | null;
   marketEstimatedValue?: number | null;
@@ -48,6 +85,7 @@ export type CrmPropertyPayload = {
   marketLiquidityNotes?: string | null;
   isInvestorHighlight?: boolean;
   isAuctionOpportunity?: boolean;
+  auctionCase?: CrmAuctionCasePayload | null;
   ownerName?: string | null;
   ownerPhone?: string | null;
 };
@@ -99,6 +137,7 @@ type MemoryProperty = {
   features: string[];
   legalNotes: string | null;
   internalNotes: string | null;
+  documents: Prisma.JsonValue | null;
   commissionPct: NullableNumber;
   isInvestorHighlight: boolean;
   isAuctionOpportunity: boolean;
@@ -112,6 +151,7 @@ type MemoryProperty = {
   investorOpportunity: InvestorOpportunity | null;
   auctionCase: AuctionCase | null;
   media: MemoryMedia[];
+  publishedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -133,9 +173,72 @@ function optionalNumber(input?: number | null) {
   return Number(input);
 }
 
+function optionalDate(input?: string | Date | null) {
+  if (input === undefined) return undefined;
+  if (input === null) return null;
+  const date = input instanceof Date ? input : new Date(input);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function optionalJson(input: unknown) {
+  if (input === undefined) return undefined;
+  if (input === null) return Prisma.JsonNull;
+  return input as Prisma.InputJsonValue;
+}
+
 function normalizePhone(input?: string | null) {
   const trimmed = optionalString(input);
   return trimmed;
+}
+
+function normalizeAuctionCasePayload(input?: CrmAuctionCasePayload | null) {
+  if (!input) return null;
+
+  return {
+    caseNumber: optionalString(input.caseNumber),
+    courtName: optionalString(input.courtName),
+    auctionDate: optionalDate(input.auctionDate),
+    firstAuctionDate: optionalDate(input.firstAuctionDate),
+    secondAuctionDate: optionalDate(input.secondAuctionDate),
+    minimumBid: optionalNumber(input.minimumBid),
+    appraisedValue: optionalNumber(input.appraisedValue),
+    estimatedCosts: optionalNumber(input.estimatedCosts),
+    documentaryRisk: input.documentaryRisk ?? null,
+    legalStatus: optionalString(input.legalStatus),
+    editalUrl: optionalString(input.editalUrl),
+    appraisalUrl: optionalString(input.appraisalUrl),
+    registryUrl: optionalString(input.registryUrl),
+    bidUrl: optionalString(input.bidUrl),
+    lotCode: optionalString(input.lotCode),
+    auctioneerName: optionalString(input.auctioneerName),
+    auctionType: optionalString(input.auctionType),
+    auctionMode: optionalString(input.auctionMode),
+    registryNumber: optionalString(input.registryNumber),
+    registryOffice: optionalString(input.registryOffice),
+    occupancyStatus: optionalString(input.occupancyStatus),
+    debtsInfo: optionalString(input.debtsInfo),
+    notes: optionalString(input.notes),
+    documentLinks:
+      input.documentLinks === undefined
+        ? undefined
+        : input.documentLinks === null
+          ? Prisma.JsonNull
+          : (input.documentLinks as Prisma.InputJsonValue)
+  };
+}
+
+async function upsertAuctionCase(propertyId: string, payload?: CrmAuctionCasePayload | null) {
+  const normalized = normalizeAuctionCasePayload(payload);
+  if (!normalized || !hasDatabase) return;
+
+  await prisma.auctionCase.upsert({
+    where: { propertyId },
+    create: {
+      propertyId,
+      ...normalized
+    },
+    update: normalized
+  });
 }
 
 async function upsertOwnerByPhone(name?: string | null, phone?: string | null) {
@@ -258,6 +361,7 @@ function fromMockProperty(property: (typeof mockProperties)[number], index: numb
     features: [...property.features],
     legalNotes: null,
     internalNotes: null,
+    documents: null,
     commissionPct: null,
     isInvestorHighlight: property.isInvestorHighlight,
     isAuctionOpportunity: property.isAuctionOpportunity,
@@ -271,6 +375,7 @@ function fromMockProperty(property: (typeof mockProperties)[number], index: numb
     investorOpportunity: null,
     auctionCase: null,
     media: [],
+    publishedAt: null,
     createdAt: new Date(now.getTime() - index * 60_000),
     updatedAt: now
   };
@@ -338,6 +443,10 @@ export async function listCrmProperties() {
         owner: true,
         investorOpportunity: true,
         auctionCase: true,
+        auctionImports: {
+          orderBy: { lastImportedAt: "desc" },
+          take: 1
+        },
         media: {
           orderBy: { position: "asc" }
         }
@@ -399,6 +508,7 @@ export async function createCrmProperty(payload: CrmPropertyPayload) {
           features: normalized.features,
           legalNotes: normalized.legalNotes,
           internalNotes: normalized.internalNotes,
+          documents: optionalJson(normalized.documents),
           commissionPct: normalized.commissionPct,
           marketAskingValue: normalized.marketAskingValue ?? undefined,
           marketEstimatedValue: normalized.marketEstimatedValue ?? undefined,
@@ -415,6 +525,20 @@ export async function createCrmProperty(payload: CrmPropertyPayload) {
           auctionCase: true
         }
       });
+
+      await upsertAuctionCase(property.id, normalized.auctionCase);
+
+      if (normalized.auctionCase) {
+        const withAuctionCase = await prisma.property.findUnique({
+          where: { id: property.id },
+          include: {
+            owner: true,
+            investorOpportunity: true,
+            auctionCase: true
+          }
+        });
+        if (withAuctionCase) return normalizeDbProperty(withAuctionCase);
+      }
 
       return normalizeDbProperty(property);
     } catch {
@@ -464,6 +588,7 @@ export async function createCrmProperty(payload: CrmPropertyPayload) {
     features: normalized.features,
     legalNotes: normalized.legalNotes ?? null,
     internalNotes: normalized.internalNotes ?? null,
+    documents: (normalized.documents as Prisma.JsonValue | null | undefined) ?? null,
     commissionPct: normalized.commissionPct ?? null,
     isInvestorHighlight: normalized.isInvestorHighlight ?? false,
     isAuctionOpportunity:
@@ -478,6 +603,7 @@ export async function createCrmProperty(payload: CrmPropertyPayload) {
     investorOpportunity: null,
     auctionCase: null,
     media: [],
+    publishedAt: null,
     createdAt: now,
     updatedAt: now
   };
@@ -487,45 +613,48 @@ export async function createCrmProperty(payload: CrmPropertyPayload) {
 }
 
 export async function updateCrmProperty(id: string, payload: Partial<CrmPropertyPayload>) {
+  const { auctionCase, ownerName, ownerPhone, ...scalarPayload } = payload;
   const ownerId =
-    payload.ownerName !== undefined || payload.ownerPhone !== undefined
-      ? await upsertOwnerByPhone(payload.ownerName ?? null, payload.ownerPhone ?? null)
+    ownerName !== undefined || ownerPhone !== undefined
+      ? await upsertOwnerByPhone(ownerName ?? null, ownerPhone ?? null)
       : undefined;
 
   const partial = {
-    ...payload,
-    ownerName: undefined,
-    ownerPhone: undefined,
-    slug: payload.slug ? slugify(payload.slug) : undefined,
-    title: payload.title?.trim(),
-    city: payload.city?.trim(),
-    district: payload.district?.trim(),
-    description: payload.description?.trim(),
-    address: optionalString(payload.address),
-    postalCode: optionalString(payload.postalCode),
-    googleMapsUrl: optionalString(payload.googleMapsUrl),
-    legalNotes: optionalString(payload.legalNotes),
-    internalNotes: optionalString(payload.internalNotes),
-    marketLiquidityNotes: optionalString(payload.marketLiquidityNotes),
-    latitude: optionalNumber(payload.latitude),
-    longitude: optionalNumber(payload.longitude),
-    areaM2: optionalNumber(payload.areaM2),
-    landAreaM2: optionalNumber(payload.landAreaM2),
-    frontMeters: optionalNumber(payload.frontMeters),
-    backMeters: optionalNumber(payload.backMeters),
-    sideLeftMeters: optionalNumber(payload.sideLeftMeters),
-    sideRightMeters: optionalNumber(payload.sideRightMeters),
-    ceilingHeightM: optionalNumber(payload.ceilingHeightM),
-    floorNumber: payload.floorNumber === undefined ? undefined : payload.floorNumber,
-    floorCount: payload.floorCount === undefined ? undefined : payload.floorCount,
-    unitCount: payload.unitCount === undefined ? undefined : payload.unitCount,
-    commissionPct: optionalNumber(payload.commissionPct),
-    marketAskingValue: optionalNumber(payload.marketAskingValue),
-    marketEstimatedValue: optionalNumber(payload.marketEstimatedValue),
-    marketOpportunity: optionalNumber(payload.marketOpportunity),
-    features: payload.features ? normalizeFeatureList(payload.features) : undefined,
-    marketComparableLinks: payload.marketComparableLinks
-      ? normalizeFeatureList(payload.marketComparableLinks)
+    ...scalarPayload,
+    slug: scalarPayload.slug ? slugify(scalarPayload.slug) : undefined,
+    title: scalarPayload.title?.trim(),
+    city: scalarPayload.city?.trim(),
+    district: scalarPayload.district?.trim(),
+    description: scalarPayload.description?.trim(),
+    address: optionalString(scalarPayload.address),
+    postalCode: optionalString(scalarPayload.postalCode),
+    googleMapsUrl: optionalString(scalarPayload.googleMapsUrl),
+    legalNotes: optionalString(scalarPayload.legalNotes),
+    internalNotes: optionalString(scalarPayload.internalNotes),
+    marketLiquidityNotes: optionalString(scalarPayload.marketLiquidityNotes),
+    latitude: optionalNumber(scalarPayload.latitude),
+    longitude: optionalNumber(scalarPayload.longitude),
+    areaM2: optionalNumber(scalarPayload.areaM2),
+    landAreaM2: optionalNumber(scalarPayload.landAreaM2),
+    frontMeters: optionalNumber(scalarPayload.frontMeters),
+    backMeters: optionalNumber(scalarPayload.backMeters),
+    sideLeftMeters: optionalNumber(scalarPayload.sideLeftMeters),
+    sideRightMeters: optionalNumber(scalarPayload.sideRightMeters),
+    ceilingHeightM: optionalNumber(scalarPayload.ceilingHeightM),
+    floorNumber: scalarPayload.floorNumber === undefined ? undefined : scalarPayload.floorNumber,
+    floorCount: scalarPayload.floorCount === undefined ? undefined : scalarPayload.floorCount,
+    unitCount: scalarPayload.unitCount === undefined ? undefined : scalarPayload.unitCount,
+    documents:
+      scalarPayload.documents === undefined
+        ? undefined
+        : optionalJson(scalarPayload.documents),
+    commissionPct: optionalNumber(scalarPayload.commissionPct),
+    marketAskingValue: optionalNumber(scalarPayload.marketAskingValue),
+    marketEstimatedValue: optionalNumber(scalarPayload.marketEstimatedValue),
+    marketOpportunity: optionalNumber(scalarPayload.marketOpportunity),
+    features: scalarPayload.features ? normalizeFeatureList(scalarPayload.features) : undefined,
+    marketComparableLinks: scalarPayload.marketComparableLinks
+      ? normalizeFeatureList(scalarPayload.marketComparableLinks)
       : undefined
   };
 
@@ -552,6 +681,21 @@ export async function updateCrmProperty(id: string, payload: Partial<CrmProperty
           auctionCase: true
         }
       });
+
+      await upsertAuctionCase(id, auctionCase);
+      await refreshAuctionImportChecklistForProperty(id).catch(() => null);
+
+      if (auctionCase) {
+        const withAuctionCase = await prisma.property.findUnique({
+          where: { id },
+          include: {
+            owner: true,
+            investorOpportunity: true,
+            auctionCase: true
+          }
+        });
+        if (withAuctionCase) return normalizeDbProperty(withAuctionCase);
+      }
 
       return normalizeDbProperty(property);
     } catch {
@@ -600,6 +744,10 @@ export async function updateCrmProperty(id: string, payload: Partial<CrmProperty
     features: partial.features ?? current.features,
     legalNotes: partial.legalNotes === undefined ? current.legalNotes : partial.legalNotes,
     internalNotes: partial.internalNotes === undefined ? current.internalNotes : partial.internalNotes,
+    documents:
+      partial.documents === undefined
+        ? current.documents
+        : (partial.documents as Prisma.JsonValue | null),
     commissionPct: partial.commissionPct === undefined ? current.commissionPct : partial.commissionPct,
     marketAskingValue:
       partial.marketAskingValue === undefined ? current.marketAskingValue : partial.marketAskingValue,
@@ -646,6 +794,10 @@ export async function findCrmPropertyById(id: string) {
         owner: true,
         investorOpportunity: true,
         auctionCase: true,
+        auctionImports: {
+          orderBy: { lastImportedAt: "desc" },
+          take: 1
+        },
         media: {
           orderBy: { position: "asc" }
         }

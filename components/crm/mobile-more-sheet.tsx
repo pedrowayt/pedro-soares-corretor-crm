@@ -30,6 +30,7 @@ const GROUPS: ReadonlyArray<Group> = [
     title: "Operação",
     items: [
       { href: "/crm/inbox", label: "Inbox", Icon: Inbox },
+      { href: "/crm/leiloes", label: "Leilões", Icon: Hammer },
       { href: "/crm/empreendimentos", label: "Empreendimentos", Icon: Building2 },
       { href: "/crm/construtoras", label: "Construtoras", Icon: Hammer },
       { href: "/crm/proprietarios", label: "Proprietários", Icon: UserCheck },

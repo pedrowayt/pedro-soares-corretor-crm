@@ -14,6 +14,59 @@ type PropertyGalleryProps = {
   propertyTitle: string;
 };
 
+function canUseNextImage(src: string) {
+  if (src.startsWith("/")) return true;
+  try {
+    const url = new URL(src);
+    return url.hostname === "images.unsplash.com" || url.hostname === "imagedelivery.net";
+  } catch {
+    return false;
+  }
+}
+
+function GalleryVisual({
+  src,
+  alt,
+  sizes,
+  priority,
+  objectFit = "cover"
+}: {
+  src: string;
+  alt: string;
+  sizes: string;
+  priority?: boolean;
+  objectFit?: "cover" | "contain";
+}) {
+  if (canUseNextImage(src)) {
+    return (
+      <Image
+        src={src}
+        alt={alt}
+        fill
+        sizes={sizes}
+        priority={priority}
+        style={{ objectFit }}
+      />
+    );
+  }
+
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={src}
+      alt={alt}
+      loading={priority ? "eager" : "lazy"}
+      style={{
+        position: "absolute",
+        inset: 0,
+        width: "100%",
+        height: "100%",
+        objectFit
+      }}
+    />
+  );
+}
+
 export function PropertyGallery({ images, propertyTitle }: PropertyGalleryProps) {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
@@ -96,10 +149,9 @@ export function PropertyGallery({ images, propertyTitle }: PropertyGalleryProps)
           onClick={() => openLightbox(selectedIndex)}
           aria-label={`Ampliar foto ${selectedIndex + 1} de ${total} do imóvel`}
         >
-          <Image
+          <GalleryVisual
             src={selectedImage.url}
             alt={`Foto principal do imóvel ${propertyTitle}`}
-            fill
             sizes="(max-width: 960px) 100vw, 62vw"
             priority
           />
@@ -121,10 +173,9 @@ export function PropertyGallery({ images, propertyTitle }: PropertyGalleryProps)
                 onClick={() => openLightbox(imageIndex)}
                 aria-label={`Abrir foto ${imageIndex + 1} de ${total} do imóvel`}
               >
-                <Image
+                <GalleryVisual
                   src={image.url}
                   alt={`Foto ${imageIndex + 1} do imóvel ${propertyTitle}`}
-                  fill
                   sizes="(max-width: 960px) 50vw, 18vw"
                 />
                 {hiddenCount > 0 && index === heroThumbs.length - 1 ? (
@@ -156,10 +207,9 @@ export function PropertyGallery({ images, propertyTitle }: PropertyGalleryProps)
               aria-current={index === selectedIndex ? "true" : undefined}
               aria-label={`Abrir foto ${index + 1} de ${total}`}
             >
-              <Image
+              <GalleryVisual
                 src={image.url}
                 alt={`Imagem ${index + 1} do imóvel ${propertyTitle}`}
-                fill
                 sizes="210px"
               />
             </button>
@@ -198,13 +248,12 @@ export function PropertyGallery({ images, propertyTitle }: PropertyGalleryProps)
           ) : null}
 
           <figure className="property-gallery-lightbox-figure">
-            <Image
+            <GalleryVisual
               src={lightboxImage.url}
               alt={`Foto ampliada do imóvel ${propertyTitle}`}
-              fill
               sizes="100vw"
               priority
-              style={{ objectFit: "contain" }}
+              objectFit="contain"
             />
             <figcaption>
               <span>{propertyTitle}</span>

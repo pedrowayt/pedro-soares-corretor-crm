@@ -7,6 +7,7 @@ import {
   Bell,
   Building2,
   ChevronDown,
+  Hammer,
   LayoutDashboard,
   LogOut,
   Search,
@@ -39,6 +40,7 @@ const PRIMARY_NAV: ReadonlyArray<TopbarLink> = [
   { href: "/crm/leads", label: "Leads", Icon: Users },
   { href: "/crm/funil", label: "Funil", Icon: Workflow },
   { href: "/crm/imoveis", label: "Imóveis", Icon: Building2 },
+  { href: "/crm/leiloes", label: "Leilões", Icon: Hammer },
   { href: "/crm/empreendimentos", label: "Empreendimentos", Icon: Building2 },
   { href: "/crm/propostas", label: "Propostas", Icon: UserCheck }
 ];

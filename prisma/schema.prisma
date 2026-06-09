@@ -154,6 +154,13 @@ enum AuctionRisk {
   ALTO
 }
 
+enum AuctionImportStatus {
+  NEEDS_REVIEW
+  READY
+  PUBLISHED
+  ERROR
+}
+
 enum PortalPublicationStatus {
   PENDENTE
   PUBLICADO
@@ -786,6 +793,7 @@ model Property {
   tasks               Task[]
   investorOpportunity InvestorOpportunity?
   auctionCase         AuctionCase?
+  auctionImports      AuctionImport[]
   portalPublications  PortalPublication[]
 
   @@index([status, purpose])
@@ -887,22 +895,58 @@ model InvestorOpportunity {
 }
 
 model AuctionCase {
-  id              String            @id @default(cuid())
-  propertyId      String            @unique
-  caseNumber      String?
-  courtName       String?
-  auctionDate     DateTime?
-  minimumBid      Decimal?          @db.Decimal(14, 2)
-  estimatedCosts  Decimal?          @db.Decimal(14, 2)
-  documentaryRisk AuctionRisk?
-  legalStatus     String?
-  editalUrl       String?
-  status          OpportunityStatus @default(ANALISE)
-  notes           String?
-  createdAt       DateTime          @default(now())
-  updatedAt       DateTime          @updatedAt
+  id                 String            @id @default(cuid())
+  propertyId         String            @unique
+  caseNumber         String?
+  courtName          String?
+  auctionDate        DateTime?
+  firstAuctionDate   DateTime?
+  secondAuctionDate  DateTime?
+  minimumBid         Decimal?          @db.Decimal(14, 2)
+  appraisedValue     Decimal?          @db.Decimal(14, 2)
+  estimatedCosts     Decimal?          @db.Decimal(14, 2)
+  documentaryRisk    AuctionRisk?
+  legalStatus        String?
+  editalUrl          String?
+  appraisalUrl       String?
+  registryUrl        String?
+  bidUrl             String?
+  lotCode            String?
+  auctioneerName     String?
+  auctionType        String?
+  auctionMode        String?
+  registryNumber     String?
+  registryOffice     String?
+  occupancyStatus    String?
+  debtsInfo          String?
+  documentLinks      Json?
+  status             OpportunityStatus @default(ANALISE)
+  notes              String?
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
 
   property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
+}
+
+model AuctionImport {
+  id             String              @id @default(cuid())
+  source         String
+  externalId     String
+  originalUrl    String
+  status         AuctionImportStatus @default(NEEDS_REVIEW)
+  rawPayload     Json
+  missingFields  String[]            @default([])
+  lastImportedAt DateTime            @default(now())
+  publishedAt    DateTime?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+
+  propertyId String?
+  property   Property? @relation(fields: [propertyId], references: [id], onDelete: SetNull)
+
+  @@unique([source, externalId])
+  @@index([status, lastImportedAt])
+  @@index([propertyId])
 }
 
 model PortalPublication {

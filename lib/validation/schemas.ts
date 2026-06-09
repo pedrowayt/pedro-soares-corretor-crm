@@ -126,6 +126,7 @@ export const crmCreatePropertySchema = z.object({
   features: z.array(z.string()).default([]),
   legalNotes: z.string().nullish(),
   internalNotes: z.string().nullish(),
+  documents: z.record(z.string(), z.unknown()).nullish(),
   commissionPct: z.coerce.number().min(0).max(100).nullish(),
   marketAskingValue: z.coerce.number().nullish(),
   marketEstimatedValue: z.coerce.number().nullish(),
@@ -134,6 +135,34 @@ export const crmCreatePropertySchema = z.object({
   marketLiquidityNotes: z.string().nullish(),
   isInvestorHighlight: z.boolean().optional(),
   isAuctionOpportunity: z.boolean().optional(),
+  auctionCase: z
+    .object({
+      caseNumber: z.string().nullish(),
+      courtName: z.string().nullish(),
+      auctionDate: z.string().nullish(),
+      firstAuctionDate: z.string().nullish(),
+      secondAuctionDate: z.string().nullish(),
+      minimumBid: z.coerce.number().nullish(),
+      appraisedValue: z.coerce.number().nullish(),
+      estimatedCosts: z.coerce.number().nullish(),
+      documentaryRisk: z.enum(["BAIXO", "MEDIO", "ALTO"]).nullish(),
+      legalStatus: z.string().nullish(),
+      editalUrl: z.string().nullish(),
+      appraisalUrl: z.string().nullish(),
+      registryUrl: z.string().nullish(),
+      bidUrl: z.string().nullish(),
+      lotCode: z.string().nullish(),
+      auctioneerName: z.string().nullish(),
+      auctionType: z.string().nullish(),
+      auctionMode: z.string().nullish(),
+      registryNumber: z.string().nullish(),
+      registryOffice: z.string().nullish(),
+      occupancyStatus: z.enum(["OCUPADO", "DESOCUPADO", "NAO_INFORMADO"]).nullish(),
+      debtsInfo: z.string().nullish(),
+      notes: z.string().nullish(),
+      documentLinks: z.record(z.string(), z.unknown()).nullish()
+    })
+    .optional(),
   ownerName: z.string().trim().min(2).max(120).nullish().or(z.literal("")),
   ownerPhone: z.string().trim().min(8).max(40).nullish().or(z.literal(""))
 });
@@ -147,6 +176,29 @@ export const crmCreatePropertyMediaSchema = z.object({
   position: z.coerce.number().int().min(0).optional(),
   metadata: z.record(z.string(), z.unknown()).optional()
 });
+
+const auctionImportLooseObject = z.record(z.string(), z.unknown());
+
+export const auctionImportPayloadSchema = z
+  .object({
+    source: z.string().trim().min(2).max(80),
+    externalId: z.string().trim().min(1).max(160),
+    originalUrl: z.string().trim().url(),
+    property: auctionImportLooseObject.optional(),
+    auction: auctionImportLooseObject.optional(),
+    legal: auctionImportLooseObject.optional(),
+    documents: auctionImportLooseObject.optional(),
+    images: z
+      .array(
+        z.union([
+          z.string().trim().url(),
+          auctionImportLooseObject
+        ])
+      )
+      .optional(),
+    updatedAt: z.string().optional()
+  })
+  .passthrough();
 
 export const crmUpdatePropertyMediaSchema = z.object({
   position: z.coerce.number().int().min(0).optional(),

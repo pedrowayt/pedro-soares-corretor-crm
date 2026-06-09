@@ -64,7 +64,7 @@ export function PlacaPicker({ property, onClose }: Props) {
 
         <label className="placa-picker__toggle">
           <input type="checkbox" checked={showPrice} onChange={(event) => setShowPrice(event.target.checked)} />
-          <span>Exibir preço (default: "Consulte valor")</span>
+          <span>Exibir preço (default: &quot;Consulte valor&quot;)</span>
         </label>
 
         <footer className="placa-picker__foot">

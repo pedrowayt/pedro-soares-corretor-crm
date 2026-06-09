@@ -45,6 +45,7 @@ const NAV_ITEMS: ReadonlyArray<CommandItem> = [
   { id: "nav-leads", label: "Leads", href: "/crm/leads", Icon: Users, group: "Navegação" },
   { id: "nav-funil", label: "Funil de vendas", href: "/crm/funil", Icon: Workflow, group: "Navegação" },
   { id: "nav-imoveis", label: "Imóveis", href: "/crm/imoveis", Icon: Building2, group: "Navegação" },
+  { id: "nav-leiloes", label: "Leilões", href: "/crm/leiloes", Icon: Hammer, group: "Navegação" },
   { id: "nav-empreendimentos", label: "Empreendimentos", href: "/crm/empreendimentos", Icon: Building2, group: "Navegação" },
   { id: "nav-construtoras", label: "Construtoras", href: "/crm/construtoras", Icon: Hammer, group: "Navegação" },
   { id: "nav-proprietarios", label: "Proprietários", href: "/crm/proprietarios", Icon: UserCheck, group: "Navegação" },
