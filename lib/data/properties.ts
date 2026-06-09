@@ -4,6 +4,10 @@ import { prisma } from "@/lib/prisma";
 import { mockProperties } from "@/lib/data/mock";
 
 const hasDatabase = Boolean(process.env.DATABASE_URL);
+const allowFallbackData =
+  !hasDatabase ||
+  process.env.NODE_ENV !== "production" ||
+  process.env.ALLOW_PUBLIC_DATA_FALLBACK === "true";
 
 export type PublicPropertyFilters = {
   city?: string;
@@ -29,6 +33,16 @@ const ALL_PUBLIC_STATUSES = [
   PropertyStatus.VENDIDO,
   PropertyStatus.ALUGADO
 ];
+
+function isPubliclyVisibleProperty(property: {
+  status: PropertyStatus | string;
+  purpose: PropertyPurpose | string;
+  publishedAt?: Date | string | null;
+}, allowedStatuses: readonly PropertyStatus[] = ALL_PUBLIC_STATUSES) {
+  if (!(allowedStatuses as readonly string[]).includes(property.status)) return false;
+  if (property.purpose === PropertyPurpose.LEILAO && !property.publishedAt) return false;
+  return true;
+}
 
 function normalizeForMatch(value: string) {
   return value
@@ -72,7 +86,7 @@ async function fallbackPublicProperties(filters: PublicPropertyFilters = {}) {
 
   const fromCrm = crmProperties
     .filter((property) =>
-      (allowedStatuses as PropertyStatus[]).includes(property.status as PropertyStatus)
+      isPubliclyVisibleProperty(property, allowedStatuses)
     )
     .map((property) => ({
       ...property,
@@ -154,6 +168,10 @@ export async function listPublicProperties(filters: PublicPropertyFilters = {}) 
         status: {
           in: filters.includeInactive ? ALL_PUBLIC_STATUSES : ACTIVE_PUBLIC_STATUSES
         },
+        OR: [
+          { purpose: { not: PropertyPurpose.LEILAO } },
+          { publishedAt: { not: null } }
+        ],
         ...(filters.city
           ? { city: { contains: filters.city, mode: "insensitive" } }
           : {}),
@@ -210,6 +228,7 @@ export async function listPublicProperties(filters: PublicPropertyFilters = {}) 
       unitCount: property.unitCount ?? null
     }));
   } catch {
+    if (!allowFallbackData) return [];
     return fallbackPublicProperties(filters);
   }
 }
@@ -219,6 +238,7 @@ export async function getPropertyBySlug(slug: string) {
     const properties = await fallbackPublicProperties();
     const property = properties.find((item) => item.slug === slug);
     if (!property) return null;
+    if (!isPubliclyVisibleProperty(property)) return null;
     return {
       ...property,
       priceValue: property.priceValue,
@@ -271,6 +291,7 @@ export async function getPropertyBySlug(slug: string) {
     });
 
     if (!property) return null;
+    if (!isPubliclyVisibleProperty(property)) return null;
 
     return {
       ...property,
@@ -289,9 +310,11 @@ export async function getPropertyBySlug(slug: string) {
       marketOpportunityNumber: property.marketOpportunity ? Number(property.marketOpportunity) : null
     };
   } catch {
+    if (!allowFallbackData) return null;
     const properties = await fallbackPublicProperties();
     const property = properties.find((item) => item.slug === slug);
     if (!property) return null;
+    if (!isPubliclyVisibleProperty(property)) return null;
     return {
       ...property,
       priceValue: property.priceValue,

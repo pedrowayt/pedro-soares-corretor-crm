@@ -61,7 +61,7 @@ const defaultFaqs: SeoFaqItem[] = [
 
 type DefaultSeoSeed = Omit<SeoLandingPageView, "id" | "createdAt" | "updatedAt">;
 
-const now = new Date();
+const DEFAULT_SEO_PAGE_DATE = new Date("2026-05-19T17:05:00.000Z");
 
 const globalForSeoPages = globalThis as unknown as {
   seoPagesMemory?: SeoLandingPageView[];
@@ -88,7 +88,7 @@ const defaultSeoPages: DefaultSeoSeed[] = [
     ],
     faqs: defaultFaqs,
     status: SeoPageStatus.PUBLISHED,
-    publishedAt: now
+    publishedAt: DEFAULT_SEO_PAGE_DATE
   },
   {
     name: "Imóveis no Plano Diretor Sul",
@@ -110,7 +110,7 @@ const defaultSeoPages: DefaultSeoSeed[] = [
     ],
     faqs: defaultFaqs,
     status: SeoPageStatus.PUBLISHED,
-    publishedAt: now
+    publishedAt: DEFAULT_SEO_PAGE_DATE
   },
   {
     name: "Imóveis na Orla da Graciosa",
@@ -132,7 +132,7 @@ const defaultSeoPages: DefaultSeoSeed[] = [
     ],
     faqs: defaultFaqs,
     status: SeoPageStatus.PUBLISHED,
-    publishedAt: now
+    publishedAt: DEFAULT_SEO_PAGE_DATE
   },
   {
     name: "Imóveis de Leilão em Palmas TO",
@@ -154,7 +154,7 @@ const defaultSeoPages: DefaultSeoSeed[] = [
     ],
     faqs: defaultFaqs,
     status: SeoPageStatus.PUBLISHED,
-    publishedAt: now
+    publishedAt: DEFAULT_SEO_PAGE_DATE
   },
   {
     name: "Imóveis Prontos em Palmas TO",
@@ -176,7 +176,7 @@ const defaultSeoPages: DefaultSeoSeed[] = [
     ],
     faqs: defaultFaqs,
     status: SeoPageStatus.PUBLISHED,
-    publishedAt: now
+    publishedAt: DEFAULT_SEO_PAGE_DATE
   },
   {
     name: "Imóveis no Plano Diretor Norte",
@@ -198,7 +198,7 @@ const defaultSeoPages: DefaultSeoSeed[] = [
     ],
     faqs: defaultFaqs,
     status: SeoPageStatus.PUBLISHED,
-    publishedAt: now
+    publishedAt: DEFAULT_SEO_PAGE_DATE
   },
   {
     name: "Imóveis em Taquaralto",
@@ -220,7 +220,7 @@ const defaultSeoPages: DefaultSeoSeed[] = [
     ],
     faqs: defaultFaqs,
     status: SeoPageStatus.PUBLISHED,
-    publishedAt: now
+    publishedAt: DEFAULT_SEO_PAGE_DATE
   },
   {
     name: "Imóveis no Aureny",
@@ -237,7 +237,7 @@ const defaultSeoPages: DefaultSeoSeed[] = [
     keywords: ["imoveis no aureny", "casas aureny palmas", "apartamentos aureny", "imoveis palmas"],
     faqs: defaultFaqs,
     status: SeoPageStatus.PUBLISHED,
-    publishedAt: now
+    publishedAt: DEFAULT_SEO_PAGE_DATE
   },
   {
     name: "Imóveis no Centro de Palmas",
@@ -254,7 +254,7 @@ const defaultSeoPages: DefaultSeoSeed[] = [
     keywords: ["imoveis centro de palmas", "apartamentos centro palmas", "casas centro palmas", "imoveis tocantins"],
     faqs: defaultFaqs,
     status: SeoPageStatus.PUBLISHED,
-    publishedAt: now
+    publishedAt: DEFAULT_SEO_PAGE_DATE
   }
 ];
 
@@ -281,8 +281,8 @@ function fromDefault(item: DefaultSeoSeed, index: number): SeoLandingPageView {
     id: `default-seo-${index + 1}`,
     ...item,
     path: normalizePath(item.path),
-    createdAt: now,
-    updatedAt: now
+    createdAt: DEFAULT_SEO_PAGE_DATE,
+    updatedAt: DEFAULT_SEO_PAGE_DATE
   };
 }
 

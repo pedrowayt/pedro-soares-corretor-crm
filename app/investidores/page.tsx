@@ -1,6 +1,27 @@
+import type { Metadata } from "next";
 import { PageHero } from "@/components/ui/page-hero";
 import { listPublicProperties } from "@/lib/data/properties";
+import { getSiteUrl } from "@/lib/site-url";
 import { formatCurrencyBRL } from "@/lib/utils";
+
+const baseUrl = getSiteUrl();
+
+export const metadata: Metadata = {
+  title: "Investidores Imobiliários em Palmas TO | Pedro Soares",
+  description:
+    "Oportunidades imobiliárias em Palmas TO com análise de margem, liquidez, risco documental e potencial de valorização.",
+  alternates: {
+    canonical: `${baseUrl}/investidores`
+  },
+  openGraph: {
+    type: "website",
+    locale: "pt_BR",
+    url: `${baseUrl}/investidores`,
+    title: "Investidores Imobiliários em Palmas TO | Pedro Soares",
+    description:
+      "Curadoria de imóveis para investidores com análise de margem, liquidez e risco documental."
+  }
+};
 
 export default async function InvestidoresPage() {
   const opportunities = (await listPublicProperties()).filter(

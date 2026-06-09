@@ -1,5 +1,26 @@
+import type { Metadata } from "next";
 import { SellerCaptureForm } from "@/components/public/lead-forms";
 import { PageHero } from "@/components/ui/page-hero";
+import { getSiteUrl } from "@/lib/site-url";
+
+const baseUrl = getSiteUrl();
+
+export const metadata: Metadata = {
+  title: "Contato | Pedro Soares Corretor de Imóveis",
+  description:
+    "Fale com Pedro Soares para comprar, vender ou investir em imóveis em Palmas TO.",
+  alternates: {
+    canonical: `${baseUrl}/contato`
+  },
+  openGraph: {
+    type: "website",
+    locale: "pt_BR",
+    url: `${baseUrl}/contato`,
+    title: "Contato | Pedro Soares Corretor de Imóveis",
+    description:
+      "Atendimento direto no WhatsApp para compra, venda e investimento imobiliário em Palmas TO."
+  }
+};
 
 export default function ContatoPage() {
   return (

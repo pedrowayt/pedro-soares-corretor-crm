@@ -1,8 +1,12 @@
 import type { Metadata } from "next";
+import { getSiteUrl } from "@/lib/site-url";
+
+const baseUrl = getSiteUrl();
 
 export const metadata: Metadata = {
   title: "Termos de Uso | Pedro Soares Imóveis",
-  description: "Regras gerais de navegação e uso do site Pedro Soares Imóveis."
+  description: "Regras gerais de navegação e uso do site Pedro Soares Imóveis.",
+  alternates: { canonical: `${baseUrl}/termos-de-uso` }
 };
 
 export default function TermosUsoPage() {

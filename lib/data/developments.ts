@@ -19,6 +19,10 @@ import { mockDevelopments } from "@/lib/data/mock";
 import { rewriteCloudflareDeliveryUrl } from "@/lib/cloudflare/client";
 
 const hasDatabase = Boolean(process.env.DATABASE_URL);
+const allowFallbackData =
+  !hasDatabase ||
+  process.env.NODE_ENV !== "production" ||
+  process.env.ALLOW_PUBLIC_DATA_FALLBACK === "true";
 
 const developmentInclude = {
   builder: true,
@@ -507,6 +511,7 @@ export async function listPublicDevelopments(filters: PublicDevelopmentFilters =
 
     return data.map(normalizeDevelopment).filter((item) => matchDevelopmentFilters(item, filters));
   } catch {
+    if (!allowFallbackData) return [];
     return listMockDevelopments(filters);
   }
 }
@@ -535,6 +540,7 @@ export async function getPublicDevelopmentBySlug(slug: string) {
     if (!development) return null;
     return normalizeDevelopment(development);
   } catch {
+    if (!allowFallbackData) return null;
     const development = mockDevelopments.find((item) => item.slug === slug);
     return development ? normalizeMockDevelopment(development) : null;
   }

@@ -1,5 +1,26 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import { PageHero } from "@/components/ui/page-hero";
+import { getSiteUrl } from "@/lib/site-url";
+
+const baseUrl = getSiteUrl();
+
+export const metadata: Metadata = {
+  title: "Sobre Pedro Soares | Corretor de Imóveis em Palmas TO",
+  description:
+    "Conheça Pedro Soares, corretor de imóveis em Palmas TO com atuação em imóveis residenciais, investimentos e leilões imobiliários.",
+  alternates: {
+    canonical: `${baseUrl}/sobre`
+  },
+  openGraph: {
+    type: "profile",
+    locale: "pt_BR",
+    url: `${baseUrl}/sobre`,
+    title: "Sobre Pedro Soares | Corretor de Imóveis em Palmas TO",
+    description:
+      "Atuação consultiva em compra, venda, investimentos e leilões imobiliários em Palmas TO."
+  }
+};
 
 const INSTAGRAM_URL =
   "https://www.instagram.com/pedrosoarespmw?igsh=MXQ3ZTA2YW13ZjZmNQ%3D%3D&utm_source=qr";

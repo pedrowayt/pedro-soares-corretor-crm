@@ -3,6 +3,7 @@ import { Montserrat, Playfair_Display } from "next/font/google";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 import { CookieConsentBanner } from "@/components/layout/cookie-consent-banner";
+import { getSiteUrl } from "@/lib/site-url";
 import "./globals.css";
 
 const titlePrimary = Playfair_Display({
@@ -24,12 +25,22 @@ const GOOGLE_SITE_VERIFICATION =
 const GA_ID = process.env.NEXT_PUBLIC_GA_ID;
 const GTM_ID = process.env.NEXT_PUBLIC_GTM_ID;
 const META_PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID;
+const baseUrl = getSiteUrl();
 
 export const metadata: Metadata = {
+  metadataBase: new URL(baseUrl),
   title: "Pedro Soares | Imóveis e Oportunidades",
   description:
     "Plataforma imobiliária com foco em captação, qualificação e fechamento de oportunidades em Palmas/TO.",
   keywords: ["imóveis", "Palmas", "corretor", "investidor", "leilão"],
+  openGraph: {
+    type: "website",
+    locale: "pt_BR",
+    url: baseUrl,
+    title: "Pedro Soares | Imóveis e Oportunidades",
+    description:
+      "Plataforma imobiliária com foco em captação, qualificação e fechamento de oportunidades em Palmas/TO."
+  },
   verification: GOOGLE_SITE_VERIFICATION
     ? { google: GOOGLE_SITE_VERIFICATION }
     : undefined

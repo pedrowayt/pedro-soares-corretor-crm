@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { PropertyPurpose, PropertyStatus, PropertyType } from "@prisma/client";
 import Link from "next/link";
 import { listPublishedBlogPosts } from "@/lib/data/blog";
@@ -14,7 +15,27 @@ import {
   PROPERTY_TYPE_OPTIONS,
   PROPERTY_TYPE_ORDER
 } from "@/lib/property-types";
+import { getSiteUrl } from "@/lib/site-url";
 import { formatCurrencyBRL } from "@/lib/utils";
+
+const baseUrl = getSiteUrl();
+
+export const metadata: Metadata = {
+  title: "Pedro Soares | Corretor de Imóveis em Palmas TO",
+  description:
+    "Encontre imóveis prontos, lançamentos, leilões e oportunidades para investir em Palmas TO com atendimento direto de Pedro Soares.",
+  alternates: {
+    canonical: baseUrl
+  },
+  openGraph: {
+    type: "website",
+    locale: "pt_BR",
+    url: baseUrl,
+    title: "Pedro Soares | Corretor de Imóveis em Palmas TO",
+    description:
+      "Imóveis prontos, lançamentos e oportunidades de leilão em Palmas TO com atendimento consultivo."
+  }
+};
 
 type SearchMode = "geral" | "planta" | "leilao";
 

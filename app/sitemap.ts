@@ -6,6 +6,8 @@ import { listPublishedSeoLandingPages } from "@/lib/data/seo-landing-pages";
 import { slugify } from "@/lib/crm/slug";
 import { getSiteUrl } from "@/lib/site-url";
 
+const STATIC_ROUTE_LAST_MODIFIED = new Date("2026-06-09T00:00:00.000Z");
+
 function cityToSeoSlug(city: string) {
   const normalized = slugify(city);
   return normalized.endsWith("-to") ? normalized : `${normalized}-to`;
@@ -126,7 +128,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       ...builderRoutes.map((r) => toDate(r.lastModified)),
       ...seoRoutes.map((r) => toDate(r.lastModified)),
       ...blogRoutes.map((r) => toDate(r.lastModified))
-    ]) ?? new Date();
+    ]) ?? STATIC_ROUTE_LAST_MODIFIED;
 
   const staticRoutes = [
     "",
