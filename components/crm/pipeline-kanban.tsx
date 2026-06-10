@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useState, type DragEvent } from "react";
 import { useRouter } from "next/navigation";
+import { Trash2 } from "lucide-react";
 import { LeadScorePill } from "@/components/crm/lead-score-pill";
 import { computeLeadScore } from "@/lib/crm/lead-scoring";
 import { isValidStageTransition, PIPELINE_ORDER } from "@/lib/crm/pipeline";
@@ -48,6 +49,7 @@ export function PipelineKanban({ initialColumns }: Props) {
   const [columns, setColumns] = useState(initialColumns);
   const [dragging, setDragging] = useState<{ leadId: string; from: LeadStage } | null>(null);
   const [dropTarget, setDropTarget] = useState<LeadStage | null>(null);
+  const [deletingLeadId, setDeletingLeadId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const handleDragStart = (lead: KanbanLead) => (event: DragEvent<HTMLElement>) => {
@@ -109,6 +111,36 @@ export function PipelineKanban({ initialColumns }: Props) {
       setColumns(previous);
       setError(err instanceof Error ? err.message : "Falha ao mover lead");
       window.setTimeout(() => setError(null), 3200);
+    }
+  };
+
+  const handleDeleteLead = async (lead: KanbanLead) => {
+    const confirmed = window.confirm(`Excluir o lead "${lead.name}"? Essa ação não pode ser desfeita.`);
+    if (!confirmed) return;
+
+    const previous = columns;
+    setError(null);
+    setDeletingLeadId(lead.id);
+    setColumns((current) =>
+      current.map((column) => ({
+        ...column,
+        leads: column.leads.filter((item) => item.id !== lead.id)
+      }))
+    );
+
+    try {
+      const response = await fetch(`/api/crm/leads/${lead.id}`, { method: "DELETE" });
+      const data = await response.json().catch(() => null);
+      if (!response.ok || !data?.success) {
+        throw new Error(data?.error?.message ?? "Falha ao excluir lead");
+      }
+      router.refresh();
+    } catch (err) {
+      setColumns(previous);
+      setError(err instanceof Error ? err.message : "Falha ao excluir lead");
+      window.setTimeout(() => setError(null), 3200);
+    } finally {
+      setDeletingLeadId(null);
     }
   };
 
@@ -175,9 +207,28 @@ export function PipelineKanban({ initialColumns }: Props) {
                           setDropTarget(null);
                         }}
                       >
-                        <Link href={`/crm/leads/${lead.id}`} className="crm-kanban__card-title">
-                          {lead.name}
-                        </Link>
+                        <div className="crm-kanban__card-head">
+                          <Link href={`/crm/leads/${lead.id}`} className="crm-kanban__card-title">
+                            {lead.name}
+                          </Link>
+                          <button
+                            type="button"
+                            className="crm-kanban__delete"
+                            aria-label={`Excluir lead ${lead.name}`}
+                            title="Excluir lead"
+                            draggable={false}
+                            disabled={deletingLeadId === lead.id}
+                            onClick={(event) => {
+                              event.preventDefault();
+                              event.stopPropagation();
+                              void handleDeleteLead(lead);
+                            }}
+                            onDragStart={(event) => event.preventDefault()}
+                            onPointerDown={(event) => event.stopPropagation()}
+                          >
+                            <Trash2 size={14} strokeWidth={1.9} aria-hidden="true" />
+                          </button>
+                        </div>
                         <p className="crm-kanban__card-meta">
                           {lead.intent} · {lead.source}
                         </p>

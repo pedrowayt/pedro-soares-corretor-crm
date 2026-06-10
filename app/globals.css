@@ -10440,11 +10440,44 @@ body:has(.crm-shell) > main {
   transform: rotate(-1.5deg);
 }
 
+.crm-kanban__card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
 .crm-kanban__card-title {
   font-size: 0.875rem;
   font-weight: 700;
   color: var(--text-strong);
   text-decoration: none;
+  min-width: 0;
+}
+
+.crm-kanban__delete {
+  width: 28px;
+  height: 28px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-muted);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  cursor: pointer;
+}
+
+.crm-kanban__delete:hover:not(:disabled) {
+  border-color: rgba(179, 38, 30, 0.18);
+  background: rgba(179, 38, 30, 0.08);
+  color: #b3261e;
+}
+
+.crm-kanban__delete:disabled {
+  cursor: progress;
+  opacity: 0.5;
 }
 
 .crm-kanban__card-meta { font-size: 0.6875rem; color: var(--text-muted); margin: 0; }
