@@ -1,6 +1,9 @@
 import { redirect } from "next/navigation";
+import { AuctionImportSourcesSettings, type AuctionImportSourceSettingsItem } from "@/components/crm/auction-import-sources-settings";
 import { ProfileSettingsForm } from "@/components/crm/profile-settings-form";
 import { getSession } from "@/lib/auth/session";
+import { listAuctionImportSources } from "@/lib/data/auction-import-sources";
+import { getSiteUrl } from "@/lib/site-url";
 import { prisma } from "@/lib/prisma";
 
 const ROLE_LABELS: Record<string, string> = {
@@ -43,6 +46,27 @@ export default async function CrmConfiguracoesPage() {
     { label: "Google Tag Manager", key: "NEXT_PUBLIC_GTM_ID", configured: Boolean(process.env.NEXT_PUBLIC_GTM_ID) },
     { label: "Meta Pixel", key: "NEXT_PUBLIC_META_PIXEL_ID", configured: Boolean(process.env.NEXT_PUBLIC_META_PIXEL_ID) }
   ];
+  const auctionImportSources: AuctionImportSourceSettingsItem[] =
+    user.role === "ADMIN"
+      ? await listAuctionImportSources()
+          .then((sources) =>
+            sources.map((source) => ({
+              id: source.id,
+              name: source.name,
+              sourceKey: source.sourceKey,
+              tokenPreview: source.tokenPreview,
+              active: source.active,
+              allowedDomains: source.allowedDomains,
+              notes: source.notes,
+              lastImportAt: source.lastImportAt?.toISOString() ?? null,
+              lastError: source.lastError,
+              createdAt: source.createdAt.toISOString(),
+              updatedAt: source.updatedAt.toISOString(),
+              counts: source.counts
+            }))
+          )
+          .catch(() => [])
+      : [];
 
   return (
     <div className="crm-settings-page">
@@ -88,6 +112,20 @@ export default async function CrmConfiguracoesPage() {
           ))}
         </div>
       </section>
+
+      {user.role === "ADMIN" ? (
+        <AuctionImportSourcesSettings
+          initialSources={auctionImportSources}
+          importEndpoint={`${getSiteUrl()}/api/integrations/auction-imports`}
+        />
+      ) : (
+        <section className="crm-settings-integrations" aria-labelledby="auction-sources-heading">
+          <header>
+            <h2 id="auction-sources-heading">Integrações de leilão</h2>
+            <p>Somente administradores podem gerenciar tokens de API.</p>
+          </header>
+        </section>
+      )}
     </div>
   );
 }

@@ -200,6 +200,29 @@ export const auctionImportPayloadSchema = z
   })
   .passthrough();
 
+const auctionImportSourceKeySchema = z
+  .string()
+  .trim()
+  .min(2)
+  .max(80)
+  .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Use apenas letras minúsculas, números e hífen.");
+
+export const crmCreateAuctionImportSourceSchema = z.object({
+  name: z.string().trim().min(2).max(120),
+  sourceKey: auctionImportSourceKeySchema,
+  active: z.boolean().optional().default(true),
+  allowedDomains: z.array(z.string().trim().min(2).max(180)).default([]),
+  notes: z.string().trim().max(500).nullish()
+});
+
+export const crmUpdateAuctionImportSourceSchema = z.object({
+  name: z.string().trim().min(2).max(120).optional(),
+  sourceKey: auctionImportSourceKeySchema.optional(),
+  active: z.boolean().optional(),
+  allowedDomains: z.array(z.string().trim().min(2).max(180)).optional(),
+  notes: z.string().trim().max(500).nullish()
+});
+
 export const crmUpdatePropertyMediaSchema = z.object({
   position: z.coerce.number().int().min(0).optional(),
   makePrimary: z.boolean().optional()

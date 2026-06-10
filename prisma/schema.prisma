@@ -949,6 +949,23 @@ model AuctionImport {
   @@index([propertyId])
 }
 
+model AuctionImportSource {
+  id             String    @id @default(cuid())
+  name           String
+  sourceKey      String    @unique
+  tokenHash      String?   @unique
+  tokenPreview   String?
+  active         Boolean   @default(true)
+  allowedDomains String[]  @default([])
+  notes          String?
+  lastImportAt   DateTime?
+  lastError      String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([active])
+}
+
 model PortalPublication {
   id           String                  @id @default(cuid())
   propertyId   String

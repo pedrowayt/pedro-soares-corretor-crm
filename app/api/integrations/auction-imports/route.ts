@@ -1,5 +1,11 @@
 import { NextRequest } from "next/server";
 import { fail, ok } from "@/lib/api/http";
+import {
+  findAuctionImportSourceByToken,
+  isOriginalUrlAllowedForSource,
+  recordAuctionImportSourceError,
+  recordAuctionImportSourceSuccess
+} from "@/lib/data/auction-import-sources";
 import { importAuctionPayload, type AuctionImportPayload } from "@/lib/data/auction-imports";
 import { auctionImportPayloadSchema } from "@/lib/validation/schemas";
 
@@ -26,21 +32,58 @@ export async function POST(request: NextRequest) {
   if (!bearerToken) {
     return fail("Token de importação ausente.", 401);
   }
-  if (!configuredToken || configuredToken.length < 16) {
-    return fail("AUCTION_IMPORT_API_TOKEN não está configurado no servidor.", 503);
-  }
-  if (!safeEquals(bearerToken, configuredToken)) {
+
+  const sourceFromToken = await findAuctionImportSourceByToken(bearerToken).catch(() => null);
+  const envTokenIsValid =
+    Boolean(configuredToken && configuredToken.length >= 16) &&
+    safeEquals(bearerToken, configuredToken ?? "");
+
+  if (!sourceFromToken && !envTokenIsValid) {
     return fail("Token de importação inválido.", 401);
+  }
+  if (sourceFromToken && !sourceFromToken.active) {
+    await recordAuctionImportSourceError(sourceFromToken.id, "Fonte inativa tentou enviar imóveis.");
+    return fail("Fonte de importação inativa.", 403);
   }
 
   const body = await request.json().catch(() => null);
   const parsed = auctionImportPayloadSchema.safeParse(body);
 
   if (!parsed.success) {
+    if (sourceFromToken) {
+      await recordAuctionImportSourceError(sourceFromToken.id, "Payload inválido.");
+    }
     return fail("Payload inválido para importação de leilão.", 422, parsed.error.flatten());
   }
 
-  const result = await importAuctionPayload(parsed.data as AuctionImportPayload);
+  if (sourceFromToken && parsed.data.source !== sourceFromToken.sourceKey) {
+    await recordAuctionImportSourceError(
+      sourceFromToken.id,
+      `Source recebido "${parsed.data.source}" não corresponde à fonte "${sourceFromToken.sourceKey}".`
+    );
+    return fail("Source do payload não corresponde ao token informado.", 403);
+  }
 
-  return ok(result, { status: result.created ? 201 : 200 });
+  if (sourceFromToken && !isOriginalUrlAllowedForSource(sourceFromToken, parsed.data.originalUrl)) {
+    await recordAuctionImportSourceError(
+      sourceFromToken.id,
+      `URL fora dos domínios permitidos: ${parsed.data.originalUrl}`
+    );
+    return fail("URL original fora dos domínios permitidos para esta fonte.", 403);
+  }
+
+  try {
+    const result = await importAuctionPayload(parsed.data as AuctionImportPayload);
+    if (sourceFromToken) {
+      await recordAuctionImportSourceSuccess(sourceFromToken.id);
+    }
+
+    return ok(result, { status: result.created ? 201 : 200 });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Erro interno ao importar leilão.";
+    if (sourceFromToken) {
+      await recordAuctionImportSourceError(sourceFromToken.id, message);
+    }
+    return fail("Não foi possível importar o leilão.", 500, { message });
+  }
 }
