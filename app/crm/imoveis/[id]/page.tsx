@@ -6,6 +6,7 @@ import { PropertyShareButton } from "@/components/crm/property-share-button";
 import { PropertyWizard, type WizardMedia, type WizardProperty } from "@/components/crm/property-wizard";
 import { getAuctionPublicationChecklist } from "@/lib/data/auction-imports";
 import { findCrmPropertyById } from "@/lib/data/crm-properties";
+import { getPropertyPortalPublicationState } from "@/lib/data/portal-publications";
 import { getSiteUrl } from "@/lib/site-url";
 import { formatCurrencyBRL } from "@/lib/utils";
 
@@ -16,6 +17,8 @@ export default async function CrmImovelEditPage({ params }: { params: Promise<{ 
   if (!property) {
     notFound();
   }
+
+  const portalPublications = await getPropertyPortalPublicationState(property.id);
 
   const media: WizardMedia[] = (property.media ?? [])
     .slice()
@@ -70,7 +73,8 @@ export default async function CrmImovelEditPage({ params }: { params: Promise<{ 
     isAuctionOpportunity: property.isAuctionOpportunity ?? false,
     ownerName: (property.owner as { name?: string } | null)?.name ?? null,
     ownerPhone: (property.owner as { phone?: string } | null)?.phone ?? null,
-    media
+    media,
+    portalPublications
   };
 
   const owner = property.owner as { name?: string; phone?: string } | null;

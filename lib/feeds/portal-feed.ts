@@ -56,6 +56,10 @@ type FeedProperty = {
   features?: ReadonlyArray<string>;
   media: ReadonlyArray<{ url: string }>;
   updatedAt: Date | string;
+  showFullAddress?: boolean;
+  showPrice?: boolean;
+  highlightEnabled?: boolean;
+  highlightType?: string | null;
 };
 
 function escapeXml(value: string | number | null | undefined) {
@@ -83,6 +87,8 @@ export function buildPortalFeedXml(properties: ReadonlyArray<FeedProperty>) {
   const items = properties
     .map((property) => {
       const propertyUrl = `${SITE_URL}/imoveis/${property.slug}`;
+      const showFullAddress = property.showFullAddress ?? true;
+      const showPrice = property.showPrice ?? true;
       const images = property.media
         .slice(0, 12)
         .map(
@@ -117,17 +123,17 @@ export function buildPortalFeedXml(properties: ReadonlyArray<FeedProperty>) {
         property.bathrooms ? `<Bathrooms>${property.bathrooms}</Bathrooms>` : "",
         property.suites ? `<Suites>${property.suites}</Suites>` : "",
         property.parkingSpaces ? `<Garage type="Parking">${property.parkingSpaces}</Garage>` : "",
-        `<ListPrice currency="BRL">${property.price.toFixed(2)}</ListPrice>`,
+        showPrice ? `<ListPrice currency="BRL">${property.price.toFixed(2)}</ListPrice>` : "",
         features ? `<Features>${features}</Features>` : "",
         "</Details>",
-        "<Location displayAddress=\"All\">",
+        `<Location displayAddress="${showFullAddress ? "All" : "Neighborhood"}">`,
         "<Country abbreviation=\"BR\">Brasil</Country>",
         "<State abbreviation=\"TO\">Tocantins</State>",
         `<City>${escapeXml(property.city)}</City>`,
         `<Neighborhood>${escapeXml(property.district)}</Neighborhood>`,
-        property.address ? `<Address>${escapeXml(property.address)}</Address>` : "",
-        property.postalCode ? `<PostalCode>${escapeXml(property.postalCode)}</PostalCode>` : "",
-        property.latitude && property.longitude
+        showFullAddress && property.address ? `<Address>${escapeXml(property.address)}</Address>` : "",
+        showFullAddress && property.postalCode ? `<PostalCode>${escapeXml(property.postalCode)}</PostalCode>` : "",
+        showFullAddress && property.latitude && property.longitude
           ? `<Latitude>${property.latitude}</Latitude><Longitude>${property.longitude}</Longitude>`
           : "",
         "</Location>",
@@ -144,4 +150,60 @@ export function buildPortalFeedXml(properties: ReadonlyArray<FeedProperty>) {
 <Header><Provider>Pedro Soares Corretor</Provider><Email>contato@pedrosoarescorretor.com.br</Email><ContactName>Pedro Soares</ContactName><PublishDate>${now}</PublishDate></Header>
 <Listings>${items}</Listings>
 </ListingDataFeed>`;
+}
+
+export function buildOlxFeedXml(properties: ReadonlyArray<FeedProperty>) {
+  const now = new Date().toISOString();
+  const items = properties
+    .map((property) => {
+      const propertyUrl = `${SITE_URL}/imoveis/${property.slug}`;
+      const showFullAddress = property.showFullAddress ?? false;
+      const showPrice = property.showPrice ?? true;
+      const images = property.media
+        .slice(0, 20)
+        .map((media, index) => `<Image order="${index + 1}">${escapeXml(media.url)}</Image>`)
+        .join("");
+
+      return [
+        "<Ad>",
+        `<AdID>${escapeXml(property.id)}</AdID>`,
+        `<Title>${cdata(property.title)}</Title>`,
+        `<Description>${cdata(property.description)}</Description>`,
+        `<Category>${escapeXml(TYPE_TO_VR[String(property.type)] ?? "Imóvel")}</Category>`,
+        `<TransactionType>${escapeXml(PURPOSE_TO_VR[property.purpose] ?? "For Sale")}</TransactionType>`,
+        showPrice ? `<Price currency="BRL">${property.price.toFixed(2)}</Price>` : "",
+        `<Url>${escapeXml(propertyUrl)}</Url>`,
+        "<Location>",
+        "<Country>BR</Country>",
+        "<State>TO</State>",
+        `<City>${escapeXml(property.city)}</City>`,
+        `<Neighborhood>${escapeXml(property.district)}</Neighborhood>`,
+        showFullAddress && property.address ? `<Address>${escapeXml(property.address)}</Address>` : "",
+        showFullAddress && property.postalCode ? `<PostalCode>${escapeXml(property.postalCode)}</PostalCode>` : "",
+        showFullAddress && property.latitude && property.longitude
+          ? `<Latitude>${property.latitude}</Latitude><Longitude>${property.longitude}</Longitude>`
+          : "",
+        "</Location>",
+        "<Details>",
+        property.areaM2 ? `<LivingArea>${property.areaM2}</LivingArea>` : "",
+        property.landAreaM2 ? `<LotArea>${property.landAreaM2}</LotArea>` : "",
+        property.bedrooms ? `<Bedrooms>${property.bedrooms}</Bedrooms>` : "",
+        property.bathrooms ? `<Bathrooms>${property.bathrooms}</Bathrooms>` : "",
+        property.suites ? `<Suites>${property.suites}</Suites>` : "",
+        property.parkingSpaces ? `<ParkingSpaces>${property.parkingSpaces}</ParkingSpaces>` : "",
+        property.highlightEnabled ? `<Highlight>${escapeXml(property.highlightType ?? "Destaque")}</Highlight>` : "",
+        "</Details>",
+        images ? `<Images>${images}</Images>` : "",
+        "</Ad>"
+      ]
+        .filter(Boolean)
+        .join("");
+    })
+    .join("");
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<OLXFeed>
+<Header><Provider>Pedro Soares Corretor</Provider><Email>contato@pedrosoarescorretor.com.br</Email><PublishDate>${now}</PublishDate></Header>
+<Ads>${items}</Ads>
+</OLXFeed>`;
 }

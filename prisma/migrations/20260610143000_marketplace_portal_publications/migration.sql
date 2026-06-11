@@ -1,0 +1,19 @@
+ALTER TYPE "LeadSource" ADD VALUE IF NOT EXISTS 'PORTAL';
+
+ALTER TYPE "InteractionChannel" ADD VALUE IF NOT EXISTS 'PORTAL';
+
+ALTER TYPE "PortalPublicationStatus" ADD VALUE IF NOT EXISTS 'REMOVIDO';
+
+ALTER TABLE "PortalPublication"
+  ADD COLUMN IF NOT EXISTS "customTitle" TEXT,
+  ADD COLUMN IF NOT EXISTS "customDescription" TEXT,
+  ADD COLUMN IF NOT EXISTS "customPrice" DECIMAL(14, 2),
+  ADD COLUMN IF NOT EXISTS "showFullAddress" BOOLEAN NOT NULL DEFAULT false,
+  ADD COLUMN IF NOT EXISTS "showPrice" BOOLEAN NOT NULL DEFAULT true,
+  ADD COLUMN IF NOT EXISTS "highlightEnabled" BOOLEAN NOT NULL DEFAULT false,
+  ADD COLUMN IF NOT EXISTS "highlightType" TEXT,
+  ADD COLUMN IF NOT EXISTS "publishedAt" TIMESTAMP(3),
+  ADD COLUMN IF NOT EXISTS "removedAt" TIMESTAMP(3);
+
+CREATE INDEX IF NOT EXISTS "PortalPublication_portalName_status_idx"
+  ON "PortalPublication"("portalName", "status");

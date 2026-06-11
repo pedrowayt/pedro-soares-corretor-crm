@@ -1014,7 +1014,7 @@ a.property-instagram-button:hover {
   margin: 0;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 8px;
 }
 
@@ -1558,6 +1558,184 @@ a.property-instagram-button:hover {
 
 .wiz-actions__spacer {
   flex: 1;
+}
+
+.wiz-portal-readiness {
+  border: 1px solid #dbe3ee;
+  border-radius: 12px;
+  background: #f8fbff;
+  padding: 14px;
+  display: grid;
+  gap: 10px;
+}
+
+.wiz-portal-readiness__head,
+.wiz-portal-toolbar,
+.wiz-portal-item__head,
+.wiz-portal-item__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.wiz-portal-readiness__head span,
+.wiz-portal-toolbar span,
+.wiz-portal-item__foot span {
+  color: var(--text-muted);
+  font-size: var(--fs-12);
+  font-weight: 700;
+}
+
+.wiz-portal-readiness__head strong {
+  color: #17243a;
+  font-size: var(--fs-20);
+}
+
+.wiz-portal-readiness__bar {
+  height: 9px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #dbe3ee;
+}
+
+.wiz-portal-readiness__bar div {
+  height: 100%;
+  border-radius: inherit;
+  background: var(--sophistication-gold-500);
+}
+
+.wiz-portal-checklist {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.wiz-portal-checklist li {
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #526174;
+  font-size: var(--fs-12);
+  font-weight: 700;
+}
+
+.wiz-portal-checklist span {
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  background: #e9eef6;
+  color: #526174;
+  font-size: 0.6875rem;
+}
+
+.wiz-portal-checklist li.is-ok span {
+  background: rgba(15, 74, 60, 0.14);
+  color: var(--solidity-700);
+}
+
+.wiz-portal-checklist li.is-blocking span {
+  background: #fff3f3;
+  color: #b91c1c;
+}
+
+.wiz-portal-toolbar {
+  border-top: 1px solid #e6ecf4;
+  border-bottom: 1px solid #e6ecf4;
+  padding: 10px 0;
+}
+
+.wiz-portal-toolbar strong {
+  color: #17243a;
+  font-size: var(--fs-14);
+}
+
+.wiz-portal-list {
+  display: grid;
+  gap: 12px;
+}
+
+.wiz-portal-item {
+  border: 1px solid #dbe3ee;
+  border-radius: 12px;
+  background: #ffffff;
+  padding: 14px;
+  display: grid;
+  gap: 12px;
+}
+
+.wiz-portal-item.is-enabled {
+  border-color: rgba(216, 154, 59, 0.45);
+  background: rgba(242, 194, 122, 0.07);
+}
+
+.wiz-portal-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+}
+
+.wiz-portal-toggle span {
+  display: grid;
+  gap: 2px;
+}
+
+.wiz-portal-toggle strong {
+  color: #17243a;
+  font-size: var(--fs-16);
+}
+
+.wiz-portal-toggle small {
+  color: var(--text-muted);
+  font-size: var(--fs-12);
+  font-weight: 700;
+}
+
+.wiz-portal-status {
+  border-radius: 999px;
+  padding: 0.28rem 0.62rem;
+  background: #eef2f7;
+  color: #526174;
+  font-size: var(--fs-12);
+  font-weight: 800;
+}
+
+.wiz-portal-status--publicado {
+  background: rgba(15, 74, 60, 0.12);
+  color: var(--solidity-700);
+}
+
+.wiz-portal-status--erro {
+  background: #fff3f3;
+  color: #b91c1c;
+}
+
+.wiz-portal-status--pausado,
+.wiz-portal-status--removido {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.wiz-portal-item__foot {
+  border-top: 1px solid #e6ecf4;
+  padding-top: 10px;
+}
+
+.wiz-portal-item__foot a {
+  color: var(--solidity-700);
+  font-size: var(--fs-12);
+  font-weight: 800;
+  text-decoration: none;
 }
 
 .property-listing-card.is-sold .property-listing-media {
@@ -6523,7 +6701,7 @@ body:has(.crm-shell) > main {
   }
 
   .wiz-progress {
-    grid-template-columns: repeat(5, minmax(48px, 1fr));
+    grid-template-columns: repeat(6, minmax(48px, 1fr));
     overflow-x: auto;
     padding-bottom: 2px;
   }
@@ -6546,6 +6724,10 @@ body:has(.crm-shell) > main {
 
   .wiz-steppers {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .wiz-portal-checklist {
+    grid-template-columns: 1fr;
   }
 
   .crm-property-table {
@@ -6727,7 +6909,7 @@ body:has(.crm-shell) > main {
   }
 
   .wiz-progress {
-    grid-template-columns: repeat(5, minmax(72px, 1fr));
+    grid-template-columns: repeat(6, minmax(72px, 1fr));
   }
 
   .wiz-actions .button {
@@ -9696,6 +9878,28 @@ body:has(.crm-shell) > main {
   margin: 0;
   font-size: 0.875rem;
   color: var(--text-muted);
+}
+
+.crm-integrations-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.crm-integrations-metrics span {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 8px;
+  color: var(--text-muted);
+  font-size: var(--fs-12);
+  font-weight: 700;
+}
+
+.crm-integrations-metrics strong {
+  display: block;
+  color: var(--text-strong);
+  font-size: var(--fs-20);
+  line-height: 1;
 }
 
 .crm-hot-leads,

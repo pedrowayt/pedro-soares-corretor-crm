@@ -14,6 +14,7 @@ import {
   LeadIntent,
   LeadSource,
   LeadStage,
+  PortalPublicationStatus,
   PropertyPurpose,
   PropertyStatus,
   PropertyType,
@@ -168,6 +169,37 @@ export const crmCreatePropertySchema = z.object({
 });
 
 export const crmUpdatePropertySchema = crmCreatePropertySchema.partial();
+
+export const marketplacePortalKeySchema = z.enum(["olx", "zap", "vivareal"]);
+
+export const crmPortalPublicationInputSchema = z.object({
+  portalName: marketplacePortalKeySchema,
+  enabled: z.boolean().default(false),
+  status: z.nativeEnum(PortalPublicationStatus).optional(),
+  customTitle: z.string().trim().max(160).nullish().or(z.literal("")),
+  customDescription: z.string().trim().max(5000).nullish().or(z.literal("")),
+  customPrice: z.coerce.number().positive().nullish(),
+  showFullAddress: z.boolean().optional().default(false),
+  showPrice: z.boolean().optional().default(true),
+  highlightEnabled: z.boolean().optional().default(false),
+  highlightType: z.string().trim().max(80).nullish().or(z.literal(""))
+});
+
+export const crmUpdatePortalPublicationsSchema = z.object({
+  publications: z.array(crmPortalPublicationInputSchema).max(3)
+});
+
+export const publicPortalLeadSchema = z.object({
+  portalName: marketplacePortalKeySchema,
+  name: z.string().trim().min(2),
+  phone: z.string().trim().min(8),
+  email: z.string().trim().email().optional().or(z.literal("")),
+  message: z.string().trim().max(5000).optional(),
+  propertyId: z.string().optional(),
+  propertySlug: z.string().optional(),
+  externalLeadId: z.string().trim().max(160).optional(),
+  portalPropertyCode: z.string().trim().max(160).optional()
+});
 
 export const crmCreatePropertyMediaSchema = z.object({
   kind: z.enum(["IMAGE", "VIDEO", "TOUR"]).default("IMAGE"),

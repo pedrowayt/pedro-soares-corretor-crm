@@ -56,15 +56,113 @@ const STEPS = [
   { id: "local", label: "Localização", short: "Local" },
   { id: "features", label: "Características", short: "Imóvel" },
   { id: "fotos", label: "Fotos", short: "Fotos" },
-  { id: "detalhes", label: "Detalhes & Preço", short: "Detalhes" }
+  { id: "detalhes", label: "Detalhes & Preço", short: "Detalhes" },
+  { id: "portais", label: "Portais", short: "Portais" }
 ] as const;
 
 type StepId = (typeof STEPS)[number]["id"];
+
+type PortalPublicationStatusValue = "PENDENTE" | "PUBLICADO" | "ERRO" | "PAUSADO" | "REMOVIDO";
+
+const PORTAL_STATUS_OPTIONS: ReadonlyArray<{ value: PortalPublicationStatusValue; label: string }> = [
+  { value: "PENDENTE", label: "Aguardando envio" },
+  { value: "PUBLICADO", label: "Publicado" },
+  { value: "PAUSADO", label: "Pausado" },
+  { value: "ERRO", label: "Com erro" }
+];
+
+const DEFAULT_PORTAL_PUBLICATIONS: WizardPortalPublication[] = [
+  {
+    portalName: "olx",
+    portalLabel: "OLX",
+    type: "XML OLX",
+    description: "Feed XML dedicado para anúncios selecionados na OLX.",
+    feedUrl: "/api/feeds/olx",
+    enabled: false,
+    status: "PENDENTE",
+    externalId: null,
+    customTitle: null,
+    customDescription: null,
+    customPrice: null,
+    showFullAddress: false,
+    showPrice: true,
+    highlightEnabled: false,
+    highlightType: null,
+    publishedAt: null,
+    lastSyncAt: null,
+    removedAt: null,
+    errorMessage: null
+  },
+  {
+    portalName: "zap",
+    portalLabel: "ZAP Imóveis",
+    type: "XML VRSync",
+    description: "Feed VRSync compartilhado com o padrão VivaReal/ZAP.",
+    feedUrl: "/api/feeds/zap",
+    enabled: false,
+    status: "PENDENTE",
+    externalId: null,
+    customTitle: null,
+    customDescription: null,
+    customPrice: null,
+    showFullAddress: false,
+    showPrice: true,
+    highlightEnabled: false,
+    highlightType: null,
+    publishedAt: null,
+    lastSyncAt: null,
+    removedAt: null,
+    errorMessage: null
+  },
+  {
+    portalName: "vivareal",
+    portalLabel: "Viva Real",
+    type: "XML VRSync",
+    description: "Feed VRSync para publicação no Viva Real.",
+    feedUrl: "/api/feeds/vivareal",
+    enabled: false,
+    status: "PENDENTE",
+    externalId: null,
+    customTitle: null,
+    customDescription: null,
+    customPrice: null,
+    showFullAddress: false,
+    showPrice: true,
+    highlightEnabled: false,
+    highlightType: null,
+    publishedAt: null,
+    lastSyncAt: null,
+    removedAt: null,
+    errorMessage: null
+  }
+];
 
 export type WizardMedia = {
   id: string;
   url: string;
   position: number;
+};
+
+export type WizardPortalPublication = {
+  portalName: "olx" | "zap" | "vivareal";
+  portalLabel: string;
+  type: string;
+  description: string;
+  feedUrl: string;
+  enabled: boolean;
+  status: PortalPublicationStatusValue;
+  externalId: string | null;
+  customTitle: string | null;
+  customDescription: string | null;
+  customPrice: number | null;
+  showFullAddress: boolean;
+  showPrice: boolean;
+  highlightEnabled: boolean;
+  highlightType: string | null;
+  publishedAt: string | null;
+  lastSyncAt: string | null;
+  removedAt: string | null;
+  errorMessage: string | null;
 };
 
 export type WizardProperty = {
@@ -112,9 +210,10 @@ export type WizardProperty = {
   ownerName: string | null;
   ownerPhone: string | null;
   media: WizardMedia[];
+  portalPublications?: WizardPortalPublication[];
 };
 
-type FormState = Omit<WizardProperty, "id" | "media">;
+type FormState = Omit<WizardProperty, "id" | "media" | "portalPublications">;
 
 type Props = {
   mode: "create" | "edit";
@@ -241,12 +340,44 @@ function validateStep(stepId: StepId, state: FormState): string | null {
   }
 }
 
+function mergePortalPublications(initial?: WizardPortalPublication[]) {
+  const byPortal = new Map((initial ?? []).map((item) => [item.portalName, item]));
+  return DEFAULT_PORTAL_PUBLICATIONS.map((item) => ({
+    ...item,
+    ...(byPortal.get(item.portalName) ?? {})
+  }));
+}
+
+function getPortalChecklist(state: FormState, mediaCount: number) {
+  const checks = [
+    { label: "Status disponível", ok: state.status === "DISPONIVEL", blocking: true },
+    { label: "Título preenchido", ok: state.title.trim().length >= 3, blocking: true },
+    { label: "Tipo e finalidade definidos", ok: Boolean(state.type && state.purpose), blocking: true },
+    { label: "Preço informado", ok: state.price > 0, blocking: true },
+    { label: "Cidade e bairro informados", ok: Boolean(state.city.trim() && state.district.trim()), blocking: true },
+    { label: "Descrição mínima", ok: state.description.trim().length >= 12, blocking: true },
+    { label: "Pelo menos uma foto", ok: mediaCount > 0, blocking: true },
+    { label: "Cinco ou mais fotos", ok: mediaCount >= 5, blocking: false }
+  ];
+  const blockingIssues = checks.filter((item) => item.blocking && !item.ok);
+  const completed = checks.filter((item) => item.ok).length;
+  return {
+    ready: blockingIssues.length === 0,
+    percent: Math.round((completed / checks.length) * 100),
+    checks,
+    blockingIssues
+  };
+}
+
 export function PropertyWizard({ mode, initial }: Props) {
   const router = useRouter();
   const [, startTransition] = useTransition();
 
   const [propertyId, setPropertyId] = useState<string | undefined>(initial?.id);
   const [media, setMedia] = useState<WizardMedia[]>(initial?.media ?? []);
+  const [portalPublications, setPortalPublications] = useState<WizardPortalPublication[]>(
+    mergePortalPublications(initial?.portalPublications)
+  );
   const [state, setState] = useState<FormState>(makeInitialState(initial));
   const [stepIndex, setStepIndex] = useState(0);
   const [savingStep, setSavingStep] = useState(false);
@@ -281,6 +412,30 @@ export function PropertyWizard({ mode, initial }: Props) {
       }
       return next;
     });
+  }
+
+  function patchPortalPublication(
+    portalName: WizardPortalPublication["portalName"],
+    partial: Partial<WizardPortalPublication>
+  ) {
+    setStepError(null);
+    setGlobalSuccess(null);
+    setPortalPublications((prev) =>
+      prev.map((item) =>
+        item.portalName === portalName
+          ? {
+              ...item,
+              ...partial,
+              status:
+                partial.enabled === false
+                  ? "REMOVIDO"
+                  : partial.enabled === true && item.status === "REMOVIDO"
+                    ? "PENDENTE"
+                    : partial.status ?? item.status
+            }
+          : item
+      )
+    );
   }
 
   function toggleFeature(value: string) {
@@ -358,6 +513,30 @@ export function PropertyWizard({ mode, initial }: Props) {
     return null;
   }
 
+  async function persistPortalPublications(targetPropertyId: string) {
+    const result = await fetchJson(
+      `/api/crm/properties/${targetPropertyId}/portal-publications`,
+      "PUT",
+      {
+        publications: portalPublications.map((publication) => ({
+          portalName: publication.portalName,
+          enabled: publication.enabled,
+          status: publication.status,
+          customTitle: publication.customTitle,
+          customDescription: publication.customDescription,
+          customPrice: publication.customPrice,
+          showFullAddress: publication.showFullAddress,
+          showPrice: publication.showPrice,
+          highlightEnabled: publication.highlightEnabled,
+          highlightType: publication.highlightType
+        }))
+      }
+    );
+    if (Array.isArray(result?.data?.publications)) {
+      setPortalPublications(mergePortalPublications(result.data.publications as WizardPortalPublication[]));
+    }
+  }
+
   async function handleNext() {
     setStepError(null);
     const error = validateStep(stepId, state);
@@ -384,7 +563,7 @@ export function PropertyWizard({ mode, initial }: Props) {
 
   async function handleFinish() {
     setStepError(null);
-    const error = validateStep("detalhes", state);
+    const error = validateStep(stepId === "portais" ? "detalhes" : stepId, state);
     if (error) {
       setStepError(error);
       return;
@@ -392,6 +571,9 @@ export function PropertyWizard({ mode, initial }: Props) {
     setSavingStep(true);
     try {
       const id = await persistDraft();
+      if (id && stepId === "portais") {
+        await persistPortalPublications(id);
+      }
       setGlobalSuccess(mode === "create" ? "Imóvel criado com sucesso." : "Imóvel atualizado.");
       startTransition(() => router.refresh());
       if (mode === "create" && id) {
@@ -461,6 +643,14 @@ export function PropertyWizard({ mode, initial }: Props) {
             onToggleNotes={() => setShowNotes((v) => !v)}
           />
         ) : null}
+        {stepId === "portais" ? (
+          <StepPortais
+            state={state}
+            mediaCount={media.length}
+            publications={portalPublications}
+            onChange={patchPortalPublication}
+          />
+        ) : null}
 
         {stepError ? <p className="wiz-alert wiz-alert--error">{stepError}</p> : null}
         {globalSuccess ? <p className="wiz-alert wiz-alert--success">{globalSuccess}</p> : null}
@@ -483,7 +673,13 @@ export function PropertyWizard({ mode, initial }: Props) {
             onClick={handleFinish}
             disabled={savingStep}
           >
-            {savingStep ? "Salvando..." : mode === "create" ? "Criar imóvel" : "Salvar alterações"}
+            {savingStep
+              ? "Salvando..."
+              : stepId === "portais"
+                ? "Salvar publicação"
+                : mode === "create"
+                  ? "Criar imóvel"
+                  : "Salvar alterações"}
           </button>
         ) : (
           <button
@@ -1376,6 +1572,221 @@ function StepDetalhes({
           </div>
         </div>
       </fieldset>
+    </div>
+  );
+}
+
+function formatPortalDate(value: string | null) {
+  if (!value) return "Nunca";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "Nunca";
+  return date.toLocaleString("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+}
+
+function StepPortais({
+  state,
+  mediaCount,
+  publications,
+  onChange
+}: {
+  state: FormState;
+  mediaCount: number;
+  publications: WizardPortalPublication[];
+  onChange: (
+    portalName: WizardPortalPublication["portalName"],
+    partial: Partial<WizardPortalPublication>
+  ) => void;
+}) {
+  const checklist = getPortalChecklist(state, mediaCount);
+  const selectedCount = publications.filter((publication) => publication.enabled).length;
+
+  return (
+    <div className="wiz-step">
+      <h2 className="wiz-step__title">Publicação em portais</h2>
+      <p className="wiz-step__hint">
+        {checklist.ready
+          ? "Imóvel pronto para exportação nos portais selecionados."
+          : "Corrija as pendências obrigatórias antes de exportar o imóvel."}
+      </p>
+
+      <section className="wiz-portal-readiness" aria-label="Checklist de publicação">
+        <div className="wiz-portal-readiness__head">
+          <span>Pronto para publicação</span>
+          <strong>{checklist.percent}%</strong>
+        </div>
+        <div className="wiz-portal-readiness__bar" aria-hidden="true">
+          <div style={{ width: `${checklist.percent}%` }} />
+        </div>
+        <ul className="wiz-portal-checklist">
+          {checklist.checks.map((item) => (
+            <li key={item.label} className={item.ok ? "is-ok" : item.blocking ? "is-blocking" : "is-warning"}>
+              <span>{item.ok ? "✓" : item.blocking ? "!" : "i"}</span>
+              {item.label}
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      <div className="wiz-portal-toolbar">
+        <strong>{selectedCount} {selectedCount === 1 ? "portal selecionado" : "portais selecionados"}</strong>
+        <span>{mediaCount} {mediaCount === 1 ? "foto disponível" : "fotos disponíveis"}</span>
+      </div>
+
+      <div className="wiz-portal-list">
+        {publications.map((publication) => (
+          <section
+            key={publication.portalName}
+            className={`wiz-portal-item ${publication.enabled ? "is-enabled" : ""}`}
+          >
+            <header className="wiz-portal-item__head">
+              <label className="wiz-portal-toggle">
+                <input
+                  type="checkbox"
+                  checked={publication.enabled}
+                  onChange={(event) =>
+                    onChange(publication.portalName, { enabled: event.target.checked })
+                  }
+                />
+                <span>
+                  <strong>{publication.portalLabel}</strong>
+                  <small>{publication.type}</small>
+                </span>
+              </label>
+              <span className={`wiz-portal-status wiz-portal-status--${publication.status.toLowerCase()}`}>
+                {PORTAL_STATUS_OPTIONS.find((option) => option.value === publication.status)?.label ??
+                  (publication.status === "REMOVIDO" ? "Removido" : publication.status)}
+              </span>
+            </header>
+
+            <p className="wiz-step__hint">{publication.description}</p>
+
+            <div className="wiz-form">
+              <div className="wiz-field">
+                <label>Status no portal</label>
+                <select
+                  value={publication.status === "REMOVIDO" ? "PENDENTE" : publication.status}
+                  disabled={!publication.enabled}
+                  onChange={(event) =>
+                    onChange(publication.portalName, {
+                      status: event.target.value as PortalPublicationStatusValue
+                    })
+                  }
+                >
+                  {PORTAL_STATUS_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>{option.label}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="wiz-field">
+                <label>Preço específico</label>
+                <div className="wiz-input-with-prefix">
+                  <span>R$</span>
+                  <input
+                    type="number"
+                    min={0}
+                    step="0.01"
+                    value={publication.customPrice ?? ""}
+                    disabled={!publication.enabled}
+                    onChange={(event) =>
+                      onChange(publication.portalName, {
+                        customPrice: event.target.value === "" ? null : Number(event.target.value)
+                      })
+                    }
+                    placeholder={state.price ? String(state.price) : "0"}
+                  />
+                </div>
+              </div>
+              <div className="wiz-field wiz-field--wide">
+                <label>Título específico</label>
+                <input
+                  value={publication.customTitle ?? ""}
+                  disabled={!publication.enabled}
+                  onChange={(event) =>
+                    onChange(publication.portalName, { customTitle: event.target.value || null })
+                  }
+                  placeholder={state.title || "Usar título do imóvel"}
+                />
+              </div>
+              <div className="wiz-field wiz-field--wide">
+                <label>Descrição específica</label>
+                <textarea
+                  rows={3}
+                  value={publication.customDescription ?? ""}
+                  disabled={!publication.enabled}
+                  onChange={(event) =>
+                    onChange(publication.portalName, { customDescription: event.target.value || null })
+                  }
+                  placeholder="Usar descrição do imóvel"
+                />
+              </div>
+              <div className="wiz-field wiz-field--checks">
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={publication.showPrice}
+                    disabled={!publication.enabled}
+                    onChange={(event) =>
+                      onChange(publication.portalName, { showPrice: event.target.checked })
+                    }
+                  />
+                  Mostrar preço
+                </label>
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={publication.showFullAddress}
+                    disabled={!publication.enabled}
+                    onChange={(event) =>
+                      onChange(publication.portalName, { showFullAddress: event.target.checked })
+                    }
+                  />
+                  Mostrar endereço completo
+                </label>
+                <label>
+                  <input
+                    type="checkbox"
+                    checked={publication.highlightEnabled}
+                    disabled={!publication.enabled}
+                    onChange={(event) =>
+                      onChange(publication.portalName, { highlightEnabled: event.target.checked })
+                    }
+                  />
+                  Marcar como destaque
+                </label>
+              </div>
+              {publication.highlightEnabled ? (
+                <div className="wiz-field">
+                  <label>Tipo de destaque</label>
+                  <input
+                    value={publication.highlightType ?? ""}
+                    disabled={!publication.enabled}
+                    onChange={(event) =>
+                      onChange(publication.portalName, { highlightType: event.target.value || null })
+                    }
+                    placeholder="Destaque"
+                  />
+                </div>
+              ) : null}
+            </div>
+
+            <footer className="wiz-portal-item__foot">
+              <span>Última sincronização: {formatPortalDate(publication.lastSyncAt)}</span>
+              <a href={publication.feedUrl} target="_blank" rel="noopener noreferrer">
+                Ver XML
+              </a>
+            </footer>
+            {publication.errorMessage ? (
+              <p className="wiz-alert wiz-alert--error">{publication.errorMessage}</p>
+            ) : null}
+          </section>
+        ))}
+      </div>
     </div>
   );
 }

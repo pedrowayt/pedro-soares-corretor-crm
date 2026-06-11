@@ -18,6 +18,7 @@ enum LeadSource {
   INSTAGRAM
   SITE
   WHATSAPP
+  PORTAL
   INDICACAO
   TRAFEGO_PAGO
   OUTRO
@@ -55,6 +56,7 @@ enum InteractionType {
 enum InteractionChannel {
   SITE
   WHATSAPP
+  PORTAL
   EMAIL
   PHONE
   INSTAGRAM
@@ -166,6 +168,7 @@ enum PortalPublicationStatus {
   PUBLICADO
   ERRO
   PAUSADO
+  REMOVIDO
 }
 
 enum DevelopmentPublicationStatus {
@@ -967,20 +970,30 @@ model AuctionImportSource {
 }
 
 model PortalPublication {
-  id           String                  @id @default(cuid())
-  propertyId   String
-  portalName   String
-  externalId   String?
-  status       PortalPublicationStatus @default(PENDENTE)
-  lastSyncAt   DateTime?
-  payload      Json?
-  errorMessage String?
-  createdAt    DateTime                @default(now())
-  updatedAt    DateTime                @updatedAt
+  id                String                  @id @default(cuid())
+  propertyId        String
+  portalName        String
+  externalId        String?
+  status            PortalPublicationStatus @default(PENDENTE)
+  customTitle       String?
+  customDescription String?
+  customPrice       Decimal?                @db.Decimal(14, 2)
+  showFullAddress   Boolean                 @default(false)
+  showPrice         Boolean                 @default(true)
+  highlightEnabled  Boolean                 @default(false)
+  highlightType     String?
+  publishedAt       DateTime?
+  lastSyncAt        DateTime?
+  removedAt         DateTime?
+  payload           Json?
+  errorMessage      String?
+  createdAt         DateTime                @default(now())
+  updatedAt         DateTime                @updatedAt
 
   property Property @relation(fields: [propertyId], references: [id], onDelete: Cascade)
 
   @@unique([propertyId, portalName])
+  @@index([portalName, status])
   @@index([status])
 }
 

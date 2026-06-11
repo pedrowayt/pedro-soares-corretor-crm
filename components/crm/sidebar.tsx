@@ -37,6 +37,7 @@ const SIDEBAR_SECTIONS: ReadonlyArray<SidebarSection> = [
   {
     title: "Análise & Config",
     items: [
+      { href: "/crm/integracoes", label: "Integrações" },
       { href: "/crm/relatorios", label: "Relatórios" },
       { href: "/crm/configuracoes", label: "Configurações" }
     ]

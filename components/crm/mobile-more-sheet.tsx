@@ -14,6 +14,7 @@ import {
   ListTodo,
   LogOut,
   Newspaper,
+  Plug,
   Search,
   Settings,
   UserCheck,
@@ -48,7 +49,10 @@ const GROUPS: ReadonlyArray<Group> = [
   },
   {
     title: "Análise",
-    items: [{ href: "/crm/relatorios", label: "Relatórios", Icon: BarChart3 }]
+    items: [
+      { href: "/crm/integracoes", label: "Integrações", Icon: Plug },
+      { href: "/crm/relatorios", label: "Relatórios", Icon: BarChart3 }
+    ]
   },
   {
     title: "Configurações",

@@ -10,6 +10,7 @@ import {
   Hammer,
   LayoutDashboard,
   LogOut,
+  Plug,
   Search,
   Settings,
   UserCheck,
@@ -53,6 +54,7 @@ const SECONDARY_NAV: ReadonlyArray<TopbarLink> = [
   { href: "/crm/construtoras", label: "Construtoras", Icon: Building2 },
   { href: "/crm/paginas-seo", label: "Páginas SEO", Icon: Search },
   { href: "/crm/blog", label: "Blog", Icon: LayoutDashboard },
+  { href: "/crm/integracoes", label: "Integrações", Icon: Plug },
   { href: "/crm/relatorios", label: "Relatórios", Icon: LayoutDashboard },
   { href: "/crm/configuracoes", label: "Configurações", Icon: Settings }
 ];

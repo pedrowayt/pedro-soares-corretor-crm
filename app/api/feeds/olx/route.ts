@@ -3,5 +3,5 @@ import { buildMarketplaceFeedResponse } from "@/lib/integrations/portal-feed-res
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  return buildMarketplaceFeedResponse("zap", "vrsync");
+  return buildMarketplaceFeedResponse("olx", "olx");
 }
