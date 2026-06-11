@@ -211,6 +211,14 @@ export async function getSaasDashboardSnapshot(profile?: {
         proposalsPending: 0,
         tasksPending: 0,
         activeLeads: 0
+      },
+      visitInsights: {
+        today: 0,
+        pendingUpcoming: 0,
+        completedThisMonth: 0,
+        thisMonth: 0,
+        completionRate: 0,
+        nextVisit: null,
       }
     };
   }
@@ -239,7 +247,9 @@ export async function getSaasDashboardSnapshot(profile?: {
       propertiesByType,
       propertiesByPurpose,
       propertiesByStatus,
-      featuredProperties
+      featuredProperties,
+      totalVisitsThisMonth,
+      completedVisitsThisMonth
     ] = await Promise.all([
       prisma.property.count(),
       prisma.property.count({ where: { status: PropertyStatus.DISPONIVEL } }),
@@ -351,7 +361,9 @@ export async function getSaasDashboardSnapshot(profile?: {
             }
           }
         }
-      })
+      }),
+      prisma.visit.count({ where: { scheduledAt: { gte: monthStart } } }),
+      prisma.visit.count({ where: { scheduledAt: { gte: monthStart }, status: VisitStatus.REALIZADA } })
     ]);
 
     const pipelineValue = pipelineLeads.reduce((total, lead) => {
@@ -538,6 +550,21 @@ export async function getSaasDashboardSnapshot(profile?: {
         proposalsPending,
         tasksPending,
         activeLeads
+      },
+      visitInsights: {
+        today: visitsToday,
+        pendingUpcoming: upcomingVisits.length,
+        completedThisMonth: completedVisitsThisMonth,
+        thisMonth: totalVisitsThisMonth,
+        completionRate: totalVisitsThisMonth > 0 ? Math.round((completedVisitsThisMonth / totalVisitsThisMonth) * 100) : 0,
+        nextVisit: upcomingVisits[0]
+          ? {
+              leadId: upcomingVisits[0].lead.id,
+              propertyTitle: upcomingVisits[0].property.title,
+              scheduledAt: upcomingVisits[0].scheduledAt,
+              leadName: upcomingVisits[0].lead.name,
+            }
+          : null,
       }
     };
   } catch {
@@ -567,6 +594,14 @@ export async function getSaasDashboardSnapshot(profile?: {
         proposalsPending: 0,
         tasksPending: 0,
         activeLeads: 0
+      },
+      visitInsights: {
+        today: 0,
+        pendingUpcoming: 0,
+        completedThisMonth: 0,
+        thisMonth: 0,
+        completionRate: 0,
+        nextVisit: null,
       }
     };
   }
