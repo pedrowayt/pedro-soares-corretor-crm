@@ -202,15 +202,6 @@ export async function getSaasDashboardSnapshot(profile?: {
         propertyStatuses: []
       },
       popularProperties: [],
-      visitInsights: {
-        today: 0,
-        pendingUpcoming: 0,
-        thisMonth: 0,
-        completedThisMonth: 0,
-        canceledThisMonth: 0,
-        completionRate: 0,
-        nextVisit: null
-      },
       notifications: [],
       agenda: [],
       hotLeads: [],
@@ -247,10 +238,6 @@ export async function getSaasDashboardSnapshot(profile?: {
       pipelineLeads,
       monthWins,
       monthLosses,
-      visitsThisMonth,
-      visitsCompletedThisMonth,
-      visitsCanceledThisMonth,
-      pendingUpcomingVisits,
       hotLeads,
       upcomingVisits,
       upcomingTasks,
@@ -270,12 +257,7 @@ export async function getSaasDashboardSnapshot(profile?: {
       prisma.lead.count({ where: { stage: { in: ACTIVE_LEAD_STAGES } } }),
       prisma.lead.count({ where: { createdAt: { gte: dayStart, lte: dayEnd } } }),
       prisma.lead.count({ where: { createdAt: { gte: yesterdayStart, lte: yesterdayEnd } } }),
-      prisma.visit.count({
-        where: {
-          scheduledAt: { gte: dayStart, lte: dayEnd },
-          status: { not: VisitStatus.CANCELADA }
-        }
-      }),
+      prisma.visit.count({ where: { scheduledAt: { gte: dayStart, lte: dayEnd } } }),
       prisma.proposal.count({
         where: { status: { in: [ProposalStatus.ENVIADA, ProposalStatus.CONTRA_PROPOSTA] } }
       }),
@@ -296,30 +278,6 @@ export async function getSaasDashboardSnapshot(profile?: {
         where: {
           stage: LeadStage.PERDIDO,
           updatedAt: { gte: monthStart }
-        }
-      }),
-      prisma.visit.count({
-        where: {
-          scheduledAt: { gte: monthStart },
-          status: { not: VisitStatus.CANCELADA }
-        }
-      }),
-      prisma.visit.count({
-        where: {
-          scheduledAt: { gte: monthStart },
-          status: VisitStatus.REALIZADA
-        }
-      }),
-      prisma.visit.count({
-        where: {
-          scheduledAt: { gte: monthStart },
-          status: VisitStatus.CANCELADA
-        }
-      }),
-      prisma.visit.count({
-        where: {
-          scheduledAt: { gte: dayStart },
-          status: { in: [VisitStatus.AGENDADA, VisitStatus.REAGENDADA] }
         }
       }),
       prisma.lead.findMany({
@@ -466,17 +424,6 @@ export async function getSaasDashboardSnapshot(profile?: {
       .sort((a, b) => b.score - a.score)
       .slice(0, 6);
 
-    const nextVisit = upcomingVisits[0]
-      ? {
-          id: upcomingVisits[0].id,
-          leadId: upcomingVisits[0].lead.id,
-          leadName: upcomingVisits[0].lead.name,
-          propertyTitle: upcomingVisits[0].property.title,
-          scheduledAt: upcomingVisits[0].scheduledAt,
-          status: upcomingVisits[0].status
-        }
-      : null;
-
     return {
       profile: emptyProfile,
       progressCards: [
@@ -543,15 +490,6 @@ export async function getSaasDashboardSnapshot(profile?: {
         )
       },
       popularProperties,
-      visitInsights: {
-        today: visitsToday,
-        pendingUpcoming: pendingUpcomingVisits,
-        thisMonth: visitsThisMonth,
-        completedThisMonth: visitsCompletedThisMonth,
-        canceledThisMonth: visitsCanceledThisMonth,
-        completionRate: progress(visitsCompletedThisMonth, visitsThisMonth),
-        nextVisit
-      },
       notifications: [
         {
           id: "hot-leads",
@@ -571,7 +509,7 @@ export async function getSaasDashboardSnapshot(profile?: {
           id: "visits",
           label: "Agenda",
           title: `${visitsToday} visitas hoje`,
-          detail: `${pendingUpcomingVisits} próximas · ${visitsCompletedThisMonth}/${visitsThisMonth} realizadas no mês`,
+          detail: "Compromissos do dia",
           tone: visitsToday > 0 ? "blue" : "neutral"
         },
         {
@@ -647,15 +585,6 @@ export async function getSaasDashboardSnapshot(profile?: {
         propertyStatuses: []
       },
       popularProperties: [],
-      visitInsights: {
-        today: 0,
-        pendingUpcoming: 0,
-        thisMonth: 0,
-        completedThisMonth: 0,
-        canceledThisMonth: 0,
-        completionRate: 0,
-        nextVisit: null
-      },
       notifications: [],
       agenda: [],
       hotLeads: [],

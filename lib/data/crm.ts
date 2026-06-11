@@ -43,20 +43,6 @@ export async function listOwners() {
       orderBy: { createdAt: "desc" },
       include: {
         properties: {
-          orderBy: { updatedAt: "desc" },
-          select: {
-            id: true,
-            title: true,
-            slug: true,
-            purpose: true,
-            status: true,
-            price: true,
-            city: true,
-            district: true,
-            updatedAt: true
-          }
-        },
-        leads: {
           select: { id: true }
         }
       }

@@ -13,19 +13,9 @@ async function postJson(url: string, payload: unknown) {
     body: JSON.stringify(payload)
   });
 
-  const raw = await response.text();
-  let data: { success?: boolean; error?: { message?: string } } | null = null;
-
-  if (raw) {
-    try {
-      data = JSON.parse(raw);
-    } catch {
-      data = null;
-    }
-  }
-
-  if (!response.ok || !data?.success) {
-    throw new Error(data?.error?.message ?? response.statusText ?? "Erro ao enviar dados.");
+  const data = await response.json();
+  if (!response.ok || !data.success) {
+    throw new Error(data?.error?.message ?? "Erro ao enviar dados.");
   }
 
   return data;
