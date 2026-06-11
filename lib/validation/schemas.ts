@@ -170,6 +170,18 @@ export const crmCreatePropertySchema = z.object({
 
 export const crmUpdatePropertySchema = crmCreatePropertySchema.partial();
 
+export const crmCreateOwnerSchema = z.object({
+  name: z.string().trim().min(2).max(120),
+  phone: z.string().trim().min(8).max(40),
+  email: z.string().trim().email().optional().nullable().or(z.literal("")),
+  city: z.string().trim().max(80).optional().nullable().or(z.literal("")),
+  district: z.string().trim().max(80).optional().nullable().or(z.literal("")),
+  address: z.string().trim().max(180).optional().nullable().or(z.literal("")),
+  notes: z.string().trim().max(3000).optional().nullable().or(z.literal(""))
+});
+
+export const crmUpdateOwnerSchema = crmCreateOwnerSchema.partial();
+
 export const marketplacePortalKeySchema = z.enum(["olx", "zap", "vivareal"]);
 
 export const crmPortalPublicationInputSchema = z.object({
