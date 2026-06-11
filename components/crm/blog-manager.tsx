@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import {
   CalendarDays,
+  ChevronLeft,
+  ChevronRight,
   Edit3,
   Eye,
   ExternalLink,
@@ -25,6 +27,8 @@ const statusLabel: Record<string, string> = {
   ARCHIVED: "Arquivado"
 };
 
+const PAGE_SIZE_OPTIONS = [10, 20, 50] as const;
+
 function formatDate(date: Date | string | null) {
   if (!date) return "Sem data";
   return new Intl.DateTimeFormat("pt-BR", {
@@ -43,6 +47,8 @@ export function CrmBlogManager({ posts, categories }: Props) {
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState("ALL");
   const [categoryId, setCategoryId] = useState("ALL");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState<(typeof PAGE_SIZE_OPTIONS)[number]>(10);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<{ kind: "success" | "error"; message: string } | null>(
     null
@@ -77,6 +83,36 @@ export function CrmBlogManager({ posts, categories }: Props) {
       );
     });
   }, [categoryId, query, rows, status]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredPosts.length / pageSize));
+  const safePage = Math.min(currentPage, totalPages);
+  const pageStartIndex = filteredPosts.length ? (safePage - 1) * pageSize : 0;
+  const pageEndIndex = Math.min(pageStartIndex + pageSize, filteredPosts.length);
+  const paginatedPosts = filteredPosts.slice(pageStartIndex, pageEndIndex);
+
+  function updateQuery(value: string) {
+    setQuery(value);
+    setCurrentPage(1);
+  }
+
+  function updateStatus(value: string) {
+    setStatus(value);
+    setCurrentPage(1);
+  }
+
+  function updateCategory(value: string) {
+    setCategoryId(value);
+    setCurrentPage(1);
+  }
+
+  function updatePageSize(value: string) {
+    const parsed = Number.parseInt(value, 10);
+    const nextSize = PAGE_SIZE_OPTIONS.includes(parsed as (typeof PAGE_SIZE_OPTIONS)[number])
+      ? (parsed as (typeof PAGE_SIZE_OPTIONS)[number])
+      : 10;
+    setPageSize(nextSize);
+    setCurrentPage(1);
+  }
 
   async function handleDelete(post: BlogPostView) {
     if (!confirm(`Excluir "${post.title}"? Esta ação é permanente.`)) return;
@@ -199,7 +235,7 @@ export function CrmBlogManager({ posts, categories }: Props) {
           />
           <input
             value={query}
-            onChange={(event) => setQuery(event.target.value)}
+            onChange={(event) => updateQuery(event.target.value)}
             placeholder="Buscar por título, slug, categoria ou tag"
             style={{ paddingLeft: 36 }}
           />
@@ -207,7 +243,7 @@ export function CrmBlogManager({ posts, categories }: Props) {
 
         <label style={{ display: "grid", gap: 4 }}>
           <span className="sr-only">Filtrar por status</span>
-          <select value={status} onChange={(event) => setStatus(event.target.value)}>
+          <select value={status} onChange={(event) => updateStatus(event.target.value)}>
             <option value="ALL">Todos os status</option>
             <option value="DRAFT">Rascunhos</option>
             <option value="PUBLISHED">Publicados</option>
@@ -217,7 +253,7 @@ export function CrmBlogManager({ posts, categories }: Props) {
 
         <label style={{ display: "grid", gap: 4 }}>
           <span className="sr-only">Filtrar por categoria</span>
-          <select value={categoryId} onChange={(event) => setCategoryId(event.target.value)}>
+          <select value={categoryId} onChange={(event) => updateCategory(event.target.value)}>
             <option value="ALL">Todas as categorias</option>
             {categories.map((category) => (
               <option key={category.id} value={category.id}>
@@ -239,6 +275,85 @@ export function CrmBlogManager({ posts, categories }: Props) {
           {feedback.message}
         </p>
       ) : null}
+
+      <section
+        className="card"
+        style={{
+          padding: 14,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: 12,
+          flexWrap: "wrap"
+        }}
+        aria-label="Paginação do blog"
+      >
+        <p className="text-card" style={{ margin: 0, color: "var(--text-muted)" }}>
+          {filteredPosts.length
+            ? `Mostrando ${pageStartIndex + 1}-${pageEndIndex} de ${filteredPosts.length} postagens`
+            : "Nenhuma postagem encontrada"}
+        </p>
+
+        <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+          <label
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 8,
+              color: "var(--text-muted)",
+              fontSize: "var(--fs-13)",
+              fontWeight: 700
+            }}
+          >
+            Por página
+            <select
+              value={pageSize}
+              onChange={(event) => updatePageSize(event.target.value)}
+              style={{ minHeight: 36, width: 86 }}
+            >
+              {PAGE_SIZE_OPTIONS.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 6 }}>
+            <button
+              type="button"
+              className="button button-ghost"
+              onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+              disabled={safePage <= 1}
+              style={{ minHeight: 36, padding: "0 10px" }}
+              aria-label="Página anterior"
+            >
+              <ChevronLeft size={16} strokeWidth={1.8} aria-hidden="true" />
+            </button>
+            <span
+              style={{
+                minWidth: 86,
+                textAlign: "center",
+                color: "var(--text-muted)",
+                fontSize: "var(--fs-13)",
+                fontWeight: 800
+              }}
+            >
+              {safePage} / {totalPages}
+            </span>
+            <button
+              type="button"
+              className="button button-ghost"
+              onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
+              disabled={safePage >= totalPages}
+              style={{ minHeight: 36, padding: "0 10px" }}
+              aria-label="Próxima página"
+            >
+              <ChevronRight size={16} strokeWidth={1.8} aria-hidden="true" />
+            </button>
+          </div>
+        </div>
+      </section>
 
       <section className="card" style={{ padding: 0, overflow: "hidden" }}>
         <div
@@ -263,8 +378,8 @@ export function CrmBlogManager({ posts, categories }: Props) {
           <span style={{ textAlign: "right" }}>Ações</span>
         </div>
 
-        {filteredPosts.length ? (
-          filteredPosts.map((post) => (
+        {paginatedPosts.length ? (
+          paginatedPosts.map((post) => (
             <article
               key={post.id}
               style={{
@@ -431,6 +546,39 @@ export function CrmBlogManager({ posts, categories }: Props) {
           </article>
         )}
       </section>
+
+      {filteredPosts.length > pageSize ? (
+        <nav
+          aria-label="Paginação das postagens"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "flex-end",
+            gap: 8,
+            flexWrap: "wrap"
+          }}
+        >
+          <button
+            type="button"
+            className="button button-ghost"
+            onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+            disabled={safePage <= 1}
+          >
+            Anterior
+          </button>
+          <span style={{ color: "var(--text-muted)", fontSize: "var(--fs-13)", fontWeight: 800 }}>
+            Página {safePage} de {totalPages}
+          </span>
+          <button
+            type="button"
+            className="button button-ghost"
+            onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
+            disabled={safePage >= totalPages}
+          >
+            Próxima
+          </button>
+        </nav>
+      ) : null}
     </div>
   );
 }

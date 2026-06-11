@@ -182,7 +182,7 @@ export function Placa({ size, property, corretor, logoSrc, corretorPhotoSrc, qrS
       flexWrap: "wrap"
     },
     cta: {
-      fontSize: 64 * u,
+      fontSize: 80 * u,
       fontFamily: "Helvetica-Bold",
       color: GOLD,
       letterSpacing: 1.5 * u,

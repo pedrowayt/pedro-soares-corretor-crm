@@ -1,38 +1,53 @@
-import { QuickVisitForm } from "@/components/crm/quick-forms";
-import { listVisits } from "@/lib/data/crm";
+import { VisitManager, type VisitLeadOption, type VisitListItem, type VisitPropertyOption } from "@/components/crm/visit-manager";
+import { listLeads, listProperties, listVisits } from "@/lib/data/crm";
 
 export default async function CrmVisitasPage() {
-  const visits = await listVisits();
+  const [leads, properties, visits] = await Promise.all([listLeads(), listProperties(), listVisits()]);
+
+  const leadOptions: VisitLeadOption[] = leads.map((lead) => ({
+    id: lead.id,
+    name: lead.name,
+    phone: lead.phone,
+    stage: String(lead.stage),
+    linkedPropertyId: lead.linkedPropertyId ?? null,
+    linkedPropertyTitle: lead.linkedProperty?.title ?? null
+  }));
+
+  const propertyOptions: VisitPropertyOption[] = properties.map((property) => ({
+    id: property.id,
+    title: property.title,
+    city: property.city,
+    district: property.district,
+    price: Number(property.price),
+    status: String(property.status),
+    purpose: String(property.purpose)
+  }));
+
+  const visitItems: VisitListItem[] = visits.map((visit) => ({
+    id: visit.id,
+    status: String(visit.status),
+    scheduledAt: visit.scheduledAt.toISOString(),
+    notes: visit.notes ?? null,
+    lead: {
+      id: visit.lead.id,
+      name: visit.lead.name,
+      phone: visit.lead.phone
+    },
+    property: {
+      id: visit.property.id,
+      title: visit.property.title,
+      city: visit.property.city,
+      district: visit.property.district
+    },
+    assignedToName: visit.assignedTo?.name ?? null
+  }));
 
   return (
     <>
       <h1 className="section-title" style={{ marginTop: 0 }}>Visitas</h1>
       <p className="section-subtitle">Agendamento, confirmação e histórico de visitas por lead e imóvel.</p>
 
-      <div id="quick-create" className="crm-quick-form-target" style={{ marginTop: 16, marginBottom: 18 }}>
-        <QuickVisitForm />
-      </div>
-
-      <ul className="crm-summary-grid" aria-label="Visitas">
-        {visits.map((visit) => (
-          <li className="crm-summary-card" key={visit.id}>
-            <header className="crm-summary-card__head">
-              <strong className="crm-summary-card__title">{visit.lead.name}</strong>
-              <span className="crm-summary-card__pill">{visit.status}</span>
-            </header>
-            <dl className="crm-summary-card__fields">
-              <div className="crm-summary-card__fields-wide">
-                <dt>Imóvel</dt>
-                <dd>{visit.property.title}</dd>
-              </div>
-              <div className="crm-summary-card__fields-wide">
-                <dt>Quando</dt>
-                <dd>{new Date(visit.scheduledAt).toLocaleString("pt-BR")}</dd>
-              </div>
-            </dl>
-          </li>
-        ))}
-      </ul>
+      <VisitManager leads={leadOptions} properties={propertyOptions} visits={visitItems} />
     </>
   );
 }

@@ -20,7 +20,8 @@ import {
   PropertyType,
   SeoListingMode,
   SeoPageStatus,
-  TaskPriority
+  TaskPriority,
+  VisitStatus
 } from "@prisma/client";
 import { z } from "zod";
 
@@ -170,6 +171,18 @@ export const crmCreatePropertySchema = z.object({
 
 export const crmUpdatePropertySchema = crmCreatePropertySchema.partial();
 
+export const crmCreateOwnerSchema = z.object({
+  name: z.string().trim().min(2).max(120),
+  phone: z.string().trim().min(8).max(40),
+  email: z.string().trim().email().optional().nullable().or(z.literal("")),
+  city: z.string().trim().max(80).optional().nullable().or(z.literal("")),
+  district: z.string().trim().max(80).optional().nullable().or(z.literal("")),
+  address: z.string().trim().max(180).optional().nullable().or(z.literal("")),
+  notes: z.string().trim().max(3000).optional().nullable().or(z.literal(""))
+});
+
+export const crmUpdateOwnerSchema = crmCreateOwnerSchema.partial();
+
 export const marketplacePortalKeySchema = z.enum(["olx", "zap", "vivareal"]);
 
 export const crmPortalPublicationInputSchema = z.object({
@@ -280,12 +293,23 @@ export const createTaskSchema = z.object({
 });
 
 export const createVisitSchema = z.object({
-  leadId: z.string(),
-  propertyId: z.string(),
+  leadId: z.string().min(1),
+  propertyId: z.string().min(1),
   scheduledAt: z.string().datetime(),
   notes: z.string().optional(),
   assignedToId: z.string().optional()
 });
+
+export const updateVisitSchema = z
+  .object({
+    status: z.nativeEnum(VisitStatus).optional(),
+    scheduledAt: z.string().datetime().optional(),
+    notes: z.string().optional(),
+    assignedToId: z.string().nullable().optional()
+  })
+  .refine((payload) => Object.keys(payload).length > 0, {
+    message: "Informe ao menos um campo para atualizar."
+  });
 
 export const createProposalSchema = z.object({
   leadId: z.string(),
