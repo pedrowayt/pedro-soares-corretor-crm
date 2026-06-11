@@ -24,6 +24,8 @@ type ProgressCard = SaasDashboardSnapshot["progressCards"][number];
 type MonthlyPoint = SaasDashboardSnapshot["charts"]["monthly"][number];
 type BarPoint = { label: string; count: number; percent: number };
 
+const DASHBOARD_TIME_ZONE = "America/Araguaina";
+
 const CARD_ICONS: Record<string, typeof Home> = {
   properties: Home,
   leads: Users,
@@ -63,11 +65,32 @@ function daysSince(value: Date | string | null | undefined) {
   return Math.floor(diff / (1000 * 60 * 60 * 24));
 }
 
+function getDashboardHour(date = new Date()) {
+  const hour = new Intl.DateTimeFormat("pt-BR", {
+    hour: "2-digit",
+    hourCycle: "h23",
+    timeZone: DASHBOARD_TIME_ZONE
+  })
+    .formatToParts(date)
+    .find((part) => part.type === "hour")?.value;
+
+  return hour ? Number(hour) : date.getHours();
+}
+
 function getGreeting() {
-  const hour = new Date().getHours();
+  const hour = getDashboardHour();
   if (hour < 12) return "Bom dia";
   if (hour < 18) return "Boa tarde";
   return "Boa noite";
+}
+
+function formatDashboardDate(date = new Date()) {
+  return date.toLocaleDateString("pt-BR", {
+    weekday: "long",
+    day: "2-digit",
+    month: "long",
+    timeZone: DASHBOARD_TIME_ZONE
+  });
 }
 
 function formatStage(stage: string) {
@@ -278,6 +301,50 @@ function PopularProperties({ properties }: { properties: SaasDashboardSnapshot["
   );
 }
 
+function VisitInsightCard({ snapshot }: { snapshot: SaasDashboardSnapshot }) {
+  const insights = snapshot.visitInsights;
+
+  return (
+    <section className="crm-saas-side-card crm-saas-visit-response">
+      <header className="crm-saas-side-card__head">
+        <h2>
+          <CalendarCheck size={17} strokeWidth={1.8} aria-hidden="true" /> Visitas
+        </h2>
+        <Link href="/crm/visitas">Gerenciar</Link>
+      </header>
+
+      <div className="crm-saas-visit-response__metrics">
+        <span>
+          Hoje <strong>{insights.today}</strong>
+        </span>
+        <span>
+          Próximas <strong>{insights.pendingUpcoming}</strong>
+        </span>
+        <span>
+          Mês <strong>{insights.completedThisMonth}/{insights.thisMonth}</strong>
+        </span>
+      </div>
+
+      <div className="crm-saas-visit-response__progress">
+        <span>Realização mensal</span>
+        <strong>{insights.completionRate}%</strong>
+        <i style={{ width: `${Math.max(insights.completionRate, insights.thisMonth ? 4 : 0)}%` }} aria-hidden="true" />
+      </div>
+
+      {insights.nextVisit ? (
+        <Link href={`/crm/leads/${insights.nextVisit.leadId}`} className="crm-saas-visit-response__next">
+          <strong>{insights.nextVisit.propertyTitle}</strong>
+          <small>
+            {formatRelativeDate(insights.nextVisit.scheduledAt)} · {insights.nextVisit.leadName}
+          </small>
+        </Link>
+      ) : (
+        <p className="crm-panel__empty">Sem visitas futuras.</p>
+      )}
+    </section>
+  );
+}
+
 export default async function CrmDashboardPage() {
   const session = await getSession();
   const snapshot = await getSaasDashboardSnapshot({
@@ -293,11 +360,7 @@ export default async function CrmDashboardPage() {
       <header className="crm-saas-hero">
         <div className="crm-saas-hero__copy">
           <span className="crm-saas-hero__eyebrow">
-            {new Date().toLocaleDateString("pt-BR", {
-              weekday: "long",
-              day: "2-digit",
-              month: "long"
-            })}
+            {formatDashboardDate()}
           </span>
           <h1>
             {getGreeting()}, <span>{snapshot.profile.name.split(" ")[0]}</span>
@@ -477,6 +540,8 @@ export default async function CrmDashboardPage() {
             </div>
             <small>{snapshot.totals.newLeadsToday + snapshot.totals.visitsToday} atendimentos hoje</small>
           </section>
+
+          <VisitInsightCard snapshot={snapshot} />
 
           <section className="crm-saas-side-card">
             <header className="crm-saas-side-card__head">
