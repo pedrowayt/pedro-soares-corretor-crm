@@ -15,6 +15,7 @@ import {
   LeadSource,
   LeadStage,
   PortalPublicationStatus,
+  ProposalStatus,
   PropertyPurpose,
   PropertyStatus,
   PropertyType,
@@ -300,12 +301,23 @@ export const createVisitSchema = z.object({
 });
 
 export const createProposalSchema = z.object({
-  leadId: z.string(),
-  propertyId: z.string(),
+  leadId: z.string().min(1),
+  propertyId: z.string().min(1),
   offeredValue: z.coerce.number().positive(),
   commissionPct: z.coerce.number().min(0).max(100).optional(),
   notes: z.string().optional()
 });
+
+export const updateProposalSchema = z
+  .object({
+    status: z.nativeEnum(ProposalStatus).optional(),
+    offeredValue: z.coerce.number().positive().optional(),
+    commissionPct: z.coerce.number().min(0).max(100).nullable().optional(),
+    notes: z.string().optional()
+  })
+  .refine((payload) => Object.keys(payload).length > 0, {
+    message: "Informe ao menos um campo para atualizar."
+  });
 
 export const cloudflareImageDirectUploadSchema = z.object({
   id: z.string().optional(),

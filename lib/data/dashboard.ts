@@ -219,6 +219,14 @@ export async function getSaasDashboardSnapshot(profile?: {
         thisMonth: 0,
         completionRate: 0,
         nextVisit: null,
+      },
+      proposalInsights: {
+        open: 0,
+        acceptedThisMonth: 0,
+        refusedThisMonth: 0,
+        thisMonth: 0,
+        openValue: 0,
+        acceptanceRate: 0
       }
     };
   }
@@ -249,7 +257,11 @@ export async function getSaasDashboardSnapshot(profile?: {
       propertiesByStatus,
       featuredProperties,
       totalVisitsThisMonth,
-      completedVisitsThisMonth
+      completedVisitsThisMonth,
+      proposalsThisMonth,
+      acceptedProposalsThisMonth,
+      refusedProposalsThisMonth,
+      openProposalValue
     ] = await Promise.all([
       prisma.property.count(),
       prisma.property.count({ where: { status: PropertyStatus.DISPONIVEL } }),
@@ -363,7 +375,19 @@ export async function getSaasDashboardSnapshot(profile?: {
         }
       }),
       prisma.visit.count({ where: { scheduledAt: { gte: monthStart } } }),
-      prisma.visit.count({ where: { scheduledAt: { gte: monthStart }, status: VisitStatus.REALIZADA } })
+      prisma.visit.count({ where: { scheduledAt: { gte: monthStart }, status: VisitStatus.REALIZADA } }),
+      prisma.proposal.count({ where: { createdAt: { gte: monthStart } } }),
+      prisma.proposal.count({ where: { status: ProposalStatus.ACEITA, updatedAt: { gte: monthStart } } }),
+      prisma.proposal.count({
+        where: {
+          status: { in: [ProposalStatus.RECUSADA, ProposalStatus.EXPIRADA] },
+          updatedAt: { gte: monthStart }
+        }
+      }),
+      prisma.proposal.aggregate({
+        where: { status: { in: [ProposalStatus.ENVIADA, ProposalStatus.CONTRA_PROPOSTA] } },
+        _sum: { offeredValue: true }
+      })
     ]);
 
     const pipelineValue = pipelineLeads.reduce((total, lead) => {
@@ -374,6 +398,7 @@ export async function getSaasDashboardSnapshot(profile?: {
     const wonValueThisMonth = monthWins.reduce((total, lead) => {
       return total + asMoney(lead.linkedProperty?.price);
     }, 0);
+    const proposalDecisionCount = acceptedProposalsThisMonth + refusedProposalsThisMonth;
 
     const sourceMax = Math.max(...leadsBySource.map((row) => row._count._all), 1);
     const stageMap = new Map(pipelineSummary.map((row) => [row.stage, row._count._all]));
@@ -565,6 +590,14 @@ export async function getSaasDashboardSnapshot(profile?: {
               leadName: upcomingVisits[0].lead.name,
             }
           : null,
+      },
+      proposalInsights: {
+        open: proposalsPending,
+        acceptedThisMonth: acceptedProposalsThisMonth,
+        refusedThisMonth: refusedProposalsThisMonth,
+        thisMonth: proposalsThisMonth,
+        openValue: asMoney(openProposalValue._sum.offeredValue),
+        acceptanceRate: proposalDecisionCount > 0 ? Math.round((acceptedProposalsThisMonth / proposalDecisionCount) * 100) : 0
       }
     };
   } catch {
@@ -602,6 +635,14 @@ export async function getSaasDashboardSnapshot(profile?: {
         thisMonth: 0,
         completionRate: 0,
         nextVisit: null,
+      },
+      proposalInsights: {
+        open: 0,
+        acceptedThisMonth: 0,
+        refusedThisMonth: 0,
+        thisMonth: 0,
+        openValue: 0,
+        acceptanceRate: 0
       }
     };
   }

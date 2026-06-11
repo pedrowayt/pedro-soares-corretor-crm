@@ -5,6 +5,7 @@ import {
   Bell,
   CalendarCheck,
   CheckCircle2,
+  FileText,
   Flame,
   Home,
   Plus,
@@ -345,6 +346,44 @@ function VisitInsightCard({ snapshot }: { snapshot: SaasDashboardSnapshot }) {
   );
 }
 
+function ProposalInsightCard({ snapshot }: { snapshot: SaasDashboardSnapshot }) {
+  const insights = snapshot.proposalInsights;
+
+  return (
+    <section className="crm-saas-side-card crm-saas-proposal-response">
+      <header className="crm-saas-side-card__head">
+        <h2>
+          <FileText size={17} strokeWidth={1.8} aria-hidden="true" /> Propostas
+        </h2>
+        <Link href="/crm/propostas">Gerenciar</Link>
+      </header>
+
+      <div className="crm-saas-proposal-response__metrics">
+        <span>
+          Abertas <strong>{insights.open}</strong>
+        </span>
+        <span>
+          Aceitas <strong>{insights.acceptedThisMonth}</strong>
+        </span>
+        <span>
+          Mês <strong>{insights.thisMonth}</strong>
+        </span>
+      </div>
+
+      <div className="crm-saas-proposal-response__value">
+        <span>Valor em aberto</span>
+        <strong>{formatCurrencyBRL(insights.openValue)}</strong>
+      </div>
+
+      <div className="crm-saas-proposal-response__progress">
+        <span>Taxa de aceite mensal</span>
+        <strong>{insights.acceptanceRate}%</strong>
+        <i style={{ width: `${Math.max(insights.acceptanceRate, insights.thisMonth ? 4 : 0)}%` }} aria-hidden="true" />
+      </div>
+    </section>
+  );
+}
+
 export default async function CrmDashboardPage() {
   const session = await getSession();
   const snapshot = await getSaasDashboardSnapshot({
@@ -542,6 +581,7 @@ export default async function CrmDashboardPage() {
           </section>
 
           <VisitInsightCard snapshot={snapshot} />
+          <ProposalInsightCard snapshot={snapshot} />
 
           <section className="crm-saas-side-card">
             <header className="crm-saas-side-card__head">
