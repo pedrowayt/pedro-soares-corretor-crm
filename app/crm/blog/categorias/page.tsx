@@ -1,8 +1,8 @@
 import Link from "next/link";
-import { BlogPostForm } from "@/components/crm/blog-form";
+import { BlogCategoryManager } from "@/components/crm/blog-category-manager";
 import { listCrmBlogCategories } from "@/lib/data/blog";
 
-export default async function CrmBlogNewPage() {
+export default async function CrmBlogCategoriesPage() {
   const categories = await listCrmBlogCategories();
 
   return (
@@ -11,13 +11,13 @@ export default async function CrmBlogNewPage() {
         <Link href="/crm/blog">← Voltar para o blog</Link>
       </p>
       <h1 className="section-title" style={{ marginTop: 0 }}>
-        Novo post
+        Categorias do blog
       </h1>
       <p className="section-subtitle">
-        Comece como rascunho, revise e publique quando estiver pronto.
+        Cadastre as categorias principais usadas no blog público e nos filtros do CRM.
       </p>
       <div style={{ marginTop: 16 }}>
-        <BlogPostForm categories={categories} />
+        <BlogCategoryManager initialCategories={categories} />
       </div>
     </>
   );

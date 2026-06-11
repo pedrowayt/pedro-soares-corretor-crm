@@ -65,7 +65,7 @@ async function getPublishedBySlug(slug: string) {
   try {
     const post = await prisma.blogPost.findFirst({
       where: { slug, status: "PUBLISHED" },
-      include: { tags: true, author: { select: { id: true, name: true } } }
+      include: { category: true, tags: true, author: { select: { id: true, name: true } } }
     });
     return post;
   } catch {
@@ -84,19 +84,35 @@ export async function generateMetadata({
   if (!post) return { title: `Post não encontrado | ${SITE_NAME}` };
 
   const tags = "tags" in post ? post.tags : [];
-  const keywords = tags.map((tag: { label: string }) => tag.label);
+  const category = "category" in post ? post.category : null;
+  const seoKeyword = "seoKeyword" in post ? post.seoKeyword : null;
+  const keywords = Array.from(
+    new Set(
+      [seoKeyword, category?.label, ...tags.map((tag: { label: string }) => tag.label)]
+        .filter(Boolean)
+        .map((item) => String(item))
+    )
+  );
   const url = `${baseUrl}/blog/${post.slug}`;
-  const images = post.coverImageUrl ? [{ url: post.coverImageUrl, alt: post.title }] : undefined;
+  const seoTitle = "seoTitle" in post ? post.seoTitle : null;
+  const seoDescription = "seoDescription" in post ? post.seoDescription : null;
+  const seoOgImageUrl = "seoOgImageUrl" in post ? post.seoOgImageUrl : null;
+  const seoNoIndex = "seoNoIndex" in post ? post.seoNoIndex : false;
+  const metaTitle = seoTitle || `${post.title} | Blog ${SITE_NAME}`;
+  const metaDescription = seoDescription || post.excerpt;
+  const imageUrl = seoOgImageUrl || post.coverImageUrl;
+  const images = imageUrl ? [{ url: imageUrl, alt: post.title }] : undefined;
 
   return {
-    title: `${post.title} | Blog ${SITE_NAME}`,
-    description: post.excerpt,
+    title: metaTitle,
+    description: metaDescription,
     keywords: keywords.length ? keywords : undefined,
     authors: [{ name: AUTHOR_NAME }],
     alternates: { canonical: url },
+    robots: seoNoIndex ? { index: false, follow: false } : undefined,
     openGraph: {
-      title: post.title,
-      description: post.excerpt,
+      title: metaTitle,
+      description: metaDescription,
       type: "article",
       url,
       siteName: SITE_NAME,
@@ -109,9 +125,9 @@ export async function generateMetadata({
     },
     twitter: {
       card: "summary_large_image",
-      title: post.title,
-      description: post.excerpt,
-      images: post.coverImageUrl ? [post.coverImageUrl] : undefined
+      title: metaTitle,
+      description: metaDescription,
+      images: imageUrl ? [imageUrl] : undefined
     }
   };
 }
@@ -127,6 +143,8 @@ export default async function BlogPostPage({
 
   const html = renderMarkdown(post.bodyMarkdown);
   const tags = "tags" in post ? post.tags : [];
+  const category = "category" in post ? post.category : null;
+  const seoKeyword = "seoKeyword" in post ? post.seoKeyword : null;
   const authorName = AUTHOR_NAME;
   const reading = estimateReadingTime(post.bodyMarkdown);
   const publishedAt = post.publishedAt ?? null;
@@ -148,12 +166,15 @@ export default async function BlogPostPage({
     "@context": "https://schema.org",
     "@type": "Article",
     headline: post.title,
-    description: post.excerpt,
-    image: post.coverImageUrl ?? undefined,
+    description: ("seoDescription" in post && post.seoDescription) || post.excerpt,
+    image: (("seoOgImageUrl" in post && post.seoOgImageUrl) || post.coverImageUrl) ?? undefined,
     datePublished: publishedAt?.toISOString(),
     dateModified: updatedAt?.toISOString(),
-    keywords: tags.map((tag: { label: string }) => tag.label).join(", ") || undefined,
-    articleSection: tags[0]?.label,
+    keywords:
+      [seoKeyword, category?.label, ...tags.map((tag: { label: string }) => tag.label)]
+        .filter(Boolean)
+        .join(", ") || undefined,
+    articleSection: category?.label ?? tags[0]?.label,
     author: {
       "@type": "Person",
       name: authorName,
@@ -198,6 +219,7 @@ export default async function BlogPostPage({
         <article>
           <header>
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 10 }}>
+              {category ? <span className="badge">{category.label}</span> : null}
               {tags.map((tag: { id: string; label: string }) => (
                 <span key={tag.id} className="badge">
                   {tag.label}

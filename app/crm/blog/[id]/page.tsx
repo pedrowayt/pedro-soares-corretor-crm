@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BlogPostForm } from "@/components/crm/blog-form";
-import { getCrmBlogPostById } from "@/lib/data/blog";
+import { getCrmBlogPostById, listCrmBlogCategories } from "@/lib/data/blog";
 
 export default async function CrmBlogEditPage({
   params
@@ -9,7 +9,10 @@ export default async function CrmBlogEditPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const post = await getCrmBlogPostById(id);
+  const [post, categories] = await Promise.all([
+    getCrmBlogPostById(id),
+    listCrmBlogCategories()
+  ]);
   if (!post) notFound();
 
   return (
@@ -54,8 +57,15 @@ export default async function CrmBlogEditPage({
             coverImageUrl: post.coverImageUrl,
             bodyMarkdown: post.bodyMarkdown,
             status: post.status,
-            tagSlugs: post.tags.map((tag) => tag.slug)
+            categoryId: post.categoryId,
+            tagSlugs: post.tags.map((tag) => tag.slug),
+            seoTitle: post.seoTitle,
+            seoDescription: post.seoDescription,
+            seoKeyword: post.seoKeyword,
+            seoOgImageUrl: post.seoOgImageUrl,
+            seoNoIndex: post.seoNoIndex
           }}
+          categories={categories}
         />
       </div>
     </>

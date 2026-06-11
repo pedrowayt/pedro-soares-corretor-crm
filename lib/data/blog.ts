@@ -9,6 +9,19 @@ export type BlogTagView = {
   label: string;
 };
 
+export type BlogCategoryView = {
+  id: string;
+  slug: string;
+  label: string;
+  description: string | null;
+  active: boolean;
+  displayOrder: number;
+  seoTitle: string | null;
+  seoDescription: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
 export type BlogPostView = {
   id: string;
   slug: string;
@@ -18,8 +31,15 @@ export type BlogPostView = {
   bodyMarkdown: string;
   status: BlogStatus;
   source: BlogSource;
+  categoryId: string | null;
+  category: BlogCategoryView | null;
   authorId: string | null;
   authorName: string | null;
+  seoTitle: string | null;
+  seoDescription: string | null;
+  seoKeyword: string | null;
+  seoOgImageUrl: string | null;
+  seoNoIndex: boolean;
   publishedAt: Date | null;
   views: number;
   createdAt: Date;
@@ -35,25 +55,123 @@ export type BlogPostUpsertInput = {
   bodyMarkdown: string;
   status: BlogStatus;
   source: BlogSource;
+  categoryId?: string | null;
   tagSlugs: string[];
+  seoTitle?: string | null;
+  seoDescription?: string | null;
+  seoKeyword?: string | null;
+  seoOgImageUrl?: string | null;
+  seoNoIndex?: boolean;
   authorId?: string | null;
+};
+
+export type BlogCategoryUpsertInput = {
+  slug: string;
+  label: string;
+  description?: string | null;
+  active?: boolean;
+  displayOrder?: number;
+  seoTitle?: string | null;
+  seoDescription?: string | null;
 };
 
 const globalForBlog = globalThis as unknown as {
   blogPostsMemory?: BlogPostView[];
   blogTagsMemory?: BlogTagView[];
+  blogCategoriesMemory?: BlogCategoryView[];
 };
+
+const DEFAULT_BLOG_CATEGORIES: BlogCategoryView[] = [
+  {
+    id: "blog-cat-mercado-imobiliario",
+    slug: "mercado-imobiliario",
+    label: "Mercado imobiliário",
+    description: "Notícias e análises gerais do mercado imobiliário em Palmas e Tocantins.",
+    active: true,
+    displayOrder: 10,
+    seoTitle: null,
+    seoDescription: null,
+    createdAt: new Date("2026-06-10T12:30:00.000Z"),
+    updatedAt: new Date("2026-06-10T12:30:00.000Z")
+  },
+  {
+    id: "blog-cat-lancamentos",
+    slug: "lancamentos",
+    label: "Lançamentos",
+    description: "Novos empreendimentos, pré-lançamentos e oportunidades na planta.",
+    active: true,
+    displayOrder: 20,
+    seoTitle: null,
+    seoDescription: null,
+    createdAt: new Date("2026-06-10T12:30:00.000Z"),
+    updatedAt: new Date("2026-06-10T12:30:00.000Z")
+  },
+  {
+    id: "blog-cat-bairros-de-palmas",
+    slug: "bairros-de-palmas",
+    label: "Bairros de Palmas",
+    description: "Guias e leituras sobre bairros, regiões e infraestrutura de Palmas.",
+    active: true,
+    displayOrder: 30,
+    seoTitle: null,
+    seoDescription: null,
+    createdAt: new Date("2026-06-10T12:30:00.000Z"),
+    updatedAt: new Date("2026-06-10T12:30:00.000Z")
+  },
+  {
+    id: "blog-cat-leiloes",
+    slug: "leiloes",
+    label: "Leilões",
+    description: "Conteúdos sobre imóveis em leilão, riscos, oportunidades e análise documental.",
+    active: true,
+    displayOrder: 40,
+    seoTitle: null,
+    seoDescription: null,
+    createdAt: new Date("2026-06-10T12:30:00.000Z"),
+    updatedAt: new Date("2026-06-10T12:30:00.000Z")
+  },
+  {
+    id: "blog-cat-compra-e-venda",
+    slug: "compra-e-venda",
+    label: "Compra e venda",
+    description: "Orientações práticas para compradores, vendedores e negociação imobiliária.",
+    active: true,
+    displayOrder: 50,
+    seoTitle: null,
+    seoDescription: null,
+    createdAt: new Date("2026-06-10T12:30:00.000Z"),
+    updatedAt: new Date("2026-06-10T12:30:00.000Z")
+  },
+  {
+    id: "blog-cat-investimento",
+    slug: "investimento",
+    label: "Investimento",
+    description: "Conteúdos sobre rentabilidade, liquidez, valorização e tomada de decisão.",
+    active: true,
+    displayOrder: 60,
+    seoTitle: null,
+    seoDescription: null,
+    createdAt: new Date("2026-06-10T12:30:00.000Z"),
+    updatedAt: new Date("2026-06-10T12:30:00.000Z")
+  }
+];
 
 function ensureMemoryStores() {
   if (!globalForBlog.blogPostsMemory) globalForBlog.blogPostsMemory = [];
   if (!globalForBlog.blogTagsMemory) globalForBlog.blogTagsMemory = [];
+  if (!globalForBlog.blogCategoriesMemory) {
+    globalForBlog.blogCategoriesMemory = DEFAULT_BLOG_CATEGORIES.map((category) => ({
+      ...category
+    }));
+  }
   return {
     posts: globalForBlog.blogPostsMemory,
-    tags: globalForBlog.blogTagsMemory
+    tags: globalForBlog.blogTagsMemory,
+    categories: globalForBlog.blogCategoriesMemory
   };
 }
 
-function slugifyTag(value: string) {
+function slugifyBlogValue(value: string) {
   return value
     .normalize("NFD")
     .replace(/[̀-ͯ]/g, "")
@@ -63,6 +181,8 @@ function slugifyTag(value: string) {
     .replace(/(^-|-$)+/g, "");
 }
 
+const slugifyTag = slugifyBlogValue;
+
 function labelFromSlug(slug: string) {
   return slug
     .split("-")
@@ -71,8 +191,27 @@ function labelFromSlug(slug: string) {
     .join(" ");
 }
 
+function normalizeDbCategory(category: Prisma.BlogCategoryGetPayload<object>): BlogCategoryView {
+  return {
+    id: category.id,
+    slug: category.slug,
+    label: category.label,
+    description: category.description,
+    active: category.active,
+    displayOrder: category.displayOrder,
+    seoTitle: category.seoTitle,
+    seoDescription: category.seoDescription,
+    createdAt: category.createdAt,
+    updatedAt: category.updatedAt
+  };
+}
+
 function normalizeDbPost(post: Prisma.BlogPostGetPayload<{
-  include: { tags: true; author: { select: { id: true; name: true } } };
+  include: {
+    category: true;
+    tags: true;
+    author: { select: { id: true; name: true } };
+  };
 }>): BlogPostView {
   return {
     id: post.id,
@@ -83,8 +222,15 @@ function normalizeDbPost(post: Prisma.BlogPostGetPayload<{
     bodyMarkdown: post.bodyMarkdown,
     status: post.status,
     source: post.source,
+    categoryId: post.categoryId,
+    category: post.category ? normalizeDbCategory(post.category) : null,
     authorId: post.authorId,
     authorName: post.author?.name ?? null,
+    seoTitle: post.seoTitle,
+    seoDescription: post.seoDescription,
+    seoKeyword: post.seoKeyword,
+    seoOgImageUrl: post.seoOgImageUrl,
+    seoNoIndex: post.seoNoIndex,
     publishedAt: post.publishedAt,
     views: post.views,
     createdAt: post.createdAt,
@@ -119,6 +265,7 @@ async function ensureTagIds(tagSlugs: string[]) {
 }
 
 function buildMemoryPost(input: BlogPostUpsertInput, existing?: BlogPostView): BlogPostView {
+  const { categories } = ensureMemoryStores();
   const tagSlugs = Array.from(
     new Set(input.tagSlugs.map((slug) => slugifyTag(slug)).filter(Boolean))
   );
@@ -129,6 +276,7 @@ function buildMemoryPost(input: BlogPostUpsertInput, existing?: BlogPostView): B
   }));
 
   const now = new Date();
+  const category = categories.find((item) => item.id === input.categoryId) ?? null;
   return {
     id: existing?.id ?? `memory-blog-${Date.now()}`,
     slug: input.slug,
@@ -138,8 +286,15 @@ function buildMemoryPost(input: BlogPostUpsertInput, existing?: BlogPostView): B
     bodyMarkdown: input.bodyMarkdown,
     status: input.status,
     source: input.source,
+    categoryId: category?.id ?? null,
+    category,
     authorId: input.authorId ?? null,
     authorName: existing?.authorName ?? null,
+    seoTitle: input.seoTitle ?? null,
+    seoDescription: input.seoDescription ?? null,
+    seoKeyword: input.seoKeyword ?? null,
+    seoOgImageUrl: input.seoOgImageUrl ?? null,
+    seoNoIndex: Boolean(input.seoNoIndex),
     publishedAt:
       input.status === BlogStatus.PUBLISHED ? existing?.publishedAt ?? now : null,
     views: existing?.views ?? 0,
@@ -155,7 +310,7 @@ export async function listCrmBlogPosts() {
   try {
     const posts = await prisma.blogPost.findMany({
       orderBy: [{ updatedAt: "desc" }],
-      include: { tags: true, author: { select: { id: true, name: true } } }
+      include: { category: true, tags: true, author: { select: { id: true, name: true } } }
     });
     return posts.map(normalizeDbPost);
   } catch {
@@ -163,12 +318,22 @@ export async function listCrmBlogPosts() {
   }
 }
 
-export async function listPublishedBlogPosts(limit?: number, tagSlug?: string) {
+function normalizePublishedFilters(filters?: string | { tagSlug?: string; categorySlug?: string }) {
+  if (typeof filters === "string") return { tagSlug: filters };
+  return filters ?? {};
+}
+
+export async function listPublishedBlogPosts(
+  limit?: number,
+  filters?: string | { tagSlug?: string; categorySlug?: string }
+) {
+  const { tagSlug, categorySlug } = normalizePublishedFilters(filters);
   if (!hasDatabase) {
     return ensureMemoryStores()
       .posts.filter(
         (post) =>
           post.status === BlogStatus.PUBLISHED &&
+          (!categorySlug || post.category?.slug === categorySlug) &&
           (!tagSlug || post.tags.some((tag) => tag.slug === tagSlug))
       )
       .slice(0, limit);
@@ -178,11 +343,12 @@ export async function listPublishedBlogPosts(limit?: number, tagSlug?: string) {
     const posts = await prisma.blogPost.findMany({
       where: {
         status: BlogStatus.PUBLISHED,
+        ...(categorySlug ? { category: { slug: categorySlug, active: true } } : {}),
         ...(tagSlug ? { tags: { some: { slug: tagSlug } } } : {})
       },
       orderBy: [{ publishedAt: "desc" }, { updatedAt: "desc" }],
       take: limit,
-      include: { tags: true, author: { select: { id: true, name: true } } }
+      include: { category: true, tags: true, author: { select: { id: true, name: true } } }
     });
     return posts.map(normalizeDbPost);
   } catch {
@@ -190,6 +356,7 @@ export async function listPublishedBlogPosts(limit?: number, tagSlug?: string) {
       .posts.filter(
         (post) =>
           post.status === BlogStatus.PUBLISHED &&
+          (!categorySlug || post.category?.slug === categorySlug) &&
           (!tagSlug || post.tags.some((tag) => tag.slug === tagSlug))
       )
       .slice(0, limit);
@@ -208,11 +375,80 @@ export async function listTopViewedBlogPosts(limit = 3) {
       where: { status: BlogStatus.PUBLISHED, views: { gt: 0 } },
       orderBy: [{ views: "desc" }, { publishedAt: "desc" }],
       take: limit,
-      include: { tags: true, author: { select: { id: true, name: true } } }
+      include: { category: true, tags: true, author: { select: { id: true, name: true } } }
     });
     return posts.map(normalizeDbPost);
   } catch {
     return [];
+  }
+}
+
+export async function listCrmBlogCategories() {
+  if (!hasDatabase) {
+    return ensureMemoryStores().categories.sort((a, b) => a.displayOrder - b.displayOrder);
+  }
+
+  try {
+    const categories = await prisma.blogCategory.findMany({
+      orderBy: [{ displayOrder: "asc" }, { label: "asc" }]
+    });
+    return categories.map(normalizeDbCategory);
+  } catch {
+    return ensureMemoryStores().categories.sort((a, b) => a.displayOrder - b.displayOrder);
+  }
+}
+
+export async function listPublishedBlogCategoriesWithCounts() {
+  if (!hasDatabase) {
+    return ensureMemoryStores()
+      .categories.map((category) => ({
+        ...category,
+        count: ensureMemoryStores().posts.filter(
+          (post) => post.status === BlogStatus.PUBLISHED && post.categoryId === category.id
+        ).length
+      }))
+      .filter((category) => category.active && category.count > 0)
+      .sort((a, b) => a.displayOrder - b.displayOrder);
+  }
+
+  try {
+    const categories = await prisma.blogCategory.findMany({
+      where: { active: true },
+      orderBy: [{ displayOrder: "asc" }, { label: "asc" }],
+      include: {
+        _count: {
+          select: { posts: { where: { status: BlogStatus.PUBLISHED } } }
+        }
+      }
+    });
+    return categories
+      .map((category) => ({ ...normalizeDbCategory(category), count: category._count.posts }))
+      .filter((category) => category.count > 0);
+  } catch {
+    return [];
+  }
+}
+
+export async function getPublishedBlogCategoryBySlug(slug: string) {
+  if (!hasDatabase) {
+    return (
+      ensureMemoryStores().categories.find(
+        (category) => category.slug === slug && category.active
+      ) ?? null
+    );
+  }
+
+  try {
+    const category = await prisma.blogCategory.findFirst({
+      where: { slug, active: true }
+    });
+    return category ? normalizeDbCategory(category) : null;
+  } catch {
+    return (
+      ensureMemoryStores().categories.find(
+        (category) => category.slug === slug && category.active
+      ) ?? null
+    );
   }
 }
 
@@ -280,7 +516,7 @@ export async function getCrmBlogPostById(id: string) {
   try {
     const post = await prisma.blogPost.findUnique({
       where: { id },
-      include: { tags: true, author: { select: { id: true, name: true } } }
+      include: { category: true, tags: true, author: { select: { id: true, name: true } } }
     });
     return post ? normalizeDbPost(post) : null;
   } catch {
@@ -307,11 +543,17 @@ export async function createBlogPost(input: BlogPostUpsertInput) {
       bodyMarkdown: input.bodyMarkdown,
       status: input.status,
       source: input.source,
+      categoryId: input.categoryId ?? null,
+      seoTitle: input.seoTitle ?? null,
+      seoDescription: input.seoDescription ?? null,
+      seoKeyword: input.seoKeyword ?? null,
+      seoOgImageUrl: input.seoOgImageUrl ?? null,
+      seoNoIndex: Boolean(input.seoNoIndex),
       authorId: input.authorId ?? null,
       publishedAt: input.status === BlogStatus.PUBLISHED ? new Date() : null,
       tags: tagConnections.length ? { connect: tagConnections } : undefined
     },
-    include: { tags: true, author: { select: { id: true, name: true } } }
+    include: { category: true, tags: true, author: { select: { id: true, name: true } } }
   });
   return normalizeDbPost(post);
 }
@@ -341,6 +583,16 @@ export async function updateBlogPost(id: string, input: Partial<BlogPostUpsertIn
   if (input.coverImageUrl !== undefined) data.coverImageUrl = input.coverImageUrl ?? null;
   if (input.bodyMarkdown !== undefined) data.bodyMarkdown = input.bodyMarkdown;
   if (input.source !== undefined) data.source = input.source;
+  if (input.categoryId !== undefined) {
+    data.category = input.categoryId
+      ? { connect: { id: input.categoryId } }
+      : { disconnect: true };
+  }
+  if (input.seoTitle !== undefined) data.seoTitle = input.seoTitle ?? null;
+  if (input.seoDescription !== undefined) data.seoDescription = input.seoDescription ?? null;
+  if (input.seoKeyword !== undefined) data.seoKeyword = input.seoKeyword ?? null;
+  if (input.seoOgImageUrl !== undefined) data.seoOgImageUrl = input.seoOgImageUrl ?? null;
+  if (input.seoNoIndex !== undefined) data.seoNoIndex = input.seoNoIndex;
   if (input.authorId !== undefined) {
     data.author = input.authorId
       ? { connect: { id: input.authorId } }
@@ -364,9 +616,88 @@ export async function updateBlogPost(id: string, input: Partial<BlogPostUpsertIn
   const post = await prisma.blogPost.update({
     where: { id },
     data,
-    include: { tags: true, author: { select: { id: true, name: true } } }
+    include: { category: true, tags: true, author: { select: { id: true, name: true } } }
   });
   return normalizeDbPost(post);
+}
+
+export async function createBlogCategory(input: BlogCategoryUpsertInput) {
+  const normalizedSlug = slugifyBlogValue(input.slug || input.label);
+  const now = new Date();
+
+  if (!hasDatabase) {
+    const { categories } = ensureMemoryStores();
+    const category: BlogCategoryView = {
+      id: `memory-category-${normalizedSlug || Date.now()}`,
+      slug: normalizedSlug,
+      label: input.label,
+      description: input.description ?? null,
+      active: input.active ?? true,
+      displayOrder: input.displayOrder ?? categories.length * 10 + 10,
+      seoTitle: input.seoTitle ?? null,
+      seoDescription: input.seoDescription ?? null,
+      createdAt: now,
+      updatedAt: now
+    };
+    categories.push(category);
+    return category;
+  }
+
+  const category = await prisma.blogCategory.create({
+    data: {
+      slug: normalizedSlug,
+      label: input.label,
+      description: input.description ?? null,
+      active: input.active ?? true,
+      displayOrder: input.displayOrder ?? 0,
+      seoTitle: input.seoTitle ?? null,
+      seoDescription: input.seoDescription ?? null
+    }
+  });
+  return normalizeDbCategory(category);
+}
+
+export async function updateBlogCategory(id: string, input: Partial<BlogCategoryUpsertInput>) {
+  if (!hasDatabase) {
+    const { categories } = ensureMemoryStores();
+    const index = categories.findIndex((category) => category.id === id);
+    if (index < 0) return null;
+    categories[index] = {
+      ...categories[index],
+      slug: input.slug ? slugifyBlogValue(input.slug) : categories[index].slug,
+      label: input.label ?? categories[index].label,
+      description:
+        input.description !== undefined ? input.description ?? null : categories[index].description,
+      active: input.active ?? categories[index].active,
+      displayOrder: input.displayOrder ?? categories[index].displayOrder,
+      seoTitle: input.seoTitle !== undefined ? input.seoTitle ?? null : categories[index].seoTitle,
+      seoDescription:
+        input.seoDescription !== undefined
+          ? input.seoDescription ?? null
+          : categories[index].seoDescription,
+      updatedAt: new Date()
+    };
+    return categories[index];
+  }
+
+  try {
+    const data: Prisma.BlogCategoryUpdateInput = {};
+    if (input.slug !== undefined) data.slug = slugifyBlogValue(input.slug);
+    if (input.label !== undefined) data.label = input.label;
+    if (input.description !== undefined) data.description = input.description ?? null;
+    if (input.active !== undefined) data.active = input.active;
+    if (input.displayOrder !== undefined) data.displayOrder = input.displayOrder;
+    if (input.seoTitle !== undefined) data.seoTitle = input.seoTitle ?? null;
+    if (input.seoDescription !== undefined) data.seoDescription = input.seoDescription ?? null;
+
+    const category = await prisma.blogCategory.update({
+      where: { id },
+      data
+    });
+    return normalizeDbCategory(category);
+  } catch {
+    return null;
+  }
 }
 
 export async function deleteBlogPost(id: string) {

@@ -27,6 +27,8 @@ const PAGE_TITLES: Readonly<Record<string, string>> = {
   "/crm/tarefas": "Tarefas",
   "/crm/paginas-seo": "Páginas SEO",
   "/crm/blog": "Blog",
+  "/crm/blog/categorias": "Categorias",
+  "/crm/integracoes": "Integrações",
   "/crm/relatorios": "Relatórios",
   "/crm/configuracoes": "Configurações"
 };

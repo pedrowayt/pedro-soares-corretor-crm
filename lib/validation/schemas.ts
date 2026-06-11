@@ -519,6 +519,25 @@ export const crmCreateSeoLandingPageSchema = z.object({
 
 export const crmUpdateSeoLandingPageSchema = crmCreateSeoLandingPageSchema.partial();
 
+const optionalNullableText = z.string().trim().optional().nullable();
+
+export const crmCreateBlogCategorySchema = z.object({
+  label: z.string().trim().min(2).max(80),
+  slug: z
+    .string()
+    .trim()
+    .min(2)
+    .max(80)
+    .regex(/^[a-z0-9-]+$/, "Slug deve usar minúsculas, números e hífens."),
+  description: z.string().trim().max(280).optional().nullable(),
+  active: z.boolean().default(true),
+  displayOrder: z.coerce.number().int().min(0).max(9999).default(0),
+  seoTitle: z.string().trim().max(70).optional().nullable(),
+  seoDescription: z.string().trim().max(180).optional().nullable()
+});
+
+export const crmUpdateBlogCategorySchema = crmCreateBlogCategorySchema.partial();
+
 export const crmCreateBlogPostSchema = z.object({
   title: z.string().min(4),
   slug: z.string().min(3).regex(/^[a-z0-9-]+$/, "Slug deve usar minúsculas, números e hífens."),
@@ -527,7 +546,22 @@ export const crmCreateBlogPostSchema = z.object({
   bodyMarkdown: z.string().min(80),
   status: z.nativeEnum(BlogStatus).default(BlogStatus.DRAFT),
   source: z.nativeEnum(BlogSource).default(BlogSource.MANUAL),
+  categoryId: z.string().optional().nullable(),
+  seoTitle: z.string().trim().max(70).optional().nullable(),
+  seoDescription: z.string().trim().max(180).optional().nullable(),
+  seoKeyword: z.string().trim().max(80).optional().nullable(),
+  seoOgImageUrl: z.string().url().optional().nullable().or(z.literal("")),
+  seoNoIndex: z.boolean().optional().default(false),
   tagSlugs: z.array(z.string().min(1)).default([])
 });
 
 export const crmUpdateBlogPostSchema = crmCreateBlogPostSchema.partial();
+
+export const crmBlogSeoAutofillSchema = z.object({
+  title: z.string().trim().min(4).max(120),
+  slug: z.string().trim().max(100).optional(),
+  excerpt: z.string().trim().max(400).optional(),
+  bodyMarkdown: z.string().trim().max(12000).optional(),
+  categoryLabel: optionalNullableText,
+  tagLabels: z.array(z.string().trim().min(1).max(80)).default([])
+});

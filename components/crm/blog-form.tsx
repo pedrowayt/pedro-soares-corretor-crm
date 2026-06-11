@@ -3,6 +3,8 @@
 import { useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Marked } from "marked";
+import { Sparkles } from "lucide-react";
+import type { BlogCategoryView } from "@/lib/data/blog";
 
 const previewRenderer = new Marked({ async: false, gfm: true, breaks: false });
 
@@ -19,11 +21,18 @@ type BlogFormInitial = {
   coverImageUrl?: string | null;
   bodyMarkdown?: string;
   status?: BlogStatusValue;
+  categoryId?: string | null;
   tagSlugs?: string[];
+  seoTitle?: string | null;
+  seoDescription?: string | null;
+  seoKeyword?: string | null;
+  seoOgImageUrl?: string | null;
+  seoNoIndex?: boolean;
 };
 
 type Props = {
   initial?: BlogFormInitial;
+  categories?: BlogCategoryView[];
 };
 
 function slugify(value: string) {
@@ -37,9 +46,11 @@ function slugify(value: string) {
     .slice(0, 80);
 }
 
-export function BlogPostForm({ initial }: Props) {
+export function BlogPostForm({ initial, categories = [] }: Props) {
   const router = useRouter();
   const isEditing = Boolean(initial?.id);
+  const defaultCategoryId =
+    initial?.categoryId ?? categories.find((category) => category.active)?.id ?? categories[0]?.id ?? "";
 
   const [title, setTitle] = useState(initial?.title ?? "");
   const [slug, setSlug] = useState(initial?.slug ?? "");
@@ -47,9 +58,16 @@ export function BlogPostForm({ initial }: Props) {
   const [coverImageUrl, setCoverImageUrl] = useState(initial?.coverImageUrl ?? "");
   const [bodyMarkdown, setBodyMarkdown] = useState(initial?.bodyMarkdown ?? "");
   const [status, setStatus] = useState<BlogStatusValue>(initial?.status ?? "DRAFT");
+  const [categoryId, setCategoryId] = useState(defaultCategoryId);
   const [tagsInput, setTagsInput] = useState(initial?.tagSlugs?.join(", ") ?? "");
+  const [seoTitle, setSeoTitle] = useState(initial?.seoTitle ?? "");
+  const [seoDescription, setSeoDescription] = useState(initial?.seoDescription ?? "");
+  const [seoKeyword, setSeoKeyword] = useState(initial?.seoKeyword ?? "");
+  const [seoOgImageUrl, setSeoOgImageUrl] = useState(initial?.seoOgImageUrl ?? "");
+  const [seoNoIndex, setSeoNoIndex] = useState(Boolean(initial?.seoNoIndex));
   const [saving, setSaving] = useState(false);
   const [generating, setGenerating] = useState(false);
+  const [generatingSeo, setGeneratingSeo] = useState(false);
   const [generatingImage, setGeneratingImage] = useState(false);
   const [uploadingCover, setUploadingCover] = useState(false);
   const [sourceText, setSourceText] = useState("");
@@ -111,6 +129,68 @@ export function BlogPostForm({ initial }: Props) {
       setFeedback({ kind: "error", message: "Erro de rede ao gerar imagem." });
     } finally {
       setGeneratingImage(false);
+    }
+  }
+
+  async function handleGenerateSeo() {
+    if (!title.trim()) {
+      setFeedback({ kind: "error", message: "Preencha o título antes de gerar SEO." });
+      return;
+    }
+
+    const hasExistingSeo = seoTitle.trim() || seoDescription.trim() || seoKeyword.trim();
+    if (hasExistingSeo && !confirm("Isso vai substituir os campos SEO preenchidos. Continuar?")) {
+      return;
+    }
+
+    const selectedCategory = categories.find((category) => category.id === categoryId);
+
+    setGeneratingSeo(true);
+    setFeedback(null);
+    try {
+      const response = await fetch("/api/crm/blog/ai-seo", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          title: title.trim(),
+          slug: slug.trim() || undefined,
+          excerpt: excerpt.trim() || undefined,
+          bodyMarkdown: bodyMarkdown.trim() || undefined,
+          categoryLabel: selectedCategory?.label ?? null,
+          tagLabels: tagsInput
+            .split(",")
+            .map((part) => part.trim())
+            .filter(Boolean)
+        })
+      });
+      const json = await response.json().catch(() => null);
+
+      if (!response.ok || !json?.success) {
+        const message = json?.error?.message ?? "Não foi possível gerar SEO com IA.";
+        setFeedback({ kind: "error", message });
+        return;
+      }
+
+      const seo = json.data?.seo;
+      if (!seo) {
+        setFeedback({ kind: "error", message: "A IA não retornou SEO." });
+        return;
+      }
+
+      setSeoTitle(seo.seoTitle ?? "");
+      setSeoDescription(seo.seoDescription ?? "");
+      setSeoKeyword(seo.seoKeyword ?? "");
+      if (!slug.trim() && seo.suggestedSlug) setSlug(slugify(seo.suggestedSlug));
+      setFeedback({
+        kind: "success",
+        message: seo.suggestedSlug
+          ? `SEO preenchido. Slug sugerido: ${seo.suggestedSlug}.`
+          : "SEO preenchido."
+      });
+    } catch {
+      setFeedback({ kind: "error", message: "Erro de rede ao gerar SEO com IA." });
+    } finally {
+      setGeneratingSeo(false);
     }
   }
 
@@ -231,6 +311,11 @@ export function BlogPostForm({ initial }: Props) {
     [tagsInput]
   );
 
+  const selectedCategory = useMemo(
+    () => categories.find((category) => category.id === categoryId) ?? null,
+    [categories, categoryId]
+  );
+
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setSaving(true);
@@ -243,6 +328,12 @@ export function BlogPostForm({ initial }: Props) {
       coverImageUrl: coverImageUrl.trim() ? coverImageUrl.trim() : null,
       bodyMarkdown,
       status,
+      categoryId: categoryId || null,
+      seoTitle: seoTitle.trim() || null,
+      seoDescription: seoDescription.trim() || null,
+      seoKeyword: seoKeyword.trim() || null,
+      seoOgImageUrl: seoOgImageUrl.trim() || null,
+      seoNoIndex,
       tagSlugs
     };
 
@@ -455,6 +546,22 @@ export function BlogPostForm({ initial }: Props) {
       </div>
 
       <div style={{ display: "grid", gap: 4 }}>
+        <label htmlFor="blog-category">Categoria</label>
+        <select
+          id="blog-category"
+          value={categoryId}
+          onChange={(event) => setCategoryId(event.target.value)}
+        >
+          <option value="">Sem categoria</option>
+          {categories.map((category) => (
+            <option key={category.id} value={category.id}>
+              {category.label}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div style={{ display: "grid", gap: 4 }}>
         <label htmlFor="blog-tags">Tags (separadas por vírgula)</label>
         <input
           id="blog-tags"
@@ -468,6 +575,118 @@ export function BlogPostForm({ initial }: Props) {
           </small>
         ) : null}
       </div>
+
+      <section
+        style={{
+          display: "grid",
+          gap: 12,
+          padding: 14,
+          borderRadius: 10,
+          border: "1px solid var(--border, #e5e5e5)",
+          background: "var(--surface-soft, #fff)"
+        }}
+        aria-labelledby="blog-seo-heading"
+      >
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 10,
+            flexWrap: "wrap"
+          }}
+        >
+          <div>
+            <strong id="blog-seo-heading">SEO</strong>
+            <div style={{ color: "var(--text-muted)", fontSize: 13, marginTop: 2 }}>
+              Campos usados em Google, compartilhamento e preview social.
+            </div>
+          </div>
+          <button
+            type="button"
+            className="button button-ghost"
+            onClick={handleGenerateSeo}
+            disabled={generatingSeo || saving}
+          >
+            <Sparkles size={16} strokeWidth={1.8} aria-hidden="true" />
+            {generatingSeo ? "Gerando..." : "Preencher SEO com IA"}
+          </button>
+        </div>
+
+        <div className="grid-3">
+          <label style={{ display: "grid", gap: 4, gridColumn: "span 2" }}>
+            Meta title
+            <input
+              value={seoTitle}
+              onChange={(event) => setSeoTitle(event.target.value.slice(0, 70))}
+              placeholder={title ? `${title} | Blog Pedro Soares` : "Título SEO"}
+              maxLength={70}
+            />
+            <small style={{ color: "var(--text-muted)" }}>{seoTitle.length}/70</small>
+          </label>
+          <label style={{ display: "grid", gap: 4 }}>
+            Palavra-chave
+            <input
+              value={seoKeyword}
+              onChange={(event) => setSeoKeyword(event.target.value.slice(0, 80))}
+              placeholder="imóveis em Palmas"
+              maxLength={80}
+            />
+          </label>
+        </div>
+
+        <label style={{ display: "grid", gap: 4 }}>
+          Meta description
+          <textarea
+            value={seoDescription}
+            onChange={(event) => setSeoDescription(event.target.value.slice(0, 180))}
+            rows={3}
+            maxLength={180}
+            placeholder={excerpt || "Descrição para resultados de busca."}
+          />
+          <small style={{ color: "var(--text-muted)" }}>{seoDescription.length}/180</small>
+        </label>
+
+        <div className="grid-3">
+          <label style={{ display: "grid", gap: 4, gridColumn: "span 2" }}>
+            Imagem OG
+            <input
+              type="url"
+              value={seoOgImageUrl}
+              onChange={(event) => setSeoOgImageUrl(event.target.value)}
+              placeholder={coverImageUrl || "Usa a capa se ficar vazio"}
+            />
+          </label>
+          <label style={{ display: "flex", gap: 8, alignItems: "center", alignSelf: "end" }}>
+            <input
+              type="checkbox"
+              checked={seoNoIndex}
+              onChange={(event) => setSeoNoIndex(event.target.checked)}
+              style={{ width: 16, height: 16 }}
+            />
+            <span>Não indexar</span>
+          </label>
+        </div>
+
+        <div
+          style={{
+            padding: 12,
+            borderRadius: 8,
+            border: "1px solid var(--border, #e5e5e5)",
+            background: "#fff"
+          }}
+        >
+          <p style={{ margin: 0, color: "#1d4ed8", fontSize: 13 }}>
+            pedrosoarescorretor.com.br/blog/{slug || "..."}
+          </p>
+          <strong style={{ display: "block", marginTop: 4, color: "#1a0dab" }}>
+            {seoTitle || title || "Título SEO do post"}
+          </strong>
+          <p style={{ margin: "4px 0 0", color: "#374151", fontSize: 13 }}>
+            {seoDescription || excerpt || "A descrição SEO aparecerá aqui."}
+          </p>
+        </div>
+      </section>
 
       <div style={{ display: "grid", gap: 4 }}>
         <label htmlFor="blog-body">Conteúdo (Markdown)</label>
@@ -571,8 +790,13 @@ export function BlogPostForm({ initial }: Props) {
         />
       ) : null}
 
-      {tagSlugs.length ? (
+      {selectedCategory || tagSlugs.length ? (
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+          {selectedCategory ? (
+            <span className="badge">
+              {selectedCategory.label}
+            </span>
+          ) : null}
           {tagSlugs.map((tag) => (
             <span key={tag} className="badge">
               {tag}

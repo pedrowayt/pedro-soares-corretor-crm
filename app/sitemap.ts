@@ -1,5 +1,8 @@
 import type { MetadataRoute } from "next";
-import { listPublishedBlogPosts } from "@/lib/data/blog";
+import {
+  listPublishedBlogCategoriesWithCounts,
+  listPublishedBlogPosts
+} from "@/lib/data/blog";
 import { listPublicBuilders, listPublicDevelopments } from "@/lib/data/developments";
 import { listPublicProperties } from "@/lib/data/properties";
 import { listPublishedSeoLandingPages } from "@/lib/data/seo-landing-pages";
@@ -36,12 +39,13 @@ function maxDate(dates: Array<Date | undefined>): Date | undefined {
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = getSiteUrl();
-  const [properties, developments, seoPages, builders, blogPosts] = await Promise.all([
+  const [properties, developments, seoPages, builders, blogPosts, blogCategories] = await Promise.all([
     listPublicProperties(),
     listPublicDevelopments(),
     listPublishedSeoLandingPages(),
     listPublicBuilders(),
-    listPublishedBlogPosts()
+    listPublishedBlogPosts(),
+    listPublishedBlogCategoriesWithCounts()
   ]);
 
   // Per-record routes use the row's own updatedAt so Google can detect real
@@ -87,6 +91,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7
   }));
 
+  const blogCategoryRoutes = blogCategories.map((category) => ({
+    url: `${baseUrl}/blog/categoria/${category.slug}`,
+    lastModified: pickLastModified(
+      category.updatedAt,
+      maxDate(
+        blogPosts
+          .filter((post) => post.category?.slug === category.slug)
+          .map((post) => toDate(post.updatedAt))
+      )
+    ),
+    changeFrequency: "weekly" as const,
+    priority: 0.65
+  }));
+
   // Auto-generated city/district/builder index routes — their freshness
   // tracks the latest development that lives in that bucket.
   const autoLaunchBuckets = new Map<string, Date | undefined>();
@@ -127,7 +145,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       ...developmentRoutes.map((r) => toDate(r.lastModified)),
       ...builderRoutes.map((r) => toDate(r.lastModified)),
       ...seoRoutes.map((r) => toDate(r.lastModified)),
-      ...blogRoutes.map((r) => toDate(r.lastModified))
+      ...blogRoutes.map((r) => toDate(r.lastModified)),
+      ...blogCategoryRoutes.map((r) => toDate(r.lastModified))
     ]) ?? STATIC_ROUTE_LAST_MODIFIED;
 
   const staticRoutes = [
@@ -160,6 +179,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...builderRoutes,
     ...autoLaunchRoutes,
     ...seoRoutes,
-    ...blogRoutes
+    ...blogRoutes,
+    ...blogCategoryRoutes
   ];
 }
