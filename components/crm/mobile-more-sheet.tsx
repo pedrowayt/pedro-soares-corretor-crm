@@ -17,6 +17,7 @@ import {
   Plug,
   Search,
   Settings,
+  Target,
   UserCheck,
   X,
   type LucideIcon
@@ -31,6 +32,7 @@ const GROUPS: ReadonlyArray<Group> = [
     title: "Operação",
     items: [
       { href: "/crm/inbox", label: "Inbox", Icon: Inbox },
+      { href: "/crm/captacao", label: "Captação ativa", Icon: Target },
       { href: "/crm/leiloes", label: "Leilões", Icon: Hammer },
       { href: "/crm/empreendimentos", label: "Empreendimentos", Icon: Building2 },
       { href: "/crm/construtoras", label: "Construtoras", Icon: Hammer },

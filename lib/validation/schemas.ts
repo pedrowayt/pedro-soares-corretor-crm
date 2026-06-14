@@ -1,6 +1,7 @@
 import {
   BlogSource,
   BlogStatus,
+  CaptureSourceKind,
   DevelopmentAmenityType,
   DevelopmentLeadStatus,
   DevelopmentMediaCategory,
@@ -182,6 +183,48 @@ export const crmCreateOwnerSchema = z.object({
 });
 
 export const crmUpdateOwnerSchema = crmCreateOwnerSchema.partial();
+
+export const crmCreateCapturedListingSchema = z.object({
+  title: z.string().trim().min(3).max(180),
+  description: z.string().trim().max(5000).optional().nullable().or(z.literal("")),
+  sourceName: z.string().trim().max(120).optional().nullable().or(z.literal("")),
+  sourceKind: z.nativeEnum(CaptureSourceKind).optional().default(CaptureSourceKind.MANUAL),
+  externalId: z.string().trim().max(160).optional().nullable().or(z.literal("")),
+  sourceUrl: z.string().trim().url().optional().nullable().or(z.literal("")),
+  purpose: z.nativeEnum(PropertyPurpose),
+  type: z.nativeEnum(PropertyType),
+  price: z.coerce.number().positive(),
+  address: z.string().trim().max(180).optional().nullable().or(z.literal("")),
+  city: z.string().trim().min(2).max(80).default("Palmas"),
+  district: z.string().trim().min(2).max(80),
+  postalCode: z.string().trim().max(20).optional().nullable().or(z.literal("")),
+  latitude: z.coerce.number().nullish(),
+  longitude: z.coerce.number().nullish(),
+  areaM2: z.coerce.number().positive().nullish(),
+  landAreaM2: z.coerce.number().positive().nullish(),
+  bedrooms: z.coerce.number().int().min(0).nullish(),
+  suites: z.coerce.number().int().min(0).nullish(),
+  bathrooms: z.coerce.number().int().min(0).nullish(),
+  parkingSpaces: z.coerce.number().int().min(0).nullish(),
+  advertiserName: z.string().trim().max(120).optional().nullable().or(z.literal("")),
+  advertiserPhone: z.string().trim().max(40).optional().nullable().or(z.literal("")),
+  advertiserEmail: z.string().trim().email().optional().nullable().or(z.literal("")),
+  isPrivateSeller: z.boolean().optional().default(false),
+  hasFullAddress: z.boolean().optional().default(false),
+  adAgeDays: z.coerce.number().int().min(0).nullish(),
+  marketAvgPrice: z.coerce.number().positive().nullish(),
+  marketAvgPriceM2: z.coerce.number().positive().nullish(),
+  rawPayload: z.unknown().optional(),
+  notes: z.string().trim().max(3000).optional().nullable().or(z.literal(""))
+});
+
+export const crmImportOlxCapturedListingSchema = z.object({
+  sourceUrl: z.string().trim().url()
+});
+
+export const crmDiscardCapturedListingSchema = z.object({
+  reason: z.string().trim().max(1000).optional().nullable().or(z.literal(""))
+});
 
 export const marketplacePortalKeySchema = z.enum(["olx", "zap", "vivareal"]);
 

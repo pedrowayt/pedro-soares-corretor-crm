@@ -20,6 +20,7 @@ const SIDEBAR_SECTIONS: ReadonlyArray<SidebarSection> = [
     title: "Estoque",
     items: [
       { href: "/crm/imoveis", label: "Imóveis" },
+      { href: "/crm/captacao", label: "Captação ativa" },
       { href: "/crm/leiloes", label: "Leilões" },
       { href: "/crm/empreendimentos", label: "Empreendimentos" },
       { href: "/crm/construtoras", label: "Construtoras" },

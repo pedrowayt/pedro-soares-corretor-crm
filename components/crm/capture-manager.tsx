@@ -1,0 +1,871 @@
+"use client";
+
+import Link from "next/link";
+import { useMemo, useState, type ChangeEvent, type FormEvent } from "react";
+import {
+  CheckCircle2,
+  Download,
+  ExternalLink,
+  Filter,
+  Link2,
+  MapPin,
+  Phone,
+  Plus,
+  Search,
+  ShieldCheck,
+  Trash2,
+  X
+} from "lucide-react";
+import type { CaptureListingItem } from "@/lib/data/capture";
+import { formatCurrencyBRL } from "@/lib/utils";
+
+type CaptureFilters = {
+  query: string;
+  status: string;
+  purpose: string;
+  type: string;
+  location: string;
+  priceMin: string;
+  priceMax: string;
+  privateOnly: boolean;
+  fullAddressOnly: boolean;
+};
+
+type ManualFormState = {
+  sourceName: string;
+  sourceUrl: string;
+  title: string;
+  purpose: string;
+  type: string;
+  price: string;
+  city: string;
+  district: string;
+  address: string;
+  areaM2: string;
+  landAreaM2: string;
+  bedrooms: string;
+  suites: string;
+  bathrooms: string;
+  parkingSpaces: string;
+  advertiserName: string;
+  advertiserPhone: string;
+  marketAvgPrice: string;
+  notes: string;
+  isPrivateSeller: boolean;
+  hasFullAddress: boolean;
+};
+
+type ApiPayload = {
+  success?: boolean;
+  listing?: CaptureListingItem;
+  data?: { listing?: CaptureListingItem };
+  error?: { message?: string };
+};
+
+const EMPTY_FILTERS: CaptureFilters = {
+  query: "",
+  status: "",
+  purpose: "",
+  type: "",
+  location: "",
+  priceMin: "",
+  priceMax: "",
+  privateOnly: false,
+  fullAddressOnly: false
+};
+
+const EMPTY_FORM: ManualFormState = {
+  sourceName: "Manual",
+  sourceUrl: "",
+  title: "",
+  purpose: "VENDA",
+  type: "CASA",
+  price: "",
+  city: "Palmas",
+  district: "",
+  address: "",
+  areaM2: "",
+  landAreaM2: "",
+  bedrooms: "",
+  suites: "",
+  bathrooms: "",
+  parkingSpaces: "",
+  advertiserName: "",
+  advertiserPhone: "",
+  marketAvgPrice: "",
+  notes: "",
+  isPrivateSeller: true,
+  hasFullAddress: false
+};
+
+const STATUS_LABELS: Record<string, string> = {
+  NOVO: "Novo",
+  EM_ANALISE: "Em análise",
+  CAPTADO: "Captado",
+  DESCARTADO: "Descartado"
+};
+
+const PURPOSE_LABELS: Record<string, string> = {
+  VENDA: "Venda",
+  LOCACAO: "Locação",
+  INVESTIMENTO: "Investimento",
+  LEILAO: "Leilão",
+  LANCAMENTO: "Lançamento"
+};
+
+const TYPE_LABELS: Record<string, string> = {
+  CASA: "Casa",
+  APARTAMENTO: "Apartamento",
+  LOTE: "Lote",
+  COMERCIAL: "Comercial",
+  RURAL: "Rural",
+  AREA_PRIVATIVA: "Área privativa",
+  CASA_EM_CONDOMINIO: "Casa em condomínio",
+  CASA_GEMINADA: "Casa geminada",
+  CHACARA: "Chácara",
+  CHACARA_EM_CONDOMINIO: "Chácara em condomínio",
+  COBERTURA: "Cobertura",
+  FAZENDA: "Fazenda",
+  FLAT: "Flat",
+  GALPAO: "Galpão",
+  LOJA: "Loja",
+  LOTE_EM_CONDOMINIO: "Lote em condomínio",
+  PREDIO: "Prédio",
+  SALA: "Sala",
+  SOBRADO: "Sobrado"
+};
+
+const PURPOSE_OPTIONS = Object.entries(PURPOSE_LABELS);
+const TYPE_OPTIONS = Object.entries(TYPE_LABELS);
+const STATUS_OPTIONS = Object.entries(STATUS_LABELS);
+
+function normalizeSearchTerm(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+}
+
+function parseNumberInput(value: string) {
+  const normalized = value
+    .trim()
+    .replace(/[^\d,.-]/g, "")
+    .replace(/\./g, "")
+    .replace(",", ".");
+  if (!normalized) return null;
+  const parsed = Number(normalized);
+  return Number.isFinite(parsed) ? parsed : null;
+}
+
+function optionalNumber(value: string) {
+  const parsed = parseNumberInput(value);
+  return parsed ?? undefined;
+}
+
+function buildSpecs(listing: CaptureListingItem) {
+  return [
+    listing.bedrooms !== null ? `${listing.bedrooms} qtos` : null,
+    listing.suites !== null ? `${listing.suites} suítes` : null,
+    listing.bathrooms !== null ? `${listing.bathrooms} banh.` : null,
+    listing.parkingSpaces !== null ? `${listing.parkingSpaces} vagas` : null,
+    listing.areaM2 !== null ? `${listing.areaM2} m²` : null,
+    listing.landAreaM2 !== null ? `${listing.landAreaM2} m² terreno` : null
+  ].filter(Boolean);
+}
+
+function formatAge(days: number | null) {
+  if (days === null) return "Idade não informada";
+  if (days === 0) return "Publicado hoje";
+  if (days === 1) return "1 dia de anúncio";
+  return `${days} dias de anúncio`;
+}
+
+function formatDateTime(value: string | null) {
+  if (!value) return null;
+  return new Intl.DateTimeFormat("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit"
+  }).format(new Date(value));
+}
+
+function buildLocationOptions(listings: CaptureListingItem[]) {
+  const options = new Map<string, string>();
+  listings.forEach((listing) => {
+    const city = listing.city.trim();
+    const district = listing.district.trim();
+    const label = [district, city].filter(Boolean).join(", ");
+    if (!label) return;
+    options.set(`${city}||${district}`, label);
+  });
+  return Array.from(options, ([value, label]) => ({ value, label })).sort((first, second) =>
+    first.label.localeCompare(second.label, "pt-BR")
+  );
+}
+
+function buildWhatsappLink(phone: string, listing: CaptureListingItem) {
+  const digits = phone.replace(/\D/g, "");
+  const text = encodeURIComponent(
+    `Olá! Vi seu anúncio "${listing.title}" e queria conversar sobre uma possível parceria para venda/captação do imóvel.`
+  );
+  return `https://wa.me/${digits}?text=${text}`;
+}
+
+function getStatusTone(status: string) {
+  if (status === "CAPTADO") return "success";
+  if (status === "DESCARTADO") return "muted";
+  if (status === "EM_ANALISE") return "warning";
+  return "info";
+}
+
+function getScoreTone(score: number) {
+  if (score >= 75) return "hot";
+  if (score >= 55) return "warm";
+  return "cold";
+}
+
+function buildSubmitPayload(form: ManualFormState) {
+  return {
+    sourceName: form.sourceName,
+    sourceKind: "MANUAL",
+    sourceUrl: form.sourceUrl,
+    title: form.title,
+    purpose: form.purpose,
+    type: form.type,
+    price: optionalNumber(form.price),
+    city: form.city,
+    district: form.district,
+    address: form.address,
+    areaM2: optionalNumber(form.areaM2),
+    landAreaM2: optionalNumber(form.landAreaM2),
+    bedrooms: optionalNumber(form.bedrooms),
+    suites: optionalNumber(form.suites),
+    bathrooms: optionalNumber(form.bathrooms),
+    parkingSpaces: optionalNumber(form.parkingSpaces),
+    advertiserName: form.advertiserName,
+    advertiserPhone: form.advertiserPhone,
+    isPrivateSeller: form.isPrivateSeller,
+    hasFullAddress: form.hasFullAddress,
+    marketAvgPrice: optionalNumber(form.marketAvgPrice),
+    notes: form.notes
+  };
+}
+
+export function CaptureManager({ listings }: { listings: CaptureListingItem[] }) {
+  const [items, setItems] = useState<CaptureListingItem[]>(listings);
+  const [filters, setFilters] = useState<CaptureFilters>(EMPTY_FILTERS);
+  const [showForm, setShowForm] = useState(false);
+  const [form, setForm] = useState<ManualFormState>(EMPTY_FORM);
+  const [olxUrl, setOlxUrl] = useState("");
+  const [importingOlx, setImportingOlx] = useState(false);
+  const [pendingId, setPendingId] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [feedback, setFeedback] = useState<{ tone: "success" | "error"; message: string } | null>(null);
+
+  const locationOptions = useMemo(() => buildLocationOptions(items), [items]);
+
+  const metrics = useMemo(() => {
+    const active = items.filter((item) => item.status === "NOVO" || item.status === "EM_ANALISE");
+    const hot = active.filter((item) => item.opportunityScore >= 70);
+    const captured = items.filter((item) => item.status === "CAPTADO");
+    const privateCount = active.filter((item) => item.isPrivateSeller).length;
+    return { total: items.length, active: active.length, hot: hot.length, captured: captured.length, privateCount };
+  }, [items]);
+
+  const hasActiveFilters =
+    Object.entries(filters).some(([, value]) => (typeof value === "boolean" ? value : value.trim().length > 0));
+
+  const filteredItems = useMemo(() => {
+    const queryTokens = normalizeSearchTerm(filters.query).split(/\s+/).filter(Boolean);
+    const minPrice = parseNumberInput(filters.priceMin);
+    const maxPrice = parseNumberInput(filters.priceMax);
+    const [filterCity, filterDistrict] = filters.location.split("||");
+
+    return items.filter((listing) => {
+      if (filters.status && listing.status !== filters.status) return false;
+      if (filters.purpose && listing.purpose !== filters.purpose) return false;
+      if (filters.type && listing.type !== filters.type) return false;
+      if (filterCity && listing.city.trim() !== filterCity) return false;
+      if (filterDistrict && listing.district.trim() !== filterDistrict) return false;
+      if (filters.privateOnly && !listing.isPrivateSeller) return false;
+      if (filters.fullAddressOnly && !listing.hasFullAddress) return false;
+      if (minPrice !== null && listing.price < minPrice) return false;
+      if (maxPrice !== null && listing.price > maxPrice) return false;
+
+      if (queryTokens.length) {
+        const searchable = normalizeSearchTerm(
+          [
+            listing.title,
+            listing.description,
+            listing.city,
+            listing.district,
+            listing.address,
+            listing.advertiserName,
+            listing.advertiserPhone,
+            listing.sourceName,
+            listing.notes,
+            STATUS_LABELS[listing.status],
+            PURPOSE_LABELS[listing.purpose],
+            TYPE_LABELS[listing.type]
+          ]
+            .filter(Boolean)
+            .join(" ")
+        );
+        if (queryTokens.some((token) => !searchable.includes(token))) return false;
+      }
+
+      return true;
+    });
+  }, [filters, items]);
+
+  function updateFilter<K extends keyof CaptureFilters>(field: K, value: CaptureFilters[K]) {
+    setFilters((current) => ({ ...current, [field]: value }));
+  }
+
+  function updateForm(field: keyof ManualFormState, value: string | boolean) {
+    setForm((current) => ({ ...current, [field]: value }));
+  }
+
+  function updateFormFromInput(field: keyof ManualFormState) {
+    return (event: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+      const target = event.target;
+      updateForm(field, target instanceof HTMLInputElement && target.type === "checkbox" ? target.checked : target.value);
+    };
+  }
+
+  async function handleResponse(response: Response) {
+    if (response.status === 401) {
+      const next = encodeURIComponent(window.location.pathname + window.location.search);
+      window.location.assign(`/admin/login?next=${next}`);
+      throw new Error("Sessão expirada. Redirecionando para o login...");
+    }
+
+    const data = (await response.json().catch(() => null)) as ApiPayload | null;
+    const listing = data?.listing ?? data?.data?.listing;
+    if (!response.ok || !data?.success || !listing) {
+      throw new Error(data?.error?.message ?? "Falha na operação.");
+    }
+    return listing;
+  }
+
+  function replaceListing(nextListing: CaptureListingItem) {
+    setItems((current) =>
+      current.some((item) => item.id === nextListing.id)
+        ? current.map((item) => (item.id === nextListing.id ? nextListing : item))
+        : [nextListing, ...current]
+    );
+  }
+
+  async function submitManualListing(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setSaving(true);
+    setFeedback(null);
+    try {
+      const response = await fetch("/api/crm/captacao", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(buildSubmitPayload(form))
+      });
+      const listing = await handleResponse(response);
+      replaceListing(listing);
+      setForm(EMPTY_FORM);
+      setShowForm(false);
+      setFeedback({ tone: "success", message: "Oportunidade criada para análise." });
+    } catch (error) {
+      setFeedback({
+        tone: "error",
+        message: error instanceof Error ? error.message : "Erro ao criar oportunidade."
+      });
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function importOlxListing(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setImportingOlx(true);
+    setFeedback(null);
+    try {
+      const response = await fetch("/api/crm/captacao/import/olx", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sourceUrl: olxUrl })
+      });
+      const listing = await handleResponse(response);
+      replaceListing(listing);
+      setOlxUrl("");
+      setFeedback({ tone: "success", message: "Anúncio da OLX importado para a fila de captação." });
+    } catch (error) {
+      setFeedback({
+        tone: "error",
+        message: error instanceof Error ? error.message : "Erro ao importar anúncio da OLX."
+      });
+    } finally {
+      setImportingOlx(false);
+    }
+  }
+
+  async function captureItem(listing: CaptureListingItem) {
+    if (!window.confirm(`Captar "${listing.title}" e criar imóvel em análise?`)) return;
+    setPendingId(listing.id);
+    setFeedback(null);
+    try {
+      const response = await fetch(`/api/crm/captacao/${listing.id}/captar`, { method: "POST" });
+      const updated = await handleResponse(response);
+      replaceListing(updated);
+      setFeedback({ tone: "success", message: "Imóvel em análise criado a partir da oportunidade." });
+    } catch (error) {
+      setFeedback({ tone: "error", message: error instanceof Error ? error.message : "Erro ao captar." });
+    } finally {
+      setPendingId(null);
+    }
+  }
+
+  async function discardItem(listing: CaptureListingItem) {
+    const reason = window.prompt("Motivo do descarte", "");
+    if (reason === null) return;
+    setPendingId(listing.id);
+    setFeedback(null);
+    try {
+      const response = await fetch(`/api/crm/captacao/${listing.id}/descartar`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reason })
+      });
+      const updated = await handleResponse(response);
+      replaceListing(updated);
+      setFeedback({ tone: "success", message: "Oportunidade descartada." });
+    } catch (error) {
+      setFeedback({ tone: "error", message: error instanceof Error ? error.message : "Erro ao descartar." });
+    } finally {
+      setPendingId(null);
+    }
+  }
+
+  return (
+    <div className="crm-capture-page">
+      <div className="crm-capture-head">
+        <div>
+          <h1 className="section-title" style={{ marginTop: 0 }}>Captação ativa</h1>
+          <p className="section-subtitle">
+            Triagem de anúncios externos, proprietários particulares e oportunidades antes de entrarem na carteira.
+          </p>
+        </div>
+        <button type="button" className="button button-primary" onClick={() => setShowForm((open) => !open)}>
+          {showForm ? <X size={16} strokeWidth={1.75} aria-hidden="true" /> : <Plus size={16} strokeWidth={1.75} aria-hidden="true" />}
+          {showForm ? "Fechar" : "Nova oportunidade"}
+        </button>
+      </div>
+
+      <section className="crm-capture-metrics" aria-label="Resumo de captação">
+        <div className="crm-capture-metric">
+          <span>Total monitorado</span>
+          <strong>{metrics.total}</strong>
+        </div>
+        <div className="crm-capture-metric">
+          <span>Fila ativa</span>
+          <strong>{metrics.active}</strong>
+        </div>
+        <div className="crm-capture-metric">
+          <span>Score quente</span>
+          <strong>{metrics.hot}</strong>
+        </div>
+        <div className="crm-capture-metric">
+          <span>Particulares ativos</span>
+          <strong>{metrics.privateCount}</strong>
+        </div>
+        <div className="crm-capture-metric">
+          <span>Já captados</span>
+          <strong>{metrics.captured}</strong>
+        </div>
+      </section>
+
+      <section className="crm-capture-import" aria-label="Importar anúncio da OLX">
+        <div className="crm-capture-section-head">
+          <div>
+            <h2>Importar da OLX</h2>
+            <p>Transforme um anúncio externo em oportunidade de captação.</p>
+          </div>
+        </div>
+        <form className="crm-capture-import__form" onSubmit={importOlxListing}>
+          <label htmlFor="capture-olx-url">URL do anúncio</label>
+          <div className="crm-capture-import__row">
+            <div className="crm-capture-import__input">
+              <Link2 size={16} strokeWidth={1.75} aria-hidden="true" />
+              <input
+                id="capture-olx-url"
+                type="url"
+                value={olxUrl}
+                onChange={(event) => setOlxUrl(event.target.value)}
+                placeholder="https://to.olx.com.br/..."
+                disabled={importingOlx}
+                required
+              />
+            </div>
+            <button type="submit" className="button button-primary" disabled={importingOlx || !olxUrl.trim()}>
+              <Download size={16} strokeWidth={1.75} aria-hidden="true" />
+              {importingOlx ? "Importando..." : "Importar"}
+            </button>
+          </div>
+        </form>
+      </section>
+
+      {showForm ? (
+        <section className="crm-capture-form-wrap" aria-label="Cadastrar oportunidade manual">
+          <div className="crm-capture-section-head">
+            <div>
+              <h2>Nova oportunidade</h2>
+              <p>Use para cadastrar manualmente um anúncio visto em portal, rede social, WhatsApp ou placa.</p>
+            </div>
+          </div>
+
+          <form className="crm-capture-form" onSubmit={submitManualListing}>
+            <label>
+              Título
+              <input value={form.title} onChange={updateFormFromInput("title")} required minLength={3} />
+            </label>
+            <label>
+              Origem
+              <input value={form.sourceName} onChange={updateFormFromInput("sourceName")} placeholder="OLX, Zap, Instagram..." />
+            </label>
+            <label className="crm-capture-form__wide">
+              URL do anúncio
+              <input type="url" value={form.sourceUrl} onChange={updateFormFromInput("sourceUrl")} placeholder="https://..." />
+            </label>
+            <label>
+              Finalidade
+              <select value={form.purpose} onChange={updateFormFromInput("purpose")}>
+                {PURPOSE_OPTIONS.map(([value, label]) => (
+                  <option key={value} value={value}>{label}</option>
+                ))}
+              </select>
+            </label>
+            <label>
+              Tipo
+              <select value={form.type} onChange={updateFormFromInput("type")}>
+                {TYPE_OPTIONS.map(([value, label]) => (
+                  <option key={value} value={value}>{label}</option>
+                ))}
+              </select>
+            </label>
+            <label>
+              Preço pedido
+              <input inputMode="decimal" value={form.price} onChange={updateFormFromInput("price")} required placeholder="R$ 650.000" />
+            </label>
+            <label>
+              Cidade
+              <input value={form.city} onChange={updateFormFromInput("city")} required />
+            </label>
+            <label>
+              Bairro
+              <input value={form.district} onChange={updateFormFromInput("district")} required />
+            </label>
+            <label className="crm-capture-form__wide">
+              Endereço
+              <input value={form.address} onChange={updateFormFromInput("address")} />
+            </label>
+            <label>
+              Área útil
+              <input inputMode="decimal" value={form.areaM2} onChange={updateFormFromInput("areaM2")} />
+            </label>
+            <label>
+              Terreno
+              <input inputMode="decimal" value={form.landAreaM2} onChange={updateFormFromInput("landAreaM2")} />
+            </label>
+            <label>
+              Quartos
+              <input inputMode="numeric" value={form.bedrooms} onChange={updateFormFromInput("bedrooms")} />
+            </label>
+            <label>
+              Suítes
+              <input inputMode="numeric" value={form.suites} onChange={updateFormFromInput("suites")} />
+            </label>
+            <label>
+              Banheiros
+              <input inputMode="numeric" value={form.bathrooms} onChange={updateFormFromInput("bathrooms")} />
+            </label>
+            <label>
+              Vagas
+              <input inputMode="numeric" value={form.parkingSpaces} onChange={updateFormFromInput("parkingSpaces")} />
+            </label>
+            <label>
+              Anunciante
+              <input value={form.advertiserName} onChange={updateFormFromInput("advertiserName")} />
+            </label>
+            <label>
+              Telefone
+              <input value={form.advertiserPhone} onChange={updateFormFromInput("advertiserPhone")} inputMode="tel" />
+            </label>
+            <label>
+              Média do mercado
+              <input inputMode="decimal" value={form.marketAvgPrice} onChange={updateFormFromInput("marketAvgPrice")} />
+            </label>
+            <label className="crm-capture-check">
+              <input type="checkbox" checked={form.isPrivateSeller} onChange={updateFormFromInput("isPrivateSeller")} />
+              Anúncio particular
+            </label>
+            <label className="crm-capture-check">
+              <input type="checkbox" checked={form.hasFullAddress} onChange={updateFormFromInput("hasFullAddress")} />
+              Endereço completo
+            </label>
+            <label className="crm-capture-form__wide">
+              Observações
+              <textarea value={form.notes} onChange={updateFormFromInput("notes")} rows={3} />
+            </label>
+            <div className="crm-capture-form__actions">
+              <button type="button" className="button button-ghost" onClick={() => setShowForm(false)} disabled={saving}>
+                Cancelar
+              </button>
+              <button type="submit" className="button button-primary" disabled={saving}>
+                {saving ? "Salvando..." : "Salvar oportunidade"}
+              </button>
+            </div>
+          </form>
+        </section>
+      ) : null}
+
+      {feedback ? (
+        <p className="crm-capture-feedback" data-tone={feedback.tone} role="status">
+          {feedback.message}
+        </p>
+      ) : null}
+
+      <section className="crm-capture-list" aria-label="Oportunidades para captação">
+        <div className="crm-capture-toolbar">
+          <div>
+            <strong>
+              {filteredItems.length} de {items.length} oportunidades
+            </strong>
+            <span>{hasActiveFilters ? "Filtros aplicados" : "Ordenadas por status, score e atualização"}</span>
+          </div>
+          <Filter size={18} strokeWidth={1.75} aria-hidden="true" />
+        </div>
+
+        <form className="crm-capture-filters" onSubmit={(event) => event.preventDefault()}>
+          <div className="crm-capture-filters__field crm-capture-filters__field--search">
+            <label htmlFor="capture-query">Buscar</label>
+            <div className="crm-capture-search">
+              <Search size={16} strokeWidth={1.75} aria-hidden="true" />
+              <input
+                id="capture-query"
+                type="search"
+                value={filters.query}
+                onChange={(event) => updateFilter("query", event.target.value)}
+                placeholder="Título, bairro, origem ou contato"
+              />
+            </div>
+          </div>
+          <div className="crm-capture-filters__field">
+            <label htmlFor="capture-status">Status</label>
+            <select id="capture-status" value={filters.status} onChange={(event) => updateFilter("status", event.target.value)}>
+              <option value="">Todos</option>
+              {STATUS_OPTIONS.map(([value, label]) => (
+                <option key={value} value={value}>{label}</option>
+              ))}
+            </select>
+          </div>
+          <div className="crm-capture-filters__field">
+            <label htmlFor="capture-purpose">Finalidade</label>
+            <select id="capture-purpose" value={filters.purpose} onChange={(event) => updateFilter("purpose", event.target.value)}>
+              <option value="">Todas</option>
+              {PURPOSE_OPTIONS.map(([value, label]) => (
+                <option key={value} value={value}>{label}</option>
+              ))}
+            </select>
+          </div>
+          <div className="crm-capture-filters__field">
+            <label htmlFor="capture-type">Tipo</label>
+            <select id="capture-type" value={filters.type} onChange={(event) => updateFilter("type", event.target.value)}>
+              <option value="">Todos</option>
+              {TYPE_OPTIONS.map(([value, label]) => (
+                <option key={value} value={value}>{label}</option>
+              ))}
+            </select>
+          </div>
+          <div className="crm-capture-filters__field">
+            <label htmlFor="capture-location">Cidade/bairro</label>
+            <select id="capture-location" value={filters.location} onChange={(event) => updateFilter("location", event.target.value)}>
+              <option value="">Todos</option>
+              {locationOptions.map((option) => (
+                <option key={option.value} value={option.value}>{option.label}</option>
+              ))}
+            </select>
+          </div>
+          <div className="crm-capture-filters__field">
+            <label>Preço</label>
+            <div className="crm-capture-price-grid">
+              <input
+                inputMode="decimal"
+                value={filters.priceMin}
+                onChange={(event) => updateFilter("priceMin", event.target.value)}
+                placeholder="Mín."
+                aria-label="Preço mínimo"
+              />
+              <input
+                inputMode="decimal"
+                value={filters.priceMax}
+                onChange={(event) => updateFilter("priceMax", event.target.value)}
+                placeholder="Máx."
+                aria-label="Preço máximo"
+              />
+            </div>
+          </div>
+          <label className="crm-capture-toggle">
+            <input
+              type="checkbox"
+              checked={filters.privateOnly}
+              onChange={(event) => updateFilter("privateOnly", event.target.checked)}
+            />
+            Particular
+          </label>
+          <label className="crm-capture-toggle">
+            <input
+              type="checkbox"
+              checked={filters.fullAddressOnly}
+              onChange={(event) => updateFilter("fullAddressOnly", event.target.checked)}
+            />
+            Endereço completo
+          </label>
+          <div className="crm-capture-filters__actions">
+            <button type="button" className="button button-ghost" onClick={() => setFilters(EMPTY_FILTERS)} disabled={!hasActiveFilters}>
+              <X size={16} strokeWidth={1.75} aria-hidden="true" />
+              Limpar
+            </button>
+          </div>
+        </form>
+
+        {filteredItems.length ? (
+          <ul className="crm-capture-cards">
+            {filteredItems.map((listing) => {
+              const specs = buildSpecs(listing);
+              const capturedAt = formatDateTime(listing.capturedAt);
+              const disabled = pendingId === listing.id || listing.status === "CAPTADO" || listing.status === "DESCARTADO";
+              return (
+                <li key={listing.id} className="crm-capture-card">
+                  <div className="crm-capture-card__score" data-tone={getScoreTone(listing.opportunityScore)}>
+                    <span>Score</span>
+                    <strong>{listing.opportunityScore}</strong>
+                  </div>
+                  <div className="crm-capture-card__body">
+                    <div className="crm-capture-card__head">
+                      <div>
+                        <div className="crm-capture-card__badges">
+                          <span className="crm-capture-pill" data-tone={getStatusTone(listing.status)}>
+                            {STATUS_LABELS[listing.status] ?? listing.status}
+                          </span>
+                          {listing.isPrivateSeller ? (
+                            <span className="crm-capture-pill" data-tone="success">
+                              <ShieldCheck size={13} strokeWidth={1.75} aria-hidden="true" />
+                              Particular
+                            </span>
+                          ) : null}
+                          {listing.hasFullAddress ? (
+                            <span className="crm-capture-pill" data-tone="info">
+                              <MapPin size={13} strokeWidth={1.75} aria-hidden="true" />
+                              Endereço completo
+                            </span>
+                          ) : null}
+                        </div>
+                        <h3>{listing.title}</h3>
+                        <p>
+                          {TYPE_LABELS[listing.type] ?? listing.type} · {PURPOSE_LABELS[listing.purpose] ?? listing.purpose} ·{" "}
+                          {formatAge(listing.adAgeDays)}
+                        </p>
+                      </div>
+                      <strong className="crm-capture-card__price">{formatCurrencyBRL(listing.price)}</strong>
+                    </div>
+
+                    <div className="crm-capture-card__grid">
+                      <div>
+                        <span>Localização</span>
+                        <strong>{listing.district}, {listing.city}</strong>
+                        <small>{listing.address ?? "Endereço a confirmar"}</small>
+                      </div>
+                      <div>
+                        <span>Características</span>
+                        <strong>{specs.length ? specs.join(" · ") : "Sem métricas"}</strong>
+                        <small>{listing.sourceName ?? "Origem não informada"}</small>
+                      </div>
+                      <div>
+                        <span>Mercado</span>
+                        <strong>
+                          {listing.marketOpportunity !== null
+                            ? `${listing.marketOpportunity > 0 ? "+" : ""}${formatCurrencyBRL(listing.marketOpportunity)}`
+                            : "Sem média"}
+                        </strong>
+                        <small>
+                          {listing.marketAvgPrice !== null ? `Média ${formatCurrencyBRL(listing.marketAvgPrice)}` : "Informe média para calcular oportunidade"}
+                        </small>
+                      </div>
+                      <div>
+                        <span>Contato</span>
+                        <strong>{listing.advertiserName ?? "Anunciante não informado"}</strong>
+                        {listing.advertiserPhone ? (
+                          <a href={buildWhatsappLink(listing.advertiserPhone, listing)} target="_blank" rel="noopener noreferrer">
+                            <Phone size={13} strokeWidth={1.75} aria-hidden="true" />
+                            {listing.advertiserPhone}
+                          </a>
+                        ) : (
+                          <small>Telefone pendente</small>
+                        )}
+                      </div>
+                    </div>
+
+                    {listing.notes || capturedAt ? (
+                      <p className="crm-capture-card__notes">
+                        {capturedAt ? `Captado em ${capturedAt}. ` : ""}
+                        {listing.notes}
+                      </p>
+                    ) : null}
+
+                    <div className="crm-capture-card__actions">
+                      {listing.sourceUrl ? (
+                        <a className="button button-ghost" href={listing.sourceUrl} target="_blank" rel="noopener noreferrer">
+                          <ExternalLink size={16} strokeWidth={1.75} aria-hidden="true" />
+                          Ver anúncio
+                        </a>
+                      ) : null}
+                      {listing.linkedPropertyId ? (
+                        <Link className="button button-ghost" href={`/crm/imoveis/${listing.linkedPropertyId}`}>
+                          Abrir imóvel
+                        </Link>
+                      ) : null}
+                      <button
+                        type="button"
+                        className="button button-primary"
+                        onClick={() => captureItem(listing)}
+                        disabled={disabled}
+                      >
+                        <CheckCircle2 size={16} strokeWidth={1.75} aria-hidden="true" />
+                        {pendingId === listing.id ? "Captando..." : "Captar"}
+                      </button>
+                      <button
+                        type="button"
+                        className="button button-ghost crm-capture-card__discard"
+                        onClick={() => discardItem(listing)}
+                        disabled={disabled}
+                      >
+                        <Trash2 size={16} strokeWidth={1.75} aria-hidden="true" />
+                        Descartar
+                      </button>
+                    </div>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        ) : (
+          <div className="crm-capture-empty">
+            <p>Nenhuma oportunidade encontrada para os filtros atuais.</p>
+            <button type="button" className="button button-ghost" onClick={() => setFilters(EMPTY_FILTERS)}>
+              Limpar filtros
+            </button>
+          </div>
+        )}
+      </section>
+    </div>
+  );
+}
