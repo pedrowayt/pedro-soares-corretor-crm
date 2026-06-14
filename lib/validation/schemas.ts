@@ -222,9 +222,16 @@ export const crmImportOlxCapturedListingSchema = z.object({
   sourceUrl: z.string().trim().url()
 });
 
+export const capturePortalProviderSchema = z.enum(["olx", "zap", "imovelweb", "chaves-na-mao", "facebook-marketplace"]);
+
+export const crmImportPortalCapturedListingSchema = z.object({
+  sourceUrl: z.string().trim().url(),
+  provider: capturePortalProviderSchema.optional()
+});
+
 export const crmCreateCaptureAlertSchema = z.object({
   name: z.string().trim().min(3).max(120),
-  provider: z.literal("olx").optional().default("olx"),
+  provider: capturePortalProviderSchema.optional().default("olx"),
   searchUrl: z.string().trim().url(),
   city: z.string().trim().min(2).max(80).default("Palmas"),
   district: z.string().trim().max(80).optional().nullable().or(z.literal("")),

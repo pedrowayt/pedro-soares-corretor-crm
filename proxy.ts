@@ -33,7 +33,7 @@ function canonicalRedirect(request: NextRequest): NextResponse | null {
   return NextResponse.redirect(target.toString(), 308);
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   const canonical = canonicalRedirect(request);
@@ -68,7 +68,7 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   // Run on every page request (including sitemap.xml and robots.txt) so the
-  // canonical host redirect can fire — exclude static assets and internal
+  // canonical host redirect can fire. Exclude static assets and internal
   // Next.js routes to keep things fast.
   matcher: [
     "/((?!_next/|favicon\\.ico|brand/|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico|css|js|map)$).*)"

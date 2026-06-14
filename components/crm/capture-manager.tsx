@@ -60,6 +60,7 @@ type ManualFormState = {
 
 type AlertFormState = {
   name: string;
+  provider: CapturePortalProviderId;
   searchUrl: string;
   city: string;
   district: string;
@@ -85,6 +86,8 @@ type ApiPayload = {
   };
   error?: { message?: string };
 };
+
+type CapturePortalProviderId = "olx" | "zap" | "imovelweb" | "chaves-na-mao" | "facebook-marketplace";
 
 const EMPTY_FILTERS: CaptureFilters = {
   query: "",
@@ -123,7 +126,8 @@ const EMPTY_FORM: ManualFormState = {
 };
 
 const EMPTY_ALERT_FORM: AlertFormState = {
-  name: "OLX Palmas - particulares",
+  name: "Portais Palmas - particulares",
+  provider: "olx",
   searchUrl: "",
   city: "Palmas",
   district: "",
@@ -177,6 +181,21 @@ const TYPE_LABELS: Record<string, string> = {
 const PURPOSE_OPTIONS = Object.entries(PURPOSE_LABELS);
 const TYPE_OPTIONS = Object.entries(TYPE_LABELS);
 const STATUS_OPTIONS = Object.entries(STATUS_LABELS);
+const PORTAL_OPTIONS: Array<[CapturePortalProviderId, string]> = [
+  ["olx", "OLX"],
+  ["zap", "ZAP Imóveis"],
+  ["imovelweb", "Imovelweb"],
+  ["chaves-na-mao", "Chaves na Mão"],
+  ["facebook-marketplace", "Facebook Marketplace"]
+];
+const PORTAL_LABELS = Object.fromEntries(PORTAL_OPTIONS) as Record<CapturePortalProviderId, string>;
+const SEARCH_PLACEHOLDERS: Record<CapturePortalProviderId, string> = {
+  olx: "https://to.olx.com.br/tocantins/imoveis...",
+  zap: "https://www.zapimoveis.com.br/venda/imoveis/to+palmas/",
+  imovelweb: "https://www.imovelweb.com.br/imoveis-venda-palmas-to.html",
+  "chaves-na-mao": "https://www.chavesnamao.com.br/imoveis-a-venda/to-palmas/",
+  "facebook-marketplace": "https://www.facebook.com/marketplace/palmas/propertyforsale/"
+};
 
 function normalizeSearchTerm(value: string) {
   return value
@@ -306,7 +325,7 @@ function buildSubmitPayload(form: ManualFormState) {
 function buildAlertPayload(form: AlertFormState) {
   return {
     name: form.name,
-    provider: "olx",
+    provider: form.provider,
     searchUrl: form.searchUrl,
     city: form.city,
     district: form.district,
@@ -335,8 +354,8 @@ export function CaptureManager({ listings, alerts }: { listings: CaptureListingI
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState<ManualFormState>(EMPTY_FORM);
   const [alertForm, setAlertForm] = useState<AlertFormState>(EMPTY_ALERT_FORM);
-  const [olxUrl, setOlxUrl] = useState("");
-  const [importingOlx, setImportingOlx] = useState(false);
+  const [portalUrl, setPortalUrl] = useState("");
+  const [importingPortal, setImportingPortal] = useState(false);
   const [creatingAlert, setCreatingAlert] = useState(false);
   const [runningAlertId, setRunningAlertId] = useState<string | null>(null);
   const [runningAllAlerts, setRunningAllAlerts] = useState(false);
@@ -500,27 +519,27 @@ export function CaptureManager({ listings, alerts }: { listings: CaptureListingI
     }
   }
 
-  async function importOlxListing(event: FormEvent<HTMLFormElement>) {
+  async function importPortalListing(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    setImportingOlx(true);
+    setImportingPortal(true);
     setFeedback(null);
     try {
-      const response = await fetch("/api/crm/captacao/import/olx", {
+      const response = await fetch("/api/crm/captacao/import/portal", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sourceUrl: olxUrl })
+        body: JSON.stringify({ sourceUrl: portalUrl })
       });
       const listing = await handleResponse(response);
       replaceListing(listing);
-      setOlxUrl("");
-      setFeedback({ tone: "success", message: "Anúncio da OLX importado para a fila de captação." });
+      setPortalUrl("");
+      setFeedback({ tone: "success", message: "Anúncio importado para a fila de captação." });
     } catch (error) {
       setFeedback({
         tone: "error",
-        message: error instanceof Error ? error.message : "Erro ao importar anúncio da OLX."
+        message: error instanceof Error ? error.message : "Erro ao importar anúncio do portal."
       });
     } finally {
-      setImportingOlx(false);
+      setImportingPortal(false);
     }
   }
 
@@ -672,7 +691,7 @@ export function CaptureManager({ listings, alerts }: { listings: CaptureListingI
         <div className="crm-capture-section-head">
           <div>
             <h2>Captação automática</h2>
-            <p>Monitore uma busca da OLX e importe novos anúncios para a fila.</p>
+            <p>Monitore buscas de portais e importe novos anúncios para a fila.</p>
           </div>
           <button type="button" className="button button-ghost" onClick={runAllAlerts} disabled={runningAllAlerts || !alertItems.length}>
             <RefreshCw size={16} strokeWidth={1.75} aria-hidden="true" />
@@ -685,13 +704,21 @@ export function CaptureManager({ listings, alerts }: { listings: CaptureListingI
             Nome
             <input value={alertForm.name} onChange={updateAlertFormFromInput("name")} required minLength={3} />
           </label>
+          <label>
+            Portal
+            <select value={alertForm.provider} onChange={updateAlertFormFromInput("provider")}>
+              {PORTAL_OPTIONS.map(([value, label]) => (
+                <option key={value} value={value}>{label}</option>
+              ))}
+            </select>
+          </label>
           <label className="crm-capture-alert-form__url">
-            URL da busca OLX
+            URL da busca
             <input
               type="url"
               value={alertForm.searchUrl}
               onChange={updateAlertFormFromInput("searchUrl")}
-              placeholder="https://to.olx.com.br/tocantins/imoveis..."
+              placeholder={SEARCH_PLACEHOLDERS[alertForm.provider]}
               required
             />
           </label>
@@ -763,7 +790,10 @@ export function CaptureManager({ listings, alerts }: { listings: CaptureListingI
                     </span>
                   </div>
                   <h3>{alert.name}</h3>
-                  <p>{[alert.district, alert.city].filter(Boolean).join(", ")} · {alert.provider.toUpperCase()}</p>
+                  <p>
+                    {[alert.district, alert.city].filter(Boolean).join(", ")} ·{" "}
+                    {PORTAL_LABELS[alert.provider as CapturePortalProviderId] ?? alert.provider}
+                  </p>
                   {alert.searchUrl ? (
                     <a href={alert.searchUrl} target="_blank" rel="noopener noreferrer">
                       <ExternalLink size={13} strokeWidth={1.75} aria-hidden="true" />
@@ -795,31 +825,31 @@ export function CaptureManager({ listings, alerts }: { listings: CaptureListingI
         )}
       </section>
 
-      <section className="crm-capture-import" aria-label="Importar anúncio da OLX">
+      <section className="crm-capture-import" aria-label="Importar anúncio de portal">
         <div className="crm-capture-section-head">
           <div>
-            <h2>Importar da OLX</h2>
-            <p>Transforme um anúncio externo em oportunidade de captação.</p>
+            <h2>Importar anúncio</h2>
+            <p>Transforme uma URL de OLX, ZAP, Imovelweb, Chaves na Mão ou Facebook em oportunidade.</p>
           </div>
         </div>
-        <form className="crm-capture-import__form" onSubmit={importOlxListing}>
-          <label htmlFor="capture-olx-url">URL do anúncio</label>
+        <form className="crm-capture-import__form" onSubmit={importPortalListing}>
+          <label htmlFor="capture-portal-url">URL do anúncio</label>
           <div className="crm-capture-import__row">
             <div className="crm-capture-import__input">
               <Link2 size={16} strokeWidth={1.75} aria-hidden="true" />
               <input
-                id="capture-olx-url"
+                id="capture-portal-url"
                 type="url"
-                value={olxUrl}
-                onChange={(event) => setOlxUrl(event.target.value)}
-                placeholder="https://to.olx.com.br/..."
-                disabled={importingOlx}
+                value={portalUrl}
+                onChange={(event) => setPortalUrl(event.target.value)}
+                placeholder="Cole a URL do anúncio"
+                disabled={importingPortal}
                 required
               />
             </div>
-            <button type="submit" className="button button-primary" disabled={importingOlx || !olxUrl.trim()}>
+            <button type="submit" className="button button-primary" disabled={importingPortal || !portalUrl.trim()}>
               <Download size={16} strokeWidth={1.75} aria-hidden="true" />
-              {importingOlx ? "Importando..." : "Importar"}
+              {importingPortal ? "Importando..." : "Importar"}
             </button>
           </div>
         </form>
@@ -841,7 +871,7 @@ export function CaptureManager({ listings, alerts }: { listings: CaptureListingI
             </label>
             <label>
               Origem
-              <input value={form.sourceName} onChange={updateFormFromInput("sourceName")} placeholder="OLX, Zap, Instagram..." />
+              <input value={form.sourceName} onChange={updateFormFromInput("sourceName")} placeholder="OLX, ZAP, Chaves na Mão..." />
             </label>
             <label className="crm-capture-form__wide">
               URL do anúncio

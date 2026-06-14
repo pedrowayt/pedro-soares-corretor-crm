@@ -7,8 +7,67 @@ const MAX_SCRAPE_HTML_BYTES = 2 * 1024 * 1024;
 const DEFAULT_SEARCH_LINK_LIMIT = 12;
 
 type JsonRecord = Record<string, unknown>;
+export type CapturePortalProviderId = "olx" | "zap" | "imovelweb" | "chaves-na-mao" | "facebook-marketplace";
 
-type OlxExtractedListing = {
+type PortalProviderConfig = {
+  id: CapturePortalProviderId;
+  label: string;
+  sourceName: string;
+  hosts: string[];
+  blockedPathPattern: RegExp;
+  adPathPattern: RegExp;
+  urlMatchPattern: RegExp;
+};
+
+const PORTAL_PROVIDERS: PortalProviderConfig[] = [
+  {
+    id: "olx",
+    label: "OLX",
+    sourceName: "OLX",
+    hosts: ["olx.com.br"],
+    blockedPathPattern: /\/busca|\/favoritos|\/chat|\/minha-conta|\/entrar|\/login/i,
+    adPathPattern: /(?:-|\/)\d{8,}(?:\/)?$/i,
+    urlMatchPattern: /https?:\/\/[^"'<>\s]+?olx\.com\.br[^"'<>\s]+?\d{8,}/gi
+  },
+  {
+    id: "zap",
+    label: "ZAP Imóveis",
+    sourceName: "ZAP Imóveis",
+    hosts: ["zapimoveis.com.br"],
+    blockedPathPattern: /\/login|\/entrar|\/minha-conta|\/favoritos|\/anunciar/i,
+    adPathPattern: /\/imovel\/|\/imoveis\/|id-\d{5,}|-\d{7,}(?:\/)?$/i,
+    urlMatchPattern: /https?:\/\/[^"'<>\s]+?zapimoveis\.com\.br[^"'<>\s]+?(?:id-\d{5,}|\d{7,})/gi
+  },
+  {
+    id: "imovelweb",
+    label: "Imovelweb",
+    sourceName: "Imovelweb",
+    hosts: ["imovelweb.com.br"],
+    blockedPathPattern: /\/login|\/entrar|\/minha-conta|\/favoritos|\/anunciar/i,
+    adPathPattern: /\/propriedades\/|\/imovel\/|-\d{7,}(?:\.html|\/)?$/i,
+    urlMatchPattern: /https?:\/\/[^"'<>\s]+?imovelweb\.com\.br[^"'<>\s]+?(?:propriedades|imovel|-\d{7,})/gi
+  },
+  {
+    id: "chaves-na-mao",
+    label: "Chaves na Mão",
+    sourceName: "Chaves na Mão",
+    hosts: ["chavesnamao.com.br"],
+    blockedPathPattern: /\/login|\/entrar|\/minha-conta|\/favoritos|\/anunciar/i,
+    adPathPattern: /\/imovel\/|\/imoveis\/|\/casa-|\/apartamento-|\/terreno-|\/sobrado-|\/chacara-|-\d{5,}(?:\/)?$/i,
+    urlMatchPattern: /https?:\/\/[^"'<>\s]+?chavesnamao\.com\.br[^"'<>\s]+?(?:imovel|imoveis|casa-|apartamento-|terreno-|sobrado-|chacara-|-\d{5,})/gi
+  },
+  {
+    id: "facebook-marketplace",
+    label: "Facebook Marketplace",
+    sourceName: "Facebook Marketplace",
+    hosts: ["facebook.com", "m.facebook.com", "web.facebook.com"],
+    blockedPathPattern: /\/login|\/checkpoint|\/recover|\/settings/i,
+    adPathPattern: /\/marketplace\/item\/\d+/i,
+    urlMatchPattern: /https?:\/\/[^"'<>\s]+?facebook\.com\/marketplace\/item\/\d+/gi
+  }
+];
+
+type PortalExtractedListing = {
   title: string;
   description: string | null;
   sourceUrl: string;
@@ -32,6 +91,27 @@ type OlxExtractedListing = {
   rawPayload: Prisma.InputJsonValue;
   notes: string;
 };
+
+export function getCapturePortalProviders() {
+  return PORTAL_PROVIDERS.map(({ id, label, sourceName }) => ({ id, label, sourceName }));
+}
+
+function getProviderConfig(providerId: string) {
+  const config = PORTAL_PROVIDERS.find((provider) => provider.id === providerId);
+  if (!config) {
+    throw new Error("Provedor de captação não suportado.");
+  }
+  return config;
+}
+
+function hostMatches(hostname: string, provider: PortalProviderConfig) {
+  const host = hostname.toLowerCase();
+  return provider.hosts.some((allowedHost) => host === allowedHost || host.endsWith(`.${allowedHost}`));
+}
+
+function detectProviderFromUrl(url: URL) {
+  return PORTAL_PROVIDERS.find((provider) => hostMatches(url.hostname, provider)) ?? null;
+}
 
 function isRecord(value: unknown): value is JsonRecord {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
@@ -63,17 +143,12 @@ function isPrivateHost(hostname: string) {
   return parts.length === 4 && parts.every(Number.isInteger) && parts[0] === 172 && parts[1] >= 16 && parts[1] <= 31;
 }
 
-function isOlxHost(hostname: string) {
-  const host = hostname.toLowerCase();
-  return host === "olx.com.br" || host.endsWith(".olx.com.br");
-}
-
-function parseOlxUrl(value: string) {
+function parsePortalUrl(value: string, providerId?: string | null) {
   let url: URL;
   try {
     url = new URL(value.trim());
   } catch {
-    throw new Error("URL da OLX invalida.");
+    throw new Error("URL do portal invalida.");
   }
 
   if (!["http:", "https:"].includes(url.protocol)) {
@@ -84,11 +159,16 @@ function parseOlxUrl(value: string) {
     throw new Error("Essa URL nao pode ser acessada pelo importador por seguranca.");
   }
 
-  if (!isOlxHost(url.hostname)) {
-    throw new Error("Informe uma URL de anuncio da OLX.");
+  const provider = providerId ? getProviderConfig(providerId) : detectProviderFromUrl(url);
+  if (!provider || !hostMatches(url.hostname, provider)) {
+    throw new Error("Informe uma URL de um portal suportado.");
   }
 
-  return url;
+  return { url, provider };
+}
+
+function parseOlxUrl(value: string) {
+  return parsePortalUrl(value, "olx").url;
 }
 
 async function readLimitedText(response: Response, maxBytes: number) {
@@ -106,7 +186,7 @@ async function readLimitedText(response: Response, maxBytes: number) {
     total += value.byteLength;
     if (total > maxBytes) {
       await reader.cancel();
-      throw new Error("A pagina da OLX e grande demais para leitura automatica.");
+      throw new Error("A pagina do portal e grande demais para leitura automatica.");
     }
 
     chunks.push(value);
@@ -134,7 +214,7 @@ function getCanonicalUrl($: cheerio.CheerioAPI, finalUrl: URL) {
   }
 }
 
-function normalizeOlxAdUrl(rawValue: string, baseUrl: URL) {
+function normalizePortalAdUrl(rawValue: string, baseUrl: URL, provider: PortalProviderConfig) {
   if (!rawValue || rawValue.startsWith("javascript:") || rawValue.startsWith("mailto:")) return null;
 
   let url: URL;
@@ -144,10 +224,10 @@ function normalizeOlxAdUrl(rawValue: string, baseUrl: URL) {
     return null;
   }
 
-  if (!isOlxHost(url.hostname)) return null;
+  if (!hostMatches(url.hostname, provider)) return null;
   const decodedPath = decodeURIComponent(url.pathname);
-  if (!/(?:-|\/)\d{8,}(?:\/)?$/.test(decodedPath)) return null;
-  if (/\/busca|\/favoritos|\/chat|\/minha-conta|\/entrar|\/login/i.test(decodedPath)) return null;
+  if (!provider.adPathPattern.test(decodedPath)) return null;
+  if (provider.blockedPathPattern.test(decodedPath)) return null;
 
   url.hash = "";
   url.search = "";
@@ -264,18 +344,19 @@ function parseFirstNumberNear(text: string, patterns: RegExp[]) {
   return null;
 }
 
-function stripOlxTitle(value: string) {
+function stripPortalTitle(value: string, provider: PortalProviderConfig) {
   return normalizeWhitespace(value)
-    .replace(/\s*\|\s*OLX.*$/i, "")
-    .replace(/\s+OLX\s*$/i, "")
+    .replace(new RegExp(`\\s*\\|\\s*${provider.label.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}.*$`, "i"), "")
+    .replace(/\s*\|\s*(OLX|ZAP Imóveis|Imovelweb|Chaves na Mão|Facebook Marketplace).*$/i, "")
     .replace(/\s+\d{8,}\s*$/i, "")
     .slice(0, 180);
 }
 
-function normalizeDescription(value: string) {
+function normalizeDescription(value: string, provider: PortalProviderConfig) {
   const cleaned = normalizeWhitespace(value)
-    .replace(/\s*\|\s*OLX.*$/i, "")
-    .replace(/^OLX\s*-\s*/i, "");
+    .replace(new RegExp(`\\s*\\|\\s*${provider.label.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}.*$`, "i"), "")
+    .replace(/\s*\|\s*(OLX|ZAP Imóveis|Imovelweb|Chaves na Mão|Facebook Marketplace).*$/i, "")
+    .replace(/^(OLX|ZAP Imóveis|Imovelweb|Chaves na Mão|Facebook Marketplace)\s*-\s*/i, "");
 
   return cleaned.length > 5000 ? `${cleaned.slice(0, 4997)}...` : cleaned;
 }
@@ -304,7 +385,11 @@ function inferType(text: string): PropertyType {
 }
 
 function extractExternalId(url: string, text: string) {
-  const fromUrl = url.match(/-(\d{8,})(?:[/?#]|$)/)?.[1] ?? url.match(/\/(\d{8,})(?:[/?#]|$)/)?.[1];
+  const fromUrl =
+    url.match(/\/marketplace\/item\/(\d+)/i)?.[1] ??
+    url.match(/\bid-(\d{5,})/i)?.[1] ??
+    url.match(/-(\d{5,})(?:[/?#.]|$)/)?.[1] ??
+    url.match(/\/(\d{5,})(?:[/?#]|$)/)?.[1];
   if (fromUrl) return fromUrl;
   return text.match(/\b(\d{8,})\b/)?.[1] ?? null;
 }
@@ -380,7 +465,7 @@ function findAdvertiserName(records: JsonRecord[], nextData: unknown) {
       getRecordString(record, "nickname")
     ];
     const candidate = firstNonEmpty(...keyValues);
-    if (candidate && !/olx|zap|viva real/i.test(candidate)) found = candidate;
+    if (candidate && !/olx|zap|viva real|imovelweb|chaves na mão|facebook/i.test(candidate)) found = candidate;
   });
 
   return found ? found.slice(0, 120) : null;
@@ -404,13 +489,13 @@ function compactTextForParsing($: cheerio.CheerioAPI) {
   return stripHtmlText(clone.text());
 }
 
-function extractOlxAdLinks(html: string, finalUrl: URL, limit = DEFAULT_SEARCH_LINK_LIMIT) {
+function extractPortalAdLinks(html: string, finalUrl: URL, provider: PortalProviderConfig, limit = DEFAULT_SEARCH_LINK_LIMIT) {
   const $ = cheerio.load(html);
   const found = new Map<string, string>();
 
   function addCandidate(rawValue: string) {
     if (found.size >= limit) return;
-    const url = normalizeOlxAdUrl(rawValue, finalUrl);
+    const url = normalizePortalAdUrl(rawValue, finalUrl, provider);
     if (url && !found.has(url)) found.set(url, url);
   }
 
@@ -425,7 +510,7 @@ function extractOlxAdLinks(html: string, finalUrl: URL, limit = DEFAULT_SEARCH_L
     }
   });
 
-  const rawUrlMatches = html.match(/https?:\/\/[^"'<>\s]+?olx\.com\.br[^"'<>\s]+?\d{8,}/gi) ?? [];
+  const rawUrlMatches = html.match(provider.urlMatchPattern) ?? [];
   for (const rawUrl of rawUrlMatches) {
     addCandidate(rawUrl.replace(/\\u002F/g, "/"));
   }
@@ -437,6 +522,7 @@ function buildRawPayload(input: {
   requestedUrl: string;
   finalUrl: string;
   canonicalUrl: string;
+  provider: PortalProviderConfig;
   title: string;
   metaTitle: string;
   metaDescription: string;
@@ -445,7 +531,9 @@ function buildRawPayload(input: {
   extractedAt: string;
 }) {
   return {
-    importer: "olx-url",
+    importer: "portal-url",
+    provider: input.provider.id,
+    providerLabel: input.provider.label,
     requestedUrl: input.requestedUrl,
     finalUrl: input.finalUrl,
     canonicalUrl: input.canonicalUrl,
@@ -460,7 +548,7 @@ function buildRawPayload(input: {
   } satisfies Prisma.InputJsonValue;
 }
 
-function extractOlxListing(html: string, requestedUrl: string, finalUrl: URL): OlxExtractedListing {
+function extractPortalListing(html: string, requestedUrl: string, finalUrl: URL, provider: PortalProviderConfig): PortalExtractedListing {
   const $ = cheerio.load(html);
   const canonicalUrl = getCanonicalUrl($, finalUrl);
   const jsonLdRecords = parseJsonLdBlocks($);
@@ -468,9 +556,9 @@ function extractOlxListing(html: string, requestedUrl: string, finalUrl: URL): O
   const listingRecord = findLikelyListingRecord(jsonLdRecords);
   const jsonAddress = extractAddressFromJson(listingRecord);
   const metaTitle = getMeta($, ["meta[property='og:title']", "meta[name='twitter:title']"]);
-  const title = stripOlxTitle(firstNonEmpty(getRecordString(listingRecord, "name"), $("h1").first().text(), metaTitle, $("title").first().text()));
+  const title = stripPortalTitle(firstNonEmpty(getRecordString(listingRecord, "name"), $("h1").first().text(), metaTitle, $("title").first().text()), provider);
   const metaDescription = getMeta($, ["meta[property='og:description']", "meta[name='description']", "meta[name='twitter:description']"]);
-  const description = normalizeDescription(firstNonEmpty(getRecordString(listingRecord, "description"), metaDescription));
+  const description = normalizeDescription(firstNonEmpty(getRecordString(listingRecord, "description"), metaDescription), provider);
   const bodyText = compactTextForParsing($);
   const searchText = normalizeWhitespace([title, description, metaTitle, metaDescription, bodyText].filter(Boolean).join(" "));
   const location = extractLocation(searchText);
@@ -497,6 +585,7 @@ function extractOlxListing(html: string, requestedUrl: string, finalUrl: URL): O
     requestedUrl,
     finalUrl: finalUrl.toString(),
     canonicalUrl,
+    provider,
     title,
     metaTitle,
     metaDescription,
@@ -506,13 +595,13 @@ function extractOlxListing(html: string, requestedUrl: string, finalUrl: URL): O
   });
 
   if (!title || title.length < 3) {
-    throw new Error("Nao encontrei o titulo do anuncio da OLX.");
+    throw new Error(`Nao encontrei o titulo do anuncio de ${provider.label}.`);
   }
 
   return {
     title,
     description: description || null,
-    sourceUrl: canonicalUrl,
+    sourceUrl: normalizePortalAdUrl(canonicalUrl, finalUrl, provider) ?? canonicalUrl,
     externalId: extractExternalId(canonicalUrl, searchText),
     purpose: inferPurpose(searchText),
     type: inferType(searchText),
@@ -532,14 +621,14 @@ function extractOlxListing(html: string, requestedUrl: string, finalUrl: URL): O
     hasFullAddress: Boolean(address),
     rawPayload,
     notes: [
-      "Importado automaticamente da OLX. Validar dados, contato e permissao de abordagem antes de publicar.",
+      `Importado automaticamente de ${provider.label}. Validar dados, contato e permissao de abordagem antes de publicar.`,
       isPrivateSeller ? "Particular inferido pelo importador." : "Anunciante pode ser profissional; revisar antes da abordagem."
     ].join("\n")
   };
 }
 
-export async function scrapeOlxListing(sourceUrlValue: string) {
-  const sourceUrl = parseOlxUrl(sourceUrlValue);
+export async function scrapePortalListing(sourceUrlValue: string, providerId?: string | null) {
+  const { url: sourceUrl, provider } = parsePortalUrl(sourceUrlValue, providerId);
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), OLX_CAPTURE_TIMEOUT_MS);
 
@@ -554,33 +643,33 @@ export async function scrapeOlxListing(sourceUrlValue: string) {
     });
 
     if (!response.ok) {
-      throw new Error(`Nao consegui ler o anuncio da OLX. Status ${response.status}.`);
+      throw new Error(`Nao consegui ler o anuncio de ${provider.label}. Status ${response.status}.`);
     }
 
     const contentType = response.headers.get("content-type") ?? "";
     if (contentType && !contentType.includes("text/html") && !contentType.includes("application/xhtml+xml")) {
-      throw new Error("A URL da OLX nao retornou uma pagina HTML.");
+      throw new Error(`A URL de ${provider.label} nao retornou uma pagina HTML.`);
     }
 
     const finalUrl = new URL(response.url || sourceUrl.toString());
     if (isPrivateHost(finalUrl.hostname)) {
       throw new Error("A pagina redirecionou para uma URL bloqueada por seguranca.");
     }
-    if (!isOlxHost(finalUrl.hostname)) {
-      throw new Error("A pagina redirecionou para fora da OLX.");
+    if (!hostMatches(finalUrl.hostname, provider)) {
+      throw new Error(`A pagina redirecionou para fora de ${provider.label}.`);
     }
 
     const html = await readLimitedText(response, MAX_SCRAPE_HTML_BYTES);
-    const listing = extractOlxListing(html, sourceUrl.toString(), finalUrl);
+    const listing = extractPortalListing(html, sourceUrl.toString(), finalUrl, provider);
 
     if (!listing.price) {
-      throw new Error("Nao encontrei o preco do anuncio da OLX. Cadastre manualmente ou tente outra URL.");
+      throw new Error(`Nao encontrei o preco do anuncio de ${provider.label}. Cadastre manualmente ou tente outra URL.`);
     }
 
     return listing;
   } catch (error) {
     if (error instanceof Error && error.name === "AbortError") {
-      throw new Error("Tempo esgotado ao ler o anuncio da OLX.");
+      throw new Error(`Tempo esgotado ao ler o anuncio de ${provider.label}.`);
     }
 
     throw error;
@@ -589,8 +678,12 @@ export async function scrapeOlxListing(sourceUrlValue: string) {
   }
 }
 
-export async function scrapeOlxSearchLinks(searchUrlValue: string, maxResults = DEFAULT_SEARCH_LINK_LIMIT) {
-  const searchUrl = parseOlxUrl(searchUrlValue);
+export async function scrapeOlxListing(sourceUrlValue: string) {
+  return scrapePortalListing(sourceUrlValue, "olx");
+}
+
+export async function scrapePortalSearchLinks(searchUrlValue: string, maxResults = DEFAULT_SEARCH_LINK_LIMIT, providerId?: string | null) {
+  const { url: searchUrl, provider } = parsePortalUrl(searchUrlValue, providerId);
   const limit = Math.max(1, Math.min(30, Math.round(maxResults || DEFAULT_SEARCH_LINK_LIMIT)));
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), OLX_CAPTURE_TIMEOUT_MS);
@@ -606,31 +699,33 @@ export async function scrapeOlxSearchLinks(searchUrlValue: string, maxResults = 
     });
 
     if (!response.ok) {
-      throw new Error(`Nao consegui ler a busca da OLX. Status ${response.status}.`);
+      throw new Error(`Nao consegui ler a busca de ${provider.label}. Status ${response.status}.`);
     }
 
     const contentType = response.headers.get("content-type") ?? "";
     if (contentType && !contentType.includes("text/html") && !contentType.includes("application/xhtml+xml")) {
-      throw new Error("A URL de busca da OLX nao retornou uma pagina HTML.");
+      throw new Error(`A URL de busca de ${provider.label} nao retornou uma pagina HTML.`);
     }
 
     const finalUrl = new URL(response.url || searchUrl.toString());
     if (isPrivateHost(finalUrl.hostname)) {
       throw new Error("A busca redirecionou para uma URL bloqueada por seguranca.");
     }
-    if (!isOlxHost(finalUrl.hostname)) {
-      throw new Error("A busca redirecionou para fora da OLX.");
+    if (!hostMatches(finalUrl.hostname, provider)) {
+      throw new Error(`A busca redirecionou para fora de ${provider.label}.`);
     }
 
     const html = await readLimitedText(response, MAX_SCRAPE_HTML_BYTES);
     return {
       requestedUrl: searchUrl.toString(),
       finalUrl: finalUrl.toString(),
-      links: extractOlxAdLinks(html, finalUrl, limit)
+      provider: provider.id,
+      providerLabel: provider.label,
+      links: extractPortalAdLinks(html, finalUrl, provider, limit)
     };
   } catch (error) {
     if (error instanceof Error && error.name === "AbortError") {
-      throw new Error("Tempo esgotado ao ler a busca da OLX.");
+      throw new Error(`Tempo esgotado ao ler a busca de ${provider.label}.`);
     }
 
     throw error;
@@ -639,17 +734,27 @@ export async function scrapeOlxSearchLinks(searchUrlValue: string, maxResults = 
   }
 }
 
-export async function importOlxCapturedListing(sourceUrl: string, actorId?: string | null): Promise<CaptureListingItem> {
-  const listing = await scrapeOlxListing(sourceUrl);
+export async function scrapeOlxSearchLinks(searchUrlValue: string, maxResults = DEFAULT_SEARCH_LINK_LIMIT) {
+  return scrapePortalSearchLinks(searchUrlValue, maxResults, "olx");
+}
+
+export async function importPortalCapturedListing(
+  sourceUrl: string,
+  actorId?: string | null,
+  providerId?: string | null
+): Promise<CaptureListingItem> {
+  const listing = await scrapePortalListing(sourceUrl, providerId);
   const price = listing.price;
 
   if (!price) {
-    throw new Error("Nao encontrei o preco do anuncio da OLX. Cadastre manualmente ou tente outra URL.");
+    throw new Error("Nao encontrei o preco do anuncio. Cadastre manualmente ou tente outra URL.");
   }
+
+  const provider = getProviderConfig((listing.rawPayload as { provider?: string }).provider ?? providerId ?? "olx");
 
   return createCapturedListing(
     {
-      sourceName: "OLX",
+      sourceName: provider.sourceName,
       sourceKind: CaptureSourceKind.PORTAL,
       externalId: listing.externalId,
       sourceUrl: listing.sourceUrl,
@@ -676,4 +781,8 @@ export async function importOlxCapturedListing(sourceUrl: string, actorId?: stri
     },
     actorId
   );
+}
+
+export async function importOlxCapturedListing(sourceUrl: string, actorId?: string | null): Promise<CaptureListingItem> {
+  return importPortalCapturedListing(sourceUrl, actorId, "olx");
 }

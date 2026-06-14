@@ -4,7 +4,7 @@ import {
   type CaptureAlertRunResult,
   type CaptureListingItem
 } from "@/lib/data/capture";
-import { importOlxCapturedListing, scrapeOlxSearchLinks } from "@/lib/integrations/olx-capture";
+import { importPortalCapturedListing, scrapePortalSearchLinks } from "@/lib/integrations/olx-capture";
 import { prisma } from "@/lib/prisma";
 
 const hasDatabase = Boolean(process.env.DATABASE_URL);
@@ -51,10 +51,9 @@ export async function runCaptureAlert(alertId: string, actorId?: string | null):
   const alert = await prisma.captureAlert.findUnique({ where: { id: alertId } });
   if (!alert) throw new Error("Monitoramento de captação não encontrado.");
   if (!alert.searchUrl) throw new Error("Informe uma URL de busca para executar o monitoramento.");
-  if (alert.provider !== "olx") throw new Error("Por enquanto, a captação automática suporta apenas OLX.");
 
   try {
-    const search = await scrapeOlxSearchLinks(alert.searchUrl, alert.maxResultsPerRun);
+    const search = await scrapePortalSearchLinks(alert.searchUrl, alert.maxResultsPerRun, alert.provider);
     const existing = search.links.length
       ? await prisma.capturedListing.findMany({
           where: { sourceUrl: { in: search.links } },
@@ -68,7 +67,7 @@ export async function runCaptureAlert(alertId: string, actorId?: string | null):
 
     for (const link of linksToImport) {
       try {
-        listings.push(await importOlxCapturedListing(link, actorId));
+        listings.push(await importPortalCapturedListing(link, actorId, alert.provider));
       } catch (error) {
         errors.push(error instanceof Error ? `${link}: ${error.message}` : `${link}: falha ao importar`);
       }
@@ -137,7 +136,7 @@ export async function runActiveCaptureAlerts(options: { maxAlerts?: number; acto
 
   const maxAlerts = Math.max(1, Math.min(10, options.maxAlerts ?? 5));
   const alerts = await prisma.captureAlert.findMany({
-    where: { active: true, provider: "olx", searchUrl: { not: null } },
+    where: { active: true, provider: { in: ["olx", "zap", "imovelweb", "chaves-na-mao", "facebook-marketplace"] }, searchUrl: { not: null } },
     orderBy: [{ lastRunAt: "asc" }, { createdAt: "asc" }],
     take: maxAlerts
   });
