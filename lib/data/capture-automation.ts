@@ -4,7 +4,11 @@ import {
   type CaptureAlertRunResult,
   type CaptureListingItem
 } from "@/lib/data/capture";
-import { importPortalCapturedListing, scrapePortalSearchLinks } from "@/lib/integrations/olx-capture";
+import {
+  importPortalCapturedListing,
+  isPortalAccessBlockedError,
+  scrapePortalSearchLinks
+} from "@/lib/integrations/olx-capture";
 import { prisma } from "@/lib/prisma";
 
 const hasDatabase = Boolean(process.env.DATABASE_URL);
@@ -120,8 +124,9 @@ export async function runCaptureAlert(alertId: string, actorId?: string | null):
     };
   } catch (error) {
     const message = error instanceof Error ? error.message : "Falha ao executar monitoramento.";
+    const blockedByPortal = isPortalAccessBlockedError(error);
     const updatedAlert = await updateAlertRunStatus(alert.id, {
-      status: "error",
+      status: blockedByPortal ? "warning" : "error",
       message,
       foundCount: 0,
       importedCount: 0,

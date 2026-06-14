@@ -5,6 +5,9 @@ import { createCapturedListing, type CaptureListingItem } from "@/lib/data/captu
 export const OLX_CAPTURE_TIMEOUT_MS = 12_000;
 const MAX_SCRAPE_HTML_BYTES = 2 * 1024 * 1024;
 const DEFAULT_SEARCH_LINK_LIMIT = 12;
+const PORTAL_BLOCKED_STATUS_CODES = new Set([401, 403, 429]);
+const PORTAL_BROWSER_USER_AGENT =
+  "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36";
 
 type JsonRecord = Record<string, unknown>;
 export type CapturePortalProviderId = "olx" | "zap" | "imovelweb" | "chaves-na-mao" | "facebook-marketplace";
@@ -18,6 +21,24 @@ type PortalProviderConfig = {
   adPathPattern: RegExp;
   urlMatchPattern: RegExp;
 };
+
+export class PortalAccessBlockedError extends Error {
+  statusCode: number;
+  providerLabel: string;
+
+  constructor(providerLabel: string, statusCode: number, target: "anúncio" | "busca") {
+    super(
+      `${providerLabel} bloqueou a leitura automática da ${target} pelo servidor (HTTP ${statusCode}). Não é erro do CRM; o portal pode exigir acesso por navegador real.`
+    );
+    this.name = "PortalAccessBlockedError";
+    this.statusCode = statusCode;
+    this.providerLabel = providerLabel;
+  }
+}
+
+export function isPortalAccessBlockedError(error: unknown) {
+  return error instanceof PortalAccessBlockedError;
+}
 
 const PORTAL_PROVIDERS: PortalProviderConfig[] = [
   {
@@ -169,6 +190,18 @@ function parsePortalUrl(value: string, providerId?: string | null) {
 
 function parseOlxUrl(value: string) {
   return parsePortalUrl(value, "olx").url;
+}
+
+function buildPortalRequestHeaders(url: URL) {
+  return {
+    Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
+    "Accept-Language": "pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7",
+    "Cache-Control": "no-cache",
+    Pragma: "no-cache",
+    Referer: `${url.protocol}//${url.host}/`,
+    "Upgrade-Insecure-Requests": "1",
+    "User-Agent": PORTAL_BROWSER_USER_AGENT
+  };
 }
 
 async function readLimitedText(response: Response, maxBytes: number) {
@@ -635,14 +668,13 @@ export async function scrapePortalListing(sourceUrlValue: string, providerId?: s
   try {
     const response = await fetch(sourceUrl, {
       signal: controller.signal,
-      headers: {
-        Accept: "text/html,application/xhtml+xml",
-        "Accept-Language": "pt-BR,pt;q=0.9,en;q=0.7",
-        "User-Agent": "PedroSoaresCRM/1.0 (+https://www.pedrosoaresimoveis.com.br)"
-      }
+      headers: buildPortalRequestHeaders(sourceUrl)
     });
 
     if (!response.ok) {
+      if (PORTAL_BLOCKED_STATUS_CODES.has(response.status)) {
+        throw new PortalAccessBlockedError(provider.label, response.status, "anúncio");
+      }
       throw new Error(`Nao consegui ler o anuncio de ${provider.label}. Status ${response.status}.`);
     }
 
@@ -691,14 +723,13 @@ export async function scrapePortalSearchLinks(searchUrlValue: string, maxResults
   try {
     const response = await fetch(searchUrl, {
       signal: controller.signal,
-      headers: {
-        Accept: "text/html,application/xhtml+xml",
-        "Accept-Language": "pt-BR,pt;q=0.9,en;q=0.7",
-        "User-Agent": "PedroSoaresCRM/1.0 (+https://www.pedrosoaresimoveis.com.br)"
-      }
+      headers: buildPortalRequestHeaders(searchUrl)
     });
 
     if (!response.ok) {
+      if (PORTAL_BLOCKED_STATUS_CODES.has(response.status)) {
+        throw new PortalAccessBlockedError(provider.label, response.status, "busca");
+      }
       throw new Error(`Nao consegui ler a busca de ${provider.label}. Status ${response.status}.`);
     }
 

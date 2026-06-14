@@ -362,7 +362,7 @@ export function CaptureManager({ listings, alerts }: { listings: CaptureListingI
   const [runningAllAlerts, setRunningAllAlerts] = useState(false);
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
-  const [feedback, setFeedback] = useState<{ tone: "success" | "error"; message: string } | null>(null);
+  const [feedback, setFeedback] = useState<{ tone: "success" | "warning" | "error"; message: string } | null>(null);
 
   const locationOptions = useMemo(() => buildLocationOptions(items), [items]);
 
@@ -578,8 +578,9 @@ export function CaptureManager({ listings, alerts }: { listings: CaptureListingI
       if (!data.alert) throw new Error("Resposta sem monitoramento.");
       replaceAlert(data.alert);
       mergeListings(data.listings ?? []);
+      const runTone = data.alert.lastRunStatus === "error" ? "error" : data.alert.lastRunStatus === "warning" ? "warning" : "success";
       setFeedback({
-        tone: data.alert.lastRunStatus === "error" ? "error" : "success",
+        tone: runTone,
         message: data.alert.lastRunMessage ?? "Monitoramento executado."
       });
     } catch (error) {
@@ -603,8 +604,9 @@ export function CaptureManager({ listings, alerts }: { listings: CaptureListingI
       mergeListings(results.flatMap((result) => result.listings));
       const imported = results.reduce((total, result) => total + result.importedCount, 0);
       const failed = results.reduce((total, result) => total + result.failedCount, 0);
+      const hasError = results.some((result) => result.alert.lastRunStatus === "error");
       setFeedback({
-        tone: failed > 0 ? "error" : "success",
+        tone: failed > 0 ? (hasError ? "error" : "warning") : "success",
         message:
           failed > 0
             ? `${results.length} monitoramentos executados; ${imported} importados/atualizados; ${failed} falhas.`

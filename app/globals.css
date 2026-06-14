@@ -5893,6 +5893,12 @@ body:has(.crm-shell) > main {
   border: 1px solid #bbf7d0;
 }
 
+.crm-capture-feedback[data-tone="warning"] {
+  color: #8a4b00;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+}
+
 .crm-capture-feedback[data-tone="error"] {
   color: #b3261e;
   background: #fef2f2;
