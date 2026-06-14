@@ -358,6 +358,7 @@ export function CaptureManager({ listings, alerts }: { listings: CaptureListingI
   const [importingPortal, setImportingPortal] = useState(false);
   const [creatingAlert, setCreatingAlert] = useState(false);
   const [runningAlertId, setRunningAlertId] = useState<string | null>(null);
+  const [deletingAlertId, setDeletingAlertId] = useState<string | null>(null);
   const [runningAllAlerts, setRunningAllAlerts] = useState(false);
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -578,7 +579,7 @@ export function CaptureManager({ listings, alerts }: { listings: CaptureListingI
       replaceAlert(data.alert);
       mergeListings(data.listings ?? []);
       setFeedback({
-        tone: "success",
+        tone: data.alert.lastRunStatus === "error" ? "error" : "success",
         message: data.alert.lastRunMessage ?? "Monitoramento executado."
       });
     } catch (error) {
@@ -601,7 +602,14 @@ export function CaptureManager({ listings, alerts }: { listings: CaptureListingI
       results.forEach((result) => replaceAlert(result.alert));
       mergeListings(results.flatMap((result) => result.listings));
       const imported = results.reduce((total, result) => total + result.importedCount, 0);
-      setFeedback({ tone: "success", message: `${results.length} monitoramentos executados; ${imported} anúncios importados/atualizados.` });
+      const failed = results.reduce((total, result) => total + result.failedCount, 0);
+      setFeedback({
+        tone: failed > 0 ? "error" : "success",
+        message:
+          failed > 0
+            ? `${results.length} monitoramentos executados; ${imported} importados/atualizados; ${failed} falhas.`
+            : `${results.length} monitoramentos executados; ${imported} anúncios importados/atualizados.`
+      });
     } catch (error) {
       setFeedback({
         tone: "error",
@@ -609,6 +617,25 @@ export function CaptureManager({ listings, alerts }: { listings: CaptureListingI
       });
     } finally {
       setRunningAllAlerts(false);
+    }
+  }
+
+  async function deleteAlert(alert: CaptureAlertItem) {
+    if (!window.confirm(`Excluir definitivamente o monitoramento "${alert.name}"?`)) return;
+    setDeletingAlertId(alert.id);
+    setFeedback(null);
+    try {
+      const response = await fetch(`/api/crm/captacao/alerts/${alert.id}`, { method: "DELETE" });
+      await handleApiData(response);
+      setAlertItems((current) => current.filter((item) => item.id !== alert.id));
+      setFeedback({ tone: "success", message: "Monitoramento excluído." });
+    } catch (error) {
+      setFeedback({
+        tone: "error",
+        message: error instanceof Error ? error.message : "Erro ao excluir monitoramento."
+      });
+    } finally {
+      setDeletingAlertId(null);
     }
   }
 
@@ -644,6 +671,25 @@ export function CaptureManager({ listings, alerts }: { listings: CaptureListingI
       setFeedback({ tone: "success", message: "Oportunidade descartada." });
     } catch (error) {
       setFeedback({ tone: "error", message: error instanceof Error ? error.message : "Erro ao descartar." });
+    } finally {
+      setPendingId(null);
+    }
+  }
+
+  async function deleteItem(listing: CaptureListingItem) {
+    const linkedWarning = listing.linkedPropertyId
+      ? " O imóvel, lead ou proprietário já vinculados continuarão no CRM."
+      : "";
+    if (!window.confirm(`Excluir definitivamente "${listing.title}" da captação?${linkedWarning}`)) return;
+    setPendingId(listing.id);
+    setFeedback(null);
+    try {
+      const response = await fetch(`/api/crm/captacao/${listing.id}`, { method: "DELETE" });
+      await handleApiData(response);
+      setItems((current) => current.filter((item) => item.id !== listing.id));
+      setFeedback({ tone: "success", message: "Oportunidade excluída da captação." });
+    } catch (error) {
+      setFeedback({ tone: "error", message: error instanceof Error ? error.message : "Erro ao excluir oportunidade." });
     } finally {
       setPendingId(null);
     }
@@ -810,10 +856,19 @@ export function CaptureManager({ listings, alerts }: { listings: CaptureListingI
                   type="button"
                   className="button button-ghost"
                   onClick={() => runAlert(alert)}
-                  disabled={runningAlertId === alert.id || runningAllAlerts}
+                  disabled={runningAlertId === alert.id || deletingAlertId === alert.id || runningAllAlerts}
                 >
                   <Play size={16} strokeWidth={1.75} aria-hidden="true" />
                   {runningAlertId === alert.id ? "Rodando..." : "Rodar"}
+                </button>
+                <button
+                  type="button"
+                  className="button button-ghost"
+                  onClick={() => deleteAlert(alert)}
+                  disabled={runningAlertId === alert.id || deletingAlertId === alert.id || runningAllAlerts}
+                >
+                  <Trash2 size={16} strokeWidth={1.75} aria-hidden="true" />
+                  {deletingAlertId === alert.id ? "Excluindo..." : "Excluir"}
                 </button>
               </article>
             ))}
@@ -1192,6 +1247,15 @@ export function CaptureManager({ listings, alerts }: { listings: CaptureListingI
                       >
                         <Trash2 size={16} strokeWidth={1.75} aria-hidden="true" />
                         Descartar
+                      </button>
+                      <button
+                        type="button"
+                        className="button button-ghost crm-capture-card__discard"
+                        onClick={() => deleteItem(listing)}
+                        disabled={pendingId === listing.id}
+                      >
+                        <Trash2 size={16} strokeWidth={1.75} aria-hidden="true" />
+                        {pendingId === listing.id ? "Excluindo..." : "Excluir"}
                       </button>
                     </div>
                   </div>

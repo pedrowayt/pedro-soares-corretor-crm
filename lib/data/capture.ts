@@ -510,6 +510,39 @@ export async function createCaptureAlert(payload: CaptureAlertInput, actorId?: s
   return normalizeCaptureAlert(alert);
 }
 
+export async function deleteCaptureAlert(alertId: string, actorId?: string | null) {
+  if (!hasDatabase) {
+    const store = getAlertMemoryStore();
+    const index = store.findIndex((item) => item.id === alertId);
+    if (index === -1) return false;
+    store.splice(index, 1);
+    return true;
+  }
+
+  const current = await prisma.captureAlert.findUnique({ where: { id: alertId } });
+  if (!current) return false;
+
+  await prisma.$transaction([
+    prisma.auditLog.create({
+      data: {
+        action: "CAPTURE_ALERT_DELETED",
+        resource: "CaptureAlert",
+        resourceId: alertId,
+        actorId: actorId ?? undefined,
+        metadata: {
+          name: current.name,
+          provider: current.provider,
+          searchUrl: current.searchUrl,
+          active: current.active
+        } as Prisma.InputJsonValue
+      }
+    }),
+    prisma.captureAlert.delete({ where: { id: alertId } })
+  ]);
+
+  return true;
+}
+
 export async function createCapturedListing(payload: CapturedListingInput, actorId?: string | null) {
   const normalized = normalizeInput(payload);
 
@@ -605,6 +638,42 @@ export async function createCapturedListing(payload: CapturedListingInput, actor
   });
 
   return normalizeDbListing(listing);
+}
+
+export async function deleteCapturedListing(listingId: string, actorId?: string | null) {
+  if (!hasDatabase) {
+    const store = getMemoryStore();
+    const index = store.findIndex((item) => item.id === listingId);
+    if (index === -1) return false;
+    store.splice(index, 1);
+    return true;
+  }
+
+  const current = await prisma.capturedListing.findUnique({ where: { id: listingId } });
+  if (!current) return false;
+
+  await prisma.$transaction([
+    prisma.auditLog.create({
+      data: {
+        action: "CAPTURE_LISTING_DELETED",
+        resource: "CapturedListing",
+        resourceId: listingId,
+        actorId: actorId ?? undefined,
+        metadata: {
+          title: current.title,
+          status: current.status,
+          sourceName: current.sourceName,
+          sourceUrl: current.sourceUrl,
+          linkedPropertyId: current.linkedPropertyId,
+          linkedLeadId: current.linkedLeadId,
+          linkedOwnerId: current.linkedOwnerId
+        } as Prisma.InputJsonValue
+      }
+    }),
+    prisma.capturedListing.delete({ where: { id: listingId } })
+  ]);
+
+  return true;
 }
 
 export async function captureListing(listingId: string, actorId?: string | null) {

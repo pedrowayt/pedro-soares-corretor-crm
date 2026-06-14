@@ -120,14 +120,23 @@ export async function runCaptureAlert(alertId: string, actorId?: string | null):
     };
   } catch (error) {
     const message = error instanceof Error ? error.message : "Falha ao executar monitoramento.";
-    await updateAlertRunStatus(alert.id, {
+    const updatedAlert = await updateAlertRunStatus(alert.id, {
       status: "error",
       message,
       foundCount: 0,
       importedCount: 0,
       failedCount: 1
     });
-    throw new Error(message);
+
+    return {
+      alert: updatedAlert,
+      listings: [],
+      foundCount: 0,
+      importedCount: 0,
+      skippedCount: 0,
+      failedCount: 1,
+      errors: [message]
+    };
   }
 }
 
