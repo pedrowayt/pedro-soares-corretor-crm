@@ -222,6 +222,22 @@ export const crmImportOlxCapturedListingSchema = z.object({
   sourceUrl: z.string().trim().url()
 });
 
+export const crmCreateCaptureAlertSchema = z.object({
+  name: z.string().trim().min(3).max(120),
+  provider: z.literal("olx").optional().default("olx"),
+  searchUrl: z.string().trim().url(),
+  city: z.string().trim().min(2).max(80).default("Palmas"),
+  district: z.string().trim().max(80).optional().nullable().or(z.literal("")),
+  purpose: z.nativeEnum(PropertyPurpose).optional().nullable().or(z.literal("")),
+  type: z.nativeEnum(PropertyType).optional().nullable().or(z.literal("")),
+  priceMin: z.coerce.number().positive().optional().nullable().or(z.literal("")),
+  priceMax: z.coerce.number().positive().optional().nullable().or(z.literal("")),
+  onlyPrivateSeller: z.boolean().optional().default(false),
+  onlyFullAddress: z.boolean().optional().default(false),
+  maxResultsPerRun: z.coerce.number().int().min(1).max(30).optional().default(8),
+  active: z.boolean().optional().default(true)
+});
+
 export const crmDiscardCapturedListingSchema = z.object({
   reason: z.string().trim().max(1000).optional().nullable().or(z.literal(""))
 });

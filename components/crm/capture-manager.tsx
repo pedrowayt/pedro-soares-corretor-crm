@@ -4,19 +4,22 @@ import Link from "next/link";
 import { useMemo, useState, type ChangeEvent, type FormEvent } from "react";
 import {
   CheckCircle2,
+  Clock3,
   Download,
   ExternalLink,
   Filter,
   Link2,
   MapPin,
   Phone,
+  Play,
   Plus,
+  RefreshCw,
   Search,
   ShieldCheck,
   Trash2,
   X
 } from "lucide-react";
-import type { CaptureListingItem } from "@/lib/data/capture";
+import type { CaptureAlertItem, CaptureAlertRunResult, CaptureListingItem } from "@/lib/data/capture";
 import { formatCurrencyBRL } from "@/lib/utils";
 
 type CaptureFilters = {
@@ -55,10 +58,31 @@ type ManualFormState = {
   hasFullAddress: boolean;
 };
 
+type AlertFormState = {
+  name: string;
+  searchUrl: string;
+  city: string;
+  district: string;
+  purpose: string;
+  type: string;
+  priceMin: string;
+  priceMax: string;
+  maxResultsPerRun: string;
+  onlyPrivateSeller: boolean;
+  onlyFullAddress: boolean;
+  active: boolean;
+};
+
 type ApiPayload = {
   success?: boolean;
   listing?: CaptureListingItem;
-  data?: { listing?: CaptureListingItem };
+  data?: {
+    listing?: CaptureListingItem;
+    listings?: CaptureListingItem[];
+    alert?: CaptureAlertItem;
+    alerts?: CaptureAlertItem[];
+    results?: CaptureAlertRunResult[];
+  };
   error?: { message?: string };
 };
 
@@ -96,6 +120,21 @@ const EMPTY_FORM: ManualFormState = {
   notes: "",
   isPrivateSeller: true,
   hasFullAddress: false
+};
+
+const EMPTY_ALERT_FORM: AlertFormState = {
+  name: "OLX Palmas - particulares",
+  searchUrl: "",
+  city: "Palmas",
+  district: "",
+  purpose: "VENDA",
+  type: "",
+  priceMin: "",
+  priceMax: "",
+  maxResultsPerRun: "8",
+  onlyPrivateSeller: true,
+  onlyFullAddress: false,
+  active: true
 };
 
 const STATUS_LABELS: Record<string, string> = {
@@ -192,6 +231,16 @@ function formatDateTime(value: string | null) {
   }).format(new Date(value));
 }
 
+function formatShortDateTime(value: string | null) {
+  if (!value) return "Nunca executado";
+  return new Intl.DateTimeFormat("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit"
+  }).format(new Date(value));
+}
+
 function buildLocationOptions(listings: CaptureListingItem[]) {
   const options = new Map<string, string>();
   listings.forEach((listing) => {
@@ -254,13 +303,43 @@ function buildSubmitPayload(form: ManualFormState) {
   };
 }
 
-export function CaptureManager({ listings }: { listings: CaptureListingItem[] }) {
+function buildAlertPayload(form: AlertFormState) {
+  return {
+    name: form.name,
+    provider: "olx",
+    searchUrl: form.searchUrl,
+    city: form.city,
+    district: form.district,
+    purpose: form.purpose,
+    type: form.type,
+    priceMin: optionalNumber(form.priceMin),
+    priceMax: optionalNumber(form.priceMax),
+    maxResultsPerRun: optionalNumber(form.maxResultsPerRun) ?? 8,
+    onlyPrivateSeller: form.onlyPrivateSeller,
+    onlyFullAddress: form.onlyFullAddress,
+    active: form.active
+  };
+}
+
+function getRunTone(status: string | null) {
+  if (status === "success") return "success";
+  if (status === "warning") return "warning";
+  if (status === "error") return "danger";
+  return "muted";
+}
+
+export function CaptureManager({ listings, alerts }: { listings: CaptureListingItem[]; alerts: CaptureAlertItem[] }) {
   const [items, setItems] = useState<CaptureListingItem[]>(listings);
+  const [alertItems, setAlertItems] = useState<CaptureAlertItem[]>(alerts);
   const [filters, setFilters] = useState<CaptureFilters>(EMPTY_FILTERS);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState<ManualFormState>(EMPTY_FORM);
+  const [alertForm, setAlertForm] = useState<AlertFormState>(EMPTY_ALERT_FORM);
   const [olxUrl, setOlxUrl] = useState("");
   const [importingOlx, setImportingOlx] = useState(false);
+  const [creatingAlert, setCreatingAlert] = useState(false);
+  const [runningAlertId, setRunningAlertId] = useState<string | null>(null);
+  const [runningAllAlerts, setRunningAllAlerts] = useState(false);
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [feedback, setFeedback] = useState<{ tone: "success" | "error"; message: string } | null>(null);
@@ -336,7 +415,18 @@ export function CaptureManager({ listings }: { listings: CaptureListingItem[] })
     };
   }
 
-  async function handleResponse(response: Response) {
+  function updateAlertForm(field: keyof AlertFormState, value: string | boolean) {
+    setAlertForm((current) => ({ ...current, [field]: value }));
+  }
+
+  function updateAlertFormFromInput(field: keyof AlertFormState) {
+    return (event: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+      const target = event.target;
+      updateAlertForm(field, target instanceof HTMLInputElement && target.type === "checkbox" ? target.checked : target.value);
+    };
+  }
+
+  async function handleApiData(response: Response) {
     if (response.status === 401) {
       const next = encodeURIComponent(window.location.pathname + window.location.search);
       window.location.assign(`/admin/login?next=${next}`);
@@ -344,10 +434,16 @@ export function CaptureManager({ listings }: { listings: CaptureListingItem[] })
     }
 
     const data = (await response.json().catch(() => null)) as ApiPayload | null;
-    const listing = data?.listing ?? data?.data?.listing;
-    if (!response.ok || !data?.success || !listing) {
+    if (!response.ok || !data?.success || !data.data) {
       throw new Error(data?.error?.message ?? "Falha na operação.");
     }
+    return data.data;
+  }
+
+  async function handleResponse(response: Response) {
+    const data = await handleApiData(response);
+    const listing = data.listing;
+    if (!listing) throw new Error("Resposta sem oportunidade de captação.");
     return listing;
   }
 
@@ -356,6 +452,26 @@ export function CaptureManager({ listings }: { listings: CaptureListingItem[] })
       current.some((item) => item.id === nextListing.id)
         ? current.map((item) => (item.id === nextListing.id ? nextListing : item))
         : [nextListing, ...current]
+    );
+  }
+
+  function mergeListings(nextListings: CaptureListingItem[]) {
+    if (!nextListings.length) return;
+    setItems((current) => {
+      const byId = new Map(current.map((item) => [item.id, item]));
+      nextListings.forEach((listing) => byId.set(listing.id, listing));
+      return Array.from(byId.values()).sort((first, second) => {
+        if (first.status !== second.status) return first.status.localeCompare(second.status);
+        return second.opportunityScore - first.opportunityScore;
+      });
+    });
+  }
+
+  function replaceAlert(nextAlert: CaptureAlertItem) {
+    setAlertItems((current) =>
+      current.some((alert) => alert.id === nextAlert.id)
+        ? current.map((alert) => (alert.id === nextAlert.id ? nextAlert : alert))
+        : [nextAlert, ...current]
     );
   }
 
@@ -405,6 +521,75 @@ export function CaptureManager({ listings }: { listings: CaptureListingItem[] })
       });
     } finally {
       setImportingOlx(false);
+    }
+  }
+
+  async function createAlert(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setCreatingAlert(true);
+    setFeedback(null);
+    try {
+      const response = await fetch("/api/crm/captacao/alerts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(buildAlertPayload(alertForm))
+      });
+      const data = await handleApiData(response);
+      if (!data.alert) throw new Error("Resposta sem monitoramento.");
+      replaceAlert(data.alert);
+      setAlertForm(EMPTY_ALERT_FORM);
+      setFeedback({ tone: "success", message: "Monitoramento automático criado." });
+    } catch (error) {
+      setFeedback({
+        tone: "error",
+        message: error instanceof Error ? error.message : "Erro ao criar monitoramento."
+      });
+    } finally {
+      setCreatingAlert(false);
+    }
+  }
+
+  async function runAlert(alert: CaptureAlertItem) {
+    setRunningAlertId(alert.id);
+    setFeedback(null);
+    try {
+      const response = await fetch(`/api/crm/captacao/alerts/${alert.id}/run`, { method: "POST" });
+      const data = await handleApiData(response);
+      if (!data.alert) throw new Error("Resposta sem monitoramento.");
+      replaceAlert(data.alert);
+      mergeListings(data.listings ?? []);
+      setFeedback({
+        tone: "success",
+        message: data.alert.lastRunMessage ?? "Monitoramento executado."
+      });
+    } catch (error) {
+      setFeedback({
+        tone: "error",
+        message: error instanceof Error ? error.message : "Erro ao executar monitoramento."
+      });
+    } finally {
+      setRunningAlertId(null);
+    }
+  }
+
+  async function runAllAlerts() {
+    setRunningAllAlerts(true);
+    setFeedback(null);
+    try {
+      const response = await fetch("/api/crm/captacao/alerts/run", { method: "POST" });
+      const data = await handleApiData(response);
+      const results = data.results ?? [];
+      results.forEach((result) => replaceAlert(result.alert));
+      mergeListings(results.flatMap((result) => result.listings));
+      const imported = results.reduce((total, result) => total + result.importedCount, 0);
+      setFeedback({ tone: "success", message: `${results.length} monitoramentos executados; ${imported} anúncios importados/atualizados.` });
+    } catch (error) {
+      setFeedback({
+        tone: "error",
+        message: error instanceof Error ? error.message : "Erro ao executar monitoramentos."
+      });
+    } finally {
+      setRunningAllAlerts(false);
     }
   }
 
@@ -481,6 +666,133 @@ export function CaptureManager({ listings }: { listings: CaptureListingItem[] })
           <span>Já captados</span>
           <strong>{metrics.captured}</strong>
         </div>
+      </section>
+
+      <section className="crm-capture-automation" aria-label="Captação automática">
+        <div className="crm-capture-section-head">
+          <div>
+            <h2>Captação automática</h2>
+            <p>Monitore uma busca da OLX e importe novos anúncios para a fila.</p>
+          </div>
+          <button type="button" className="button button-ghost" onClick={runAllAlerts} disabled={runningAllAlerts || !alertItems.length}>
+            <RefreshCw size={16} strokeWidth={1.75} aria-hidden="true" />
+            {runningAllAlerts ? "Rodando..." : "Rodar ativos"}
+          </button>
+        </div>
+
+        <form className="crm-capture-alert-form" onSubmit={createAlert}>
+          <label>
+            Nome
+            <input value={alertForm.name} onChange={updateAlertFormFromInput("name")} required minLength={3} />
+          </label>
+          <label className="crm-capture-alert-form__url">
+            URL da busca OLX
+            <input
+              type="url"
+              value={alertForm.searchUrl}
+              onChange={updateAlertFormFromInput("searchUrl")}
+              placeholder="https://to.olx.com.br/tocantins/imoveis..."
+              required
+            />
+          </label>
+          <label>
+            Cidade
+            <input value={alertForm.city} onChange={updateAlertFormFromInput("city")} required />
+          </label>
+          <label>
+            Bairro
+            <input value={alertForm.district} onChange={updateAlertFormFromInput("district")} />
+          </label>
+          <label>
+            Finalidade
+            <select value={alertForm.purpose} onChange={updateAlertFormFromInput("purpose")}>
+              <option value="">Qualquer</option>
+              {PURPOSE_OPTIONS.map(([value, label]) => (
+                <option key={value} value={value}>{label}</option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Tipo
+            <select value={alertForm.type} onChange={updateAlertFormFromInput("type")}>
+              <option value="">Qualquer</option>
+              {TYPE_OPTIONS.map(([value, label]) => (
+                <option key={value} value={value}>{label}</option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Preço mín.
+            <input inputMode="decimal" value={alertForm.priceMin} onChange={updateAlertFormFromInput("priceMin")} placeholder="R$ 300.000" />
+          </label>
+          <label>
+            Preço máx.
+            <input inputMode="decimal" value={alertForm.priceMax} onChange={updateAlertFormFromInput("priceMax")} placeholder="R$ 900.000" />
+          </label>
+          <label>
+            Limite
+            <input inputMode="numeric" value={alertForm.maxResultsPerRun} onChange={updateAlertFormFromInput("maxResultsPerRun")} />
+          </label>
+          <label className="crm-capture-check">
+            <input type="checkbox" checked={alertForm.onlyPrivateSeller} onChange={updateAlertFormFromInput("onlyPrivateSeller")} />
+            Particular
+          </label>
+          <label className="crm-capture-check">
+            <input type="checkbox" checked={alertForm.active} onChange={updateAlertFormFromInput("active")} />
+            Ativo
+          </label>
+          <div className="crm-capture-alert-form__actions">
+            <button type="submit" className="button button-primary" disabled={creatingAlert}>
+              <Plus size={16} strokeWidth={1.75} aria-hidden="true" />
+              {creatingAlert ? "Criando..." : "Criar monitoramento"}
+            </button>
+          </div>
+        </form>
+
+        {alertItems.length ? (
+          <div className="crm-capture-alerts">
+            {alertItems.map((alert) => (
+              <article key={alert.id} className="crm-capture-alert-card">
+                <div>
+                  <div className="crm-capture-card__badges">
+                    <span className="crm-capture-pill" data-tone={alert.active ? "success" : "muted"}>
+                      {alert.active ? "Ativo" : "Pausado"}
+                    </span>
+                    <span className="crm-capture-pill" data-tone={getRunTone(alert.lastRunStatus)}>
+                      {alert.lastRunStatus ?? "Pendente"}
+                    </span>
+                  </div>
+                  <h3>{alert.name}</h3>
+                  <p>{[alert.district, alert.city].filter(Boolean).join(", ")} · {alert.provider.toUpperCase()}</p>
+                  {alert.searchUrl ? (
+                    <a href={alert.searchUrl} target="_blank" rel="noopener noreferrer">
+                      <ExternalLink size={13} strokeWidth={1.75} aria-hidden="true" />
+                      Ver busca
+                    </a>
+                  ) : null}
+                </div>
+                <div className="crm-capture-alert-card__stats">
+                  <span><Clock3 size={14} strokeWidth={1.75} aria-hidden="true" /> {formatShortDateTime(alert.lastRunAt)}</span>
+                  <strong>{alert.lastRunImportedCount} importados</strong>
+                  <small>{alert.lastRunMessage ?? `${alert.maxResultsPerRun} anúncios por rodada`}</small>
+                </div>
+                <button
+                  type="button"
+                  className="button button-ghost"
+                  onClick={() => runAlert(alert)}
+                  disabled={runningAlertId === alert.id || runningAllAlerts}
+                >
+                  <Play size={16} strokeWidth={1.75} aria-hidden="true" />
+                  {runningAlertId === alert.id ? "Rodando..." : "Rodar"}
+                </button>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <div className="crm-capture-empty">
+            <p>Nenhum monitoramento automático cadastrado.</p>
+          </div>
+        )}
       </section>
 
       <section className="crm-capture-import" aria-label="Importar anúncio da OLX">

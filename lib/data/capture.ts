@@ -13,7 +13,7 @@ import type { z } from "zod";
 import { slugify } from "@/lib/crm/slug";
 import { createCrmProperty } from "@/lib/data/crm-properties";
 import { prisma } from "@/lib/prisma";
-import type { crmCreateCapturedListingSchema } from "@/lib/validation/schemas";
+import type { crmCreateCapturedListingSchema, crmCreateCaptureAlertSchema } from "@/lib/validation/schemas";
 
 const hasDatabase = Boolean(process.env.DATABASE_URL);
 
@@ -27,6 +27,9 @@ const captureInclude = {
 
 type DbCapturedListing = Prisma.CapturedListingGetPayload<{ include: typeof captureInclude }>;
 type CapturedListingInput = z.infer<typeof crmCreateCapturedListingSchema>;
+type CaptureAlertInput = z.infer<typeof crmCreateCaptureAlertSchema>;
+
+type DbCaptureAlert = Prisma.CaptureAlertGetPayload<object>;
 
 export type CaptureListingItem = {
   id: string;
@@ -79,8 +82,44 @@ export type CaptureListingItem = {
   linkedLeadName: string | null;
 };
 
+export type CaptureAlertItem = {
+  id: string;
+  name: string;
+  provider: string;
+  searchUrl: string | null;
+  city: string;
+  district: string | null;
+  purpose: PropertyPurpose | null;
+  type: PropertyType | null;
+  priceMin: number | null;
+  priceMax: number | null;
+  onlyPrivateSeller: boolean;
+  onlyFullAddress: boolean;
+  maxResultsPerRun: number;
+  active: boolean;
+  lastRunAt: string | null;
+  lastRunStatus: string | null;
+  lastRunMessage: string | null;
+  lastRunImportedCount: number;
+  lastRunFoundCount: number;
+  lastRunFailedCount: number;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type CaptureAlertRunResult = {
+  alert: CaptureAlertItem;
+  listings: CaptureListingItem[];
+  foundCount: number;
+  importedCount: number;
+  skippedCount: number;
+  failedCount: number;
+  errors: string[];
+};
+
 declare global {
   var crmCapturedListingsMemory: CaptureListingItem[] | undefined;
+  var crmCaptureAlertsMemory: CaptureAlertItem[] | undefined;
 }
 
 function optionalString(input?: string | null) {
@@ -90,9 +129,10 @@ function optionalString(input?: string | null) {
   return trimmed.length ? trimmed : null;
 }
 
-function optionalNumber(input?: number | null) {
+function optionalNumber(input?: number | string | null) {
   if (input === undefined) return undefined;
   if (input === null || Number.isNaN(input)) return null;
+  if (typeof input === "string" && input.trim() === "") return null;
   return Number(input);
 }
 
@@ -211,6 +251,33 @@ function normalizeDbListing(listing: DbCapturedListing): CaptureListingItem {
   };
 }
 
+export function normalizeCaptureAlert(alert: DbCaptureAlert): CaptureAlertItem {
+  return {
+    id: alert.id,
+    name: alert.name,
+    provider: alert.provider,
+    searchUrl: alert.searchUrl,
+    city: alert.city,
+    district: alert.district,
+    purpose: alert.purpose,
+    type: alert.type,
+    priceMin: toNumber(alert.priceMin),
+    priceMax: toNumber(alert.priceMax),
+    onlyPrivateSeller: alert.onlyPrivateSeller,
+    onlyFullAddress: alert.onlyFullAddress,
+    maxResultsPerRun: alert.maxResultsPerRun,
+    active: alert.active,
+    lastRunAt: alert.lastRunAt?.toISOString() ?? null,
+    lastRunStatus: alert.lastRunStatus,
+    lastRunMessage: alert.lastRunMessage,
+    lastRunImportedCount: alert.lastRunImportedCount,
+    lastRunFoundCount: alert.lastRunFoundCount,
+    lastRunFailedCount: alert.lastRunFailedCount,
+    createdAt: alert.createdAt.toISOString(),
+    updatedAt: alert.updatedAt.toISOString()
+  };
+}
+
 function demoListings(): CaptureListingItem[] {
   const now = new Date();
   return [
@@ -274,6 +341,13 @@ function getMemoryStore() {
   return globalThis.crmCapturedListingsMemory;
 }
 
+function getAlertMemoryStore() {
+  if (!globalThis.crmCaptureAlertsMemory) {
+    globalThis.crmCaptureAlertsMemory = [];
+  }
+  return globalThis.crmCaptureAlertsMemory;
+}
+
 function normalizeInput(payload: CapturedListingInput) {
   const sourceName = formatSourceName(payload.sourceName);
   const price = Number(payload.price);
@@ -326,6 +400,24 @@ function normalizeInput(payload: CapturedListingInput) {
   };
 }
 
+function normalizeAlertInput(payload: CaptureAlertInput) {
+  return {
+    name: payload.name.trim(),
+    provider: payload.provider ?? "olx",
+    searchUrl: optionalString(payload.searchUrl) ?? null,
+    city: payload.city.trim(),
+    district: optionalString(payload.district) ?? null,
+    purpose: payload.purpose || null,
+    type: payload.type || null,
+    priceMin: optionalNumber(payload.priceMin) ?? null,
+    priceMax: optionalNumber(payload.priceMax) ?? null,
+    onlyPrivateSeller: payload.onlyPrivateSeller ?? false,
+    onlyFullAddress: payload.onlyFullAddress ?? false,
+    maxResultsPerRun: Math.max(1, Math.min(30, payload.maxResultsPerRun ?? 8)),
+    active: payload.active ?? true
+  };
+}
+
 async function createCaptureAuditLog(input: {
   action: string;
   resourceId: string;
@@ -360,6 +452,62 @@ export async function listCapturedListings() {
   } catch {
     return getMemoryStore();
   }
+}
+
+export async function listCaptureAlerts() {
+  if (!hasDatabase) return getAlertMemoryStore();
+
+  try {
+    const alerts = await prisma.captureAlert.findMany({
+      orderBy: [{ active: "desc" }, { lastRunAt: "asc" }, { createdAt: "desc" }]
+    });
+    return alerts.map(normalizeCaptureAlert);
+  } catch {
+    return getAlertMemoryStore();
+  }
+}
+
+export async function createCaptureAlert(payload: CaptureAlertInput, actorId?: string | null) {
+  const normalized = normalizeAlertInput(payload);
+
+  if (!hasDatabase) {
+    const now = new Date().toISOString();
+    const alert: CaptureAlertItem = {
+      id: `mem-alert-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`,
+      ...normalized,
+      lastRunAt: null,
+      lastRunStatus: null,
+      lastRunMessage: null,
+      lastRunImportedCount: 0,
+      lastRunFoundCount: 0,
+      lastRunFailedCount: 0,
+      createdAt: now,
+      updatedAt: now
+    };
+    getAlertMemoryStore().unshift(alert);
+    return alert;
+  }
+
+  const alert = await prisma.captureAlert.create({
+    data: {
+      ...normalized,
+      ownerUserId: actorId ?? undefined
+    }
+  });
+
+  await prisma.auditLog
+    .create({
+      data: {
+        action: "CAPTURE_ALERT_CREATED",
+        resource: "CaptureAlert",
+        resourceId: alert.id,
+        actorId: actorId ?? undefined,
+        metadata: normalized as Prisma.InputJsonValue
+      }
+    })
+    .catch(() => null);
+
+  return normalizeCaptureAlert(alert);
 }
 
 export async function createCapturedListing(payload: CapturedListingInput, actorId?: string | null) {

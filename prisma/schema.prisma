@@ -907,6 +907,8 @@ model CapturedListing {
 model CaptureAlert {
   id        String   @id @default(cuid())
   name      String
+  provider  String   @default("olx")
+  searchUrl String?
   city      String
   district  String?
   purpose   PropertyPurpose?
@@ -915,8 +917,14 @@ model CaptureAlert {
   priceMax  Decimal? @db.Decimal(14, 2)
   onlyPrivateSeller Boolean @default(false)
   onlyFullAddress   Boolean @default(false)
+  maxResultsPerRun  Int      @default(8)
   active    Boolean  @default(true)
   lastRunAt DateTime?
+  lastRunStatus String?
+  lastRunMessage String?
+  lastRunImportedCount Int @default(0)
+  lastRunFoundCount    Int @default(0)
+  lastRunFailedCount   Int @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -924,6 +932,7 @@ model CaptureAlert {
   ownerUser   User? @relation("CaptureAlertOwner", fields: [ownerUserId], references: [id], onDelete: SetNull)
 
   @@index([active, city, district])
+  @@index([provider, active, lastRunAt])
   @@index([ownerUserId, active])
 }
 

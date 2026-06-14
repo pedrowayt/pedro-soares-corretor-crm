@@ -4,6 +4,7 @@ import { createCapturedListing, type CaptureListingItem } from "@/lib/data/captu
 
 export const OLX_CAPTURE_TIMEOUT_MS = 12_000;
 const MAX_SCRAPE_HTML_BYTES = 2 * 1024 * 1024;
+const DEFAULT_SEARCH_LINK_LIMIT = 12;
 
 type JsonRecord = Record<string, unknown>;
 
@@ -131,6 +132,26 @@ function getCanonicalUrl($: cheerio.CheerioAPI, finalUrl: URL) {
   } catch {
     return finalUrl.toString();
   }
+}
+
+function normalizeOlxAdUrl(rawValue: string, baseUrl: URL) {
+  if (!rawValue || rawValue.startsWith("javascript:") || rawValue.startsWith("mailto:")) return null;
+
+  let url: URL;
+  try {
+    url = new URL(rawValue, baseUrl);
+  } catch {
+    return null;
+  }
+
+  if (!isOlxHost(url.hostname)) return null;
+  const decodedPath = decodeURIComponent(url.pathname);
+  if (!/(?:-|\/)\d{8,}(?:\/)?$/.test(decodedPath)) return null;
+  if (/\/busca|\/favoritos|\/chat|\/minha-conta|\/entrar|\/login/i.test(decodedPath)) return null;
+
+  url.hash = "";
+  url.search = "";
+  return url.toString();
 }
 
 function parseJsonSafe(value: string): unknown | null {
@@ -383,6 +404,35 @@ function compactTextForParsing($: cheerio.CheerioAPI) {
   return stripHtmlText(clone.text());
 }
 
+function extractOlxAdLinks(html: string, finalUrl: URL, limit = DEFAULT_SEARCH_LINK_LIMIT) {
+  const $ = cheerio.load(html);
+  const found = new Map<string, string>();
+
+  function addCandidate(rawValue: string) {
+    if (found.size >= limit) return;
+    const url = normalizeOlxAdUrl(rawValue, finalUrl);
+    if (url && !found.has(url)) found.set(url, url);
+  }
+
+  $("a[href]").each((_, element) => {
+    addCandidate($(element).attr("href") ?? "");
+  });
+
+  const nextData = parseNextData($);
+  walkJson(nextData, (record) => {
+    for (const value of Object.values(record)) {
+      if (typeof value === "string") addCandidate(value);
+    }
+  });
+
+  const rawUrlMatches = html.match(/https?:\/\/[^"'<>\s]+?olx\.com\.br[^"'<>\s]+?\d{8,}/gi) ?? [];
+  for (const rawUrl of rawUrlMatches) {
+    addCandidate(rawUrl.replace(/\\u002F/g, "/"));
+  }
+
+  return Array.from(found.values()).slice(0, limit);
+}
+
 function buildRawPayload(input: {
   requestedUrl: string;
   finalUrl: string;
@@ -531,6 +581,56 @@ export async function scrapeOlxListing(sourceUrlValue: string) {
   } catch (error) {
     if (error instanceof Error && error.name === "AbortError") {
       throw new Error("Tempo esgotado ao ler o anuncio da OLX.");
+    }
+
+    throw error;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+export async function scrapeOlxSearchLinks(searchUrlValue: string, maxResults = DEFAULT_SEARCH_LINK_LIMIT) {
+  const searchUrl = parseOlxUrl(searchUrlValue);
+  const limit = Math.max(1, Math.min(30, Math.round(maxResults || DEFAULT_SEARCH_LINK_LIMIT)));
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), OLX_CAPTURE_TIMEOUT_MS);
+
+  try {
+    const response = await fetch(searchUrl, {
+      signal: controller.signal,
+      headers: {
+        Accept: "text/html,application/xhtml+xml",
+        "Accept-Language": "pt-BR,pt;q=0.9,en;q=0.7",
+        "User-Agent": "PedroSoaresCRM/1.0 (+https://www.pedrosoaresimoveis.com.br)"
+      }
+    });
+
+    if (!response.ok) {
+      throw new Error(`Nao consegui ler a busca da OLX. Status ${response.status}.`);
+    }
+
+    const contentType = response.headers.get("content-type") ?? "";
+    if (contentType && !contentType.includes("text/html") && !contentType.includes("application/xhtml+xml")) {
+      throw new Error("A URL de busca da OLX nao retornou uma pagina HTML.");
+    }
+
+    const finalUrl = new URL(response.url || searchUrl.toString());
+    if (isPrivateHost(finalUrl.hostname)) {
+      throw new Error("A busca redirecionou para uma URL bloqueada por seguranca.");
+    }
+    if (!isOlxHost(finalUrl.hostname)) {
+      throw new Error("A busca redirecionou para fora da OLX.");
+    }
+
+    const html = await readLimitedText(response, MAX_SCRAPE_HTML_BYTES);
+    return {
+      requestedUrl: searchUrl.toString(),
+      finalUrl: finalUrl.toString(),
+      links: extractOlxAdLinks(html, finalUrl, limit)
+    };
+  } catch (error) {
+    if (error instanceof Error && error.name === "AbortError") {
+      throw new Error("Tempo esgotado ao ler a busca da OLX.");
     }
 
     throw error;

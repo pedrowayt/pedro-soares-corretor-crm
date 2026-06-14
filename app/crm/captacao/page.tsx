@@ -1,8 +1,8 @@
 import { CaptureManager } from "@/components/crm/capture-manager";
-import { listCapturedListings } from "@/lib/data/capture";
+import { listCaptureAlerts, listCapturedListings } from "@/lib/data/capture";
 
 export default async function CrmCaptacaoPage() {
-  const listings = await listCapturedListings();
+  const [listings, alerts] = await Promise.all([listCapturedListings(), listCaptureAlerts()]);
 
-  return <CaptureManager listings={listings} />;
+  return <CaptureManager listings={listings} alerts={alerts} />;
 }
