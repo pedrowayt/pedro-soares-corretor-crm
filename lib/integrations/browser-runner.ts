@@ -71,8 +71,14 @@ async function autoScroll(page: Page) {
 function normalizeBrowserError(error: unknown) {
   const message = error instanceof Error ? error.message : String(error);
   if (/Failed to launch the browser process|error while loading shared libraries|libnss3|libnspr4/i.test(message)) {
-    const firstLine = message.split("\n").map((line) => line.trim()).find(Boolean);
-    return new Error(`Chromium não iniciou no servidor por dependência Linux ausente. Confirme o deploy do nixpacks.toml. Detalhe: ${firstLine ?? message}`);
+    const details = message
+      .split("\n")
+      .map((line) => line.trim())
+      .filter(Boolean)
+      .slice(0, 8)
+      .join(" | ")
+      .slice(0, 900);
+    return new Error(`Chromium não iniciou no servidor por dependência Linux ausente. Confirme o deploy do Dockerfile/nixpacks.toml. Detalhe: ${details || message}`);
   }
 
   return error;
