@@ -5813,6 +5813,8 @@ body:has(.crm-shell) > main {
 .crm-capture-alert-form input,
 .crm-capture-alert-form select,
 .crm-capture-import input,
+.crm-capture-import select,
+.crm-capture-import textarea,
 .crm-capture-filters input,
 .crm-capture-filters select {
   width: 100%;
@@ -5832,6 +5834,12 @@ body:has(.crm-shell) > main {
   padding-left: 38px;
 }
 
+.crm-capture-import textarea {
+  min-height: 118px;
+  padding-top: 10px;
+  resize: vertical;
+}
+
 .crm-capture-form textarea {
   min-height: 84px;
   padding-top: 10px;
@@ -5844,6 +5852,8 @@ body:has(.crm-shell) > main {
 .crm-capture-alert-form input:focus,
 .crm-capture-alert-form select:focus,
 .crm-capture-import input:focus,
+.crm-capture-import select:focus,
+.crm-capture-import textarea:focus,
 .crm-capture-filters input:focus,
 .crm-capture-filters select:focus {
   border-color: var(--sophistication-gold-500);
@@ -5877,6 +5887,33 @@ body:has(.crm-shell) > main {
   justify-content: flex-end;
   gap: 8px;
   flex-wrap: wrap;
+}
+
+.crm-capture-import__grid {
+  display: grid;
+  grid-template-columns: minmax(160px, 0.35fr) minmax(260px, 1fr);
+  gap: 12px;
+  align-items: end;
+}
+
+.crm-capture-import__grid label {
+  display: grid;
+  gap: 6px;
+  color: #334155;
+  font-size: var(--fs-12);
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.crm-capture-import__wide {
+  grid-column: span 1;
+}
+
+.crm-capture-import__actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 12px;
 }
 
 .crm-capture-feedback {
@@ -6218,6 +6255,7 @@ body:has(.crm-shell) > main {
 
   .crm-capture-form,
   .crm-capture-alert-form,
+  .crm-capture-import__grid,
   .crm-capture-import__row,
   .crm-capture-filters,
   .crm-capture-alert-card,
@@ -6707,6 +6745,7 @@ body:has(.crm-shell) > main {
 
   .crm-capture-form,
   .crm-capture-alert-form,
+  .crm-capture-import__grid,
   .crm-capture-filters {
     grid-template-columns: 1fr;
   }

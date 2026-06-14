@@ -229,6 +229,41 @@ export const crmImportPortalCapturedListingSchema = z.object({
   provider: capturePortalProviderSchema.optional()
 });
 
+const browserCapturedListingSchema = z.object({
+  sourceUrl: z.string().trim().url().optional().nullable().or(z.literal("")),
+  url: z.string().trim().url().optional().nullable().or(z.literal("")),
+  href: z.string().trim().url().optional().nullable().or(z.literal("")),
+  title: z.string().trim().max(180).optional().nullable().or(z.literal("")),
+  name: z.string().trim().max(180).optional().nullable().or(z.literal("")),
+  text: z.string().trim().max(5000).optional().nullable().or(z.literal("")),
+  rawText: z.string().trim().max(5000).optional().nullable().or(z.literal("")),
+  description: z.string().trim().max(5000).optional().nullable().or(z.literal("")),
+  price: z.union([z.string(), z.number()]).optional().nullable(),
+  city: z.string().trim().max(80).optional().nullable().or(z.literal("")),
+  district: z.string().trim().max(80).optional().nullable().or(z.literal("")),
+  neighborhood: z.string().trim().max(80).optional().nullable().or(z.literal("")),
+  location: z.string().trim().max(180).optional().nullable().or(z.literal("")),
+  address: z.string().trim().max(180).optional().nullable().or(z.literal("")),
+  areaM2: z.union([z.string(), z.number()]).optional().nullable(),
+  bedrooms: z.union([z.string(), z.number()]).optional().nullable(),
+  bathrooms: z.union([z.string(), z.number()]).optional().nullable(),
+  parkingSpaces: z.union([z.string(), z.number()]).optional().nullable()
+});
+
+export const crmImportBrowserCapturedListingsSchema = z
+  .object({
+    provider: capturePortalProviderSchema.optional(),
+    rawText: z.string().trim().max(120000).optional().nullable().or(z.literal("")),
+    items: z.array(browserCapturedListingSchema).max(60).optional(),
+    city: z.string().trim().min(2).max(80).optional().default("Palmas"),
+    district: z.string().trim().max(80).optional().nullable().or(z.literal("")),
+    purpose: z.nativeEnum(PropertyPurpose).optional().default(PropertyPurpose.VENDA),
+    type: z.nativeEnum(PropertyType).optional().default(PropertyType.CASA)
+  })
+  .refine((payload) => Boolean(payload.rawText?.trim() || payload.items?.length), {
+    message: "Informe a captura do navegador ou uma lista de anúncios."
+  });
+
 export const crmCreateCaptureAlertSchema = z.object({
   name: z.string().trim().min(3).max(120),
   provider: capturePortalProviderSchema.optional().default("olx"),

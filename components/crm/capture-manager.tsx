@@ -5,6 +5,7 @@ import { useMemo, useState, type ChangeEvent, type FormEvent } from "react";
 import {
   CheckCircle2,
   Clock3,
+  Clipboard,
   Download,
   ExternalLink,
   Filter,
@@ -83,6 +84,9 @@ type ApiPayload = {
     alert?: CaptureAlertItem;
     alerts?: CaptureAlertItem[];
     results?: CaptureAlertRunResult[];
+    importedCount?: number;
+    failedCount?: number;
+    errors?: string[];
   };
   error?: { message?: string };
 };
@@ -196,6 +200,11 @@ const SEARCH_PLACEHOLDERS: Record<CapturePortalProviderId, string> = {
   "chaves-na-mao": "https://www.chavesnamao.com.br/imoveis-a-venda/to-palmas/",
   "facebook-marketplace": "https://www.facebook.com/marketplace/palmas/propertyforsale/"
 };
+
+function buildBrowserCollectorBookmarklet() {
+  const script = `(()=>{const seen=new Set();const items=[];const clean=v=>(v||'').replace(/\\s+/g,' ').trim();const isAd=u=>{const h=u.hostname.toLowerCase();const p=decodeURIComponent(u.pathname);return h.includes('olx.com.br')?/(?:-|\\/)\\d{5,}/.test(p):h.includes('zapimoveis.com.br')?/\\/imovel\\/|\\/imoveis\\/|id-\\d{5,}|-\\d{7,}/.test(p):h.includes('imovelweb.com.br')?/\\/propriedades\\/|\\/imovel\\/|-\\d{7,}/.test(p):h.includes('chavesnamao.com.br')?/\\/imovel\\/|\\/imoveis\\/|\\/casa-|\\/apartamento-|\\/terreno-|\\/sobrado-|\\/chacara-|-\\d{5,}/.test(p):h.includes('facebook.com')?/\\/marketplace\\/item\\/\\d+/.test(p):false};document.querySelectorAll('a[href]').forEach(a=>{try{const u=new URL(a.href,location.href);u.hash='';u.search='';if(!isAd(u)||seen.has(u.href))return;seen.add(u.href);const box=a.closest('article,li,section,div')||a;const text=clean(box.innerText||a.textContent||'');const lines=text.split(/\\n+/).map(clean).filter(Boolean);const price=(text.match(/R\\$\\s*[\\d.]+(?:,\\d{2})?/i)||[''])[0];const title=clean(a.innerText)||lines.find(l=>l&&!/^R\\$/i.test(l)&&!/patrocinado|favorito|online/i.test(l))||document.title;const location=lines.find(l=>/palmas|\\bto\\b|setor|plano diretor|jardim|centro/i.test(l))||'';items.push({sourceUrl:u.href,title,price,location,rawText:text.slice(0,1200)});}catch(e){}});const out=JSON.stringify(items,null,2);navigator.clipboard.writeText(out).then(()=>alert('Captura copiada: '+items.length+' anúncios')).catch(()=>prompt('Copie a captura',out));})();`;
+  return `javascript:${encodeURIComponent(script)}`;
+}
 
 function normalizeSearchTerm(value: string) {
   return value
@@ -356,6 +365,9 @@ export function CaptureManager({ listings, alerts }: { listings: CaptureListingI
   const [alertForm, setAlertForm] = useState<AlertFormState>(EMPTY_ALERT_FORM);
   const [portalUrl, setPortalUrl] = useState("");
   const [importingPortal, setImportingPortal] = useState(false);
+  const [browserCaptureText, setBrowserCaptureText] = useState("");
+  const [browserCaptureProvider, setBrowserCaptureProvider] = useState<CapturePortalProviderId>("olx");
+  const [importingBrowserCapture, setImportingBrowserCapture] = useState(false);
   const [creatingAlert, setCreatingAlert] = useState(false);
   const [runningAlertId, setRunningAlertId] = useState<string | null>(null);
   const [deletingAlertId, setDeletingAlertId] = useState<string | null>(null);
@@ -541,6 +553,54 @@ export function CaptureManager({ listings, alerts }: { listings: CaptureListingI
       });
     } finally {
       setImportingPortal(false);
+    }
+  }
+
+  async function copyBrowserCollector() {
+    setFeedback(null);
+    try {
+      await navigator.clipboard.writeText(buildBrowserCollectorBookmarklet());
+      setFeedback({ tone: "success", message: "Coletor copiado." });
+    } catch {
+      setFeedback({ tone: "error", message: "Não foi possível copiar o coletor." });
+    }
+  }
+
+  async function importBrowserCapture(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setImportingBrowserCapture(true);
+    setFeedback(null);
+    try {
+      const response = await fetch("/api/crm/captacao/import/browser", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          provider: browserCaptureProvider,
+          rawText: browserCaptureText,
+          city: "Palmas",
+          purpose: "VENDA",
+          type: "CASA"
+        })
+      });
+      const data = await handleApiData(response);
+      const imported = data.listings ?? [];
+      mergeListings(imported);
+      setBrowserCaptureText("");
+      const failed = data.failedCount ?? 0;
+      setFeedback({
+        tone: failed > 0 ? "warning" : "success",
+        message:
+          failed > 0
+            ? `${data.importedCount ?? imported.length} anúncios importados; ${failed} não entraram.`
+            : `${data.importedCount ?? imported.length} anúncios importados pela captura do navegador.`
+      });
+    } catch (error) {
+      setFeedback({
+        tone: "error",
+        message: error instanceof Error ? error.message : "Erro ao importar captura do navegador."
+      });
+    } finally {
+      setImportingBrowserCapture(false);
     }
   }
 
@@ -907,6 +967,48 @@ export function CaptureManager({ listings, alerts }: { listings: CaptureListingI
             <button type="submit" className="button button-primary" disabled={importingPortal || !portalUrl.trim()}>
               <Download size={16} strokeWidth={1.75} aria-hidden="true" />
               {importingPortal ? "Importando..." : "Importar"}
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <section className="crm-capture-import" aria-label="Importar captura do navegador">
+        <div className="crm-capture-section-head">
+          <div>
+            <h2>Captura do navegador</h2>
+            <p>Use quando o portal bloquear a leitura automática pelo servidor.</p>
+          </div>
+          <button type="button" className="button button-ghost" onClick={copyBrowserCollector}>
+            <Clipboard size={16} strokeWidth={1.75} aria-hidden="true" />
+            Copiar coletor
+          </button>
+        </div>
+        <form className="crm-capture-import__form" onSubmit={importBrowserCapture}>
+          <div className="crm-capture-import__grid">
+            <label>
+              Portal
+              <select value={browserCaptureProvider} onChange={(event) => setBrowserCaptureProvider(event.target.value as CapturePortalProviderId)}>
+                {PORTAL_OPTIONS.map(([value, label]) => (
+                  <option key={value} value={value}>{label}</option>
+                ))}
+              </select>
+            </label>
+            <label className="crm-capture-import__wide">
+              Captura
+              <textarea
+                value={browserCaptureText}
+                onChange={(event) => setBrowserCaptureText(event.target.value)}
+                placeholder='[{"sourceUrl":"https://...","title":"Casa...","price":"R$ 650.000","location":"Plano Diretor Sul, Palmas"}]'
+                rows={5}
+                disabled={importingBrowserCapture}
+                required
+              />
+            </label>
+          </div>
+          <div className="crm-capture-import__actions">
+            <button type="submit" className="button button-primary" disabled={importingBrowserCapture || !browserCaptureText.trim()}>
+              <Download size={16} strokeWidth={1.75} aria-hidden="true" />
+              {importingBrowserCapture ? "Importando..." : "Importar captura"}
             </button>
           </div>
         </form>
