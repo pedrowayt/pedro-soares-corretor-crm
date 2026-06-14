@@ -370,6 +370,7 @@ export function CaptureManager({ listings, alerts }: { listings: CaptureListingI
   const [importingBrowserCapture, setImportingBrowserCapture] = useState(false);
   const [creatingAlert, setCreatingAlert] = useState(false);
   const [runningAlertId, setRunningAlertId] = useState<string | null>(null);
+  const [runningBrowserAlertId, setRunningBrowserAlertId] = useState<string | null>(null);
   const [deletingAlertId, setDeletingAlertId] = useState<string | null>(null);
   const [runningAllAlerts, setRunningAllAlerts] = useState(false);
   const [pendingId, setPendingId] = useState<string | null>(null);
@@ -653,6 +654,30 @@ export function CaptureManager({ listings, alerts }: { listings: CaptureListingI
     }
   }
 
+  async function runBrowserAlert(alert: CaptureAlertItem) {
+    setRunningBrowserAlertId(alert.id);
+    setFeedback(null);
+    try {
+      const response = await fetch(`/api/crm/captacao/alerts/${alert.id}/run-browser`, { method: "POST" });
+      const data = await handleApiData(response);
+      if (!data.alert) throw new Error("Resposta sem monitoramento.");
+      replaceAlert(data.alert);
+      mergeListings(data.listings ?? []);
+      const runTone = data.alert.lastRunStatus === "error" ? "error" : data.alert.lastRunStatus === "warning" ? "warning" : "success";
+      setFeedback({
+        tone: runTone,
+        message: data.alert.lastRunMessage ?? "Monitoramento com navegador executado."
+      });
+    } catch (error) {
+      setFeedback({
+        tone: "error",
+        message: error instanceof Error ? error.message : "Erro ao executar navegador."
+      });
+    } finally {
+      setRunningBrowserAlertId(null);
+    }
+  }
+
   async function runAllAlerts() {
     setRunningAllAlerts(true);
     setFeedback(null);
@@ -918,7 +943,7 @@ export function CaptureManager({ listings, alerts }: { listings: CaptureListingI
                   type="button"
                   className="button button-ghost"
                   onClick={() => runAlert(alert)}
-                  disabled={runningAlertId === alert.id || deletingAlertId === alert.id || runningAllAlerts}
+                  disabled={runningAlertId === alert.id || runningBrowserAlertId === alert.id || deletingAlertId === alert.id || runningAllAlerts}
                 >
                   <Play size={16} strokeWidth={1.75} aria-hidden="true" />
                   {runningAlertId === alert.id ? "Rodando..." : "Rodar"}
@@ -926,8 +951,17 @@ export function CaptureManager({ listings, alerts }: { listings: CaptureListingI
                 <button
                   type="button"
                   className="button button-ghost"
+                  onClick={() => runBrowserAlert(alert)}
+                  disabled={runningAlertId === alert.id || runningBrowserAlertId === alert.id || deletingAlertId === alert.id || runningAllAlerts}
+                >
+                  <Search size={16} strokeWidth={1.75} aria-hidden="true" />
+                  {runningBrowserAlertId === alert.id ? "Abrindo..." : "Rodar navegador"}
+                </button>
+                <button
+                  type="button"
+                  className="button button-ghost"
                   onClick={() => deleteAlert(alert)}
-                  disabled={runningAlertId === alert.id || deletingAlertId === alert.id || runningAllAlerts}
+                  disabled={runningAlertId === alert.id || runningBrowserAlertId === alert.id || deletingAlertId === alert.id || runningAllAlerts}
                 >
                   <Trash2 size={16} strokeWidth={1.75} aria-hidden="true" />
                   {deletingAlertId === alert.id ? "Excluindo..." : "Excluir"}
