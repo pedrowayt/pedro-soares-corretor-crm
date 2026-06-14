@@ -38,12 +38,16 @@ async function launchBrowser() {
   return puppeteer.launch({
     args: [
       ...chromium.args,
+      "--no-sandbox",
+      "--disable-setuid-sandbox",
       "--disable-blink-features=AutomationControlled",
+      "--disable-dev-shm-usage",
       "--disable-features=IsolateOrigins,site-per-process"
     ],
     defaultViewport: { width: 1365, height: 900 },
     executablePath,
-    headless: true
+    headless: true,
+    userDataDir: "/tmp/chromium-profile"
   });
 }
 
@@ -62,6 +66,16 @@ async function autoScroll(page: Page) {
     await page.evaluate(() => window.scrollBy(0, Math.floor(window.innerHeight * 0.9)));
     await new Promise((resolve) => setTimeout(resolve, 700));
   }
+}
+
+function normalizeBrowserError(error: unknown) {
+  const message = error instanceof Error ? error.message : String(error);
+  if (/Failed to launch the browser process|error while loading shared libraries|libnss3|libnspr4/i.test(message)) {
+    const firstLine = message.split("\n").map((line) => line.trim()).find(Boolean);
+    return new Error(`Chromium não iniciou no servidor por dependência Linux ausente. Confirme o deploy do nixpacks.toml. Detalhe: ${firstLine ?? message}`);
+  }
+
+  return error;
 }
 
 export async function scrapePortalSearchWithBrowser(
@@ -146,6 +160,8 @@ export async function scrapePortalSearchWithBrowser(
       finalUrl: page.url(),
       items
     };
+  } catch (error) {
+    throw normalizeBrowserError(error);
   } finally {
     if (browser) await browser.close().catch(() => null);
   }
