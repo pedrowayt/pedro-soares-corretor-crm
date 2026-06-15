@@ -57,7 +57,14 @@ async function preparePage(page: Page) {
     "accept-language": "pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7"
   });
   await page.evaluateOnNewDocument(() => {
+    Object.defineProperty(globalThis, "__name", { configurable: true, value: (target: unknown) => target });
     Object.defineProperty(navigator, "webdriver", { get: () => false });
+  });
+}
+
+async function prepareRuntimeHelpers(page: Page) {
+  await page.evaluate(() => {
+    Object.defineProperty(globalThis, "__name", { configurable: true, value: (target: unknown) => target });
   });
 }
 
@@ -99,6 +106,7 @@ export async function scrapePortalSearchWithBrowser(
     await preparePage(page);
     await page.goto(searchUrl, { waitUntil: "domcontentloaded", timeout: 45_000 });
     await page.waitForNetworkIdle({ idleTime: 900, timeout: 15_000 }).catch(() => null);
+    await prepareRuntimeHelpers(page);
     await autoScroll(page);
 
     const items = await page.evaluate(
