@@ -18,6 +18,9 @@ export type BrowserCapturedSearchResult = {
 
 const BROWSER_USER_AGENT =
   "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36";
+const BROWSER_RUNTIME_HELPERS = `
+  Object.defineProperty(globalThis, "__name", { configurable: true, value: function(target) { return target; } });
+`;
 
 function providerFromUrl(urlValue: string): CapturePortalProviderId | null {
   try {
@@ -56,16 +59,13 @@ async function preparePage(page: Page) {
   await page.setExtraHTTPHeaders({
     "accept-language": "pt-BR,pt;q=0.9,en-US;q=0.8,en;q=0.7"
   });
-  await page.evaluateOnNewDocument(() => {
-    Object.defineProperty(globalThis, "__name", { configurable: true, value: (target: unknown) => target });
+  await page.evaluateOnNewDocument(`${BROWSER_RUNTIME_HELPERS}
     Object.defineProperty(navigator, "webdriver", { get: () => false });
-  });
+  `);
 }
 
 async function prepareRuntimeHelpers(page: Page) {
-  await page.evaluate(() => {
-    Object.defineProperty(globalThis, "__name", { configurable: true, value: (target: unknown) => target });
-  });
+  await page.evaluate(BROWSER_RUNTIME_HELPERS);
 }
 
 async function autoScroll(page: Page) {
