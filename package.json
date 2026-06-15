@@ -18,7 +18,8 @@
     "builders:backfill": "tsx scripts/backfill-builders.ts",
     "crm:set-password": "tsx scripts/set-user-password.ts",
     "cloudflare:setup:variants": "tsx scripts/cloudflare-setup-variants.ts",
-    "placa:preview": "tsx scripts/preview-placa.ts"
+    "placa:preview": "tsx scripts/preview-placa.ts",
+    "worker:captacao": "tsx scripts/capture-worker.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.18.0",
@@ -36,6 +37,7 @@
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "sharp": "^0.34.5",
+    "tsx": "^4.20.6",
     "zod": "^4.1.12"
   },
   "devDependencies": {
@@ -46,7 +48,6 @@
     "eslint": "^9.36.0",
     "eslint-config-next": "^16.1.0",
     "prisma": "^6.18.0",
-    "tsx": "^4.20.6",
     "typescript": "^5.9.2"
   }
 }
