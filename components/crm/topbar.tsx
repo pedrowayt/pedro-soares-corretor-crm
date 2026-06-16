@@ -13,6 +13,7 @@ import {
   Plug,
   Search,
   Settings,
+  Target,
   UserCheck,
   Users,
   Workflow,
@@ -48,6 +49,7 @@ const PRIMARY_NAV: ReadonlyArray<TopbarLink> = [
 
 const SECONDARY_NAV: ReadonlyArray<TopbarLink> = [
   { href: "/crm/inbox", label: "Inbox", Icon: Bell },
+  { href: "/crm/captacao", label: "Captação ativa", Icon: Target },
   { href: "/crm/visitas", label: "Visitas", Icon: UserCheck },
   { href: "/crm/tarefas", label: "Tarefas", Icon: Workflow },
   { href: "/crm/proprietarios", label: "Proprietários", Icon: UserCheck },
