@@ -35,6 +35,7 @@ type CaptureFilters = {
   location: string;
   priceMin: string;
   priceMax: string;
+  sort: string;
   privateOnly: boolean;
   fullAddressOnly: boolean;
 };
@@ -106,7 +107,8 @@ const EMPTY_FILTERS: CaptureFilters = {
   location: "",
   priceMin: "",
   priceMax: "",
-  privateOnly: false,
+  sort: "recent",
+  privateOnly: true,
   fullAddressOnly: false
 };
 
@@ -190,6 +192,12 @@ const TYPE_LABELS: Record<string, string> = {
 const PURPOSE_OPTIONS = Object.entries(PURPOSE_LABELS);
 const TYPE_OPTIONS = Object.entries(TYPE_LABELS);
 const STATUS_OPTIONS = Object.entries(STATUS_LABELS);
+const SORT_OPTIONS: Array<[string, string]> = [
+  ["recent", "Mais recentes"],
+  ["oldest", "Mais antigos"],
+  ["score", "Maior score"],
+  ["status", "Status"]
+];
 const PORTAL_OPTIONS: Array<[CapturePortalProviderId, string]> = [
   ["olx", "OLX"],
   ["zap", "ZAP Imóveis"],
@@ -351,6 +359,30 @@ function getScoreTone(score: number) {
   return "cold";
 }
 
+function getListingTimestamp(listing: CaptureListingItem) {
+  const parsed = Date.parse(listing.lastSeenAt || listing.updatedAt || listing.createdAt);
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function sortCaptureListings(listings: CaptureListingItem[], sort: string) {
+  return [...listings].sort((first, second) => {
+    if (sort === "oldest") {
+      return getListingTimestamp(first) - getListingTimestamp(second) || second.opportunityScore - first.opportunityScore;
+    }
+    if (sort === "score") {
+      return second.opportunityScore - first.opportunityScore || getListingTimestamp(second) - getListingTimestamp(first);
+    }
+    if (sort === "status") {
+      return (
+        first.status.localeCompare(second.status) ||
+        second.opportunityScore - first.opportunityScore ||
+        getListingTimestamp(second) - getListingTimestamp(first)
+      );
+    }
+    return getListingTimestamp(second) - getListingTimestamp(first) || second.opportunityScore - first.opportunityScore;
+  });
+}
+
 function buildSubmitPayload(form: ManualFormState) {
   return {
     sourceName: form.sourceName,
@@ -436,7 +468,10 @@ export function CaptureManager({ listings, alerts }: { listings: CaptureListingI
   }, [items]);
 
   const hasActiveFilters =
-    Object.entries(filters).some(([, value]) => (typeof value === "boolean" ? value : value.trim().length > 0));
+    Object.entries(filters).some(([key, value]) => {
+      const defaultValue = EMPTY_FILTERS[key as keyof CaptureFilters];
+      return value !== defaultValue;
+    });
 
   const filteredItems = useMemo(() => {
     const queryTokens = normalizeSearchTerm(filters.query).split(/\s+/).filter(Boolean);
@@ -444,7 +479,7 @@ export function CaptureManager({ listings, alerts }: { listings: CaptureListingI
     const maxPrice = parseNumberInput(filters.priceMax);
     const [filterCity, filterDistrict] = filters.location.split("||");
 
-    return items.filter((listing) => {
+    const filtered = items.filter((listing) => {
       if (filters.status && listing.status !== filters.status) return false;
       if (filters.source && getListingSourceKey(listing) !== filters.source) return false;
       if (filters.purpose && listing.purpose !== filters.purpose) return false;
@@ -481,6 +516,7 @@ export function CaptureManager({ listings, alerts }: { listings: CaptureListingI
 
       return true;
     });
+    return sortCaptureListings(filtered, filters.sort);
   }, [filters, items]);
 
   const pageCount = Math.max(1, Math.ceil(filteredItems.length / CAPTURE_PAGE_SIZE));
@@ -550,10 +586,7 @@ export function CaptureManager({ listings, alerts }: { listings: CaptureListingI
     setItems((current) => {
       const byId = new Map(current.map((item) => [item.id, item]));
       nextListings.forEach((listing) => byId.set(listing.id, listing));
-      return Array.from(byId.values()).sort((first, second) => {
-        if (first.status !== second.status) return first.status.localeCompare(second.status);
-        return second.opportunityScore - first.opportunityScore;
-      });
+      return sortCaptureListings(Array.from(byId.values()), filters.sort);
     });
   }
 
@@ -928,7 +961,7 @@ export function CaptureManager({ listings, alerts }: { listings: CaptureListingI
           </label>
           <label className="crm-capture-check">
             <input type="checkbox" checked={alertForm.onlyPrivateSeller} onChange={updateAlertFormFromInput("onlyPrivateSeller")} />
-            Particular
+            Somente particulares
           </label>
           <label className="crm-capture-check">
             <input type="checkbox" checked={alertForm.active} onChange={updateAlertFormFromInput("active")} />
@@ -1228,6 +1261,14 @@ export function CaptureManager({ listings, alerts }: { listings: CaptureListingI
             <select id="capture-status" value={filters.status} onChange={(event) => updateFilter("status", event.target.value)}>
               <option value="">Todos</option>
               {STATUS_OPTIONS.map(([value, label]) => (
+                <option key={value} value={value}>{label}</option>
+              ))}
+            </select>
+          </div>
+          <div className="crm-capture-filters__field">
+            <label htmlFor="capture-sort">Ordenar</label>
+            <select id="capture-sort" value={filters.sort} onChange={(event) => updateFilter("sort", event.target.value)}>
+              {SORT_OPTIONS.map(([value, label]) => (
                 <option key={value} value={value}>{label}</option>
               ))}
             </select>

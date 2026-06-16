@@ -4,20 +4,27 @@ import {
   type CaptureAlertRunResult,
   type CaptureListingItem
 } from "@/lib/data/capture";
-import { importBrowserCapturedListings } from "@/lib/integrations/browser-capture";
+import { importBrowserCapturedListings, isBrowserCapturedPrivateSeller } from "@/lib/integrations/browser-capture";
 import { scrapePortalSearchWithBrowser } from "@/lib/integrations/browser-runner";
 import type { CapturePortalProviderId } from "@/lib/integrations/olx-capture";
 import { prisma } from "@/lib/prisma";
 
 const hasDatabase = Boolean(process.env.DATABASE_URL);
 
-function buildRunMessage(input: { found: number; imported: number; skipped: number; failed: number }) {
+function plural(value: number, singular: string, pluralLabel: string) {
+  return `${value} ${value === 1 ? singular : pluralLabel}`;
+}
+
+function buildRunMessage(input: { found: number; imported: number; skippedExisting: number; skippedPrivate: number; failed: number }) {
   if (input.found === 0) return "Nenhum anúncio encontrado na busca.";
-  if (input.imported === 0 && input.failed === 0) return `${input.found} encontrados; todos já estavam na fila.`;
-  if (input.failed > 0) {
-    return `${input.found} encontrados; ${input.imported} importados/atualizados; ${input.failed} falharam.`;
-  }
-  return `${input.found} encontrados; ${input.imported} importados/atualizados.`;
+
+  const parts: string[] = [];
+  if (input.imported > 0) parts.push(`${plural(input.imported, "importado/atualizado", "importados/atualizados")}`);
+  if (input.skippedPrivate > 0) parts.push(`${plural(input.skippedPrivate, "ignorado", "ignorados")} por não parecer particular`);
+  if (input.skippedExisting > 0) parts.push(`${plural(input.skippedExisting, "já estava", "já estavam")} na fila`);
+  if (input.failed > 0) parts.push(`${plural(input.failed, "falhou", "falharam")}`);
+
+  return parts.length ? `${input.found} encontrados; ${parts.join("; ")}.` : `${input.found} encontrados; nada novo para importar.`;
 }
 
 async function updateAlertRunStatus(
@@ -56,7 +63,11 @@ export async function runBrowserCaptureAlert(alertId: string, actorId?: string |
 
   try {
     const search = await scrapePortalSearchWithBrowser(alert.searchUrl, alert.maxResultsPerRun, alert.provider);
-    const urls = search.items.map((item) => item.sourceUrl).filter(Boolean);
+    const privateFilteredItems = alert.onlyPrivateSeller
+      ? search.items.filter((item) => isBrowserCapturedPrivateSeller(item))
+      : search.items;
+    const skippedPrivateCount = search.items.length - privateFilteredItems.length;
+    const urls = privateFilteredItems.map((item) => item.sourceUrl).filter(Boolean);
     const existing = urls.length
       ? await prisma.capturedListing.findMany({
           where: { sourceUrl: { in: urls } },
@@ -64,7 +75,7 @@ export async function runBrowserCaptureAlert(alertId: string, actorId?: string |
         })
       : [];
     const existingUrls = new Set(existing.map((item) => item.sourceUrl).filter(Boolean));
-    const itemsToImport = search.items.filter((item) => !existingUrls.has(item.sourceUrl));
+    const itemsToImport = privateFilteredItems.filter((item) => !existingUrls.has(item.sourceUrl));
     const imported = await importBrowserCapturedListings(
       {
         provider: alert.provider as CapturePortalProviderId,
@@ -76,11 +87,13 @@ export async function runBrowserCaptureAlert(alertId: string, actorId?: string |
       },
       actorId
     );
-    const skippedCount = search.items.length - itemsToImport.length;
+    const skippedExistingCount = privateFilteredItems.length - itemsToImport.length;
+    const skippedCount = skippedPrivateCount + skippedExistingCount;
     const message = buildRunMessage({
       found: search.items.length,
       imported: imported.importedCount,
-      skipped: skippedCount,
+      skippedExisting: skippedExistingCount,
+      skippedPrivate: skippedPrivateCount,
       failed: imported.failedCount
     });
     const status = imported.failedCount > 0 ? "warning" : "success";
@@ -106,6 +119,9 @@ export async function runBrowserCaptureAlert(alertId: string, actorId?: string |
             foundCount: search.items.length,
             importedCount: imported.importedCount,
             skippedCount,
+            skippedExistingCount,
+            skippedPrivateCount,
+            onlyPrivateSeller: alert.onlyPrivateSeller,
             failedCount: imported.failedCount,
             mode: "browser"
           } as Prisma.InputJsonValue

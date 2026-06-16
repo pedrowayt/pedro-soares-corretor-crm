@@ -10,6 +10,7 @@ export type BrowserCapturedSearchItem = {
   location: string;
   imageUrl: string;
   rawText: string;
+  isPrivateSeller: boolean;
 };
 
 export type BrowserCapturedSearchResult = {
@@ -210,6 +211,16 @@ export async function scrapePortalSearchWithBrowser(
           if (provider === "facebook-marketplace") return /\/marketplace\/item\/\d+/.test(path);
           return false;
         };
+        const detectPrivateSeller = (text: string) => {
+          const haystack = clean(text).toLowerCase();
+          if (!haystack) return false;
+          const brokerSignal =
+            /imobili[aá]ria|im[oó]veis|corretor(?:a)?|creci|consultor(?:a)? imobili[aá]ri[oa]|remax|re\/max|lopes|ltda|neg[oó]cios imobili[aá]rios|anunciante profissional/.test(
+              haystack
+            );
+          const privateSignal = /propriet[aá]ri[oa]|particular|direto com|direto c\/?|dono|venda direta/.test(haystack);
+          return privateSignal || !brokerSignal;
+        };
 
         return Array.from(document.querySelectorAll<HTMLAnchorElement>("a[href]"))
           .flatMap((anchor) => {
@@ -236,7 +247,8 @@ export async function scrapePortalSearchWithBrowser(
                   price,
                   location,
                   imageUrl,
-                  rawText: rawText.slice(0, 1200)
+                  rawText: rawText.slice(0, 1200),
+                  isPrivateSeller: detectPrivateSeller(rawText)
                 }
               ];
             } catch {

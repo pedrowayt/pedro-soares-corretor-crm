@@ -238,6 +238,8 @@ const browserCapturedListingSchema = z.object({
   text: z.string().trim().max(5000).optional().nullable().or(z.literal("")),
   rawText: z.string().trim().max(5000).optional().nullable().or(z.literal("")),
   description: z.string().trim().max(5000).optional().nullable().or(z.literal("")),
+  advertiserName: z.string().trim().max(120).optional().nullable().or(z.literal("")),
+  sellerName: z.string().trim().max(120).optional().nullable().or(z.literal("")),
   price: z.union([z.string(), z.number()]).optional().nullable(),
   imageUrl: z.string().trim().url().optional().nullable().or(z.literal("")),
   thumbnailUrl: z.string().trim().url().optional().nullable().or(z.literal("")),
@@ -250,7 +252,8 @@ const browserCapturedListingSchema = z.object({
   areaM2: z.union([z.string(), z.number()]).optional().nullable(),
   bedrooms: z.union([z.string(), z.number()]).optional().nullable(),
   bathrooms: z.union([z.string(), z.number()]).optional().nullable(),
-  parkingSpaces: z.union([z.string(), z.number()]).optional().nullable()
+  parkingSpaces: z.union([z.string(), z.number()]).optional().nullable(),
+  isPrivateSeller: z.boolean().optional()
 });
 
 export const crmImportBrowserCapturedListingsSchema = z
@@ -277,7 +280,7 @@ export const crmCreateCaptureAlertSchema = z.object({
   type: z.nativeEnum(PropertyType).optional().nullable().or(z.literal("")),
   priceMin: z.coerce.number().positive().optional().nullable().or(z.literal("")),
   priceMax: z.coerce.number().positive().optional().nullable().or(z.literal("")),
-  onlyPrivateSeller: z.boolean().optional().default(false),
+  onlyPrivateSeller: z.boolean().optional().default(true),
   onlyFullAddress: z.boolean().optional().default(false),
   maxResultsPerRun: z.coerce.number().int().min(1).max(30).optional().default(8),
   active: z.boolean().optional().default(true)

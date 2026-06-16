@@ -5,6 +5,7 @@ import type { crmImportBrowserCapturedListingsSchema } from "@/lib/validation/sc
 
 type BrowserCaptureInput = z.infer<typeof crmImportBrowserCapturedListingsSchema>;
 type BrowserCaptureRawItem = NonNullable<BrowserCaptureInput["items"]>[number] & Record<string, unknown>;
+type BrowserCapturePrivateCandidate = Record<string, unknown>;
 
 const PROVIDER_LABELS: Record<string, string> = {
   olx: "OLX",
@@ -135,6 +136,44 @@ function providerFromUrl(urlValue: string, fallback?: string | null) {
   return fallback ?? "olx";
 }
 
+function inferPrivateSeller(text: string, advertiserName: string | null) {
+  const haystack = `${text} ${advertiserName ?? ""}`.toLowerCase();
+  if (!haystack.trim()) return false;
+
+  const hasBrokerSignal =
+    /imobili[aá]ria|im[oó]veis|corretor(?:a)?|creci|consultor(?:a)? imobili[aá]ri[oa]|remax|re\/max|lopes|ltda|neg[oó]cios imobili[aá]rios|anunciante profissional/.test(
+      haystack
+    );
+  const hasPrivateSignal = /propriet[aá]ri[oa]|particular|direto com|direto c\/?|dono|venda direta/.test(haystack);
+
+  return hasPrivateSignal || !hasBrokerSignal;
+}
+
+export function isBrowserCapturedPrivateSeller(item: BrowserCapturePrivateCandidate) {
+  if (typeof item.isPrivateSeller === "boolean") return item.isPrivateSeller;
+
+  const advertiserName =
+    optionalString(item.advertiserName) ||
+    optionalString(item.sellerName) ||
+    optionalString(item.advertiser) ||
+    optionalString(item.seller) ||
+    null;
+  const text = [
+    item.title,
+    item.name,
+    item.description,
+    item.rawText,
+    item.text,
+    item.location,
+    advertiserName
+  ]
+    .map(optionalString)
+    .filter(Boolean)
+    .join(" ");
+
+  return inferPrivateSeller(text, advertiserName);
+}
+
 function inferType(text: string, fallback: PropertyType) {
   const lower = text.toLowerCase();
   if (/apartamento|apto\b/.test(lower)) return PropertyType.APARTAMENTO;
@@ -244,8 +283,18 @@ function itemToPayload(item: BrowserCaptureRawItem, input: BrowserCaptureInput) 
   const city = optionalString(item.city) || location.city;
   const provider = providerFromUrl(sourceUrl, input.provider);
   const sourceName = PROVIDER_LABELS[provider] ?? "Portal";
+  const advertiserName =
+    optionalString(item.advertiserName) ||
+    optionalString(item.sellerName) ||
+    optionalString(item.advertiser) ||
+    optionalString(item.seller) ||
+    null;
   const searchText = `${title} ${description ?? ""}`;
   const thumbnailUrl = normalizeImageUrl(item.thumbnailUrl ?? item.imageUrl ?? item.photoUrl);
+  const isPrivateSeller =
+    typeof item.isPrivateSeller === "boolean"
+      ? item.isPrivateSeller
+      : inferPrivateSeller(`${searchText} ${rawText}`, advertiserName);
 
   return {
     sourceName,
@@ -264,7 +313,8 @@ function itemToPayload(item: BrowserCaptureRawItem, input: BrowserCaptureInput) 
     bedrooms: toInt(item.bedrooms),
     bathrooms: toInt(item.bathrooms),
     parkingSpaces: toInt(item.parkingSpaces),
-    isPrivateSeller: /particular|propriet[aá]rio|direto com|direto c\/?/i.test(searchText),
+    advertiserName,
+    isPrivateSeller,
     hasFullAddress: Boolean(optionalString(item.address)),
     rawPayload: {
       importer: "browser-capture",
