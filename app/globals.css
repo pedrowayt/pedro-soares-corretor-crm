@@ -5944,7 +5944,7 @@ body:has(.crm-shell) > main {
 
 .crm-capture-filters {
   display: grid;
-  grid-template-columns: minmax(240px, 1.4fr) repeat(4, minmax(130px, 1fr)) minmax(170px, 0.9fr) auto auto auto;
+  grid-template-columns: minmax(240px, 1.4fr) repeat(5, minmax(126px, 1fr)) minmax(170px, 0.9fr) auto auto auto;
   gap: 12px;
   align-items: end;
   padding: 14px 16px;
@@ -6077,7 +6077,7 @@ body:has(.crm-shell) > main {
   border-radius: 10px;
   background: #ffffff;
   display: grid;
-  grid-template-columns: 92px minmax(0, 1fr);
+  grid-template-columns: 92px 132px minmax(0, 1fr);
   overflow: hidden;
 }
 
@@ -6111,6 +6111,30 @@ body:has(.crm-shell) > main {
 
 .crm-capture-card__score[data-tone="warm"] strong {
   color: #b45309;
+}
+
+.crm-capture-card__thumb {
+  min-width: 0;
+  min-height: 100%;
+  border-right: 1px solid rgba(15, 34, 61, 0.08);
+  background: #eef2f7;
+  background-position: center;
+  background-size: cover;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.crm-capture-card__thumb span {
+  width: 52px;
+  height: 52px;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #94a3b8;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(15, 34, 61, 0.08);
 }
 
 .crm-capture-card__body {
@@ -6241,6 +6265,35 @@ body:has(.crm-shell) > main {
   display: grid;
   justify-items: start;
   gap: 12px;
+}
+
+.crm-capture-pagination {
+  border-top: 1px solid #e3e9f2;
+  padding: 12px 14px 14px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.crm-capture-pagination span {
+  color: #526174;
+  font-size: var(--fs-13);
+  font-weight: 800;
+  min-width: 96px;
+  text-align: center;
+}
+
+.crm-capture-pagination .button {
+  min-height: 38px;
+  gap: 6px;
+}
+
+.crm-capture-pagination .button:disabled {
+  cursor: not-allowed;
+  opacity: 0.48;
+  transform: none;
 }
 
 .crm-capture-empty p {
@@ -6764,6 +6817,12 @@ body:has(.crm-shell) > main {
     border-bottom: 1px solid rgba(15, 34, 61, 0.08);
   }
 
+  .crm-capture-card__thumb {
+    min-height: 180px;
+    border-right: 0;
+    border-bottom: 1px solid rgba(15, 34, 61, 0.08);
+  }
+
   .crm-owners-list,
   .crm-owner-editor {
     padding: 14px;
@@ -6780,6 +6839,7 @@ body:has(.crm-shell) > main {
 
   .crm-owner-card__actions .button,
   .crm-capture-card__actions .button,
+  .crm-capture-pagination .button,
   .crm-capture-form__actions .button,
   .crm-owner-form__actions .button,
   .crm-owner-property__side .button {

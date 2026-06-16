@@ -109,6 +109,7 @@ type PortalExtractedListing = {
   advertiserPhone: string | null;
   isPrivateSeller: boolean;
   hasFullAddress: boolean;
+  imageUrl: string | null;
   rawPayload: Prisma.InputJsonValue;
   notes: string;
 };
@@ -347,19 +348,52 @@ function parseBrazilianDecimal(value: string) {
   return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
 }
 
+function parsePriceToken(value: string) {
+  const millionMatch = value.match(/R\$\s*([\d.,]+)\s*(?:milh[aã]o|milh[oõ]es)/i);
+  if (millionMatch) {
+    const parsed = parseBrazilianDecimal(millionMatch[1]);
+    if (parsed) return parsed * 1_000_000;
+  }
+
+  const thousandMatch = value.match(/R\$\s*([\d.,]+)\s*mil\b/i);
+  if (thousandMatch) {
+    const parsed = parseBrazilianDecimal(thousandMatch[1]);
+    if (parsed) return parsed < 10_000 ? parsed * 1_000 : parsed;
+  }
+
+  const priceMatch = value.match(/R\$\s*([\d.,]+)/i);
+  if (priceMatch) return parseBrazilianDecimal(priceMatch[1]);
+  return null;
+}
+
+function collectPriceCandidates(value: string) {
+  const lines = value
+    .split(/\n+|\s{2,}|\s+\|\s+/)
+    .map(normalizeWhitespace)
+    .filter(Boolean);
+  const candidates: Array<{ value: number; feeLike: boolean }> = [];
+
+  for (const line of lines.length ? lines : [value]) {
+    const feeLike = /condom[ií]nio|iptu|taxa|seguro|m[²2]|por\s*m[²2]/i.test(line);
+    const matches = line.match(/R\$\s*[\d.,]+(?:\s*(?:mil\b|milh[aã]o|milh[oõ]es))?/gi) ?? [];
+    for (const match of matches) {
+      const parsed = parsePriceToken(match);
+      if (parsed) candidates.push({ value: parsed, feeLike });
+    }
+  }
+
+  const preferred = candidates.filter((candidate) => !candidate.feeLike);
+  const pool = preferred.length ? preferred : candidates;
+  return pool.map((candidate) => candidate.value);
+}
+
 function parsePrice(...values: string[]) {
   for (const value of values) {
-    const millionMatch = value.match(/R\$\s*([\d.,]+)\s*(?:milh[aã]o|milh[oõ]es)/i);
-    if (millionMatch) {
-      const parsed = parseBrazilianDecimal(millionMatch[1]);
-      if (parsed) return parsed * 1_000_000;
-    }
+    const candidates = collectPriceCandidates(value);
+    if (candidates.length) return Math.max(...candidates);
 
-    const priceMatch = value.match(/R\$\s*([\d.,]+)/i);
-    if (priceMatch) {
-      const parsed = parseBrazilianDecimal(priceMatch[1]);
-      if (parsed) return parsed;
-    }
+    const parsed = parsePriceToken(value);
+    if (parsed) return parsed;
   }
 
   return null;
@@ -469,6 +503,29 @@ function getJsonPrice(record: JsonRecord | null | undefined) {
   return null;
 }
 
+function normalizeImageUrl(rawValue: unknown, baseUrl: URL) {
+  if (typeof rawValue !== "string" || !rawValue.trim()) return "";
+  try {
+    const url = new URL(rawValue.trim(), baseUrl);
+    return ["http:", "https:"].includes(url.protocol) ? url.toString() : "";
+  } catch {
+    return "";
+  }
+}
+
+function getJsonImage(record: JsonRecord | null | undefined, baseUrl: URL) {
+  const image = record?.image;
+  if (typeof image === "string") return normalizeImageUrl(image, baseUrl);
+  if (Array.isArray(image)) {
+    for (const item of image) {
+      const found = typeof item === "string" ? normalizeImageUrl(item, baseUrl) : isRecord(item) ? normalizeImageUrl(item.url, baseUrl) : "";
+      if (found) return found;
+    }
+  }
+  if (isRecord(image)) return normalizeImageUrl(image.url ?? image.contentUrl, baseUrl);
+  return "";
+}
+
 function findLikelyListingRecord(records: JsonRecord[]) {
   return (
     records.find((record) => {
@@ -561,6 +618,7 @@ function buildRawPayload(input: {
   metaDescription: string;
   jsonLdCount: number;
   nextDataDetected: boolean;
+  imageUrl: string | null;
   extractedAt: string;
 }) {
   return {
@@ -575,9 +633,12 @@ function buildRawPayload(input: {
       title: input.title,
       metaTitle: input.metaTitle,
       metaDescription: input.metaDescription,
+      imageUrl: input.imageUrl,
       jsonLdCount: input.jsonLdCount,
       nextDataDetected: input.nextDataDetected
-    }
+    },
+    thumbnailUrl: input.imageUrl,
+    media: input.imageUrl ? [{ url: input.imageUrl, kind: "thumbnail" }] : []
   } satisfies Prisma.InputJsonValue;
 }
 
@@ -592,6 +653,10 @@ function extractPortalListing(html: string, requestedUrl: string, finalUrl: URL,
   const title = stripPortalTitle(firstNonEmpty(getRecordString(listingRecord, "name"), $("h1").first().text(), metaTitle, $("title").first().text()), provider);
   const metaDescription = getMeta($, ["meta[property='og:description']", "meta[name='description']", "meta[name='twitter:description']"]);
   const description = normalizeDescription(firstNonEmpty(getRecordString(listingRecord, "description"), metaDescription), provider);
+  const imageUrl = firstNonEmpty(
+    getJsonImage(listingRecord, finalUrl),
+    normalizeImageUrl(getMeta($, ["meta[property='og:image']", "meta[name='twitter:image']"]), finalUrl)
+  );
   const bodyText = compactTextForParsing($);
   const searchText = normalizeWhitespace([title, description, metaTitle, metaDescription, bodyText].filter(Boolean).join(" "));
   const location = extractLocation(searchText);
@@ -622,6 +687,7 @@ function extractPortalListing(html: string, requestedUrl: string, finalUrl: URL,
     title,
     metaTitle,
     metaDescription,
+    imageUrl: imageUrl || null,
     jsonLdCount: jsonLdRecords.length,
     nextDataDetected: Boolean(nextData),
     extractedAt: new Date().toISOString()
@@ -652,6 +718,7 @@ function extractPortalListing(html: string, requestedUrl: string, finalUrl: URL,
     advertiserPhone: phone,
     isPrivateSeller,
     hasFullAddress: Boolean(address),
+    imageUrl: imageUrl || null,
     rawPayload,
     notes: [
       `Importado automaticamente de ${provider.label}. Validar dados, contato e permissao de abordagem antes de publicar.`,

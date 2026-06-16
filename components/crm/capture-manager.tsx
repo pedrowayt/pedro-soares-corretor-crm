@@ -4,11 +4,14 @@ import Link from "next/link";
 import { useMemo, useState, type ChangeEvent, type FormEvent } from "react";
 import {
   CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
   Clock3,
   Clipboard,
   Download,
   ExternalLink,
   Filter,
+  ImageIcon,
   Link2,
   MapPin,
   Phone,
@@ -26,6 +29,7 @@ import { formatCurrencyBRL } from "@/lib/utils";
 type CaptureFilters = {
   query: string;
   status: string;
+  source: string;
   purpose: string;
   type: string;
   location: string;
@@ -96,6 +100,7 @@ type CapturePortalProviderId = "olx" | "zap" | "imovelweb" | "chaves-na-mao" | "
 const EMPTY_FILTERS: CaptureFilters = {
   query: "",
   status: "",
+  source: "",
   purpose: "",
   type: "",
   location: "",
@@ -200,9 +205,10 @@ const SEARCH_PLACEHOLDERS: Record<CapturePortalProviderId, string> = {
   "chaves-na-mao": "https://www.chavesnamao.com.br/imoveis-a-venda/to-palmas/",
   "facebook-marketplace": "https://www.facebook.com/marketplace/palmas/propertyforsale/"
 };
+const CAPTURE_PAGE_SIZE = 10;
 
 function buildBrowserCollectorBookmarklet() {
-  const script = `(()=>{const seen=new Set();const items=[];const clean=v=>(v||'').replace(/\\s+/g,' ').trim();const isAd=u=>{const h=u.hostname.toLowerCase();const p=decodeURIComponent(u.pathname);return h.includes('olx.com.br')?/(?:-|\\/)\\d{5,}/.test(p):h.includes('zapimoveis.com.br')?/\\/imovel\\/|\\/imoveis\\/|id-\\d{5,}|-\\d{7,}/.test(p):h.includes('imovelweb.com.br')?/\\/propriedades\\/|\\/imovel\\/|-\\d{7,}/.test(p):h.includes('chavesnamao.com.br')?/\\/imovel\\/|\\/imoveis\\/|\\/casa-|\\/apartamento-|\\/terreno-|\\/sobrado-|\\/chacara-|-\\d{5,}/.test(p):h.includes('facebook.com')?/\\/marketplace\\/item\\/\\d+/.test(p):false};document.querySelectorAll('a[href]').forEach(a=>{try{const u=new URL(a.href,location.href);u.hash='';u.search='';if(!isAd(u)||seen.has(u.href))return;seen.add(u.href);const box=a.closest('article,li,section,div')||a;const text=clean(box.innerText||a.textContent||'');const lines=text.split(/\\n+/).map(clean).filter(Boolean);const price=(text.match(/R\\$\\s*[\\d.]+(?:,\\d{2})?/i)||[''])[0];const title=clean(a.innerText)||lines.find(l=>l&&!/^R\\$/i.test(l)&&!/patrocinado|favorito|online/i.test(l))||document.title;const location=lines.find(l=>/palmas|\\bto\\b|setor|plano diretor|jardim|centro/i.test(l))||'';items.push({sourceUrl:u.href,title,price,location,rawText:text.slice(0,1200)});}catch(e){}});const out=JSON.stringify(items,null,2);navigator.clipboard.writeText(out).then(()=>alert('Captura copiada: '+items.length+' anúncios')).catch(()=>prompt('Copie a captura',out));})();`;
+  const script = `(()=>{const seen=new Set(),items=[];const clean=v=>(v||'').replace(/\\u00a0/g,' ').replace(/[ \\t\\r\\f]+/g,' ').trim();const num=v=>{let m=v.match(/R\\$\\s*([\\d.,]+)\\s*(?:milh[aã]o|milh[oõ]es)/i);if(m){const n=Number((m[1].includes(',')?m[1].replace(/\\./g,'').replace(',','.'):m[1].replace(/\\.(?=\\d{3}(?:\\D|$))/g,'')));return Number.isFinite(n)?n*1000000:0}m=v.match(/R\\$\\s*([\\d.,]+)\\s*mil\\b/i);if(m){const n=Number((m[1].includes(',')?m[1].replace(/\\./g,'').replace(',','.'):m[1].replace(/\\.(?=\\d{3}(?:\\D|$))/g,'')));return Number.isFinite(n)?(n<10000?n*1000:n):0}m=v.match(/R\\$\\s*[\\d.,]+/i);if(!m)return 0;const t=m[0].replace(/[^\\d,.]/g,''),n=Number(t.includes(',')?t.replace(/\\./g,'').replace(',','.'):t.replace(/\\.(?=\\d{3}(?:\\D|$))/g,''));return Number.isFinite(n)?n:0};const price=(lines,raw)=>{const c=[];(lines.length?lines:[raw]).forEach(l=>{const fee=/condom[ií]nio|iptu|taxa|seguro|m[²2]|por\\s*m[²2]/i.test(l);(l.match(/R\\$\\s*[\\d.,]+(?:\\s*(?:mil\\b|milh[aã]o|milh[oõ]es))?/gi)||[]).forEach(label=>{const value=num(label);if(value)c.push({label:clean(label),value,fee})})});const p=c.filter(x=>!x.fee),pool=p.length?p:c;return (pool.sort((a,b)=>b.value-a.value)[0]||{}).label||''};const noise=l=>!l||/^R\\$/i.test(l)||/condom[ií]nio|iptu|patrocinado|favorito|online|ver telefone|whatsapp|anunciante|publicado/i.test(l);const img=box=>{const i=box.querySelector('img[src],img[srcset]'),raw=(i&&(i.currentSrc||i.src||i.getAttribute('data-src')||i.getAttribute('data-original')||(i.srcset||'').split(',')[0].trim().split(/\\s+/)[0]))||'';if(!raw||raw.startsWith('data:'))return '';try{const u=new URL(raw,location.href);return /^https?:$/.test(u.protocol)?u.href:''}catch(e){return ''}};const provider=u=>{const h=u.hostname.toLowerCase();if(h.includes('olx.com.br'))return'olx';if(h.includes('zapimoveis.com.br'))return'zap';if(h.includes('imovelweb.com.br'))return'imovelweb';if(h.includes('chavesnamao.com.br'))return'chaves-na-mao';if(h.includes('facebook.com'))return'facebook-marketplace';return''};const isAd=u=>{const p=decodeURIComponent(u.pathname),h=provider(u);return h==='olx'?/(?:-|\\/)\\d{5,}/.test(p):h==='zap'?/\\/imovel\\/|\\/imoveis\\/|id-\\d{5,}|-\\d{7,}/.test(p):h==='imovelweb'?/\\/propriedades\\/|\\/imovel\\/|-\\d{7,}/.test(p):h==='chaves-na-mao'?/\\/imovel\\/|\\/imoveis\\/|\\/casa-|\\/apartamento-|\\/terreno-|\\/sobrado-|\\/chacara-|-\\d{5,}/.test(p):h==='facebook-marketplace'?/\\/marketplace\\/item\\/\\d+/.test(p):false};document.querySelectorAll('a[href]').forEach(a=>{try{const u=new URL(a.href,location.href);u.hash='';u.search='';if(!isAd(u)||seen.has(u.href))return;seen.add(u.href);const box=a.closest('article,li,section,div')||a,lines=((box.innerText||a.textContent||'').replace(/\\u00a0/g,' ').split(/\\n+/).map(clean).filter(Boolean)),rawText=lines.join('\\n'),locationText=lines.find(l=>/palmas|\\bto\\b|setor|plano diretor|jardim|centro/i.test(l))||'',anchorText=clean(a.innerText||a.getAttribute('aria-label')||a.getAttribute('title')||''),title=(anchorText&&!noise(anchorText)&&anchorText.length<=180?anchorText:lines.find(l=>!noise(l)&&!/palmas|\\bto\\b|setor|jardim|centro/i.test(l)))||document.title,description=lines.filter(l=>l!==title&&l!==locationText&&!/^R\\$/i.test(l)&&!/favorito|patrocinado|online|ver telefone/i.test(l)).slice(0,8).join('\\n');items.push({sourceUrl:u.href,title:title.slice(0,180),description,price:price(lines,rawText),location:locationText,imageUrl:img(box),rawText:rawText.slice(0,1200)});}catch(e){}});const out=JSON.stringify(items,null,2);navigator.clipboard.writeText(out).then(()=>alert('Captura copiada: '+items.length+' anúncios')).catch(()=>prompt('Copie a captura',out));})();`;
   return `javascript:${encodeURIComponent(script)}`;
 }
 
@@ -277,6 +283,43 @@ function buildLocationOptions(listings: CaptureListingItem[]) {
     const label = [district, city].filter(Boolean).join(", ");
     if (!label) return;
     options.set(`${city}||${district}`, label);
+  });
+  return Array.from(options, ([value, label]) => ({ value, label })).sort((first, second) =>
+    first.label.localeCompare(second.label, "pt-BR")
+  );
+}
+
+function getListingSourceKey(listing: CaptureListingItem) {
+  const url = listing.sourceUrl ?? "";
+  try {
+    const hostname = new URL(url).hostname.toLowerCase();
+    if (hostname.includes("olx.com.br")) return "olx";
+    if (hostname.includes("zapimoveis.com.br")) return "zap";
+    if (hostname.includes("imovelweb.com.br")) return "imovelweb";
+    if (hostname.includes("chavesnamao.com.br")) return "chaves-na-mao";
+    if (hostname.includes("facebook.com")) return "facebook-marketplace";
+  } catch {
+    // Fall through to sourceName.
+  }
+
+  const source = normalizeSearchTerm(listing.sourceName ?? "");
+  if (source.includes("olx")) return "olx";
+  if (source.includes("zap")) return "zap";
+  if (source.includes("imovelweb")) return "imovelweb";
+  if (source.includes("chaves")) return "chaves-na-mao";
+  if (source.includes("facebook")) return "facebook-marketplace";
+  return source || "manual";
+}
+
+function getListingSourceLabel(listing: CaptureListingItem) {
+  const key = getListingSourceKey(listing);
+  return PORTAL_LABELS[key as CapturePortalProviderId] ?? listing.sourceName ?? "Manual";
+}
+
+function buildSourceOptions(listings: CaptureListingItem[]) {
+  const options = new Map<string, string>();
+  listings.forEach((listing) => {
+    options.set(getListingSourceKey(listing), getListingSourceLabel(listing));
   });
   return Array.from(options, ([value, label]) => ({ value, label })).sort((first, second) =>
     first.label.localeCompare(second.label, "pt-BR")
@@ -374,9 +417,11 @@ export function CaptureManager({ listings, alerts }: { listings: CaptureListingI
   const [runningAllAlerts, setRunningAllAlerts] = useState(false);
   const [pendingId, setPendingId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  const [page, setPage] = useState(1);
   const [feedback, setFeedback] = useState<{ tone: "success" | "warning" | "error"; message: string } | null>(null);
 
   const locationOptions = useMemo(() => buildLocationOptions(items), [items]);
+  const sourceOptions = useMemo(() => buildSourceOptions(items), [items]);
 
   const metrics = useMemo(() => {
     const active = items.filter((item) => item.status === "NOVO" || item.status === "EM_ANALISE");
@@ -397,6 +442,7 @@ export function CaptureManager({ listings, alerts }: { listings: CaptureListingI
 
     return items.filter((listing) => {
       if (filters.status && listing.status !== filters.status) return false;
+      if (filters.source && getListingSourceKey(listing) !== filters.source) return false;
       if (filters.purpose && listing.purpose !== filters.purpose) return false;
       if (filters.type && listing.type !== filters.type) return false;
       if (filterCity && listing.city.trim() !== filterCity) return false;
@@ -417,6 +463,7 @@ export function CaptureManager({ listings, alerts }: { listings: CaptureListingI
             listing.advertiserName,
             listing.advertiserPhone,
             listing.sourceName,
+            getListingSourceLabel(listing),
             listing.notes,
             STATUS_LABELS[listing.status],
             PURPOSE_LABELS[listing.purpose],
@@ -432,7 +479,14 @@ export function CaptureManager({ listings, alerts }: { listings: CaptureListingI
     });
   }, [filters, items]);
 
+  const pageCount = Math.max(1, Math.ceil(filteredItems.length / CAPTURE_PAGE_SIZE));
+  const currentPage = Math.min(page, pageCount);
+  const pageStart = filteredItems.length ? (currentPage - 1) * CAPTURE_PAGE_SIZE : 0;
+  const paginatedItems = filteredItems.slice(pageStart, pageStart + CAPTURE_PAGE_SIZE);
+  const pageEnd = Math.min(pageStart + CAPTURE_PAGE_SIZE, filteredItems.length);
+
   function updateFilter<K extends keyof CaptureFilters>(field: K, value: CaptureFilters[K]) {
+    setPage(1);
     setFilters((current) => ({ ...current, [field]: value }));
   }
 
@@ -1140,7 +1194,13 @@ export function CaptureManager({ listings, alerts }: { listings: CaptureListingI
             <strong>
               {filteredItems.length} de {items.length} oportunidades
             </strong>
-            <span>{hasActiveFilters ? "Filtros aplicados" : "Ordenadas por status, score e atualização"}</span>
+            <span>
+              {filteredItems.length
+                ? `Mostrando ${pageStart + 1}-${pageEnd} · Página ${currentPage} de ${pageCount}`
+                : hasActiveFilters
+                  ? "Filtros aplicados"
+                  : "Ordenadas por status, score e atualização"}
+            </span>
           </div>
           <Filter size={18} strokeWidth={1.75} aria-hidden="true" />
         </div>
@@ -1165,6 +1225,15 @@ export function CaptureManager({ listings, alerts }: { listings: CaptureListingI
               <option value="">Todos</option>
               {STATUS_OPTIONS.map(([value, label]) => (
                 <option key={value} value={value}>{label}</option>
+              ))}
+            </select>
+          </div>
+          <div className="crm-capture-filters__field">
+            <label htmlFor="capture-source">Portal</label>
+            <select id="capture-source" value={filters.source} onChange={(event) => updateFilter("source", event.target.value)}>
+              <option value="">Todos</option>
+              {sourceOptions.map((option) => (
+                <option key={option.value} value={option.value}>{option.label}</option>
               ))}
             </select>
           </div>
@@ -1231,7 +1300,15 @@ export function CaptureManager({ listings, alerts }: { listings: CaptureListingI
             Endereço completo
           </label>
           <div className="crm-capture-filters__actions">
-            <button type="button" className="button button-ghost" onClick={() => setFilters(EMPTY_FILTERS)} disabled={!hasActiveFilters}>
+            <button
+              type="button"
+              className="button button-ghost"
+              onClick={() => {
+                setPage(1);
+                setFilters(EMPTY_FILTERS);
+              }}
+              disabled={!hasActiveFilters}
+            >
               <X size={16} strokeWidth={1.75} aria-hidden="true" />
               Limpar
             </button>
@@ -1239,8 +1316,9 @@ export function CaptureManager({ listings, alerts }: { listings: CaptureListingI
         </form>
 
         {filteredItems.length ? (
-          <ul className="crm-capture-cards">
-            {filteredItems.map((listing) => {
+          <>
+            <ul className="crm-capture-cards">
+            {paginatedItems.map((listing) => {
               const specs = buildSpecs(listing);
               const capturedAt = formatDateTime(listing.capturedAt);
               const disabled = pendingId === listing.id || listing.status === "CAPTADO" || listing.status === "DESCARTADO";
@@ -1249,6 +1327,18 @@ export function CaptureManager({ listings, alerts }: { listings: CaptureListingI
                   <div className="crm-capture-card__score" data-tone={getScoreTone(listing.opportunityScore)}>
                     <span>Score</span>
                     <strong>{listing.opportunityScore}</strong>
+                  </div>
+                  <div
+                    className="crm-capture-card__thumb"
+                    role={listing.thumbnailUrl ? "img" : undefined}
+                    aria-label={listing.thumbnailUrl ? `Miniatura de ${listing.title}` : undefined}
+                    style={listing.thumbnailUrl ? { backgroundImage: `url(${JSON.stringify(listing.thumbnailUrl)})` } : undefined}
+                  >
+                    {!listing.thumbnailUrl ? (
+                      <span aria-hidden="true">
+                        <ImageIcon size={22} strokeWidth={1.75} />
+                      </span>
+                    ) : null}
                   </div>
                   <div className="crm-capture-card__body">
                     <div className="crm-capture-card__head">
@@ -1288,7 +1378,7 @@ export function CaptureManager({ listings, alerts }: { listings: CaptureListingI
                       <div>
                         <span>Características</span>
                         <strong>{specs.length ? specs.join(" · ") : "Sem métricas"}</strong>
-                        <small>{listing.sourceName ?? "Origem não informada"}</small>
+                        <small>{getListingSourceLabel(listing)}</small>
                       </div>
                       <div>
                         <span>Mercado</span>
@@ -1366,11 +1456,42 @@ export function CaptureManager({ listings, alerts }: { listings: CaptureListingI
                 </li>
               );
             })}
-          </ul>
+            </ul>
+            <nav className="crm-capture-pagination" aria-label="Paginação de captações">
+              <button
+                type="button"
+                className="button button-ghost"
+                onClick={() => setPage((current) => Math.max(1, current - 1))}
+                disabled={currentPage <= 1}
+              >
+                <ChevronLeft size={16} strokeWidth={1.75} aria-hidden="true" />
+                Anterior
+              </button>
+              <span>
+                {pageStart + 1}-{pageEnd} de {filteredItems.length}
+              </span>
+              <button
+                type="button"
+                className="button button-ghost"
+                onClick={() => setPage((current) => Math.min(pageCount, current + 1))}
+                disabled={currentPage >= pageCount}
+              >
+                Próxima
+                <ChevronRight size={16} strokeWidth={1.75} aria-hidden="true" />
+              </button>
+            </nav>
+          </>
         ) : (
           <div className="crm-capture-empty">
             <p>Nenhuma oportunidade encontrada para os filtros atuais.</p>
-            <button type="button" className="button button-ghost" onClick={() => setFilters(EMPTY_FILTERS)}>
+            <button
+              type="button"
+              className="button button-ghost"
+              onClick={() => {
+                setPage(1);
+                setFilters(EMPTY_FILTERS);
+              }}
+            >
               Limpar filtros
             </button>
           </div>

@@ -35,19 +35,54 @@ function parseBrazilianNumber(value: unknown) {
   return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
 }
 
+function parsePriceToken(value: string) {
+  const millionMatch = value.match(/R\$\s*([\d.,]+)\s*(?:milh[aã]o|milh[oõ]es)/i);
+  if (millionMatch) {
+    const parsed = parseBrazilianNumber(millionMatch[1]);
+    if (parsed) return parsed * 1_000_000;
+  }
+
+  const thousandMatch = value.match(/R\$\s*([\d.,]+)\s*mil\b/i);
+  if (thousandMatch) {
+    const parsed = parseBrazilianNumber(thousandMatch[1]);
+    if (parsed) return parsed < 10_000 ? parsed * 1_000 : parsed;
+  }
+
+  const priceMatch = value.match(/R\$\s*[\d.,]+/i);
+  return parseBrazilianNumber(priceMatch?.[0] ?? value);
+}
+
+function collectPriceCandidates(value: string) {
+  const lines = value
+    .split(/\n+|\s{2,}|\s+\|\s+/)
+    .map(normalizeWhitespace)
+    .filter(Boolean);
+  const candidates: number[] = [];
+
+  for (const line of lines.length ? lines : [value]) {
+    const feeLike = /condom[ií]nio|iptu|taxa|seguro|m[²2]|por\s*m[²2]/i.test(line);
+    const matches = line.match(/R\$\s*[\d.,]+(?:\s*(?:mil\b|milh[aã]o|milh[oõ]es))?/gi) ?? [];
+    for (const match of matches) {
+      const parsed = parsePriceToken(match);
+      if (!parsed) continue;
+      candidates.push(feeLike ? parsed * -1 : parsed);
+    }
+  }
+
+  const preferred = candidates.filter((candidate) => candidate > 0);
+  if (preferred.length) return preferred;
+  return candidates.map(Math.abs).filter(Boolean);
+}
+
 function parsePrice(...values: unknown[]) {
   for (const value of values) {
     if (typeof value === "number" && Number.isFinite(value) && value > 0) return value;
     if (typeof value !== "string") continue;
 
-    const millionMatch = value.match(/R\$\s*([\d.,]+)\s*(?:milh[aã]o|milh[oõ]es)/i);
-    if (millionMatch) {
-      const parsed = parseBrazilianNumber(millionMatch[1]);
-      if (parsed) return parsed * 1_000_000;
-    }
+    const candidates = collectPriceCandidates(value);
+    if (candidates.length) return Math.max(...candidates);
 
-    const priceMatch = value.match(/R\$\s*[\d.,]+/i);
-    const parsed = parseBrazilianNumber(priceMatch?.[0] ?? value);
+    const parsed = parsePriceToken(value);
     if (parsed) return parsed;
   }
 
@@ -67,6 +102,19 @@ function normalizeUrl(value: unknown) {
     const url = new URL(raw);
     url.hash = "";
     url.search = "";
+    return url.toString();
+  } catch {
+    return "";
+  }
+}
+
+function normalizeImageUrl(value: unknown) {
+  const raw = optionalString(value);
+  if (!raw) return "";
+
+  try {
+    const url = new URL(raw);
+    if (!["http:", "https:"].includes(url.protocol)) return "";
     return url.toString();
   } catch {
     return "";
@@ -181,7 +229,11 @@ function itemToPayload(item: BrowserCaptureRawItem, input: BrowserCaptureInput) 
   if (!sourceUrl) throw new Error("Item sem URL válida.");
 
   const rawText = optionalString(item.rawText) || optionalString(item.text);
-  const title = optionalString(item.title) || optionalString(item.name) || rawText.split(/[\n|]/).map(normalizeWhitespace).find((line) => line && !/^R\$/i.test(line)) || "Anúncio capturado do navegador";
+  const fallbackTitle = rawText
+    .split(/[\n|]/)
+    .map(normalizeWhitespace)
+    .find((line) => line && !/^R\$/i.test(line) && !/condom[ií]nio|iptu|favorito|patrocinado|online/i.test(line));
+  const title = optionalString(item.title) || optionalString(item.name) || fallbackTitle || "Anúncio capturado do navegador";
   const description = optionalString(item.description) || rawText || null;
   const price = parsePrice(item.price, rawText, title);
   if (!price) throw new Error(`${sourceUrl}: preço não identificado.`);
@@ -193,6 +245,7 @@ function itemToPayload(item: BrowserCaptureRawItem, input: BrowserCaptureInput) 
   const provider = providerFromUrl(sourceUrl, input.provider);
   const sourceName = PROVIDER_LABELS[provider] ?? "Portal";
   const searchText = `${title} ${description ?? ""}`;
+  const thumbnailUrl = normalizeImageUrl(item.thumbnailUrl ?? item.imageUrl ?? item.photoUrl);
 
   return {
     sourceName,
@@ -217,6 +270,8 @@ function itemToPayload(item: BrowserCaptureRawItem, input: BrowserCaptureInput) 
       importer: "browser-capture",
       provider,
       capturedAt: new Date().toISOString(),
+      thumbnailUrl: thumbnailUrl || null,
+      media: thumbnailUrl ? [{ url: thumbnailUrl, kind: "thumbnail" }] : [],
       raw: toJsonValue(item)
     } satisfies Prisma.InputJsonValue,
     notes: `Capturado via navegador em ${sourceName}. Validar dados e contato antes da abordagem.`

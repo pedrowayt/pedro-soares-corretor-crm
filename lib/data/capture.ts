@@ -80,6 +80,7 @@ export type CaptureListingItem = {
   linkedPropertySlug: string | null;
   linkedLeadId: string | null;
   linkedLeadName: string | null;
+  thumbnailUrl: string | null;
 };
 
 export type CaptureAlertItem = {
@@ -194,6 +195,55 @@ function normalizeRawPayload(input: unknown): Prisma.InputJsonValue | undefined 
   }
 }
 
+function isPublicImageUrl(value: unknown) {
+  if (typeof value !== "string" || !value.trim()) return false;
+  try {
+    const url = new URL(value.trim());
+    return ["http:", "https:"].includes(url.protocol);
+  } catch {
+    return false;
+  }
+}
+
+function extractThumbnailUrl(value: unknown, depth = 0): string | null {
+  if (depth > 6 || value === null || value === undefined) return null;
+  if (isPublicImageUrl(value)) return String(value).trim();
+
+  if (Array.isArray(value)) {
+    for (const item of value) {
+      const found = extractThumbnailUrl(item, depth + 1);
+      if (found) return found;
+    }
+    return null;
+  }
+
+  if (typeof value !== "object") return null;
+
+  const record = value as Record<string, unknown>;
+  const preferredKeys = [
+    "thumbnailUrl",
+    "imageUrl",
+    "photoUrl",
+    "coverUrl",
+    "mainImage",
+    "ogImage",
+    "src",
+    "url"
+  ];
+
+  for (const key of preferredKeys) {
+    const found = extractThumbnailUrl(record[key], depth + 1);
+    if (found) return found;
+  }
+
+  for (const item of Object.values(record)) {
+    const found = extractThumbnailUrl(item, depth + 1);
+    if (found) return found;
+  }
+
+  return null;
+}
+
 function formatSourceName(input?: string | null) {
   return optionalString(input) ?? "Manual";
 }
@@ -247,7 +297,8 @@ function normalizeDbListing(listing: DbCapturedListing): CaptureListingItem {
     linkedPropertyTitle: listing.linkedProperty?.title ?? null,
     linkedPropertySlug: listing.linkedProperty?.slug ?? null,
     linkedLeadId: listing.linkedLeadId,
-    linkedLeadName: listing.linkedLead?.name ?? null
+    linkedLeadName: listing.linkedLead?.name ?? null,
+    thumbnailUrl: extractThumbnailUrl(listing.rawPayload)
   };
 }
 
@@ -329,7 +380,8 @@ function demoListings(): CaptureListingItem[] {
       linkedPropertyTitle: null,
       linkedPropertySlug: null,
       linkedLeadId: null,
-      linkedLeadName: null
+      linkedLeadName: null,
+      thumbnailUrl: null
     }
   ];
 }
@@ -566,7 +618,8 @@ export async function createCapturedListing(payload: CapturedListingInput, actor
       linkedPropertyTitle: null,
       linkedPropertySlug: null,
       linkedLeadId: null,
-      linkedLeadName: null
+      linkedLeadName: null,
+      thumbnailUrl: extractThumbnailUrl(normalized.rawPayload)
     };
     getMemoryStore().unshift(listing);
     return listing;

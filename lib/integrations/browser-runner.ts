@@ -5,8 +5,10 @@ import type { CapturePortalProviderId } from "@/lib/integrations/olx-capture";
 export type BrowserCapturedSearchItem = {
   sourceUrl: string;
   title: string;
+  description: string;
   price: string;
   location: string;
+  imageUrl: string;
   rawText: string;
 };
 
@@ -112,7 +114,82 @@ export async function scrapePortalSearchWithBrowser(
     const items = await page.evaluate(
       ({ limit: pageLimit, expectedProvider: pageProvider }) => {
         const seen = new Set<string>();
-        const clean = (value: string | null | undefined) => (value ?? "").replace(/\s+/g, " ").trim();
+        const clean = (value: string | null | undefined) => (value ?? "").replace(/\u00a0/g, " ").replace(/[ \t\r\f]+/g, " ").trim();
+        const compact = (value: string | null | undefined) => clean(value).replace(/\n+/g, " ");
+        const parsePriceNumber = (value: string) => {
+          const millionMatch = value.match(/R\$\s*([\d.,]+)\s*(?:milh[aã]o|milh[oõ]es)/i);
+          if (millionMatch) {
+            const normalized = millionMatch[1].includes(",")
+              ? millionMatch[1].replace(/\./g, "").replace(",", ".")
+              : millionMatch[1].replace(/\.(?=\d{3}(?:\D|$))/g, "");
+            const parsed = Number(normalized);
+            return Number.isFinite(parsed) ? parsed * 1_000_000 : 0;
+          }
+
+          const thousandMatch = value.match(/R\$\s*([\d.,]+)\s*mil\b/i);
+          if (thousandMatch) {
+            const normalized = thousandMatch[1].includes(",")
+              ? thousandMatch[1].replace(/\./g, "").replace(",", ".")
+              : thousandMatch[1].replace(/\.(?=\d{3}(?:\D|$))/g, "");
+            const parsed = Number(normalized);
+            return Number.isFinite(parsed) ? (parsed < 10_000 ? parsed * 1_000 : parsed) : 0;
+          }
+
+          const match = value.match(/R\$\s*[\d.,]+/i);
+          if (!match) return 0;
+          const numberText = match[0].replace(/[^\d,.]/g, "");
+          const normalized = numberText.includes(",")
+            ? numberText.replace(/\./g, "").replace(",", ".")
+            : numberText.replace(/\.(?=\d{3}(?:\D|$))/g, "");
+          const parsed = Number(normalized);
+          return Number.isFinite(parsed) ? parsed : 0;
+        };
+        const choosePrice = (lines: string[], rawText: string) => {
+          const candidates: Array<{ label: string; value: number; feeLike: boolean }> = [];
+          for (const line of lines.length ? lines : [rawText]) {
+            const matches = line.match(/R\$\s*[\d.,]+(?:\s*(?:mil\b|milh[aã]o|milh[oõ]es))?/gi) ?? [];
+            const feeLike = /condom[ií]nio|iptu|taxa|seguro|m[²2]|por\s*m[²2]/i.test(line);
+            for (const label of matches) {
+              const value = parsePriceNumber(label);
+              if (value > 0) candidates.push({ label: clean(label), value, feeLike });
+            }
+          }
+          const preferred = candidates.filter((candidate) => !candidate.feeLike);
+          const pool = preferred.length ? preferred : candidates;
+          return pool.sort((first, second) => second.value - first.value)[0]?.label ?? "";
+        };
+        const isNoiseLine = (line: string) =>
+          !line ||
+          /^R\$/i.test(line) ||
+          /condom[ií]nio|iptu|patrocinado|favorito|online|ver telefone|whatsapp|anunciante|publicado/i.test(line);
+        const chooseTitle = (anchor: HTMLAnchorElement, lines: string[]) => {
+          const anchorText = compact(anchor.innerText || anchor.getAttribute("aria-label") || anchor.getAttribute("title") || "");
+          if (anchorText && !isNoiseLine(anchorText) && anchorText.length >= 3 && anchorText.length <= 180) return anchorText;
+          return lines.find((line) => !isNoiseLine(line) && !/palmas|\bto\b|setor|jardim|centro/i.test(line)) ?? document.title;
+        };
+        const chooseDescription = (lines: string[], title: string, location: string) =>
+          lines
+            .filter((line) => line !== title && line !== location && !/^R\$/i.test(line) && !/favorito|patrocinado|online|ver telefone/i.test(line))
+            .slice(0, 8)
+            .join("\n")
+            .slice(0, 1200);
+        const firstImageUrl = (box: Element) => {
+          const image = box.querySelector<HTMLImageElement>("img[src],img[srcset]");
+          const raw =
+            image?.currentSrc ||
+            image?.src ||
+            image?.getAttribute("data-src") ||
+            image?.getAttribute("data-original") ||
+            image?.srcset?.split(",")[0]?.trim().split(/\s+/)[0] ||
+            "";
+          if (!raw || raw.startsWith("data:")) return "";
+          try {
+            const url = new URL(raw, window.location.href);
+            return ["http:", "https:"].includes(url.protocol) ? url.toString() : "";
+          } catch {
+            return "";
+          }
+        };
         const detectProvider = (url: URL) => {
           const host = url.hostname.toLowerCase();
           if (host.includes("olx.com.br")) return "olx";
@@ -143,20 +220,22 @@ export async function scrapePortalSearchWithBrowser(
               if (!isAd(url) || seen.has(url.href)) return [];
               seen.add(url.href);
               const box = anchor.closest("article,li,section,div") ?? anchor;
-              const rawText = clean((box as HTMLElement).innerText || anchor.textContent || "");
-              const lines = rawText.split(/\n+/).map(clean).filter(Boolean);
-              const price = rawText.match(/R\$\s*[\d.]+(?:,\d{2})?/i)?.[0] ?? "";
-              const title =
-                clean(anchor.innerText) ||
-                lines.find((line) => line && !/^R\$/i.test(line) && !/patrocinado|favorito|online/i.test(line)) ||
-                document.title;
+              const rawBlockText = ((box as HTMLElement).innerText || anchor.textContent || "").replace(/\u00a0/g, " ");
+              const lines = rawBlockText.split(/\n+/).map(clean).filter(Boolean);
+              const rawText = lines.join("\n");
+              const price = choosePrice(lines, rawText);
+              const title = chooseTitle(anchor, lines);
               const location = lines.find((line) => /palmas|\bto\b|setor|plano diretor|jardim|centro/i.test(line)) ?? "";
+              const imageUrl = firstImageUrl(box);
+              const description = chooseDescription(lines, title, location);
               return [
                 {
                   sourceUrl: url.href,
                   title: title.slice(0, 180),
+                  description,
                   price,
                   location,
+                  imageUrl,
                   rawText: rawText.slice(0, 1200)
                 }
               ];
