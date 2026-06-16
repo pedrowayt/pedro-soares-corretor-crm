@@ -6194,6 +6194,11 @@ body:has(.crm-shell) > main {
   line-height: 1.25;
 }
 
+.crm-capture-card__head > div {
+  min-width: 0;
+  flex: 1 1 280px;
+}
+
 .crm-capture-card p {
   margin: 4px 0 0;
   color: var(--text-muted);
@@ -6203,6 +6208,8 @@ body:has(.crm-shell) > main {
 .crm-capture-card__price {
   color: #9a681f;
   white-space: nowrap;
+  margin-left: auto;
+  flex: 0 0 auto;
 }
 
 .crm-capture-card__grid {
@@ -6821,6 +6828,11 @@ body:has(.crm-shell) > main {
     min-height: 180px;
     border-right: 0;
     border-bottom: 1px solid rgba(15, 34, 61, 0.08);
+  }
+
+  .crm-capture-card__price {
+    width: 100%;
+    margin-left: 0;
   }
 
   .crm-owners-list,

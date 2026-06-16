@@ -275,6 +275,10 @@ function formatShortDateTime(value: string | null) {
   }).format(new Date(value));
 }
 
+function toCssUrl(value: string) {
+  return `url("${value.replace(/"/g, '\\"')}")`;
+}
+
 function buildLocationOptions(listings: CaptureListingItem[]) {
   const options = new Map<string, string>();
   listings.forEach((listing) => {
@@ -1332,7 +1336,7 @@ export function CaptureManager({ listings, alerts }: { listings: CaptureListingI
                     className="crm-capture-card__thumb"
                     role={listing.thumbnailUrl ? "img" : undefined}
                     aria-label={listing.thumbnailUrl ? `Miniatura de ${listing.title}` : undefined}
-                    style={listing.thumbnailUrl ? { backgroundImage: `url(${JSON.stringify(listing.thumbnailUrl)})` } : undefined}
+                    style={listing.thumbnailUrl ? { backgroundImage: toCssUrl(listing.thumbnailUrl) } : undefined}
                   >
                     {!listing.thumbnailUrl ? (
                       <span aria-hidden="true">

@@ -205,13 +205,13 @@ function isPublicImageUrl(value: unknown) {
   }
 }
 
-function extractThumbnailUrl(value: unknown, depth = 0): string | null {
+function extractThumbnailUrl(value: unknown, depth = 0, allowString = false): string | null {
   if (depth > 6 || value === null || value === undefined) return null;
-  if (isPublicImageUrl(value)) return String(value).trim();
+  if (allowString && isPublicImageUrl(value)) return String(value).trim();
 
   if (Array.isArray(value)) {
     for (const item of value) {
-      const found = extractThumbnailUrl(item, depth + 1);
+      const found = extractThumbnailUrl(item, depth + 1, false);
       if (found) return found;
     }
     return null;
@@ -232,12 +232,12 @@ function extractThumbnailUrl(value: unknown, depth = 0): string | null {
   ];
 
   for (const key of preferredKeys) {
-    const found = extractThumbnailUrl(record[key], depth + 1);
+    const found = extractThumbnailUrl(record[key], depth + 1, true);
     if (found) return found;
   }
 
-  for (const item of Object.values(record)) {
-    const found = extractThumbnailUrl(item, depth + 1);
+  for (const key of ["media", "images", "photos", "pictures", "gallery", "raw"]) {
+    const found = extractThumbnailUrl(record[key], depth + 1, false);
     if (found) return found;
   }
 
