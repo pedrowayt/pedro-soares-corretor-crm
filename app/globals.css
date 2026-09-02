@@ -4715,6 +4715,597 @@ body:has(.crm-shell) > main {
   background: rgba(15, 34, 61, 0.9);
 }
 
+/* Lake Village Residences landing */
+.lake-landing {
+  --lake-deep: #0a2333;
+  --lake-blue: #00505e;
+  --lake-sand: #d1b475;
+  --lake-mist: #ebe0d7;
+  --lake-ink: #123348;
+  background: var(--lake-mist);
+  color: var(--lake-ink);
+  overflow: hidden;
+}
+
+.lake-landing h1,
+.lake-landing h2,
+.lake-landing h3,
+.lake-landing p {
+  margin-top: 0;
+}
+
+.lake-hero {
+  min-height: min(820px, calc(100vh - 72px));
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  isolation: isolate;
+  background: var(--lake-deep);
+  color: #fff;
+}
+
+.lake-hero-image {
+  object-fit: cover;
+  object-position: center;
+  z-index: -2;
+}
+
+.lake-hero-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(90deg, rgba(10, 35, 51, 0.96) 0%, rgba(10, 35, 51, 0.72) 35%, rgba(10, 35, 51, 0.08) 75%), linear-gradient(0deg, rgba(10, 35, 51, 0.9), transparent 48%);
+}
+
+.lake-hero-content {
+  padding: 92px 0 92px;
+  max-width: 1180px;
+}
+
+.lake-kicker {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 15px;
+  color: var(--lake-sand);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.lake-kicker--dark {
+  color: var(--lake-blue);
+}
+
+.lake-hero h1 {
+  max-width: 690px;
+  margin-bottom: 20px;
+  font-family: var(--font-title), Georgia, serif;
+  font-size: clamp(3.4rem, 7vw, 6.7rem);
+  font-weight: 500;
+  line-height: 0.98;
+  letter-spacing: -0.035em;
+  color: var(--lake-sand);
+}
+
+.lake-hero-lede {
+  max-width: 530px;
+  margin-bottom: 30px;
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 1.05rem;
+  line-height: 1.65;
+}
+
+.lake-hero-actions,
+.lake-lead-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.lake-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-height: 48px;
+  padding: 0.82rem 1.22rem;
+  border: 1px solid transparent;
+  border-radius: 2px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+}
+
+.lake-button:hover {
+  transform: translateY(-2px);
+}
+
+.lake-button--gold {
+  background: var(--lake-sand);
+  color: var(--lake-deep);
+}
+
+.lake-button--gold:hover {
+  background: #e1c687;
+}
+
+.lake-button--outline {
+  border-color: rgba(255, 255, 255, 0.48);
+  color: #fff;
+}
+
+.lake-button--outline:hover {
+  border-color: var(--lake-sand);
+  color: var(--lake-sand);
+}
+
+.lake-button--whatsapp {
+  background: #25d366;
+  color: #06311a;
+}
+
+.lake-developer-line {
+  margin: 48px 0 0;
+  color: rgba(255, 255, 255, 0.64);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+}
+
+.lake-scroll-cue {
+  position: absolute;
+  right: 5vw;
+  bottom: 31px;
+  display: grid;
+  justify-items: center;
+  gap: 7px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.65rem;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+.lake-section {
+  padding: 104px 0;
+}
+
+.lake-section--light {
+  background: var(--lake-mist);
+}
+
+.lake-intro-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.92fr) minmax(360px, 0.85fr);
+  gap: clamp(40px, 8vw, 120px);
+  align-items: center;
+}
+
+.lake-intro-grid h2,
+.lake-section-heading h2,
+.lake-location h2,
+.lake-lead-copy h2,
+.lake-final-cta h2 {
+  margin-bottom: 20px;
+  font-family: var(--font-title), Georgia, serif;
+  font-size: clamp(2.25rem, 4vw, 4.15rem);
+  font-weight: 500;
+  line-height: 1.03;
+  letter-spacing: -0.025em;
+}
+
+.lake-intro-grid p,
+.lake-location-copy > p,
+.lake-lead-copy > p {
+  max-width: 580px;
+  color: rgba(18, 51, 72, 0.72);
+  line-height: 1.75;
+}
+
+.lake-text-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 14px;
+  color: var(--lake-blue);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  border-bottom: 1px solid rgba(0, 80, 94, 0.35);
+  padding-bottom: 5px;
+}
+
+.lake-broker-card {
+  display: grid;
+  grid-template-columns: minmax(180px, 0.82fr) minmax(0, 1fr);
+  min-height: 420px;
+  background: var(--lake-deep);
+  color: #fff;
+}
+
+.lake-broker-photo {
+  position: relative;
+  min-height: 420px;
+}
+
+.lake-broker-photo::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(0deg, rgba(10, 35, 51, 0.7), transparent 55%);
+}
+
+.lake-broker-photo img {
+  object-fit: cover;
+  object-position: center;
+}
+
+.lake-broker-copy {
+  align-self: end;
+  padding: 30px;
+}
+
+.lake-broker-copy h3 {
+  margin-bottom: 12px;
+  color: var(--lake-sand);
+  font-family: var(--font-title), Georgia, serif;
+  font-size: 2rem;
+  font-weight: 500;
+  line-height: 1.05;
+}
+
+.lake-broker-copy p:not(.lake-kicker) {
+  color: rgba(255, 255, 255, 0.77);
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.lake-broker-copy span {
+  display: block;
+  margin-top: 22px;
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 0.72rem;
+  letter-spacing: 0.07em;
+}
+
+.lake-section--deep {
+  background: var(--lake-deep);
+  color: #fff;
+}
+
+.lake-section-heading {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.8fr);
+  column-gap: 50px;
+  align-items: end;
+  margin-bottom: 50px;
+}
+
+.lake-section-heading .lake-kicker {
+  grid-column: 1 / -1;
+}
+
+.lake-section-heading h2 {
+  margin-bottom: 0;
+  color: var(--lake-sand);
+}
+
+.lake-section-heading > p:last-child {
+  max-width: 390px;
+  margin-bottom: 2px;
+  color: rgba(255, 255, 255, 0.68);
+  line-height: 1.7;
+}
+
+.lake-amenities-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px;
+  background: rgba(209, 180, 117, 0.32);
+  border: 1px solid rgba(209, 180, 117, 0.32);
+}
+
+.lake-amenity-card {
+  min-height: 220px;
+  padding: 28px;
+  background: var(--lake-deep);
+}
+
+.lake-amenity-card svg {
+  margin-bottom: 30px;
+  color: var(--lake-sand);
+}
+
+.lake-amenity-card h3 {
+  margin-bottom: 9px;
+  color: #fff;
+  font-family: var(--font-title), Georgia, serif;
+  font-size: 1.45rem;
+  font-weight: 500;
+}
+
+.lake-amenity-card p {
+  margin-bottom: 0;
+  color: rgba(255, 255, 255, 0.66);
+  font-size: 0.86rem;
+  line-height: 1.55;
+}
+
+.lake-location {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding: 0;
+  background: var(--lake-sand);
+}
+
+.lake-location-image {
+  position: relative;
+  min-height: 590px;
+}
+
+.lake-location-image::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 70%, rgba(209, 180, 117, 0.45));
+}
+
+.lake-location-image img {
+  object-fit: cover;
+  object-position: center;
+}
+
+.lake-location-copy {
+  align-self: center;
+  padding: 70px clamp(28px, 7vw, 105px);
+}
+
+.lake-location-copy h2 {
+  color: var(--lake-deep);
+}
+
+.lake-location-copy > p {
+  color: rgba(10, 35, 51, 0.72);
+}
+
+.lake-lead-section {
+  background: var(--lake-blue);
+  color: #fff;
+}
+
+.lake-lead-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.88fr) minmax(420px, 1fr);
+  gap: clamp(42px, 8vw, 110px);
+  align-items: start;
+}
+
+.lake-lead-copy h2 {
+  color: var(--lake-sand);
+}
+
+.lake-lead-copy > p {
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.lake-lead-points {
+  display: grid;
+  gap: 12px;
+  margin-top: 32px;
+}
+
+.lake-lead-points span {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: rgba(255, 255, 255, 0.84);
+  font-size: 0.84rem;
+}
+
+.lake-lead-points svg {
+  color: var(--lake-sand);
+}
+
+.lake-lead-form-wrap {
+  padding: 30px;
+  background: var(--lake-mist);
+  color: var(--lake-ink);
+  box-shadow: 18px 18px 0 rgba(10, 35, 51, 0.25);
+}
+
+.lake-lead-form {
+  display: grid;
+  gap: 22px;
+}
+
+.lake-lead-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 17px;
+}
+
+.lake-lead-form label {
+  display: grid;
+  gap: 7px;
+  color: var(--lake-deep);
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.lake-lead-form label span {
+  color: rgba(18, 51, 72, 0.55);
+  font-size: 0.68rem;
+  font-weight: 500;
+}
+
+.lake-lead-form input:not([type="checkbox"]),
+.lake-lead-form select {
+  width: 100%;
+  min-height: 46px;
+  border: 1px solid rgba(10, 35, 51, 0.2);
+  border-radius: 0;
+  background: rgba(255, 255, 255, 0.5);
+  color: var(--lake-deep);
+  padding: 0.75rem 0.85rem;
+  font: inherit;
+  font-size: 0.8rem;
+}
+
+.lake-lead-form input:focus,
+.lake-lead-form select:focus {
+  outline: 2px solid var(--lake-sand);
+  outline-offset: 2px;
+}
+
+.lake-consent {
+  display: flex !important;
+  grid-template-columns: none !important;
+  grid-auto-flow: column;
+  justify-content: start;
+  align-items: start;
+  gap: 9px !important;
+  color: rgba(18, 51, 72, 0.7) !important;
+  font-size: 0.68rem !important;
+  font-weight: 500 !important;
+  line-height: 1.45;
+}
+
+.lake-consent input {
+  margin-top: 2px;
+  accent-color: var(--lake-blue);
+}
+
+.lake-form-feedback {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+
+.lake-form-feedback--success {
+  color: #207446;
+}
+
+.lake-form-feedback--error {
+  color: #9a2d22;
+}
+
+.lake-lead-whatsapp {
+  width: 100%;
+  margin-top: 12px;
+}
+
+.lake-final-cta {
+  padding: 100px 0;
+  background: var(--lake-deep);
+  color: #fff;
+  text-align: center;
+}
+
+.lake-final-cta .lake-kicker {
+  justify-content: center;
+}
+
+.lake-final-cta h2 {
+  max-width: 790px;
+  margin-right: auto;
+  margin-left: auto;
+  color: var(--lake-sand);
+}
+
+@media (max-width: 860px) {
+  .lake-hero {
+    min-height: 720px;
+  }
+
+  .lake-hero-content {
+    padding: 92px 0 80px;
+  }
+
+  .lake-hero-overlay {
+    background: linear-gradient(90deg, rgba(10, 35, 51, 0.93), rgba(10, 35, 51, 0.45)), linear-gradient(0deg, rgba(10, 35, 51, 0.92), transparent 65%);
+  }
+
+  .lake-intro-grid,
+  .lake-lead-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .lake-section-heading {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .lake-section-heading > p:last-child {
+    max-width: 620px;
+  }
+
+  .lake-location {
+    grid-template-columns: 1fr;
+  }
+
+  .lake-location-image {
+    min-height: 460px;
+  }
+
+  .lake-lead-grid {
+    gap: 45px;
+  }
+}
+
+@media (max-width: 620px) {
+  .lake-hero h1 {
+    max-width: 440px;
+    font-size: clamp(3rem, 14vw, 4.4rem);
+  }
+
+  .lake-hero-lede {
+    font-size: 0.94rem;
+  }
+
+  .lake-scroll-cue {
+    display: none;
+  }
+
+  .lake-section {
+    padding: 74px 0;
+  }
+
+  .lake-broker-card {
+    grid-template-columns: 1fr;
+  }
+
+  .lake-broker-photo {
+    min-height: 360px;
+  }
+
+  .lake-amenities-grid,
+  .lake-lead-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .lake-amenity-card {
+    min-height: auto;
+  }
+
+  .lake-location-image {
+    min-height: 390px;
+  }
+
+  .lake-location-copy {
+    padding: 64px 6vw 74px;
+  }
+
+  .lake-lead-form-wrap {
+    padding: 22px;
+    box-shadow: 10px 10px 0 rgba(10, 35, 51, 0.25);
+  }
+}
+
 .development-hero-fullbleed {
   width: 100vw;
   margin-left: calc(50% - 50vw);
