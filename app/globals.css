@@ -5411,9 +5411,10 @@ body:has(.crm-shell) > main {
 }
 
 .lake-consent {
+  width: 100%;
+  min-width: 0;
   display: flex !important;
   grid-template-columns: none !important;
-  grid-auto-flow: column;
   justify-content: start;
   align-items: start;
   gap: 9px !important;
@@ -5424,8 +5425,18 @@ body:has(.crm-shell) > main {
 }
 
 .lake-consent input {
+  flex: 0 0 auto;
+  width: 16px;
+  height: 16px;
   margin-top: 2px;
   accent-color: var(--lake-blue);
+}
+
+.lake-consent span {
+  display: block;
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow-wrap: anywhere;
 }
 
 .lake-group-consent {
@@ -5481,7 +5492,7 @@ body:has(.crm-shell) > main {
 
 @media (max-width: 860px) {
   .lake-hero {
-    min-height: 720px;
+    min-height: max(720px, 100svh);
   }
 
   .lake-hero-content {
@@ -5557,8 +5568,11 @@ body:has(.crm-shell) > main {
   .lake-whatsapp-float {
     right: 14px;
     bottom: 14px;
-    min-height: 56px;
-    padding: 5px 10px 5px 5px;
+    width: 50px;
+    height: 50px;
+    min-height: 50px;
+    justify-content: center;
+    padding: 4px;
   }
 
   .lake-whatsapp-avatar {
@@ -5567,7 +5581,7 @@ body:has(.crm-shell) > main {
   }
 
   .lake-whatsapp-copy {
-    min-width: 0;
+    display: none;
   }
 
   .lake-whatsapp-copy strong {
@@ -5579,7 +5593,7 @@ body:has(.crm-shell) > main {
   }
 
   .lake-whatsapp-icon {
-    display: none;
+    display: block;
   }
 
   .lake-scroll-cue {
@@ -5617,7 +5631,7 @@ body:has(.crm-shell) > main {
   }
 
   .lake-lead-form-wrap {
-    padding: 22px;
+    padding: 22px 22px 96px;
     box-shadow: 10px 10px 0 rgba(10, 35, 51, 0.25);
   }
 }
