@@ -867,6 +867,7 @@ model CapturedListing {
   isPrivateSeller Boolean           @default(false)
   hasFullAddress  Boolean           @default(false)
   adAgeDays       Int?
+  publishedAt     DateTime?
   firstSeenAt     DateTime          @default(now())
   lastSeenAt      DateTime          @default(now())
   marketAvgPrice  Decimal?          @db.Decimal(14, 2)

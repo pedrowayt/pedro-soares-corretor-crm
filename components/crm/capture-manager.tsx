@@ -13,6 +13,7 @@ import {
   Filter,
   ImageIcon,
   Link2,
+  Mail,
   MapPin,
   Phone,
   Play,
@@ -281,10 +282,6 @@ function formatShortDateTime(value: string | null) {
     hour: "2-digit",
     minute: "2-digit"
   }).format(new Date(value));
-}
-
-function toCssUrl(value: string) {
-  return `url("${value.replace(/"/g, '\\"')}")`;
 }
 
 function buildLocationOptions(listings: CaptureListingItem[]) {
@@ -1366,6 +1363,10 @@ export function CaptureManager({ listings, alerts }: { listings: CaptureListingI
             {paginatedItems.map((listing) => {
               const specs = buildSpecs(listing);
               const capturedAt = formatDateTime(listing.capturedAt);
+              const publishedAt = formatDateTime(listing.publishedAt);
+              const contactPhone = listing.advertiserPhone || listing.linkedOwnerPhone;
+              const contactName = listing.linkedOwnerName || listing.advertiserName;
+              const contactLabel = listing.linkedOwnerName ? "Proprietário vinculado" : "Contato do anúncio";
               const disabled = pendingId === listing.id || listing.status === "CAPTADO" || listing.status === "DESCARTADO";
               return (
                 <li key={listing.id} className="crm-capture-card">
@@ -1373,17 +1374,14 @@ export function CaptureManager({ listings, alerts }: { listings: CaptureListingI
                     <span>Score</span>
                     <strong>{listing.opportunityScore}</strong>
                   </div>
-                  <div
-                    className="crm-capture-card__thumb"
-                    role={listing.thumbnailUrl ? "img" : undefined}
-                    aria-label={listing.thumbnailUrl ? `Miniatura de ${listing.title}` : undefined}
-                    style={listing.thumbnailUrl ? { backgroundImage: toCssUrl(listing.thumbnailUrl) } : undefined}
-                  >
-                    {!listing.thumbnailUrl ? (
+                  <div className="crm-capture-card__thumb">
+                    {listing.thumbnailUrl ? (
+                      <img src={listing.thumbnailUrl} alt={`Foto de ${listing.title}`} loading="lazy" />
+                    ) : (
                       <span aria-hidden="true">
                         <ImageIcon size={22} strokeWidth={1.75} />
                       </span>
-                    ) : null}
+                    )}
                   </div>
                   <div className="crm-capture-card__body">
                     <div className="crm-capture-card__head">
@@ -1408,7 +1406,9 @@ export function CaptureManager({ listings, alerts }: { listings: CaptureListingI
                         <h3>{listing.title}</h3>
                         <p>
                           {TYPE_LABELS[listing.type] ?? listing.type} · {PURPOSE_LABELS[listing.purpose] ?? listing.purpose} ·{" "}
-                          {formatAge(listing.adAgeDays)}
+                          {listing.adAgeDays !== null
+                            ? `Publicado há ${listing.adAgeDays} ${listing.adAgeDays === 1 ? "dia" : "dias"}`
+                            : "Data de publicação não informada"}
                         </p>
                       </div>
                       <strong className="crm-capture-card__price">{formatCurrencyBRL(listing.price)}</strong>
@@ -1437,16 +1437,31 @@ export function CaptureManager({ listings, alerts }: { listings: CaptureListingI
                         </small>
                       </div>
                       <div>
-                        <span>Contato</span>
-                        <strong>{listing.advertiserName ?? "Anunciante não informado"}</strong>
-                        {listing.advertiserPhone ? (
-                          <a href={buildWhatsappLink(listing.advertiserPhone, listing)} target="_blank" rel="noopener noreferrer">
+                        <span>{contactLabel}</span>
+                        <strong>{contactName ?? "Não informado"}</strong>
+                        {contactPhone ? (
+                          <a href={buildWhatsappLink(contactPhone, listing)} target="_blank" rel="noopener noreferrer">
                             <Phone size={13} strokeWidth={1.75} aria-hidden="true" />
-                            {listing.advertiserPhone}
+                            {contactPhone}
                           </a>
                         ) : (
                           <small>Telefone pendente</small>
                         )}
+                        {listing.advertiserEmail ? (
+                          <a href={`mailto:${listing.advertiserEmail}`}>
+                            <Mail size={13} strokeWidth={1.75} aria-hidden="true" />
+                            {listing.advertiserEmail}
+                          </a>
+                        ) : null}
+                      </div>
+                      <div>
+                        <span>Publicação</span>
+                        <strong>{publishedAt ?? "Data não informada"}</strong>
+                        <small>
+                          {publishedAt
+                            ? formatAge(listing.adAgeDays)
+                            : `Primeiro visto em ${formatDateTime(listing.firstSeenAt) ?? "data não informada"}`}
+                        </small>
                       </div>
                     </div>
 

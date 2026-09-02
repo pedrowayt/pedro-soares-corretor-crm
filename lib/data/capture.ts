@@ -61,6 +61,7 @@ export type CaptureListingItem = {
   isPrivateSeller: boolean;
   hasFullAddress: boolean;
   adAgeDays: number | null;
+  publishedAt: string | null;
   firstSeenAt: string;
   lastSeenAt: string;
   marketAvgPrice: number | null;
@@ -75,6 +76,7 @@ export type CaptureListingItem = {
   assignedToName: string | null;
   linkedOwnerId: string | null;
   linkedOwnerName: string | null;
+  linkedOwnerPhone: string | null;
   linkedPropertyId: string | null;
   linkedPropertyTitle: string | null;
   linkedPropertySlug: string | null;
@@ -149,6 +151,34 @@ function toNumber(value: unknown): number | null {
     return Number.isFinite(parsed) ? parsed : null;
   }
   return null;
+}
+
+export function parseCapturePublishedAt(value: unknown, referenceDate = new Date()) {
+  if (value instanceof Date) return Number.isNaN(value.getTime()) ? null : value;
+  if (typeof value !== "string" || !value.trim()) return null;
+
+  const text = value.trim();
+  const brazilianDate = text.match(/\b(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})(?:\s+(\d{1,2}):(\d{2}))?\b/);
+  if (brazilianDate) {
+    const [, day, month, year, hours = "12", minutes = "00"] = brazilianDate;
+    const parsed = new Date(Number(year), Number(month) - 1, Number(day), Number(hours), Number(minutes));
+    return Number.isNaN(parsed.getTime()) ? null : parsed;
+  }
+
+  const relativeDays = text.match(/\bh[aá]\s+(\d+)\s+dias?\b/i);
+  if (relativeDays) return new Date(referenceDate.getTime() - Number(relativeDays[1]) * 24 * 60 * 60 * 1000);
+  const relativeHours = text.match(/\bh[aá]\s+(\d+)\s+horas?\b/i);
+  if (relativeHours) return new Date(referenceDate.getTime() - Number(relativeHours[1]) * 60 * 60 * 1000);
+  if (/\bontem\b/i.test(text)) return new Date(referenceDate.getTime() - 24 * 60 * 60 * 1000);
+  if (/\bhoje\b/i.test(text)) return referenceDate;
+
+  const parsed = new Date(text);
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+}
+
+function getAdAgeDays(publishedAt: Date | null, referenceDate = new Date()) {
+  if (!publishedAt) return null;
+  return Math.max(0, Math.floor((referenceDate.getTime() - publishedAt.getTime()) / (24 * 60 * 60 * 1000)));
 }
 
 function clampScore(value: number) {
@@ -279,6 +309,7 @@ function normalizeDbListing(listing: DbCapturedListing): CaptureListingItem {
     isPrivateSeller: listing.isPrivateSeller,
     hasFullAddress: listing.hasFullAddress,
     adAgeDays: listing.adAgeDays,
+    publishedAt: listing.publishedAt?.toISOString() ?? null,
     firstSeenAt: listing.firstSeenAt.toISOString(),
     lastSeenAt: listing.lastSeenAt.toISOString(),
     marketAvgPrice: toNumber(listing.marketAvgPrice),
@@ -293,6 +324,7 @@ function normalizeDbListing(listing: DbCapturedListing): CaptureListingItem {
     assignedToName: listing.assignedTo?.name ?? null,
     linkedOwnerId: listing.linkedOwnerId,
     linkedOwnerName: listing.linkedOwner?.name ?? null,
+    linkedOwnerPhone: listing.linkedOwner?.phone ?? null,
     linkedPropertyId: listing.linkedPropertyId,
     linkedPropertyTitle: listing.linkedProperty?.title ?? null,
     linkedPropertySlug: listing.linkedProperty?.slug ?? null,
@@ -362,6 +394,7 @@ function demoListings(): CaptureListingItem[] {
       isPrivateSeller: true,
       hasFullAddress: false,
       adAgeDays: 4,
+      publishedAt: new Date(now.getTime() - 4 * 24 * 60 * 60 * 1000).toISOString(),
       firstSeenAt: now.toISOString(),
       lastSeenAt: now.toISOString(),
       marketAvgPrice: 590000,
@@ -376,6 +409,7 @@ function demoListings(): CaptureListingItem[] {
       assignedToName: null,
       linkedOwnerId: null,
       linkedOwnerName: null,
+      linkedOwnerPhone: null,
       linkedPropertyId: null,
       linkedPropertyTitle: null,
       linkedPropertySlug: null,
@@ -415,6 +449,8 @@ function normalizeInput(payload: CapturedListingInput) {
     adAgeDays: payload.adAgeDays
   });
 
+  const publishedAt = payload.publishedAt ?? null;
+
   return {
     sourceName,
     sourceKind: payload.sourceKind ?? CaptureSourceKind.MANUAL,
@@ -442,7 +478,8 @@ function normalizeInput(payload: CapturedListingInput) {
     advertiserEmail: optionalString(payload.advertiserEmail) ?? null,
     isPrivateSeller: payload.isPrivateSeller ?? false,
     hasFullAddress: payload.hasFullAddress ?? Boolean(optionalString(payload.address)),
-    adAgeDays: payload.adAgeDays ?? null,
+    adAgeDays: payload.adAgeDays ?? getAdAgeDays(publishedAt),
+    publishedAt,
     marketAvgPrice,
     marketAvgPriceM2: optionalNumber(payload.marketAvgPriceM2) ?? null,
     marketOpportunity,
@@ -605,6 +642,7 @@ export async function createCapturedListing(payload: CapturedListingInput, actor
       status: CapturedListingStatus.NOVO,
       ...normalized,
       sourceKind: normalized.sourceKind,
+      publishedAt: normalized.publishedAt?.toISOString() ?? null,
       firstSeenAt: now,
       lastSeenAt: now,
       capturedAt: null,
@@ -614,6 +652,7 @@ export async function createCapturedListing(payload: CapturedListingInput, actor
       assignedToName: null,
       linkedOwnerId: null,
       linkedOwnerName: null,
+      linkedOwnerPhone: null,
       linkedPropertyId: null,
       linkedPropertyTitle: null,
       linkedPropertySlug: null,
@@ -659,6 +698,7 @@ export async function createCapturedListing(payload: CapturedListingInput, actor
     isPrivateSeller: normalized.isPrivateSeller,
     hasFullAddress: normalized.hasFullAddress,
     adAgeDays: normalized.adAgeDays,
+    publishedAt: normalized.publishedAt,
     marketAvgPrice: normalized.marketAvgPrice,
     marketAvgPriceM2: normalized.marketAvgPriceM2,
     marketOpportunity: normalized.marketOpportunity,

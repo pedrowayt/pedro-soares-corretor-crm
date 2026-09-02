@@ -1,6 +1,6 @@
 import { CaptureSourceKind, PropertyPurpose, PropertyType, type Prisma } from "@prisma/client";
 import * as cheerio from "cheerio";
-import { createCapturedListing, type CaptureListingItem } from "@/lib/data/capture";
+import { createCapturedListing, parseCapturePublishedAt, type CaptureListingItem } from "@/lib/data/capture";
 
 export const OLX_CAPTURE_TIMEOUT_MS = 12_000;
 const MAX_SCRAPE_HTML_BYTES = 2 * 1024 * 1024;
@@ -107,6 +107,8 @@ type PortalExtractedListing = {
   parkingSpaces: number | null;
   advertiserName: string | null;
   advertiserPhone: string | null;
+  publishedAt: Date | null;
+  adAgeDays: number | null;
   isPrivateSeller: boolean;
   hasFullAddress: boolean;
   imageUrl: string | null;
@@ -678,6 +680,10 @@ function extractPortalListing(html: string, requestedUrl: string, finalUrl: URL,
   const city = firstNonEmpty(jsonAddress.city, location.city, "Palmas");
   const district = firstNonEmpty(jsonAddress.district, location.district, "A confirmar");
   const phone = extractPhone(searchText);
+  const publishedAt = parseCapturePublishedAt(
+    firstNonEmpty(getRecordString(listingRecord, "datePublished"), getRecordString(listingRecord, "dateCreated"), bodyText)
+  );
+  const adAgeDays = publishedAt ? Math.max(0, Math.floor((Date.now() - publishedAt.getTime()) / 86400000)) : null;
   const isPrivateSeller = inferPrivateSeller(searchText, advertiserName);
   const rawPayload = buildRawPayload({
     requestedUrl,
@@ -716,6 +722,8 @@ function extractPortalListing(html: string, requestedUrl: string, finalUrl: URL,
     parkingSpaces,
     advertiserName,
     advertiserPhone: phone,
+    publishedAt,
+    adAgeDays,
     isPrivateSeller,
     hasFullAddress: Boolean(address),
     imageUrl: imageUrl || null,
@@ -872,6 +880,8 @@ export async function importPortalCapturedListing(
       parkingSpaces: listing.parkingSpaces,
       advertiserName: listing.advertiserName,
       advertiserPhone: listing.advertiserPhone,
+      publishedAt: listing.publishedAt,
+      adAgeDays: listing.adAgeDays,
       isPrivateSeller: listing.isPrivateSeller,
       hasFullAddress: listing.hasFullAddress,
       rawPayload: listing.rawPayload,

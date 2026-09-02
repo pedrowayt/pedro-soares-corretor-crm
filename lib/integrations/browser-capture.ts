@@ -1,6 +1,6 @@
 import { CaptureSourceKind, PropertyPurpose, PropertyType, type Prisma } from "@prisma/client";
 import type { z } from "zod";
-import { createCapturedListing, type CaptureListingItem } from "@/lib/data/capture";
+import { createCapturedListing, parseCapturePublishedAt, type CaptureListingItem } from "@/lib/data/capture";
 import type { crmImportBrowserCapturedListingsSchema } from "@/lib/validation/schemas";
 
 type BrowserCaptureInput = z.infer<typeof crmImportBrowserCapturedListingsSchema>;
@@ -291,6 +291,7 @@ function itemToPayload(item: BrowserCaptureRawItem, input: BrowserCaptureInput) 
     null;
   const searchText = `${title} ${description ?? ""}`;
   const thumbnailUrl = normalizeImageUrl(item.thumbnailUrl ?? item.imageUrl ?? item.photoUrl);
+  const publishedAt = parseCapturePublishedAt(item.publishedAt ?? item.publicationDate ?? item.publishedAtText ?? rawText);
   const isPrivateSeller =
     typeof item.isPrivateSeller === "boolean"
       ? item.isPrivateSeller
@@ -314,6 +315,8 @@ function itemToPayload(item: BrowserCaptureRawItem, input: BrowserCaptureInput) 
     bathrooms: toInt(item.bathrooms),
     parkingSpaces: toInt(item.parkingSpaces),
     advertiserName,
+    publishedAt,
+    adAgeDays: publishedAt ? Math.max(0, Math.floor((Date.now() - publishedAt.getTime()) / 86400000)) : null,
     isPrivateSeller,
     hasFullAddress: Boolean(optionalString(item.address)),
     rawPayload: {
