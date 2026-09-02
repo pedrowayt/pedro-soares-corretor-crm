@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { Montserrat, Playfair_Display } from "next/font/google";
-import { SiteFooter } from "@/components/layout/site-footer";
-import { SiteHeader } from "@/components/layout/site-header";
 import { CookieConsentBanner } from "@/components/layout/cookie-consent-banner";
+import { SiteChrome } from "@/components/layout/site-chrome";
 import { getSiteUrl } from "@/lib/site-url";
 import "./globals.css";
 
@@ -104,9 +103,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             />
           </noscript>
         ) : null}
-        <SiteHeader />
-        <main>{children}</main>
-        <SiteFooter />
+        <SiteChrome>{children}</SiteChrome>
         <CookieConsentBanner />
       </body>
     </html>

@@ -9,6 +9,7 @@ import {
 import { fail, ok } from "@/lib/api/http";
 import { prisma } from "@/lib/prisma";
 import { publicDevelopmentInterestSchema } from "@/lib/validation/schemas";
+import { syncLakeVillageLeadToGoogleSheets } from "@/lib/integrations/google-sheets";
 
 export async function POST(request: Request) {
   const body = await request.json();
@@ -23,6 +24,8 @@ export async function POST(request: Request) {
     whatsapp,
     email,
     message,
+    interest,
+    groupConsent,
     developmentSlug,
     developmentId,
     unitTypeId,
@@ -128,5 +131,25 @@ export async function POST(request: Request) {
     }
   });
 
-  return ok({ leadId: lead.id, developmentId: development?.id ?? null, unitId: unit?.id ?? null }, { status: 201 });
+  const sheetSync = developmentSlug === "lake-village-residences"
+    ? await syncLakeVillageLeadToGoogleSheets({
+        name,
+        whatsapp,
+        email,
+        interest,
+        groupConsent,
+        submittedAt: new Date(),
+        source: "Landing Lake Village"
+      })
+    : { status: "not_applicable" as const };
+
+  return ok(
+    {
+      leadId: lead.id,
+      developmentId: development?.id ?? null,
+      unitId: unit?.id ?? null,
+      sheetSync: sheetSync.status
+    },
+    { status: 201 }
+  );
 }

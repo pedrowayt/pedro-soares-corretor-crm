@@ -1,12 +1,16 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import Link from "next/link";
-import { ArrowDown, ArrowRight, Building2, Dumbbell, Heart, MapPin, ShieldCheck, Waves } from "lucide-react";
+import { ArrowDown, ArrowRight, Building2, Clock3, Dumbbell, ExternalLink, Heart, MapPin, Route, ShieldCheck, Waves } from "lucide-react";
 import { LakeVillageLeadForm } from "@/components/public/lake-village-lead-form";
-import { buildWhatsAppUrl } from "@/lib/integrations/whatsapp-links";
+import { LakeVillageAudio } from "@/components/public/lake-village-audio";
+import { LakeVillageWhatsAppBubble } from "@/components/public/lake-village-whatsapp-bubble";
 import { getSiteUrl } from "@/lib/site-url";
 
 const siteUrl = getSiteUrl();
+
+const lakeVillageMapsUrl = "https://maps.app.goo.gl/ELa5XH6aoP4qwpRWA";
+const capimDouradoRouteUrl = "https://www.google.com/maps/dir/Lake+Village+Residences,+Luzimangues,+Porto+Nacional+-+TO/Capim+Dourado+Shopping,+Palmas+-+TO";
+const lakeVillageEmbedUrl = "https://www.google.com/maps?q=Lake+Village+Residences,+77.006,+046+-+Luzimangues,+Porto+Nacional+-+TO,+77500-000&t=k&output=embed";
 
 export const metadata: Metadata = {
   title: "Lake Village Residences | Beira-lago é seu novo endereço",
@@ -18,7 +22,7 @@ export const metadata: Metadata = {
     description: "Receba em primeira mão plantas, valores e condições do Lake Village Residences.",
     type: "website",
     url: `${siteUrl}/lake-village`,
-    images: [{ url: `${siteUrl}/brand/lake-village-cover.png` }]
+    images: [{ url: `${siteUrl}/brand/lake-village-lake-view.png` }]
   }
 };
 
@@ -32,13 +36,11 @@ const amenities = [
 ];
 
 export default function LakeVillagePage() {
-  const whatsappUrl = buildWhatsAppUrl("Olá, Pedro. Quero conhecer o Lake Village Residences.");
-
   return (
     <div className="lake-landing">
       <section className="lake-hero">
         <Image
-          src="/brand/lake-village-cover.png"
+          src="/brand/lake-village-lake-view.png"
           alt="Lake Village Residences à beira do lago"
           fill
           priority
@@ -46,7 +48,16 @@ export default function LakeVillagePage() {
           className="lake-hero-image"
         />
         <div className="lake-hero-overlay" />
+        <LakeVillageAudio />
         <div className="container lake-hero-content">
+          <Image
+            className="lake-brand-lockup"
+            src="/brand/lake-village-logo.png"
+            alt="Lake Village Residences"
+            width={460}
+            height={230}
+            priority
+          />
           <p className="lake-kicker">Pré-cadastro aberto</p>
           <h1>Beira-lago é seu novo endereço.</h1>
           <p className="lake-hero-lede">
@@ -56,8 +67,8 @@ export default function LakeVillagePage() {
             <a className="lake-button lake-button--gold" href="#cadastro">
               Quero conhecer <ArrowRight size={18} />
             </a>
-            <a className="lake-button lake-button--outline" href={whatsappUrl} target="_blank" rel="noreferrer">
-              Falar no WhatsApp
+            <a className="lake-button lake-button--outline" href="#cadastro">
+              Receber informações no WhatsApp
             </a>
           </div>
           <p className="lake-developer-line">Um produto Nova Bairros Planejados</p>
@@ -114,15 +125,45 @@ export default function LakeVillagePage() {
         </div>
       </section>
 
-      <section className="lake-section lake-location">
-        <div className="lake-location-image">
-          <Image src="/brand/pedro-portrait-2.png" alt="Experiência de chegada ao Lake Village" fill sizes="(max-width: 800px) 100vw, 50vw" />
-        </div>
+      <section id="localizacao" className="lake-section lake-location lake-location--map">
         <div className="lake-location-copy">
           <p className="lake-kicker lake-kicker--dark"><MapPin size={15} /> Luzimangues · Palmas/TO</p>
-          <h2>Um endereço que aproxima você do que importa.</h2>
-          <p>Às margens do lago de Palmas, com acesso conveniente ao Shopping Capim Dourado e ao Five Senses Resort.</p>
-          <Link className="lake-text-link" href="#cadastro">Quero saber mais sobre a localização <ArrowRight size={16} /></Link>
+          <h2>À beira do lago, perto da cidade.</h2>
+          <p>O Lake Village fica em Luzimangues, às margens do lago de Palmas, em uma localização que combina natureza, tranquilidade e acesso prático à capital.</p>
+          <p>Do empreendimento ao Capim Dourado Shopping são aproximadamente 15,7 km, com trajeto estimado em 27 minutos de carro pela TO-080.</p>
+          <div className="lake-location-facts" aria-label="Referências de acesso">
+            <div>
+              <Route size={19} />
+              <strong>15,7 km</strong>
+              <span>até o Capim Dourado Shopping</span>
+            </div>
+            <div>
+              <Clock3 size={19} />
+              <strong>27 min</strong>
+              <span>de carro, como referência</span>
+            </div>
+          </div>
+          <p className="lake-location-note">A distância e o tempo podem variar conforme o ponto de saída e as condições do trânsito.</p>
+          <div className="lake-location-actions">
+            <a className="lake-button lake-button--deep" href={lakeVillageMapsUrl} target="_blank" rel="noreferrer">
+              Ver localização <ExternalLink size={16} />
+            </a>
+            <a className="lake-text-link" href={capimDouradoRouteUrl} target="_blank" rel="noreferrer">
+              Ver rota até o shopping <ArrowRight size={16} />
+            </a>
+          </div>
+        </div>
+        <div className="lake-map-card">
+          <iframe
+            title="Mapa em visão de satélite da localização do Lake Village Residences"
+            src={lakeVillageEmbedUrl}
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+          />
+          <div className="lake-map-caption">
+            <MapPin size={15} />
+            <span>Lake Village Residences · 77.006, 046 · Luzimangues, Porto Nacional/TO</span>
+          </div>
         </div>
       </section>
 
@@ -144,11 +185,20 @@ export default function LakeVillagePage() {
 
       <section className="lake-final-cta">
         <div className="container">
+          <Image
+            className="lake-final-logo"
+            src="/brand/lake-village-logo.png"
+            alt="Lake Village Residences"
+            width={360}
+            height={180}
+          />
           <p className="lake-kicker">Lake Village Residences</p>
           <h2>O Lake Village abre as portas para o seu próximo capítulo.</h2>
           <a className="lake-button lake-button--gold" href="#cadastro">Entrar na lista de interesse <ArrowRight size={18} /></a>
         </div>
       </section>
+
+      <LakeVillageWhatsAppBubble />
     </div>
   );
 }

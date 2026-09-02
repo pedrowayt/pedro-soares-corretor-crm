@@ -1,15 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowRight, CheckCircle2, MessageCircle, Send } from "lucide-react";
+import { ArrowRight, CheckCircle2, MessageCircle, Send, UsersRound } from "lucide-react";
 import { buildWhatsAppUrl } from "@/lib/integrations/whatsapp-links";
 
 type FormStatus = "idle" | "success" | "error";
+const lakeVillageCommunityUrl = "https://chat.whatsapp.com/DttOxzfeB5SAEp0iZQSg5g";
 
 export function LakeVillageLeadForm() {
   const [status, setStatus] = useState<FormStatus>("idle");
   const [message, setMessage] = useState("");
   const [whatsappUrl, setWhatsappUrl] = useState("");
+  const [communityUrl, setCommunityUrl] = useState("");
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -19,10 +21,12 @@ export function LakeVillageLeadForm() {
     const whatsapp = String(data.get("whatsapp") ?? "").trim();
     const interest = String(data.get("interest") ?? "").trim();
     const email = String(data.get("email") ?? "").trim();
-    const leadMessage = `Perfil de interesse: ${interest || "Ainda vou decidir"}. Quero receber a apresentação do Lake Village Residences, plantas, valores e condições disponíveis.`;
+    const groupConsent = data.get("groupConsent") === "on";
+    const leadMessage = `Perfil de interesse: ${interest || "Ainda vou decidir"}. Quero receber a apresentação do Lake Village Residences, plantas, valores e condições disponíveis. Convite para a Comunidade Lake Village: ${groupConsent ? "Sim" : "Não"}.`;
 
     setStatus("idle");
     setMessage("");
+    setCommunityUrl("");
 
     try {
       const response = await fetch("/api/public/leads/development-interest", {
@@ -33,6 +37,8 @@ export function LakeVillageLeadForm() {
           whatsapp,
           email,
           message: leadMessage,
+          interest,
+          groupConsent,
           developmentSlug: "lake-village-residences",
           lgpdConsent: data.get("lgpdConsent") === "on"
         })
@@ -44,8 +50,9 @@ export function LakeVillageLeadForm() {
       }
 
       setStatus("success");
-      setMessage("Seu interesse foi registrado. Vou entrar em contato para apresentar o empreendimento.");
+      setMessage(groupConsent ? "Seu interesse foi registrado. Você também pode entrar na Comunidade Lake Village pelo botão abaixo." : "Seu interesse foi registrado. Vou entrar em contato para apresentar o empreendimento.");
       setWhatsappUrl(buildWhatsAppUrl(`Olá, Pedro. Acabei de me cadastrar para conhecer o Lake Village Residences. Meu perfil é: ${interest || "a definir"}.`));
+      setCommunityUrl(groupConsent ? lakeVillageCommunityUrl : "");
       form.reset();
     } catch (error) {
       setStatus("error");
@@ -86,6 +93,11 @@ export function LakeVillageLeadForm() {
           <span>Autorizo o contato de Pedro Soares sobre o Lake Village Residences e concordo com a política de privacidade.</span>
         </label>
 
+        <label className="lake-consent lake-group-consent">
+          <input type="checkbox" name="groupConsent" />
+          <span>Quero receber, por WhatsApp, um convite para a Comunidade Lake Village e acompanhar os materiais do empreendimento.</span>
+        </label>
+
         <button type="submit" className="lake-button lake-button--gold">
           <Send size={17} /> Quero receber a apresentação <ArrowRight size={17} />
         </button>
@@ -97,6 +109,12 @@ export function LakeVillageLeadForm() {
           </p>
         ) : null}
       </form>
+
+      {status === "success" && communityUrl ? (
+        <a className="lake-button lake-button--deep lake-lead-whatsapp" href={communityUrl} target="_blank" rel="noreferrer">
+          <UsersRound size={18} /> Entrar na Comunidade Lake Village
+        </a>
+      ) : null}
 
       {status === "success" && whatsappUrl ? (
         <a className="lake-button lake-button--whatsapp lake-lead-whatsapp" href={whatsappUrl} target="_blank" rel="noreferrer">

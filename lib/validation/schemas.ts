@@ -68,6 +68,8 @@ export const publicDevelopmentInterestSchema = z.object({
   whatsapp: z.string().min(10),
   email: z.string().email().optional().or(z.literal("")),
   message: z.string().optional(),
+  interest: z.string().max(120).optional(),
+  groupConsent: z.boolean().optional().default(false),
   developmentSlug: z.string().optional(),
   developmentId: z.string().optional(),
   unitTypeId: z.string().optional(),
