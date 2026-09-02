@@ -13,7 +13,13 @@
 const SHEET_NAME = "Sheet1";
 
 function doPost(event) {
+  const lock = LockService.getScriptLock();
+  let lockAcquired = false;
+
   try {
+    lock.waitLock(5000);
+    lockAcquired = true;
+
     const expectedToken = PropertiesService.getScriptProperties().getProperty("WEBHOOK_TOKEN");
     const payload = JSON.parse(event.postData.contents || "{}");
 
@@ -28,7 +34,7 @@ function doPost(event) {
       return jsonResponse({ success: false, error: "Sheet not found" }, 404);
     }
 
-    sheet.appendRow([
+    const row = [
       payload.submittedAt || new Date().toISOString(),
       payload.name || "",
       payload.whatsapp || "",
@@ -38,11 +44,31 @@ function doPost(event) {
       payload.source || "Landing Lake Village",
       payload.status || "Novo",
       ""
-    ]);
+    ];
 
-    return jsonResponse({ success: true }, 200);
+    const normalizedPhone = String(payload.whatsapp || "").trim();
+    const normalizedEmail = String(payload.email || "").trim().toLowerCase();
+    const values = sheet.getDataRange().getValues();
+    const existingRowIndex = values.slice(1).findIndex((existingRow) => {
+      const existingPhone = String(existingRow[2] || "").trim();
+      const existingEmail = String(existingRow[3] || "").trim().toLowerCase();
+      return (normalizedPhone && existingPhone === normalizedPhone) ||
+        (normalizedEmail && existingEmail === normalizedEmail);
+    });
+
+    if (existingRowIndex >= 0) {
+      sheet.getRange(existingRowIndex + 2, 1, 1, row.length).setValues([row]);
+    } else {
+      sheet.appendRow(row);
+    }
+
+    return jsonResponse({ success: true, action: existingRowIndex >= 0 ? "updated" : "created" }, 200);
   } catch (error) {
     return jsonResponse({ success: false, error: String(error) }, 500);
+  } finally {
+    if (lockAcquired) {
+      lock.releaseLock();
+    }
   }
 }
 

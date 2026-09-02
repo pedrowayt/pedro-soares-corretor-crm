@@ -49,6 +49,17 @@ export function LakeVillageLeadForm() {
         throw new Error(result?.error?.message || "Não foi possível registrar seu interesse.");
       }
 
+      const sheetSync = result.data?.sheetSync;
+      if (sheetSync && sheetSync !== "synced") {
+        setStatus("error");
+        setMessage(
+          sheetSync === "not_configured"
+            ? "Cadastro salvo no CRM, mas a sincronização com a planilha ainda não está configurada."
+            : "Cadastro salvo no CRM, mas não foi possível sincronizar a planilha agora."
+        );
+        return;
+      }
+
       setStatus("success");
       setMessage(groupConsent ? "Seu interesse foi registrado. Você também pode entrar na Comunidade Lake Village pelo botão abaixo." : "Seu interesse foi registrado. Vou entrar em contato para apresentar o empreendimento.");
       setWhatsappUrl(buildWhatsAppUrl(`Olá, Pedro. Acabei de me cadastrar para conhecer o Lake Village Residences. Meu perfil é: ${interest || "a definir"}.`));
