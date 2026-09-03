@@ -94,7 +94,7 @@ export default function AcordesPage() {
         </header>
 
         <div id="inicio" className="container acordes-hero-content">
-          <div className="acordes-hero-copy">
+          <div className="acordes-hero-copy" data-acordes-reveal="hero">
             <p className="acordes-eyebrow"><span /> Lançamento · Orla 14 · Palmas/TO</p>
             <p className="acordes-byline">TOWER <span>by</span> TEWAL</p>
             <h1>Um novo acorde para a vida na Orla 14.</h1>
@@ -104,7 +104,7 @@ export default function AcordesPage() {
               <a className="acordes-hero-text-link" href="#conceito">Descobrir o projeto <ArrowDown size={16} /></a>
             </div>
           </div>
-          <div className="acordes-hero-note">
+          <div className="acordes-hero-note" data-acordes-reveal="hero-note">
             <span>01 / 08</span>
             <strong>Viver na Orla 14 é estar no ritmo de Palmas.</strong>
             <small>Imagem ilustrativa do projeto</small>
@@ -112,7 +112,7 @@ export default function AcordesPage() {
         </div>
       </section>
 
-      <section className="acordes-stat-strip" aria-label="Resumo do empreendimento">
+      <section className="acordes-stat-strip" aria-label="Resumo do empreendimento" data-acordes-reveal="stats">
         <div className="container acordes-stat-grid">
           <div><strong>300</strong><span>unidades</span></div>
           <div><strong>29</strong><span>pavimentos</span></div>
@@ -124,14 +124,14 @@ export default function AcordesPage() {
 
       <section id="conceito" className="acordes-section acordes-section--paper">
         <div className="container acordes-concept-grid">
-          <div className="acordes-concept-copy">
+          <div className="acordes-concept-copy" data-acordes-reveal="from-left">
             <p className="acordes-kicker">O conceito</p>
             <h2>O encontro entre arquitetura, cidade e um jeito mais inteligente de viver.</h2>
             <p>Um acorde nasce do encontro entre notas distintas. No palco da cidade, surge uma composição criada para o seu ritmo: um endereço contemporâneo, conectado à Orla 14 e pronto para acompanhar a vida que acontece agora.</p>
             <p>O Acordes combina unidades compactas e funcionais, lazer elevado, serviços no térreo e espaços pensados para quem quer estar perto de tudo - inclusive das melhores oportunidades de Palmas.</p>
             <a className="acordes-text-link" href="#tipologias">Escolher minha tipologia <ArrowRight size={16} /></a>
           </div>
-          <div className="acordes-concept-image">
+          <div className="acordes-concept-image" data-acordes-reveal="from-right">
             <Image src="/brand/acordes/vista-por-do-sol.webp" alt="Vista do pôr do sol a partir do Acordes" fill sizes="(max-width: 900px) 100vw, 48vw" />
             <span className="acordes-image-caption"><Sparkles size={15} /> Vista para o Lago e a Serra</span>
           </div>
@@ -140,13 +140,13 @@ export default function AcordesPage() {
 
       <section className="acordes-section acordes-section--ink">
         <div className="container">
-          <div className="acordes-section-heading acordes-section-heading--light">
+          <div className="acordes-section-heading acordes-section-heading--light" data-acordes-reveal>
             <p className="acordes-kicker">Uma localização que acontece</p>
             <h2>No coração da Orla 14.</h2>
             <p>O Acordes está a 120 metros da Orla, em uma região que reúne lazer, serviços, negócios e novas possibilidades para Palmas.</p>
           </div>
-          <div className="acordes-location-facts">
-            {locationFacts.map(([value, label]) => <div key={label}><strong>{value}</strong><span>{label}</span></div>)}
+          <div className="acordes-location-facts" data-acordes-reveal>
+            {locationFacts.map(([value, label], index) => <div key={label} style={{ "--acordes-delay": `${index * 70}ms` } as React.CSSProperties}><strong>{value}</strong><span>{label}</span></div>)}
           </div>
           <div className="acordes-location-bottom">
             <div className="acordes-location-address"><MapPin size={18} /><span>Orla 14 · Palmas, Tocantins</span></div>
@@ -157,14 +157,14 @@ export default function AcordesPage() {
 
       <section id="experiencia" className="acordes-section acordes-section--paper acordes-experience">
         <div className="container">
-          <div className="acordes-section-heading">
+          <div className="acordes-section-heading" data-acordes-reveal>
             <p className="acordes-kicker">A experiência Acordes</p>
             <h2>Espaços que acompanham o seu ritmo.</h2>
             <p>Do trabalho ao descanso, tudo foi pensado para você viver mais dentro e fora do apartamento.</p>
           </div>
           <div className="acordes-gallery-grid">
             {gallery.map((item) => (
-              <article className={`acordes-gallery-card ${item.className ?? ""}`} key={item.src}>
+              <article className={`acordes-gallery-card ${item.className ?? ""}`} key={item.src} data-acordes-reveal style={{ "--acordes-delay": `${(gallery.indexOf(item) % 4) * 70}ms` } as React.CSSProperties}>
                 <Image src={item.src} alt={item.title} fill sizes="(max-width: 700px) 100vw, (max-width: 1100px) 50vw, 25vw" />
                 <div className="acordes-gallery-overlay"><strong>{item.title}</strong><span>{item.text}</span></div>
               </article>
@@ -175,13 +175,13 @@ export default function AcordesPage() {
 
       <section id="tipologias" className="acordes-section acordes-section--sand">
         <div className="container">
-          <div className="acordes-section-heading">
+          <div className="acordes-section-heading" data-acordes-reveal>
             <p className="acordes-kicker">Seu espaço, seu acorde</p>
             <h2>Plantas para diferentes momentos da vida.</h2>
             <p>Escolha o formato que melhor traduz seu objetivo. As áreas abaixo seguem o material técnico do empreendimento.</p>
           </div>
           <div className="acordes-typology-grid">
-            <article className="acordes-typology-card acordes-typology-card--featured">
+            <article className="acordes-typology-card acordes-typology-card--featured" data-acordes-reveal="from-left">
               <div className="acordes-typology-top"><span className="acordes-typology-number">01</span><span>Vista para a cidade</span></div>
               <h3>Studios</h3>
               <strong>25,35 a 29,78 m²</strong>
@@ -189,7 +189,7 @@ export default function AcordesPage() {
               <ul><li><Check size={15} /> Tipos B1 e B2</li><li><Check size={15} /> 5º ao 18º pavimento</li><li><Check size={15} /> Vista para o Lago ou Serra</li></ul>
               <WhatsAppLink className="acordes-button acordes-button--dark">Receber plantas</WhatsAppLink>
             </article>
-            <article className="acordes-typology-card">
+            <article className="acordes-typology-card" data-acordes-reveal="from-right">
               <div className="acordes-typology-top"><span className="acordes-typology-number">02</span><span>Vista privilegiada</span></div>
               <h3>2 suítes</h3>
               <strong>56,11 a 61,49 m²</strong>
@@ -203,38 +203,38 @@ export default function AcordesPage() {
 
       <section className="acordes-section acordes-section--paper acordes-investment">
         <div className="container acordes-investment-grid">
-          <div>
+          <div data-acordes-reveal="from-left">
             <p className="acordes-kicker">Para morar. Para investir.</p>
             <h2>Um produto preparado para a dinâmica de Palmas.</h2>
             <p>O Acordes foi concebido para operação de locação de curta ou longa temporada, com forte demanda de hóspedes corporativos, do agro e turistas.</p>
             <p>Além da localização, a administração profissional, os serviços integrados e as plantas versáteis ajudam a construir uma experiência mais simples para quem investe.</p>
           </div>
-          <div className="acordes-investment-points">
-            <div><KeyRound size={20} /><span><strong>Operação inteligente</strong><small>Preparação para alta rotatividade e baixo custo operacional.</small></span></div>
-            <div><Building2 size={20} /><span><strong>Produto de alta liquidez</strong><small>Studios compactos e localização estratégica.</small></span></div>
-            <div><Waves size={20} /><span><strong>Lazer elevado</strong><small>Rooftop com piscina, spa, academia e vista para o lago.</small></span></div>
-            <div><Sparkles size={20} /><span><strong>Construtora sólida</strong><small>Tewal: 25 anos contribuindo para o desenvolvimento do Tocantins.</small></span></div>
+          <div className="acordes-investment-points" data-acordes-reveal="from-right">
+            <div style={{ "--acordes-delay": "80ms" } as React.CSSProperties}><KeyRound size={20} /><span><strong>Operação inteligente</strong><small>Preparação para alta rotatividade e baixo custo operacional.</small></span></div>
+            <div style={{ "--acordes-delay": "160ms" } as React.CSSProperties}><Building2 size={20} /><span><strong>Produto de alta liquidez</strong><small>Studios compactos e localização estratégica.</small></span></div>
+            <div style={{ "--acordes-delay": "240ms" } as React.CSSProperties}><Waves size={20} /><span><strong>Lazer elevado</strong><small>Rooftop com piscina, spa, academia e vista para o lago.</small></span></div>
+            <div style={{ "--acordes-delay": "320ms" } as React.CSSProperties}><Sparkles size={20} /><span><strong>Construtora sólida</strong><small>Tewal: 25 anos contribuindo para o desenvolvimento do Tocantins.</small></span></div>
           </div>
         </div>
       </section>
 
       <section className="acordes-section acordes-section--ink acordes-amenities">
         <div className="container">
-          <div className="acordes-section-heading acordes-section-heading--light">
+          <div className="acordes-section-heading acordes-section-heading--light" data-acordes-reveal>
             <p className="acordes-kicker">Mais detalhes do projeto</p>
             <h2>Funcionalidade em cada escolha.</h2>
           </div>
-          <div className="acordes-amenities-grid">{amenities.map((item) => <span key={item}><Check size={16} />{item}</span>)}</div>
+          <div className="acordes-amenities-grid" data-acordes-reveal>{amenities.map((item, index) => <span key={item} style={{ "--acordes-delay": `${(index % 4) * 70}ms` } as React.CSSProperties}><Check size={16} />{item}</span>)}</div>
         </div>
       </section>
 
       <section id="atendimento" className="acordes-section acordes-section--sand acordes-contact-section">
         <div className="container acordes-contact-grid">
-          <div className="acordes-broker-card">
+          <div className="acordes-broker-card" data-acordes-reveal="from-left">
             <div className="acordes-broker-photo"><Image src="/brand/pedro-portrait-5.png" alt="Pedro Soares, corretor de imóveis" fill sizes="(max-width: 800px) 100vw, 360px" /></div>
             <div className="acordes-broker-copy"><p className="acordes-kicker">Atendimento personalizado</p><h3>Vamos encontrar o seu melhor acorde.</h3><p>Eu apresento as plantas, explico as condições e ajudo você a avaliar se o Acordes faz sentido para morar ou investir.</p><strong>Pedro Soares</strong><span>CRECI 5861-TO</span></div>
           </div>
-          <div className="acordes-contact-copy">
+          <div className="acordes-contact-copy" data-acordes-reveal="from-right">
             <p className="acordes-kicker">Lista de interesse</p>
             <h2>Receba a apresentação completa.</h2>
             <p>Deixe seus dados para receber plantas, disponibilidade e condições atualizadas do Acordes Tower by Tewal.</p>
