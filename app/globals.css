@@ -1816,32 +1816,178 @@ body:has(.crm-shell) > main {
 }
 
 .admin-login-page {
+  position: relative;
   display: flex;
   align-items: center;
-  padding: 54px 0 72px;
+  overflow: hidden;
+  padding: 28px 0;
   min-height: 100vh;
+  background:
+    radial-gradient(circle at 8% 10%, rgba(216, 154, 59, 0.18), transparent 28%),
+    radial-gradient(circle at 92% 90%, rgba(15, 74, 60, 0.13), transparent 34%),
+    #eef2f7;
 }
 
 .admin-login-shell {
   display: grid;
-  grid-template-columns: minmax(0, 420px);
+  grid-template-columns: minmax(0, 1.05fr) minmax(390px, 0.95fr);
+  align-items: stretch;
+  width: min(1020px, 92vw);
+  min-height: 610px;
   justify-content: center;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: 0 28px 70px rgba(15, 34, 61, 0.16);
+}
+
+.admin-login-brand {
+  display: flex;
+  flex-direction: column;
+  padding: 52px clamp(32px, 5vw, 68px);
+  background:
+    linear-gradient(145deg, rgba(7, 13, 24, 0.97), rgba(15, 34, 61, 0.95)),
+    #070d18;
+  color: #fff;
+}
+
+.admin-login-brand-link {
+  display: inline-flex;
+  width: fit-content;
+  padding: 2px 0;
+}
+
+.admin-login-logo {
+  display: block;
+  width: min(245px, 70vw);
+  height: auto;
+}
+
+.admin-login-brand-copy {
+  max-width: 450px;
+  margin: auto 0;
+}
+
+.admin-login-kicker {
+  margin: 0 0 18px;
+  color: var(--sophistication-gold-300);
+  font-size: var(--fs-12);
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.admin-login-brand-copy h1 {
+  margin: 0 0 18px;
+  font-size: clamp(2.15rem, 4vw, 3.8rem);
+  font-weight: 500;
+  letter-spacing: -0.035em;
+  line-height: 1.03;
+}
+
+.admin-login-brand-copy > p:last-child {
+  max-width: 380px;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: var(--fs-14);
+  line-height: 1.75;
+}
+
+.admin-login-brand-points {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 18px;
+  margin-top: 30px;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 0.71rem;
+  font-weight: 600;
+}
+
+.admin-login-brand-points span,
+.admin-login-home-link,
+.admin-login-badge,
+.admin-login-security-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.admin-login-brand-points svg,
+.admin-login-home-link svg:first-child {
+  color: var(--sophistication-gold-300);
+}
+
+.admin-login-home-link {
+  width: fit-content;
+  margin-top: 38px;
+  color: rgba(255, 255, 255, 0.92);
+  font-size: var(--fs-14);
+  font-weight: 600;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.admin-login-home-link svg:last-child {
+  transition: transform 0.2s ease;
+}
+
+.admin-login-home-link:hover {
+  color: var(--sophistication-gold-300);
+  transform: translateX(2px);
+}
+
+.admin-login-home-link:hover svg:last-child {
+  transform: translateX(3px);
 }
 
 .admin-login-panel {
-  border: 1px solid #dce4ee;
-  border-radius: 14px;
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid rgba(15, 34, 61, 0.08);
   background: #ffffff;
-  padding: 28px;
-  box-shadow: 0 14px 34px rgba(16, 24, 40, 0.08);
+  padding: 40px clamp(30px, 4vw, 48px);
+}
+
+.admin-login-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.admin-login-badge {
+  width: fit-content;
+  border: 1px solid rgba(15, 74, 60, 0.16);
+  border-radius: 999px;
+  padding: 7px 10px;
+  background: rgba(15, 74, 60, 0.07);
+  color: var(--solidity-700);
+  font-size: 0.67rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.admin-login-panel-mark {
+  color: #a9b3c1;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
 }
 
 .admin-login-title {
   margin: 0;
   color: #17243a;
-  font-size: var(--fs-24);
-  line-height: 1.12;
-  letter-spacing: 0;
+  font-size: clamp(2.1rem, 4vw, 3rem);
+  font-weight: 500;
+  letter-spacing: -0.035em;
+  line-height: 1.02;
+}
+
+.admin-login-subtitle {
+  margin: 12px 0 0;
+  color: var(--text-muted);
+  font-size: var(--fs-14);
+  line-height: 1.6;
 }
 
 .admin-login-alert,
@@ -1867,8 +2013,24 @@ body:has(.crm-shell) > main {
 
 .admin-login-form {
   display: grid;
-  gap: 11px;
-  margin-top: 18px;
+  gap: 17px;
+  margin-top: 24px;
+}
+
+.admin-login-form label {
+  display: grid;
+  gap: 8px;
+  color: #344054;
+  font-size: var(--fs-12);
+  font-weight: 600;
+}
+
+.admin-login-form input {
+  min-height: 48px;
+  border-color: #d6deea;
+  border-radius: 10px;
+  padding: 0.75rem 0.85rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .admin-login-form input:focus {
@@ -1878,10 +2040,126 @@ body:has(.crm-shell) > main {
 }
 
 .admin-login-submit {
-  min-height: 46px;
-  margin-top: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  min-height: 50px;
+  margin-top: 5px;
   width: 100%;
   cursor: pointer;
+}
+
+.admin-login-shortcuts {
+  margin-top: auto;
+  padding-top: 22px;
+}
+
+.admin-login-shortcuts > p {
+  margin: 0 0 11px;
+  color: #667085;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.admin-login-shortcut-grid {
+  display: grid;
+  gap: 8px;
+}
+
+.admin-login-shortcut {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid #e3e8ef;
+  border-radius: 10px;
+  padding: 11px 12px;
+  color: #344054;
+  transition: border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+}
+
+.admin-login-shortcut > svg:first-child {
+  color: var(--sophistication-gold-500);
+}
+
+.admin-login-shortcut > svg:last-child {
+  color: #98a2b3;
+  transition: transform 0.2s ease;
+}
+
+.admin-login-shortcut span {
+  display: grid;
+  gap: 2px;
+}
+
+.admin-login-shortcut strong {
+  color: #17243a;
+  font-size: 0.76rem;
+}
+
+.admin-login-shortcut small {
+  color: #98a2b3;
+  font-size: 0.68rem;
+}
+
+.admin-login-shortcut:hover {
+  border-color: rgba(216, 154, 59, 0.5);
+  background: #fffaf2;
+  transform: translateY(-1px);
+}
+
+.admin-login-shortcut:hover > svg:last-child {
+  transform: translateX(3px);
+}
+
+.admin-login-security-note {
+  margin: 19px 0 0;
+  color: #98a2b3;
+  font-size: 0.67rem;
+  line-height: 1.45;
+}
+
+@media (max-width: 760px) {
+  .admin-login-page {
+    align-items: flex-start;
+    padding: 22px 0 30px;
+  }
+
+  .admin-login-shell {
+    grid-template-columns: 1fr;
+    width: min(620px, 92vw);
+    min-height: 0;
+  }
+
+  .admin-login-brand {
+    min-height: 370px;
+    padding: 34px;
+  }
+
+  .admin-login-brand-copy {
+    margin-top: 48px;
+  }
+
+  .admin-login-brand-copy h1 {
+    font-size: clamp(2rem, 8vw, 3rem);
+  }
+
+  .admin-login-brand-points {
+    margin-top: 24px;
+  }
+
+  .admin-login-home-link {
+    margin-top: 26px;
+  }
+
+  .admin-login-panel {
+    border-top: 1px solid rgba(15, 34, 61, 0.08);
+    border-left: 0;
+    padding: 34px;
+  }
 }
 
 .crm-shell {
@@ -4555,6 +4833,12 @@ body:has(.crm-shell) > main {
   background: #f8fbff;
 }
 
+.wp-featured-landing-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
 .wp-featured-landing {
   min-height: 360px;
   display: flex;
@@ -4597,6 +4881,12 @@ body:has(.crm-shell) > main {
 .wp-featured-landing-copy .button {
   width: fit-content;
   margin-top: 8px;
+}
+
+@media (max-width: 760px) {
+  .wp-featured-landing-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .wp-section-head {

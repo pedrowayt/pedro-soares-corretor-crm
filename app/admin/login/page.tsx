@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
+import Image from "next/image";
+import Link from "next/link";
 import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { ArrowRight, Building2, Home, LockKeyhole, LogIn, ShieldCheck } from "lucide-react";
 import {
   authenticateCrmAdmin,
   getLoginRequestMetadata,
@@ -62,8 +65,38 @@ export default async function AdminLoginPage({
   return (
     <section className="admin-login-page">
       <div className="container admin-login-shell">
+        <aside className="admin-login-brand">
+          <Link href="/" className="admin-login-brand-link" aria-label="Voltar para a home Pedro Soares">
+            <Image
+              src="/brand/logo-home-2026.PNG"
+              alt="Pedro Soares Corretor de Imóveis"
+              width={813}
+              height={182}
+              priority
+              className="admin-login-logo"
+            />
+          </Link>
+          <div className="admin-login-brand-copy">
+            <p className="admin-login-kicker">Área exclusiva</p>
+            <h1>Seu negócio imobiliário, mais perto de cada oportunidade.</h1>
+            <p>Entre no CRM para acompanhar leads, imóveis, empreendimentos e os próximos passos da sua operação.</p>
+          </div>
+          <div className="admin-login-brand-points" aria-label="Recursos do CRM">
+            <span><ShieldCheck size={17} /> Acesso protegido</span>
+            <span><Building2 size={17} /> Gestão de oportunidades</span>
+          </div>
+          <Link href="/" className="admin-login-home-link">
+            <Home size={16} /> Voltar para a home <ArrowRight size={15} />
+          </Link>
+        </aside>
+
         <div className="admin-login-panel">
-          <h1 className="admin-login-title">Login CRM</h1>
+          <div className="admin-login-panel-head">
+            <span className="admin-login-badge"><LockKeyhole size={14} /> Acesso seguro</span>
+            <span className="admin-login-panel-mark">CRM</span>
+          </div>
+          <h2 className="admin-login-title">Bem-vindo de volta</h2>
+          <p className="admin-login-subtitle">Acesse seu painel para continuar sua operação.</p>
 
           {error && loginErrors[error] ? <p className="admin-login-alert">{loginErrors[error]}</p> : null}
           {logout ? <p className="admin-login-success">Sessão encerrada com segurança.</p> : null}
@@ -71,31 +104,52 @@ export default async function AdminLoginPage({
           <form action={loginAction} className="admin-login-form">
             <input type="hidden" name="next" value={nextPath} />
 
-            <label htmlFor="admin-username">Login</label>
-            <input
-              id="admin-username"
-              name="username"
-              type="email"
-              inputMode="email"
-              autoComplete="username"
-              placeholder="usuario@dominio.com"
-              required
-            />
+            <label htmlFor="admin-username">
+              E-mail de acesso
+              <input
+                id="admin-username"
+                name="username"
+                type="email"
+                inputMode="email"
+                autoComplete="username"
+                placeholder="usuario@dominio.com"
+                required
+              />
+            </label>
 
-            <label htmlFor="admin-password">Senha</label>
-            <input
-              id="admin-password"
-              name="password"
-              type="password"
-              autoComplete="current-password"
-              placeholder="Digite sua senha"
-              required
-            />
+            <label htmlFor="admin-password">
+              Senha
+              <input
+                id="admin-password"
+                name="password"
+                type="password"
+                autoComplete="current-password"
+                placeholder="Digite sua senha"
+                required
+              />
+            </label>
 
             <button className="button button-primary admin-login-submit" type="submit">
-              Entrar
+              <LogIn size={17} /> Entrar no CRM
             </button>
           </form>
+
+          <div className="admin-login-shortcuts">
+            <p>Atalhos rápidos</p>
+            <div className="admin-login-shortcut-grid">
+              <Link href="/" className="admin-login-shortcut">
+                <Home size={16} />
+                <span><strong>Home pública</strong><small>Ver o site</small></span>
+                <ArrowRight size={14} />
+              </Link>
+              <Link href="/empreendimentos" className="admin-login-shortcut">
+                <Building2 size={16} />
+                <span><strong>Empreendimentos</strong><small>Ver lançamentos</small></span>
+                <ArrowRight size={14} />
+              </Link>
+            </div>
+          </div>
+          <p className="admin-login-security-note"><LockKeyhole size={14} /> Seus dados de acesso são usados somente para entrar no painel.</p>
         </div>
       </div>
     </section>
