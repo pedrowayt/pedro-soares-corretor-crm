@@ -84,6 +84,16 @@ const gardenGallery = [
   ["garden-interiors.webp", "Ambientes amplos com interiores sugeridos"],
 ] as const;
 
+const gardenPlans = [
+  ["garden-plan-3-suites.jpg", "Planta Garden com 3 suítes", "3 suítes · 222,70 m² · 3 vagas"],
+  ["garden-plan-4-suites.jpg", "Planta Garden com 4 suítes", "4 suítes · 222,70 m² · 3 vagas"],
+] as const;
+
+const gardenUnits = Array.from({ length: 30 }, (_, index) => {
+  const floor = 30 - index;
+  return [String(floor), `Apto ${floor}01 / ${floor}02`, "222,70 m²"] as const;
+});
+
 type Slug = keyof typeof items;
 export function generateStaticParams() { return Object.keys(items).map((slug) => ({ slug })); }
 export function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
@@ -115,7 +125,9 @@ export default async function PalmasLakeDevelopmentPage({ params }: { params: Pr
       <section className="palmas-sky-highlights" aria-label="Características do Lake Garden"><div className="palmas-sky-container palmas-sky-highlights-grid">{gardenHighlights.map(([label, value]) => <div key={label}><span>{label}</span><strong>{value}</strong></div>)}</div></section>
       <section className="palmas-sky-story"><div className="palmas-sky-container palmas-sky-story-grid"><div><p className="palmas-lake-kicker">Lake Garden</p><h2>Espaço para viver com mais presença.</h2></div><div><p>O Lake Garden foi desenhado para famílias que valorizam amplitude, privacidade e a sofisticação de estar conectado à paisagem do lago.</p><p>Com apenas dois apartamentos por andar e 222,70 m² de área privativa, a torre cria uma experiência residencial mais exclusiva — com ambientes que acolhem a rotina e momentos que pedem celebração.</p></div></div></section>
       <section className="palmas-sky-gallery"><div className="palmas-sky-container"><div className="palmas-sky-section-heading"><p className="palmas-lake-kicker">Arquitetura e interiores</p><h2>Uma torre que se abre para o lago.</h2><p>A fachada e os ambientes sugeridos traduzem o encontro entre linhas contemporâneas, luz natural e paisagismo exuberante.</p></div><div className="palmas-sky-gallery-grid palmas-garden-gallery-grid">{gardenGallery.map(([src, alt]) => <figure key={src}><div><Image src={`/brand/palmas-lake/${src}`} alt={alt} fill sizes="(max-width: 700px) 100vw, 50vw" /></div><figcaption>{alt}</figcaption></figure>)}</div></div></section>
+      <section className="palmas-sky-plan palmas-garden-plans" id="plantas" aria-labelledby="palmas-garden-plans-title"><div className="palmas-sky-container"><div className="palmas-sky-section-heading"><p className="palmas-lake-kicker">Plantas Lake Garden</p><h2 id="palmas-garden-plans-title">Duas formas de imaginar o mesmo espaço.</h2><p>Conheça as duas opções de layout do apartamento Garden. As imagens preservam o material original, incluindo as informações já aplicadas na planta.</p></div><div className="palmas-garden-plans-grid">{gardenPlans.map(([src, alt, detail]) => <figure className="palmas-garden-plan-card" key={src}><div><Image src={`/brand/palmas-lake/${src}`} alt={alt} fill sizes="(max-width: 760px) 100vw, 50vw" unoptimized /></div><figcaption><strong>{alt}</strong><span>{detail}</span></figcaption></figure>)}</div></div></section>
       <section className="palmas-sky-leisure"><div className="palmas-sky-container palmas-sky-leisure-grid"><div><p className="palmas-lake-kicker">Lazer da torre</p><h2>Conforto, bem-estar e acesso ao melhor do Palmas Lake.</h2></div><div className="palmas-sky-leisure-list">{gardenLeisure.map((feature, index) => <div key={feature}><span>{String(index + 1).padStart(2, "0")}</span><strong>{feature}</strong></div>)}</div></div></section>
+      <section className="palmas-sky-units" id="unidades" aria-labelledby="palmas-garden-units-title"><div className="palmas-sky-container"><div className="palmas-sky-section-heading"><p className="palmas-lake-kicker">Espelho de unidades</p><h2 id="palmas-garden-units-title">Escolha o seu andar.</h2><p>O Lake Garden tem dois apartamentos por andar, com 222,70 m² privativos. Consulte a disponibilidade e as condições atualizadas.</p></div><div className="palmas-sky-table-wrap"><table><thead><tr><th>Pav.</th><th>Unidades</th><th>Área</th><th>Status</th></tr></thead><tbody>{gardenUnits.map(([floor, unit, area]) => <tr key={floor}><td>{floor}</td><td>{unit}</td><td>{area}</td><td><span className="palmas-sky-status palmas-sky-status--consult">Consulte</span></td></tr>)}</tbody></table></div></div></section>
     </>}
     <div className="palmas-detail-footer"><Link href="/palmas-lake"><ArrowLeft size={15} /> Voltar ao complexo</Link></div>
     <a className="palmas-lake-whatsapp-float" href={whatsappHref} target="_blank" rel="noreferrer" aria-label={`Falar com Pedro Soares pelo WhatsApp sobre o ${item.name}`}>
