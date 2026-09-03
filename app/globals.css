@@ -119,6 +119,24 @@
 .like210-location-bottom { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-top: 26px; }
 .like210-location-bottom span, .like210-location-bottom a { display: inline-flex; align-items: center; gap: 8px; color: rgba(255,255,255,.78); font-size: .73rem; }
 .like210-location-bottom a { color: var(--like210-copper-light); font-weight: 700; }
+.like210-map-block { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(340px, .85fr); gap: 20px; margin-top: 54px; }
+.like210-map-frame { position: relative; min-height: 475px; overflow: hidden; background: #b2c3c2; }
+.like210-map-frame iframe { display: block; width: 100%; height: 475px; border: 0; filter: saturate(.78) contrast(.96); }
+.like210-map-caption { position: absolute; right: 16px; bottom: 16px; left: 16px; display: flex; align-items: center; gap: 8px; padding: 12px 14px; background: rgba(12,18,23,.92); color: rgba(255,255,255,.84); font-size: .68rem; line-height: 1.35; }
+.like210-map-caption a { display: inline-flex; align-items: center; gap: 5px; margin-left: auto; color: var(--like210-copper-light); font-weight: 700; white-space: nowrap; }
+.like210-routes-panel { padding: 28px; background: var(--like210-ink-soft); border: 1px solid rgba(255,255,255,.14); }
+.like210-routes-heading { margin-bottom: 24px; }
+.like210-routes-heading .like210-kicker { margin-bottom: 12px; color: var(--like210-copper-light); }
+.like210-routes-heading h3 { max-width: 14ch; margin-bottom: 12px; font-size: clamp(1.7rem, 2.8vw, 2.45rem); font-weight: 500; line-height: 1.04; letter-spacing: -.045em; }
+.like210-routes-heading p:last-child { max-width: 32ch; margin-bottom: 0; color: rgba(255,255,255,.58); font-size: .74rem; line-height: 1.6; }
+.like210-routes-grid { display: grid; gap: 9px; }
+.like210-route-card { display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 13px 14px; border: 1px solid rgba(255,255,255,.15); background: rgba(255,255,255,.035); }
+.like210-route-card > div { display: grid; gap: 4px; min-width: 0; }
+.like210-route-card span { display: inline-flex; align-items: center; gap: 5px; color: var(--like210-copper-light); font-size: .56rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.like210-route-card strong { overflow: hidden; color: #fff; font-size: .77rem; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.like210-route-card small { color: rgba(255,255,255,.48); font-size: .62rem; }
+.like210-route-card a { display: inline-flex; align-items: center; gap: 5px; flex: 0 0 auto; color: var(--like210-copper-light); font-size: .65rem; font-weight: 700; white-space: nowrap; }
+.like210-route-card a:hover, .like210-map-caption a:hover { color: #fff; }
 
 .like210-amenities-grid { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid rgba(12,18,23,.19); }
 .like210-amenity-card { min-height: 215px; padding: 28px 24px 22px 0; border-bottom: 1px solid rgba(12,18,23,.19); }
@@ -197,6 +215,7 @@
   .like210-amenities-grid { grid-template-columns: repeat(2, 1fr); }
   .like210-amenity-card:not(:nth-child(3n + 1)) { padding-left: 0; border-left: 0; }
   .like210-amenity-card:not(:nth-child(2n + 1)) { padding-left: 24px; border-left: 1px solid rgba(12,18,23,.19); }
+  .like210-map-block { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 600px) {
@@ -221,6 +240,12 @@
   .like210-location-facts div:nth-child(2n) { border-right: 0; }
   .like210-location-facts div:nth-child(3), .like210-location-facts div:nth-child(4), .like210-location-facts div:nth-child(5) { border-top: 1px solid rgba(255,255,255,.2); }
   .like210-location-bottom { align-items: flex-start; flex-direction: column; }
+  .like210-map-block { margin-top: 38px; }
+  .like210-map-frame, .like210-map-frame iframe { min-height: 360px; height: 360px; }
+  .like210-map-caption { align-items: flex-start; flex-wrap: wrap; }
+  .like210-map-caption a { margin-left: 23px; }
+  .like210-routes-panel { padding: 23px 18px; }
+  .like210-route-card { align-items: flex-start; flex-direction: column; }
   .like210-amenities-grid, .like210-typology-grid, .like210-form-fields { grid-template-columns: 1fr; }
   .like210-amenity-card { min-height: 180px; padding: 25px 0; }
   .like210-amenity-card:not(:nth-child(2n + 1)) { padding-left: 0; border-left: 0; }
@@ -5482,6 +5507,323 @@ body:has(.crm-shell) > main {
   font-size: var(--fs-12);
   font-weight: 700;
   letter-spacing: 0.08em;
+}
+
+.wp-launch-catalog {
+  margin-top: 10px;
+}
+
+.wp-launch-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+  grid-template-rows: repeat(2, minmax(238px, 1fr));
+  gap: 18px;
+  min-height: 540px;
+}
+
+.wp-launch-card {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: minmax(150px, 0.78fr) minmax(0, 1.22fr);
+  overflow: hidden;
+  min-width: 0;
+  border: 1px solid #dbe4ef;
+  border-radius: 20px;
+  background: #ffffff;
+  box-shadow: 0 16px 34px rgba(24, 49, 82, 0.08);
+  transition: transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease;
+}
+
+.wp-launch-card:hover,
+.wp-launch-card:focus-visible {
+  border-color: rgba(190, 132, 48, 0.58);
+  box-shadow: 0 22px 42px rgba(24, 49, 82, 0.14);
+  transform: translateY(-4px);
+}
+
+.wp-launch-card--featured {
+  grid-row: 1 / span 2;
+  display: flex;
+  align-items: flex-end;
+  min-height: 540px;
+  color: #ffffff;
+  border-color: #173b65;
+  background: #0d2746;
+}
+
+.wp-launch-card-media {
+  position: relative;
+  min-height: 100%;
+  overflow: hidden;
+  background: #dce6f1;
+}
+
+.wp-launch-card:not(.wp-launch-card--featured) .wp-launch-card-media {
+  min-height: 238px;
+}
+
+.wp-launch-card-media .wp-cover-image {
+  transition: transform 500ms cubic-bezier(.2, .7, .2, 1);
+}
+
+.wp-launch-card:hover .wp-launch-card-media .wp-cover-image,
+.wp-launch-card:focus-visible .wp-launch-card-media .wp-cover-image {
+  transform: scale(1.045);
+}
+
+.wp-launch-card-shade {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(180deg, rgba(7, 20, 36, 0.2), rgba(7, 20, 36, 0.82));
+}
+
+.wp-launch-card:not(.wp-launch-card--featured) .wp-launch-card-shade {
+  background: linear-gradient(90deg, rgba(7, 20, 36, 0.08), rgba(7, 20, 36, 0.44));
+}
+
+.wp-launch-card-status,
+.wp-launch-card-number {
+  position: absolute;
+  z-index: 2;
+  top: 16px;
+}
+
+.wp-launch-card-status {
+  left: 16px;
+  max-width: calc(100% - 66px);
+  padding: 7px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 999px;
+  color: #ffffff;
+  background: rgba(8, 24, 43, 0.46);
+  backdrop-filter: blur(8px);
+  font-size: 0.67rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+}
+
+.wp-launch-card-number {
+  right: 18px;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.wp-launch-card-body {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 10px;
+  padding: 22px;
+}
+
+.wp-launch-card--featured .wp-launch-card-media {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+}
+
+.wp-launch-card--featured .wp-launch-card-shade {
+  background: linear-gradient(180deg, rgba(7, 20, 36, 0.16) 18%, rgba(7, 20, 36, 0.93) 100%);
+}
+
+.wp-launch-card--featured .wp-launch-card-body {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  min-height: 100%;
+  justify-content: flex-end;
+  padding: 34px;
+  background: linear-gradient(180deg, transparent 36%, rgba(7, 20, 36, 0.22) 58%, rgba(7, 20, 36, 0.2));
+}
+
+.wp-launch-card-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  color: #9f6c22;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  line-height: 1.4;
+}
+
+.wp-launch-card--featured .wp-launch-card-meta {
+  color: #f2c27a;
+}
+
+.wp-launch-card-meta span + span::before {
+  content: "•";
+  margin-right: 12px;
+  color: currentColor;
+  opacity: 0.55;
+}
+
+.wp-launch-card h3,
+.wp-launch-card p {
+  margin: 0;
+}
+
+.wp-launch-card h3 {
+  color: #142b49;
+  font-family: var(--font-title), serif;
+  font-size: clamp(1.3rem, 2vw, 1.75rem);
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  line-height: 1.05;
+}
+
+.wp-launch-card--featured h3 {
+  max-width: 520px;
+  color: #ffffff;
+  font-size: clamp(2rem, 4vw, 3.55rem);
+  line-height: 0.98;
+}
+
+.wp-launch-card p {
+  color: #5a6b80;
+  font-size: var(--fs-14);
+  line-height: 1.55;
+}
+
+.wp-launch-card--featured p {
+  max-width: 540px;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: var(--fs-16);
+  line-height: 1.6;
+}
+
+.wp-launch-card-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: auto;
+  color: #9f6c22;
+  font-size: var(--fs-14);
+  font-weight: 700;
+  transition: gap 180ms ease;
+}
+
+.wp-launch-card--featured .wp-launch-card-link {
+  margin-top: 6px;
+  color: #f2c27a;
+}
+
+.wp-launch-card:hover .wp-launch-card-link,
+.wp-launch-card:focus-visible .wp-launch-card-link {
+  gap: 12px;
+}
+
+.wp-launch-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-top: 18px;
+}
+
+.wp-launch-arrows {
+  display: flex;
+  gap: 8px;
+}
+
+.wp-launch-arrows button,
+.wp-launch-pages button {
+  border: 1px solid #cbd6e3;
+  color: #16345b;
+  background: #ffffff;
+  cursor: pointer;
+  transition: border-color 180ms ease, color 180ms ease, background 180ms ease, opacity 180ms ease;
+}
+
+.wp-launch-arrows button {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border-radius: 50%;
+  font-size: 1.05rem;
+}
+
+.wp-launch-arrows button:hover:not(:disabled),
+.wp-launch-arrows button:focus-visible,
+.wp-launch-pages button:hover,
+.wp-launch-pages button:focus-visible {
+  border-color: #0e5bc8;
+  color: #0e5bc8;
+}
+
+.wp-launch-arrows button:disabled {
+  cursor: not-allowed;
+  opacity: 0.38;
+}
+
+.wp-launch-pages {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.wp-launch-pages button {
+  min-width: 42px;
+  height: 34px;
+  padding: 0 10px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.wp-launch-pages button.is-active {
+  border-color: #0e5bc8;
+  color: #ffffff;
+  background: #0e5bc8;
+}
+
+.wp-launch-counter {
+  color: #667085;
+  font-size: var(--fs-12);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+}
+
+.wp-launch-counter span {
+  margin: 0 5px;
+  color: #b2becc;
+}
+
+.wp-launch-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid #dbe4ef;
+  color: #718096;
+  font-size: var(--fs-12);
+}
+
+.wp-launch-footer a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #16345b;
+  font-weight: 700;
+  transition: gap 180ms ease;
+}
+
+.wp-launch-footer a:hover,
+.wp-launch-footer a:focus-visible {
+  gap: 12px;
+  color: #0e5bc8;
 }
 
 .wp-featured-properties-head {
@@ -11786,6 +12128,21 @@ body:has(.crm-shell) > main {
     padding: 30px 24px;
   }
 
+  .wp-launch-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: none;
+    min-height: auto;
+  }
+
+  .wp-launch-card--featured {
+    grid-row: auto;
+    min-height: 480px;
+  }
+
+  .wp-launch-card:not(.wp-launch-card--featured) {
+    min-height: 238px;
+  }
+
   .development-stage-timeline,
   .development-investment-metrics {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -11842,6 +12199,43 @@ body:has(.crm-shell) > main {
   .wp-featured-landing {
     min-height: 420px;
     background-position: 62% center;
+  }
+
+  .wp-launch-card:not(.wp-launch-card--featured) {
+    grid-template-columns: 1fr;
+  }
+
+  .wp-launch-card:not(.wp-launch-card--featured) .wp-launch-card-media {
+    min-height: 210px;
+  }
+
+  .wp-launch-card-body,
+  .wp-launch-card--featured .wp-launch-card-body {
+    padding: 20px;
+  }
+
+  .wp-launch-card--featured {
+    min-height: 430px;
+  }
+
+  .wp-launch-controls,
+  .wp-launch-footer {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .wp-launch-pages {
+    order: 3;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .wp-launch-counter {
+    margin-left: auto;
+  }
+
+  .wp-launch-footer a {
+    width: 100%;
   }
 
   .wiz-card {
