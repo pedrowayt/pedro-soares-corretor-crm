@@ -17583,6 +17583,71 @@ body:has(.crm-shell) > main {
 .palmas-mall-experiences { background: var(--pl-ink, #0d171b); }
 .palmas-mall-cta { background: var(--pl-gold-light, #ead7b5); }
 .palmas-mall-cta .palmas-sky-plan-image { border-color: rgba(13,23,27,.16); }
+.palmas-office-highlights { background: #d9c8ad; }
+.palmas-office-story { background: #fffaf2; }
+.palmas-office-gallery { background: var(--pl-sand, #e8dfd0); }
+.palmas-office-gallery .palmas-sky-gallery-grid figure:first-child > div, .palmas-office-gallery .palmas-sky-gallery-grid figure:last-child > div { aspect-ratio: 2100 / 2900; }
+.palmas-office-gallery .palmas-sky-gallery-grid figure:first-child img, .palmas-office-gallery .palmas-sky-gallery-grid figure:last-child img { object-position: center 38%; }
+.palmas-office-access { padding: 112px 0 118px; background: var(--pl-ink, #0d171b); color: #fff; }
+.palmas-office-access-grid { display: grid; grid-template-columns: minmax(0, 1.08fr) minmax(0, .92fr); align-items: center; gap: clamp(50px, 8vw, 110px); }
+.palmas-office-access-image { position: relative; min-height: 570px; overflow: hidden; background: #152e37; }
+.palmas-office-access-image::after { position: absolute; inset: 0; background: linear-gradient(0deg, rgba(7,17,21,.72), transparent 52%); content: ""; }
+.palmas-office-access-image img { object-fit: cover; object-position: center 42%; }
+.palmas-office-access-copy { max-width: 510px; }
+.palmas-office-access-copy .palmas-lake-kicker { color: var(--pl-gold-light, #ead7b5); }
+.palmas-office-access-copy h2 { max-width: 500px; margin: 0 0 25px; font-size: clamp(2.6rem, 5vw, 4.7rem); font-weight: 500; line-height: .98; letter-spacing: -.065em; }
+.palmas-office-access-copy > p:not(.palmas-lake-kicker) { color: rgba(255,255,255,.68); font-size: .9rem; line-height: 1.82; }
+.palmas-office-access-list { display: grid; gap: 0; margin-top: 31px; border-top: 1px solid rgba(255,255,255,.2); }
+.palmas-office-access-list span { padding: 14px 0; border-bottom: 1px solid rgba(255,255,255,.2); color: rgba(255,255,255,.88); font-size: .72rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
+.palmas-office-plans { background: var(--pl-paper, #f4f0e8); }
+.palmas-office-sizes { padding: 112px 0 120px; background: var(--pl-sand, #e8dfd0); }
+.palmas-office-size-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid var(--pl-line, rgba(13,23,27,.16)); }
+.palmas-office-size-grid article { min-height: 250px; padding: 25px 24px 22px 0; border-bottom: 1px solid var(--pl-line, rgba(13,23,27,.16)); }
+.palmas-office-size-grid article + article { padding-left: 24px; border-left: 1px solid var(--pl-line, rgba(13,23,27,.16)); }
+.palmas-office-size-grid article > span { color: #a67d4a; font-size: .61rem; letter-spacing: .12em; }
+.palmas-office-size-grid h3 { margin: 34px 0 12px; color: var(--pl-ink, #0d171b); font-family: var(--font-title), Georgia, serif; font-size: 1.45rem; font-weight: 500; line-height: 1.05; }
+.palmas-office-size-grid strong { display: block; color: var(--pl-ink, #0d171b); font-size: .72rem; line-height: 1.5; }
+.palmas-office-size-grid p { margin: 17px 0 0; color: var(--pl-muted, #738087); font-size: .72rem; line-height: 1.6; }
+.palmas-office-leisure { background: var(--pl-ink, #0d171b); }
+.palmas-office-cta { background: var(--pl-gold-light, #ead7b5); }
+.palmas-office-cta-inner { display: flex; align-items: end; justify-content: space-between; gap: 45px; }
+.palmas-office-cta-inner > div { max-width: 650px; }
+.palmas-office-cta h2 { max-width: 650px; margin: 0 0 24px; font-size: clamp(2.4rem, 5vw, 4.8rem); font-weight: 500; line-height: .98; letter-spacing: -.065em; }
+.palmas-office-cta-inner p:not(.palmas-lake-kicker) { max-width: 450px; color: var(--pl-muted, #738087); font-size: .9rem; line-height: 1.8; }
+.palmas-office-cta .palmas-lake-button { flex: 0 0 auto; }
+.palmas-detail-hero--loft img { object-position: center 48%; }
+.palmas-detail-hero--loft .palmas-detail-overlay { background: linear-gradient(90deg, rgba(7,17,21,.84), rgba(7,17,21,.16) 70%), linear-gradient(0deg, rgba(7,17,21,.82), transparent 58%); }
+.palmas-detail-hero--office img { object-position: center 46%; }
+.palmas-detail-hero--office .palmas-detail-overlay { background: linear-gradient(90deg, rgba(7,17,21,.82), rgba(7,17,21,.15) 72%), linear-gradient(0deg, rgba(7,17,21,.84), transparent 58%); }
+.palmas-loft-highlights { background: var(--pl-gold-light, #ead7b5); }
+.palmas-loft-story { background: #fffaf2; }
+.palmas-loft-plans { background: #fffaf2; }
+.palmas-loft-plans-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.palmas-loft-plan-card { margin: 0; border: 1px solid rgba(13,23,27,.1); background: #fff; }
+.palmas-loft-plan-card > div { position: relative; aspect-ratio: 16 / 9; overflow: hidden; background: #fff; }
+.palmas-loft-plan-card img { object-fit: contain; }
+.palmas-loft-plan-card figcaption { display: grid; gap: 8px; padding: 18px 20px 21px; }
+.palmas-loft-plan-card figcaption strong { color: var(--pl-ink, #0d171b); font-family: var(--font-title), Georgia, serif; font-size: 1.3rem; font-weight: 500; }
+.palmas-loft-plan-card figcaption span { color: var(--pl-muted, #738087); font-size: .72rem; line-height: 1.6; }
+.palmas-loft-gallery { background: var(--pl-sand, #e8dfd0); }
+.palmas-loft-gallery-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+.palmas-loft-gallery-card { margin: 0; }
+.palmas-sky-gallery .palmas-loft-gallery-card > div { position: relative; aspect-ratio: 1.8; overflow: hidden; background: #cfc4b3; }
+.palmas-loft-gallery-card img { object-fit: cover; }
+.palmas-loft-gallery-card--market img { object-position: center top; }
+.palmas-loft-gallery-card--laundry img { object-position: center center; }
+.palmas-loft-gallery-card--hall img { object-position: center bottom; }
+.palmas-loft-gallery-card figcaption { display: grid; gap: 9px; padding: 18px 0 0; }
+.palmas-loft-gallery-card figcaption strong { color: var(--pl-ink, #0d171b); font-family: var(--font-title), Georgia, serif; font-size: 1.35rem; font-weight: 500; }
+.palmas-loft-gallery-card figcaption span { max-width: 280px; color: var(--pl-muted, #738087); font-size: .74rem; line-height: 1.65; }
+.palmas-loft-leisure { background: var(--pl-ink, #0d171b); }
+.palmas-loft-leisure-intro { max-width: 430px; margin-top: 28px; color: rgba(255,255,255,.64); font-size: .88rem; line-height: 1.8; }
+.palmas-loft-cta { background: var(--pl-gold-light, #ead7b5); }
+.palmas-loft-cta-inner { display: flex; align-items: end; justify-content: space-between; gap: 45px; }
+.palmas-loft-cta-inner > div { max-width: 650px; }
+.palmas-loft-cta h2 { max-width: 650px; margin: 0 0 24px; font-size: clamp(2.4rem, 5vw, 4.8rem); font-weight: 500; line-height: .98; letter-spacing: -.065em; }
+.palmas-loft-cta-inner p:not(.palmas-lake-kicker) { max-width: 450px; color: var(--pl-muted, #738087); font-size: .9rem; line-height: 1.8; }
+.palmas-loft-cta .palmas-lake-button { flex: 0 0 auto; }
 .palmas-sky-leisure { padding: 112px 0 120px; background: var(--pl-ink, #0d171b); color: #fff; }
 .palmas-sky-leisure .palmas-lake-kicker { color: var(--pl-gold-light, #ead7b5); }
 .palmas-sky-leisure h2 { max-width: 480px; }
@@ -17626,7 +17691,18 @@ body:has(.crm-shell) > main {
   .palmas-sky-story-grid, .palmas-sky-plan-grid, .palmas-sky-leisure-grid { grid-template-columns: 1fr; gap: 37px; }
   .palmas-sky-story-grid > div:last-child { padding-top: 0; }
   .palmas-sky-gallery-grid { grid-template-columns: 1fr; gap: 28px; }
+  .palmas-loft-gallery-grid { grid-template-columns: 1fr; gap: 34px; }
+  .palmas-sky-gallery .palmas-loft-gallery-card > div { aspect-ratio: 1.6; }
+  .palmas-loft-plans-grid { grid-template-columns: 1fr; gap: 28px; }
+  .palmas-loft-cta-inner { align-items: flex-start; flex-direction: column; gap: 28px; }
   .palmas-sky-gallery figure > div { aspect-ratio: 3 / 4; }
+  .palmas-office-access { padding: 78px 0 84px; }
+  .palmas-office-access-grid { grid-template-columns: 1fr; gap: 37px; }
+  .palmas-office-access-image { min-height: 420px; }
+  .palmas-office-size-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .palmas-office-size-grid article { min-height: 230px; padding-right: 15px; }
+  .palmas-office-size-grid article + article { padding-left: 15px; }
+  .palmas-office-cta-inner { align-items: flex-start; flex-direction: column; gap: 28px; }
   .palmas-mall-gallery-grid { grid-template-rows: none; }
   .palmas-mall-gallery-grid figure { min-width: 0; }
   .palmas-mall-gallery-grid figure:first-child { grid-row: auto; }
