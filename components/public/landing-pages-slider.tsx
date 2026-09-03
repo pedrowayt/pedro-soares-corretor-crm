@@ -7,13 +7,21 @@ import type { PublicLandingPage } from "@/lib/data/landing-pages";
 
 type LandingPagesSliderProps = {
   landings: PublicLandingPage[];
+  entryPoint?: string;
 };
 
 function canOptimizeImage(src: string) {
   return src.startsWith("/") || src.startsWith("https://imagedelivery.net/") || src.startsWith("https://images.unsplash.com/");
 }
 
-export function LandingPagesSlider({ landings }: LandingPagesSliderProps) {
+function addEntryPoint(href: string, entryPoint?: string) {
+  if (!entryPoint) return href;
+
+  const separator = href.includes("?") ? "&" : "?";
+  return `${href}${separator}${new URLSearchParams({ entrada: entryPoint }).toString()}`;
+}
+
+export function LandingPagesSlider({ landings, entryPoint }: LandingPagesSliderProps) {
   const [currentPage, setCurrentPage] = useState(0);
 
   if (!landings.length) return null;
@@ -32,7 +40,7 @@ export function LandingPagesSlider({ landings }: LandingPagesSliderProps) {
         {visibleLandings.map((landing, index) => (
           <Link
             key={landing.slug}
-            href={landing.href}
+            href={addEntryPoint(landing.href, entryPoint)}
             className={`wp-launch-card${index === 0 ? " wp-launch-card--featured" : ""}`}
             aria-label={`${landing.title}. ${landing.status}`}
           >

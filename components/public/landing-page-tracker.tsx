@@ -19,6 +19,8 @@ export function LandingPageTracker({ landingPageSlug }: Props) {
     }
     window.sessionStorage.setItem(viewKey, "1");
 
+    const entryPoint = new URLSearchParams(window.location.search).get("entrada");
+
     void fetch("/api/public/landing-page-events", {
       method: "POST",
       headers: { "content-type": "application/json" },
@@ -26,7 +28,8 @@ export function LandingPageTracker({ landingPageSlug }: Props) {
         landingPageSlug,
         sourcePage: window.location.pathname,
         type: "PAGE_VIEW",
-        sessionId
+        sessionId,
+        ...(entryPoint ? { metadata: { entryPoint } } : {})
       }),
       keepalive: true
     }).catch(() => undefined);

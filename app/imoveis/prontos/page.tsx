@@ -2,8 +2,10 @@ import type { Metadata } from "next";
 import { PropertyPurpose } from "@prisma/client";
 import Link from "next/link";
 import { AutoSubmitForm } from "@/components/public/auto-submit-form";
+import { LandingPagesSlider } from "@/components/public/landing-pages-slider";
 import { MobileFilterToggle } from "@/components/public/mobile-filter-toggle";
 import { PropertyCardHorizontal } from "@/components/public/property-card-horizontal";
+import { publicLandingPages } from "@/lib/data/landing-pages";
 import { listPublicProperties } from "@/lib/data/properties";
 import { PROPERTY_TYPE_OPTIONS } from "@/lib/property-types";
 import { getSiteUrl } from "@/lib/site-url";
@@ -144,6 +146,8 @@ export default async function ImoveisProntosPage({
   const purpose = parsePurpose(filters.purpose);
   const sort = parseSort(filters.sort);
 
+  const activePurpose = purpose ?? "VENDA";
+
   const properties = (await listPublicProperties({
     city: city || undefined,
     district: district || undefined,
@@ -152,7 +156,7 @@ export default async function ImoveisProntosPage({
     bedrooms,
     minAreaM2,
     type,
-    purpose
+    purpose: activePurpose
   })) as CardProperty[];
 
   const filtered = properties.filter(
@@ -164,7 +168,7 @@ export default async function ImoveisProntosPage({
   const sorted = sortProperties(filtered, sort);
 
   const totalCount = sorted.length;
-  const purposeTab = purpose ?? "VENDA";
+  const purposeTab = activePurpose;
   const headingLocation = city ? city : "Palmas e região";
 
   const collectionSchema = {
@@ -240,6 +244,28 @@ export default async function ImoveisProntosPage({
               <button type="submit" className="visually-hidden">Aplicar</button>
             </AutoSubmitForm>
           </div>
+
+          {(purposeTab === "VENDA" || purposeTab === "INVESTIMENTO") && publicLandingPages.length ? (
+            <section className="listing-related-landings" aria-labelledby="listing-related-landings-title">
+              <div className="listing-related-landings-head">
+                <p className="wp-section-eyebrow">Empreendimentos em destaque</p>
+                <h2 id="listing-related-landings-title">
+                  {purposeTab === "VENDA"
+                    ? "Encontre também um lançamento para morar ou investir"
+                    : "Conheça as landing pages para investir"}
+                </h2>
+                <p>
+                  {purposeTab === "VENDA"
+                    ? "Explore projetos selecionados em detalhe e fale diretamente comigo sobre plantas, localização e condições."
+                    : "Explore os projetos em detalhe e fale diretamente comigo para avaliar localização, potencial e condições."}
+                </p>
+              </div>
+              <LandingPagesSlider
+                landings={publicLandingPages}
+                entryPoint={purposeTab === "VENDA" ? "imoveis-prontos-venda" : "imoveis-prontos-investimento"}
+              />
+            </section>
+          ) : null}
 
           <div className="listing-layout">
             <aside className="listing-filters" aria-label="Filtros">
