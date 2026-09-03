@@ -7,6 +7,13 @@
 
 const DEFAULT_SITE_URL = "https://www.pedrosoarescorretor.com.br";
 
+const LOCAL_HOSTS = new Set<string>([
+  "localhost",
+  "127.0.0.1",
+  "0.0.0.0",
+  "::1"
+]);
+
 /** Hostnames that should be 301-redirected to the canonical host. */
 export const NON_CANONICAL_HOSTS = new Set<string>([
   "pedro-soares-corretor-crm-production.up.railway.app",
@@ -27,7 +34,8 @@ export function getSiteUrl(): string {
   if (!raw) return DEFAULT_SITE_URL;
   try {
     const url = new URL(normalize(raw));
-    if (NON_CANONICAL_HOSTS.has(url.hostname)) {
+    const isLocalHost = LOCAL_HOSTS.has(url.hostname) || url.hostname.endsWith(".localhost");
+    if ((process.env.NODE_ENV === "production" && isLocalHost) || NON_CANONICAL_HOSTS.has(url.hostname)) {
       return DEFAULT_SITE_URL;
     }
     return normalize(raw);
