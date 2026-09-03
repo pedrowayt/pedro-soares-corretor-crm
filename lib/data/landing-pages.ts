@@ -13,6 +13,16 @@ export type PublicLandingPage = {
 // A home consome todos os itens deste array e cria os cards automaticamente.
 export const publicLandingPages: PublicLandingPage[] = [
   {
+    slug: "like-210",
+    href: "/like-210",
+    title: "LIKE 210",
+    category: "Studios e apartamentos",
+    location: "210 Sul · Palmas/TO",
+    summary: "Studios e apartamentos em frente ao IFTO, com rooftop, lazer completo e localização estratégica.",
+    image: "/like-210/facade.jpg",
+    status: "Lançamento"
+  },
+  {
     slug: "lake-village",
     href: "/lake-village",
     title: "Lake Village Residences",
