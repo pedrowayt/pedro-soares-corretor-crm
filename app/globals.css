@@ -17299,9 +17299,6 @@ body:has(.crm-shell) > main {
 .palmas-lake-sunset-tags span { color: rgba(255,255,255,.86); font-size: .67rem; letter-spacing: .1em; text-transform: uppercase; }
 .palmas-lake-experiences { background: var(--pl-paper); }
 .palmas-lake-gallery { padding: 110px 0 118px; background: #ebe5db; }
-.palmas-lake-gallery-head { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(260px, .9fr); align-items: end; gap: 70px; margin-bottom: 47px; }
-.palmas-lake-gallery-head h2 { margin-bottom: 0; }
-.palmas-lake-gallery-head > p { max-width: 405px; margin: 0 0 8px; color: var(--pl-muted); font-size: .9rem; line-height: 1.8; }
 .palmas-lake-gallery-grid { display: grid; grid-template-columns: 1.4fr .8fr .8fr; grid-auto-rows: 300px; gap: 13px; }
 .palmas-lake-gallery-card { position: relative; min-height: 0; overflow: hidden; background: #b3aa9b; }
 .palmas-lake-gallery-card--wide { grid-row: span 2; }
@@ -17423,6 +17420,8 @@ body:has(.crm-shell) > main {
   .palmas-lake-stats-grid > div:nth-child(4), .palmas-lake-stats-grid > div:nth-child(5) { padding-top: 8px; }
   .palmas-lake-intro-grid, .palmas-lake-lifestyle-grid { grid-template-columns: 1fr; gap: 48px; }
   .palmas-lake-intro-copy { padding-top: 0; }
+  .palmas-lake-marina-intro { grid-template-columns: 1fr; gap: 44px; }
+  .palmas-lake-marina-feature { min-height: 480px; }
   .palmas-lake-exclusive-grid { grid-template-columns: 1fr; }
   .palmas-lake-exclusive-image { min-height: 480px; }
   .palmas-lake-lifestyle-image { min-height: 450px; }
@@ -17435,7 +17434,6 @@ body:has(.crm-shell) > main {
   .palmas-lake-pillar:nth-child(3) { padding-left: 0; border-left: 0; }
   .palmas-lake-pillar:nth-child(3), .palmas-lake-pillar:nth-child(4) { border-top: 1px solid var(--pl-line); }
   .palmas-lake-developments-grid { grid-template-columns: 1fr; }
-  .palmas-lake-gallery-head { grid-template-columns: 1fr; gap: 17px; }
   .palmas-lake-gallery-grid { grid-template-columns: 1fr 1fr; grid-auto-rows: 270px; }
   .palmas-lake-gallery-card--wide { grid-column: 1 / -1; grid-row: auto; }
   .palmas-lake-amenities-grid { grid-template-columns: 1fr 1fr; }
@@ -17459,6 +17457,12 @@ body:has(.crm-shell) > main {
   .palmas-lake-section h2 { font-size: 2.45rem; }
   .palmas-lake-intro-grid { gap: 28px; }
   .palmas-lake-exclusive { padding: 77px 0 84px; }
+  .palmas-lake-marina { padding: 77px 0 84px; }
+  .palmas-lake-marina-feature { min-height: 360px; }
+  .palmas-lake-marina-details { grid-template-columns: 1fr; margin-top: 45px; }
+  .palmas-lake-marina-panorama { min-height: 190px; }
+  .palmas-lake-marina-points article { padding-left: 0; }
+  .palmas-lake-marina-points article + article { padding-top: 25px; }
   .palmas-lake-exclusive-list { grid-template-columns: 1fr; }
   .palmas-lake-exclusive-list article:nth-child(even) { padding-left: 0; border-left: 0; }
   .palmas-lake-exclusive-image { min-height: 390px; }
