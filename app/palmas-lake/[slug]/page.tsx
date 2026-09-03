@@ -230,6 +230,43 @@ const officeSizeBands = [
   ["Laje corporativa", "509,85 m²", "A maior escala do espelho para uma operação corporativa com identidade própria."],
 ] as const;
 
+const officeStandardUnitAreas = [
+  ["01", "60,65 m²"],
+  ["02", "61,31 m²"],
+  ["03", "65,61 m²"],
+  ["04", "77,70 m²"],
+  ["05", "53,34 m²"],
+  ["06", "52,04 m²"],
+  ["07", "52,04 m²"],
+  ["08", "52,30 m²"],
+  ["09", "66,50 m²"],
+  ["10", "64,88 m²"],
+  ["11", "64,88 m²"],
+  ["12", "64,88 m²"],
+  ["13", "65,87 m²"],
+] as const;
+
+const officeUnits = [
+  ["4", "Office 401", "509,85 m²"],
+  ["4", "Office 402", "60,65 m²"],
+  ["4", "Office 403", "61,31 m²"],
+  ["4", "Office 404", "65,61 m²"],
+  ["4", "Office 405", "77,70 m²"],
+  ["4", "Office 406", "53,34 m²"],
+  ["4", "Office 407", "52,04 m²"],
+  ["4", "Office 408", "52,04 m²"],
+  ["4", "Office 409", "52,30 m²"],
+  ["4", "Office 410", "66,50 m²"],
+  ["4", "Office 411", "64,88 m²"],
+  ["4", "Office 412", "64,88 m²"],
+  ["4", "Office 413", "64,88 m²"],
+  ["4", "Office 414", "65,87 m²"],
+  ...Array.from({ length: 16 }, (_, index) => {
+    const floor = 5 + index;
+    return officeStandardUnitAreas.map(([unit, area]) => [String(floor), `Office ${floor}${unit}`, area] as const);
+  }).flat(),
+] as const;
+
 type Slug = keyof typeof items;
 export function generateStaticParams() { return Object.keys(items).map((slug) => ({ slug })); }
 export function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
@@ -301,6 +338,7 @@ export default async function PalmasLakeDevelopmentPage({ params }: { params: Pr
       <section className="palmas-office-access"><div className="palmas-sky-container palmas-office-access-grid"><div className="palmas-office-access-image"><Image src="/brand/palmas-lake/office-hero.jpg" alt="Vista aérea do heliponto no terraço do Lake Office" fill sizes="(max-width: 800px) 100vw, 48vw" /></div><div className="palmas-office-access-copy"><p className="palmas-lake-kicker">Conexão com o complexo</p><h2>O heliponto no terraço aproxima o Lake Office de todo o Palmas Lake.</h2><p>O heliponto integra a estrutura de acesso do complexo e reforça a vocação do Lake Office para negócios, encontros e hospitalidade. No mesmo endereço, a torre se conecta ao Mall, ao rooftop social, à sala de conferências e às experiências de lazer e gastronomia.</p><div className="palmas-office-access-list"><span>Heliponto no terraço</span><span>Acesso direto ao Mall</span><span>Rooftop social e sala de conferências</span></div></div></div></section>
       <section className="palmas-sky-plan palmas-office-plans" id="plantas" aria-labelledby="palmas-office-plans-title"><div className="palmas-sky-container"><div className="palmas-sky-section-heading"><p className="palmas-lake-kicker">Plantas Lake Office</p><h2 id="palmas-office-plans-title">Duas plantas para diferentes formas de operar.</h2><p>Veja as opções de layout disponíveis e consulte a melhor configuração para o seu negócio.</p></div><div className="palmas-garden-plans-grid">{officePlans.map(([src, title, detail]) => <figure className="palmas-garden-plan-card" key={src}><div><Image src={`/brand/palmas-lake/${src}`} alt={title} fill sizes="(max-width: 760px) 100vw, 50vw" unoptimized /></div><figcaption><strong>{title}</strong><span>{detail}</span></figcaption></figure>)}</div></div></section>
       <section className="palmas-office-sizes" aria-labelledby="palmas-office-sizes-title"><div className="palmas-sky-container"><div className="palmas-sky-section-heading"><p className="palmas-lake-kicker">Metragens do espelho</p><h2 id="palmas-office-sizes-title">Do compacto à laje corporativa.</h2><p>As faixas abaixo foram organizadas a partir do espelho de unidades enviado. Valores, status e disponibilidade devem ser confirmados no atendimento.</p></div><div className="palmas-office-size-grid">{officeSizeBands.map(([title, sizes, detail], index) => <article key={title}><span>0{index + 1}</span><h3>{title}</h3><strong>{sizes}</strong><p>{detail}</p></article>)}</div></div></section>
+      <section className="palmas-sky-units palmas-office-units" id="unidades" aria-labelledby="palmas-office-units-title"><div className="palmas-sky-container"><div className="palmas-sky-section-heading"><p className="palmas-lake-kicker">Espelho de unidades</p><h2 id="palmas-office-units-title">Confira as salas por andar.</h2><p>O Lake Office reúne uma laje corporativa no 4º pavimento e salas de 52,04 m² a 77,70 m². A tabela apresenta as áreas do espelho enviado; valores, status e disponibilidade devem ser confirmados no atendimento.</p></div><div className="palmas-sky-table-wrap"><table><thead><tr><th>Pav.</th><th>Unidade</th><th>Área</th><th>Status</th></tr></thead><tbody>{officeUnits.map(([floor, unit, area]) => <tr key={unit}><td>{floor}</td><td>{unit}</td><td>{area}</td><td><span className="palmas-sky-status palmas-sky-status--consult">Consulte</span></td></tr>)}</tbody></table></div></div></section>
       <section className="palmas-sky-leisure palmas-office-leisure"><div className="palmas-sky-container palmas-sky-leisure-grid"><div><p className="palmas-lake-kicker">Lazer e serviços da torre</p><h2>Uma estrutura que apoia o seu negócio.</h2></div><div className="palmas-sky-leisure-list"><div><span>01</span><strong>Sala de conferências para reuniões e apresentações</strong></div><div><span>02</span><strong>Rooftop social para encontros e eventos</strong></div><div><span>03</span><strong>Heliponto no terraço utilizado pelo complexo</strong></div><div><span>04</span><strong>Acesso facilitado ao lazer e à gastronomia do Mall</strong></div><div><span>05</span><strong>Estacionamento rotativo para a rotina profissional</strong></div></div></div></section>
       <section className="palmas-sky-plan palmas-office-cta" id="condicoes" aria-labelledby="palmas-office-cta-title"><div className="palmas-sky-container palmas-office-cta-inner"><div><p className="palmas-lake-kicker">Lake Office · entrega 2029</p><h2 id="palmas-office-cta-title">Seu próximo endereço profissional pode estar no lago.</h2><p>Receba as plantas, o espelho de unidades e as condições atualizadas do Business Center.</p></div><a className="palmas-lake-button palmas-lake-button--gold" href={whatsappHref} target="_blank" rel="noreferrer">Receber plantas e condições <ArrowUpRight size={17} /></a></div></section>
     </>}
