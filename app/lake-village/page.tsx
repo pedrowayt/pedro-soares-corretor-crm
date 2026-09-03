@@ -58,7 +58,7 @@ export default function LakeVillagePage() {
             height={230}
             priority
           />
-          <p className="lake-kicker">Pré-cadastro aberto</p>
+          <p className="lake-kicker">Empreendimento · Lote em condomínio · Pré-cadastro aberto</p>
           <h1>Beira-lago é seu novo endereço.</h1>
           <p className="lake-hero-lede">
             Cadastre-se para receber em primeira mão a apresentação, as plantas, os valores e as condições do Lake Village Residences.

@@ -153,6 +153,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "",
     "/imoveis",
     "/imoveis/prontos",
+    "/empreendimentos",
     "/lancamentos",
     "/construtoras",
     "/imoveis/leilao",
@@ -164,7 +165,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/politica-de-cookies",
     "/politica-de-privacidade",
     "/termos-de-servico",
-    "/termos-de-uso"
+    "/termos-de-uso",
+    "/lake-village"
   ].map((path) => ({
     url: `${baseUrl}${path}`,
     lastModified: catalogueFreshness,

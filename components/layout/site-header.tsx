@@ -15,7 +15,8 @@ type NavItem = NavLinkItem & {
 
 const propertySubNav: NavLinkItem[] = [
   { href: "/imoveis/prontos", label: "Imóveis prontos" },
-  { href: "/lancamentos", label: "Imóveis na planta" },
+  { href: "/empreendimentos", label: "Lançamentos e empreendimentos" },
+  { href: "/lancamentos", label: "Catálogo de lançamentos" },
   { href: "/imoveis/leilao", label: "Imóveis leilão" }
 ];
 

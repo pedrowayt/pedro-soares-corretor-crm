@@ -9,20 +9,13 @@ import {
   listPublicDevelopments,
   type PublicDevelopmentStage
 } from "@/lib/data/developments";
+import { DEVELOPMENT_PROPERTY_TYPE_OPTIONS } from "@/lib/development-types";
 import { publicDevelopmentStageOrder } from "@/lib/development-investment";
 import { getSiteUrl } from "@/lib/site-url";
 
 const baseUrl = getSiteUrl();
 
-const propertyTypeOptions: Array<{ value: DevelopmentPropertyType; label: string }> = [
-  { value: "COMPLEXO", label: "Complexo" },
-  { value: "APARTAMENTO", label: "Apartamento" },
-  { value: "CASA", label: "Casa" },
-  { value: "LOTE", label: "Lote" },
-  { value: "SALA_COMERCIAL", label: "Sala comercial" },
-  { value: "STUDIO", label: "Studio" },
-  { value: "COBERTURA", label: "Cobertura" }
-];
+const propertyTypeOptions: Array<{ value: DevelopmentPropertyType; label: string }> = DEVELOPMENT_PROPERTY_TYPE_OPTIONS;
 
 const sortOptions = [
   { value: "", label: "Mais relevantes" },
@@ -35,14 +28,14 @@ const sortOptions = [
 type SortValue = (typeof sortOptions)[number]["value"];
 
 export const metadata: Metadata = {
-  title: "Apartamentos na planta à venda em Palmas - TO | Pedro Soares",
+  title: "Lançamentos e empreendimentos em Palmas - TO | Pedro Soares",
   description:
     "Conheça os principais lançamentos imobiliários, compare plantas, preços, localização e fale direto com Pedro Soares.",
   alternates: {
     canonical: `${baseUrl}/lancamentos`
   },
   keywords: [
-    "apartamentos na planta em palmas",
+    "apartamentos e lotes em condomínio em palmas",
     "lancamentos imobiliarios palmas to",
     "empreendimentos em palmas tocantins",
     "pedro soares corretor"
@@ -153,7 +146,7 @@ export default async function LancamentosPage({
   const collectionSchema = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    name: "Apartamentos na planta à venda em Palmas - TO",
+    name: "Lançamentos e empreendimentos em Palmas - TO",
     description:
       "Conheça os principais lançamentos imobiliários, compare plantas, preços, localização e fale direto com um corretor.",
     url: `${baseUrl}/lancamentos`
@@ -206,7 +199,7 @@ export default async function LancamentosPage({
                 {totalCount === 1 ? "lançamento" : "lançamentos"} em {headingLocation}
               </h1>
               <p className="listing-page-subtitle">
-                Compare plantas, status de obra, construtoras e fale direto com Pedro Soares.
+                Compare tipologias, status de obra, construtoras e fale direto com Pedro Soares.
               </p>
             </div>
             <AutoSubmitForm method="GET" className="listing-sort">

@@ -28,9 +28,9 @@ const categoryCards = [
     image: "/brand/areas/plano-diretor-sul.png"
   },
   {
-    href: "/lancamentos",
-    title: "Imóveis na planta",
-    subtitle: "Empreendimentos com tipologias, entrega prevista e tabela atualizada.",
+    href: "/empreendimentos",
+    title: "Lançamentos e empreendimentos",
+    subtitle: "Apartamentos, casas, lotes e condomínios em fase de lançamento ou pré-cadastro.",
     image: "/brand/areas/plano-diretor-norte.png"
   },
   {

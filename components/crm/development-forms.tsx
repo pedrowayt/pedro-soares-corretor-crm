@@ -5,6 +5,7 @@ import { createElement, useEffect, useMemo, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import { slugify } from "@/lib/crm/slug";
 import { appreciationPotentialOptions, developmentStageOptions } from "@/lib/development-investment";
+import { DEVELOPMENT_PROPERTY_TYPE_OPTIONS, getDevelopmentPropertyTypeLabel } from "@/lib/development-types";
 import { developmentAmenityIconOptions, getDevelopmentAmenityIcon } from "@/lib/icons/development";
 import { applyWatermarkToImage } from "@/lib/media/watermark";
 
@@ -284,15 +285,7 @@ const amenityTypeOptions = [
   { value: "DIFERENCIAL", label: "Diferencial" }
 ];
 
-const developmentPropertyTypeOptions = [
-  { value: "COMPLEXO", label: "Complexo" },
-  { value: "APARTAMENTO", label: "Apartamento" },
-  { value: "CASA", label: "Casa" },
-  { value: "LOTE", label: "Lote" },
-  { value: "SALA_COMERCIAL", label: "Sala comercial" },
-  { value: "STUDIO", label: "Studio" },
-  { value: "COBERTURA", label: "Cobertura" }
-];
+const developmentPropertyTypeOptions = DEVELOPMENT_PROPERTY_TYPE_OPTIONS;
 
 const mediaKindOptions = [
   { value: "HERO", label: "Hero" },
@@ -669,7 +662,7 @@ function isValidUrlOrEmpty(value: string) {
 }
 
 function labelForPropertyType(value: string) {
-  return developmentPropertyTypeOptions.find((item) => item.value === value)?.label.toLowerCase() ?? "empreendimento";
+  return getDevelopmentPropertyTypeLabel(value).toLowerCase();
 }
 
 function firstTextWithMinimumLength(minLength: number, ...values: Array<string | null | undefined>) {

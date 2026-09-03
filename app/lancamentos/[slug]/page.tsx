@@ -23,6 +23,7 @@ import { DevelopmentHeroSlider } from "@/components/public/development-hero-slid
 import { DevelopmentGallery } from "@/components/public/development-gallery";
 import { amenityIconMap, featureIconMap, getDevelopmentAmenityIcon } from "@/lib/icons/development";
 import { getPublicDevelopmentBySlug } from "@/lib/data/developments";
+import { getDevelopmentPropertyTypeLabel, isLandDevelopment } from "@/lib/development-types";
 import {
   getInvestmentPotentialAnalysis,
   publicDevelopmentStageOrder,
@@ -144,7 +145,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     };
   }
 
-  const title = development.seoTitle || `${development.title} | Apartamentos na planta em ${development.city}`;
+  const title = development.seoTitle || `${development.title} | ${getDevelopmentPropertyTypeLabel(development.propertyType)} em ${development.city}`;
   const description =
     development.seoDescription ||
     `Conheça o ${development.title}, lançamento em ${development.city}, com plantas e condições atualizadas. Fale com Pedro Soares.`;
@@ -208,6 +209,7 @@ export default async function LancamentoDetailsPage({ params }: { params: Promis
   const builderInitials = getInitials(builderName);
   const builderSlug = development.builder?.slug ?? null;
   const investmentAnalysis = getInvestmentPotentialAnalysis(development);
+  const landDevelopment = isLandDevelopment(development.propertyType);
   const publicStage = investmentAnalysis.stage;
   const currentStageIndex = publicDevelopmentStageOrder.indexOf(publicStage);
   const investmentWhatsappMessage = `Olá, Pedro. Quero entender o potencial de valorização do empreendimento ${development.title} pela etapa atual da obra.`;
@@ -403,7 +405,7 @@ export default async function LancamentoDetailsPage({ params }: { params: Promis
           <span className="development-toc-label">Navegar</span>
           <a href="#resumo">Resumo</a>
           {development.towers.length ? <a href="#torres">Torres</a> : null}
-          <a href="#plantas">Plantas</a>
+          <a href="#plantas">{landDevelopment ? "Lotes" : "Plantas"}</a>
           {development.units.length ? <a href="#disponibilidade">Disponibilidade</a> : null}
           {development.showInvestmentPotentialBlock ? <a href="#valorizacao">Valorização</a> : null}
           <a href="#localizacao">Localização</a>
@@ -569,8 +571,8 @@ export default async function LancamentoDetailsPage({ params }: { params: Promis
             ) : null}
 
             <article id="plantas" className="development-section development-section--feature">
-              <span className="development-section-eyebrow">Plantas disponíveis</span>
-              <h2 className="development-section-title">Apartamentos do {development.title}</h2>
+              <span className="development-section-eyebrow">{landDevelopment ? "Lotes disponíveis" : "Plantas disponíveis"}</span>
+              <h2 className="development-section-title">{landDevelopment ? `Lotes do ${development.title}` : `Apartamentos do ${development.title}`}</h2>
               <p className="development-section-lede">
                 {development.apartmentsText || development.summary}
               </p>

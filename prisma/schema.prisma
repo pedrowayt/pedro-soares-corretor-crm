@@ -209,6 +209,7 @@ enum DevelopmentPropertyType {
   APARTAMENTO
   CASA
   LOTE
+  LOTE_EM_CONDOMINIO
   SALA_COMERCIAL
   STUDIO
   COBERTURA
@@ -365,6 +366,7 @@ model Lead {
   desiredCity           String?
   desiredDistrict       String?
   notes                 String?
+  sourcePage            String?
   lastContactAt         DateTime?
   lgpdConsentAt         DateTime?
   developmentLeadStatus DevelopmentLeadStatus @default(NOVO)
