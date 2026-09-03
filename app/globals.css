@@ -17148,3 +17148,382 @@ body:has(.crm-shell) > main {
     min-height: 210px;
   }
 }
+
+/* Palmas Lake landing */
+.palmas-lake-page {
+  --pl-ink: #0d171b;
+  --pl-ink-soft: #17252a;
+  --pl-paper: #f4f0e8;
+  --pl-sand: #ded4c4;
+  --pl-gold: #caa66d;
+  --pl-gold-light: #ead7b5;
+  --pl-muted: #738087;
+  --pl-line: rgba(13, 23, 27, .18);
+  background: var(--pl-paper);
+  color: var(--pl-ink);
+  overflow: hidden;
+}
+
+.palmas-lake-page h1,
+.palmas-lake-page h2,
+.palmas-lake-page h3,
+.palmas-lake-page p { margin-top: 0; }
+
+.palmas-lake-container { width: min(1220px, 90vw); margin: 0 auto; }
+.palmas-lake-hero { min-height: min(860px, 94vh); position: relative; display: flex; flex-direction: column; color: #fff; background: var(--pl-ink); }
+.palmas-lake-hero-image { z-index: 0; object-fit: cover; object-position: center center; }
+.palmas-lake-hero-overlay { position: absolute; inset: 0; z-index: 1; background: linear-gradient(90deg, rgba(7, 17, 21, .88), rgba(8, 20, 24, .48) 50%, rgba(8, 20, 24, .12)), linear-gradient(0deg, rgba(7, 14, 17, .82), transparent 55%); }
+.palmas-lake-hero-grain { position: absolute; inset: 0; z-index: 2; opacity: .14; pointer-events: none; background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.25'/%3E%3C/svg%3E"); mix-blend-mode: soft-light; }
+.palmas-lake-nav { position: relative; z-index: 3; display: flex; align-items: center; justify-content: space-between; gap: 28px; padding-top: 28px; }
+.palmas-lake-wordmark { display: inline-flex; align-items: center; gap: 5px; color: #fff; font-size: 1rem; letter-spacing: .15em; line-height: 1; }
+.palmas-lake-wordmark span { font-weight: 400; }
+.palmas-lake-wordmark strong { border: 1px solid var(--pl-gold-light); border-radius: 4px; padding: 5px 4px 4px; color: var(--pl-gold-light); font-weight: 500; letter-spacing: .05em; }
+.palmas-lake-nav nav { display: flex; gap: 32px; color: rgba(255, 255, 255, .7); font-size: .67rem; letter-spacing: .16em; text-transform: uppercase; }
+.palmas-lake-nav nav a, .palmas-lake-nav-button, .palmas-lake-hero-text-link { transition: color .2s ease, background .2s ease, transform .2s ease; }
+.palmas-lake-nav nav a:hover, .palmas-lake-hero-text-link:hover { color: #fff; }
+.palmas-lake-nav-button { display: inline-flex; align-items: center; gap: 8px; min-height: 38px; border: 1px solid rgba(255, 255, 255, .4); border-radius: 999px; padding: 0 15px; color: #fff; font-size: .64rem; letter-spacing: .08em; text-transform: uppercase; }
+.palmas-lake-nav-button:hover { background: rgba(255, 255, 255, .1); transform: translateY(-2px); }
+.palmas-lake-hero-content { position: relative; z-index: 3; display: flex; flex: 1; flex-direction: column; justify-content: center; align-items: flex-start; padding-top: 70px; padding-bottom: 94px; }
+.palmas-lake-eyebrow, .palmas-lake-kicker { color: var(--pl-gold); font-size: .66rem; font-weight: 600; letter-spacing: .2em; text-transform: uppercase; }
+.palmas-lake-eyebrow { display: flex; align-items: center; gap: 11px; color: var(--pl-gold-light); }
+.palmas-lake-eyebrow span { width: 32px; height: 1px; background: currentColor; }
+.palmas-lake-hero-location { display: inline-flex; align-items: center; gap: 6px; margin: 29px 0 15px; color: rgba(255,255,255,.62); font-size: .72rem; letter-spacing: .11em; text-transform: uppercase; }
+.palmas-lake-hero h1 { max-width: 700px; margin-bottom: 24px; font-size: clamp(3.8rem, 8.3vw, 7.8rem); font-weight: 500; line-height: .9; letter-spacing: -.07em; }
+.palmas-lake-page em { color: var(--pl-gold-light); font-family: var(--font-title), Georgia, serif; font-weight: 500; }
+.palmas-lake-hero-lede { max-width: 440px; margin-bottom: 0; color: rgba(255,255,255,.76); font-size: .94rem; line-height: 1.75; }
+.palmas-lake-hero-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 25px; margin-top: 33px; }
+.palmas-lake-button { display: inline-flex; align-items: center; justify-content: center; gap: 9px; min-height: 48px; border-radius: 999px; padding: 0 20px; font-size: .69rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; transition: transform .2s ease, background .2s ease, color .2s ease; }
+.palmas-lake-button:hover { transform: translateY(-2px); }
+.palmas-lake-button--light { background: #fff; color: var(--pl-ink); }
+.palmas-lake-button--light:hover { background: var(--pl-gold-light); }
+.palmas-lake-button--gold { background: var(--pl-gold-light); color: var(--pl-ink); }
+.palmas-lake-button--gold:hover { background: #fff; }
+.palmas-lake-hero-text-link { display: inline-flex; align-items: center; gap: 8px; color: rgba(255,255,255,.8); font-size: .7rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
+.palmas-lake-scroll-cue { position: absolute; z-index: 3; right: 5vw; bottom: 30px; left: 5vw; display: flex; align-items: center; gap: 10px; color: rgba(255,255,255,.54); font-size: .62rem; letter-spacing: .13em; text-transform: uppercase; }
+.palmas-lake-scroll-cue span { display: inline-block; width: 34px; height: 1px; background: rgba(255,255,255,.48); }
+.palmas-lake-stats { background: var(--pl-gold-light); color: var(--pl-ink); }
+.palmas-lake-stats-grid { display: grid; grid-template-columns: repeat(5, 1fr); padding: 25px 0; }
+.palmas-lake-stats-grid > div { display: grid; gap: 4px; padding: 0 20px; border-right: 1px solid rgba(13,23,27,.18); }
+.palmas-lake-stats-grid > div:first-child { padding-left: 0; }
+.palmas-lake-stats-grid > div:last-child { border-right: 0; }
+.palmas-lake-stats strong { font-family: var(--font-title), Georgia, serif; font-size: clamp(1.2rem, 2.1vw, 1.72rem); font-weight: 500; line-height: 1.1; }
+.palmas-lake-stats span { color: rgba(13,23,27,.62); font-size: .62rem; letter-spacing: .12em; text-transform: uppercase; }
+.palmas-lake-section { padding: 112px 0; }
+.palmas-lake-intro { background: var(--pl-paper); }
+.palmas-lake-intro-grid { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); align-items: start; gap: clamp(50px, 9vw, 125px); }
+.palmas-lake-kicker { margin-bottom: 17px; }
+.palmas-lake-section h2 { max-width: 720px; margin-bottom: 22px; font-size: clamp(2.45rem, 5vw, 4.8rem); font-weight: 500; line-height: .99; letter-spacing: -.065em; }
+.palmas-lake-intro-copy { max-width: 520px; padding-top: 32px; }
+.palmas-lake-intro-copy p, .palmas-lake-lifestyle-copy > p, .palmas-lake-section-heading--wide > p:last-child, .palmas-lake-final-cta-inner > p { color: var(--pl-muted); font-size: .9rem; line-height: 1.82; }
+.palmas-lake-inline-link { display: inline-flex; align-items: center; gap: 8px; margin-top: 14px; color: var(--pl-ink); font-size: .71rem; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; }
+.palmas-lake-inline-link:hover { color: #9b7546; }
+.palmas-lake-pillars { background: var(--pl-sand); }
+.palmas-lake-overview { position: relative; min-height: 680px; display: flex; align-items: flex-end; overflow: hidden; background: var(--pl-ink); color: #fff; }
+.palmas-lake-overview-image { position: absolute; inset: 0; }
+.palmas-lake-overview-image img { object-fit: cover; object-position: center; }
+.palmas-lake-overview-shade { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(7,17,21,.86), rgba(7,17,21,.2) 65%), linear-gradient(0deg, rgba(7,17,21,.86), transparent 65%); }
+.palmas-lake-overview-copy { position: relative; z-index: 1; padding-top: 120px; padding-bottom: 72px; }
+.palmas-lake-overview-copy .palmas-lake-kicker { color: var(--pl-gold-light); }
+.palmas-lake-overview-copy h2 { max-width: 650px; margin-bottom: 18px; }
+.palmas-lake-overview-copy > p:not(.palmas-lake-kicker) { max-width: 500px; margin-bottom: 28px; color: rgba(255,255,255,.72); font-size: .91rem; line-height: 1.78; }
+.palmas-lake-overview-tags { display: flex; flex-wrap: wrap; gap: 20px; padding-top: 23px; border-top: 1px solid rgba(255,255,255,.2); }
+.palmas-lake-overview-tags span { display: inline-flex; align-items: center; gap: 8px; color: rgba(255,255,255,.84); font-size: .67rem; letter-spacing: .08em; text-transform: uppercase; }
+.palmas-lake-overview-tags svg { color: var(--pl-gold-light); }
+.palmas-lake-pillars { background: var(--pl-sand); }
+.palmas-lake-section-heading { max-width: 650px; margin-bottom: 52px; }
+.palmas-lake-pillars-grid { display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid var(--pl-line); }
+.palmas-lake-pillar { position: relative; min-height: 215px; padding: 27px 28px 22px 0; border-bottom: 1px solid var(--pl-line); }
+.palmas-lake-pillar:not(:first-child) { padding-left: 28px; border-left: 1px solid var(--pl-line); }
+.palmas-lake-pillar-number { display: block; margin-bottom: 37px; color: var(--pl-muted); font-size: .63rem; letter-spacing: .12em; }
+.palmas-lake-pillar svg { color: #a67d4a; }
+.palmas-lake-pillar h3 { margin: 15px 0 5px; font-size: 1.3rem; font-weight: 500; }
+.palmas-lake-pillar p { margin: 0; color: var(--pl-muted); font-size: .72rem; }
+.palmas-lake-lifestyle { background: var(--pl-ink); color: #fff; }
+.palmas-lake-lifestyle-grid { display: grid; grid-template-columns: minmax(0, 1.08fr) minmax(0, .92fr); align-items: center; gap: clamp(50px, 8vw, 110px); }
+.palmas-lake-lifestyle-image { position: relative; min-height: 560px; overflow: hidden; }
+.palmas-lake-lifestyle-image img { object-fit: cover; object-position: 78% center; }
+.palmas-lake-lifestyle-image::after { position: absolute; inset: 0; content: ""; background: linear-gradient(0deg, rgba(5,12,15,.68), transparent 45%); }
+.palmas-lake-lifestyle-image span { position: absolute; z-index: 1; bottom: 20px; left: 20px; display: inline-flex; align-items: center; gap: 8px; color: var(--pl-gold-light); font-size: .68rem; letter-spacing: .08em; text-transform: uppercase; }
+.palmas-lake-lifestyle-copy { max-width: 520px; }
+.palmas-lake-lifestyle-copy .palmas-lake-kicker { color: var(--pl-gold-light); }
+.palmas-lake-lifestyle-copy h2 { max-width: 480px; }
+.palmas-lake-lifestyle-copy > p { color: rgba(255,255,255,.65); }
+.palmas-lake-feature-list { display: grid; gap: 16px; margin-top: 35px; padding-top: 25px; border-top: 1px solid rgba(255,255,255,.18); }
+.palmas-lake-feature-list span { display: flex; align-items: flex-start; gap: 10px; color: rgba(255,255,255,.83); font-size: .72rem; line-height: 1.45; }
+.palmas-lake-feature-list svg { flex: 0 0 auto; color: var(--pl-gold-light); }
+.palmas-lake-sunset { position: relative; min-height: 650px; display: flex; align-items: flex-end; overflow: hidden; background: var(--pl-ink); color: #fff; }
+.palmas-lake-sunset-image { position: absolute; inset: 0; }
+.palmas-lake-sunset-image img { object-fit: cover; object-position: center 54%; }
+.palmas-lake-sunset-image::after { position: absolute; inset: 0; content: ""; background: linear-gradient(90deg, rgba(7,17,21,.9), rgba(7,17,21,.28) 62%, rgba(7,17,21,.08)), linear-gradient(0deg, rgba(7,17,21,.86), transparent 60%); }
+.palmas-lake-sunset-copy { position: relative; z-index: 1; padding-top: 120px; padding-bottom: 76px; }
+.palmas-lake-sunset-copy .palmas-lake-kicker { color: var(--pl-gold-light); }
+.palmas-lake-sunset-copy h2 { max-width: 720px; margin-bottom: 20px; font-size: clamp(3rem, 6vw, 6rem); font-weight: 500; line-height: .95; letter-spacing: -.065em; }
+.palmas-lake-sunset-copy > p:not(.palmas-lake-kicker) { max-width: 500px; margin-bottom: 29px; color: rgba(255,255,255,.78); font-size: .93rem; line-height: 1.8; }
+.palmas-lake-sunset-tags { display: flex; flex-wrap: wrap; gap: 22px; padding-top: 22px; border-top: 1px solid rgba(255,255,255,.25); }
+.palmas-lake-sunset-tags span { color: rgba(255,255,255,.86); font-size: .67rem; letter-spacing: .1em; text-transform: uppercase; }
+.palmas-lake-experiences { background: var(--pl-paper); }
+.palmas-lake-gallery { padding: 110px 0 118px; background: #ebe5db; }
+.palmas-lake-gallery-head { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(260px, .9fr); align-items: end; gap: 70px; margin-bottom: 47px; }
+.palmas-lake-gallery-head h2 { margin-bottom: 0; }
+.palmas-lake-gallery-head > p { max-width: 405px; margin: 0 0 8px; color: var(--pl-muted); font-size: .9rem; line-height: 1.8; }
+.palmas-lake-gallery-grid { display: grid; grid-template-columns: 1.4fr .8fr .8fr; grid-auto-rows: 300px; gap: 13px; }
+.palmas-lake-gallery-card { position: relative; min-height: 0; overflow: hidden; background: #b3aa9b; }
+.palmas-lake-gallery-card--wide { grid-row: span 2; }
+.palmas-lake-gallery-card img { object-fit: cover; transition: transform .6s ease; }
+.palmas-lake-gallery-card:hover img { transform: scale(1.04); }
+.palmas-lake-gallery-card::after { position: absolute; inset: 0; content: ""; background: linear-gradient(0deg, rgba(7,17,21,.78), transparent 58%); }
+.palmas-lake-gallery-card figcaption { position: absolute; z-index: 1; right: 18px; bottom: 18px; left: 18px; display: grid; gap: 4px; color: #fff; }
+.palmas-lake-gallery-card figcaption span { color: var(--pl-gold-light); font-size: .61rem; letter-spacing: .13em; }
+.palmas-lake-gallery-card figcaption strong { font-family: var(--font-title), Georgia, serif; font-size: 1.25rem; font-weight: 500; }
+.palmas-lake-gallery-card figcaption small { color: rgba(255,255,255,.72); font-size: .66rem; }
+.palmas-lake-amenities { padding: 110px 0 118px; background: var(--pl-paper); }
+.palmas-lake-amenities .palmas-lake-section-heading { max-width: 700px; }
+.palmas-lake-amenities .palmas-lake-section-heading > p:last-child { max-width: 470px; color: var(--pl-muted); font-size: .9rem; line-height: 1.8; }
+.palmas-lake-amenities-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 13px; }
+.palmas-lake-amenity-card { position: relative; min-height: 300px; overflow: hidden; background: #b3aa9b; }
+.palmas-lake-amenity-card img { object-fit: cover; transition: transform .6s ease; }
+.palmas-lake-amenity-card:hover img { transform: scale(1.04); }
+.palmas-lake-amenity-card::after { position: absolute; inset: 0; content: ""; background: linear-gradient(0deg, rgba(7,17,21,.84), transparent 62%); }
+.palmas-lake-amenity-card figcaption { position: absolute; z-index: 1; right: 18px; bottom: 18px; left: 18px; display: grid; gap: 4px; color: #fff; }
+.palmas-lake-amenity-card figcaption strong { font-family: var(--font-title), Georgia, serif; font-size: 1.3rem; font-weight: 500; }
+.palmas-lake-amenity-card figcaption small { color: rgba(255,255,255,.76); font-size: .67rem; }
+.palmas-lake-section-heading--wide { max-width: 850px; }
+.palmas-lake-section-heading--wide h2 { max-width: 760px; }
+.palmas-lake-section-heading--wide > p:last-child { max-width: 500px; margin-top: 28px; }
+.palmas-lake-developments-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.palmas-development-card { display: grid; grid-template-columns: minmax(150px, .74fr) minmax(0, 1fr); min-height: 310px; border: 1px solid var(--pl-line); color: var(--pl-ink); background: rgba(255,255,255,.18); transition: transform .25s ease, box-shadow .25s ease, background .25s ease; }
+.palmas-development-card:hover { transform: translateY(-5px); background: #fff; box-shadow: 0 20px 45px rgba(13,23,27,.1); }
+.palmas-development-image { position: relative; min-height: 310px; overflow: hidden; background: #b9b0a2; }
+.palmas-development-image img { object-fit: cover; transition: transform .6s ease; }
+.palmas-development-card:hover .palmas-development-image img { transform: scale(1.045); }
+.palmas-development-shade { position: absolute; inset: 0; background: linear-gradient(0deg, rgba(7,17,21,.5), transparent 62%); }
+.palmas-development-number { position: absolute; top: 17px; left: 17px; color: #fff; font-size: .62rem; letter-spacing: .12em; }
+.palmas-development-arrow { position: absolute; right: 15px; bottom: 15px; display: grid; width: 33px; height: 33px; place-items: center; border: 1px solid rgba(255,255,255,.55); border-radius: 50%; color: #fff; }
+.palmas-development-copy { display: flex; flex-direction: column; padding: 27px 25px 24px; }
+.palmas-card-eyebrow { margin-bottom: 22px; color: var(--pl-muted); font-size: .59rem; letter-spacing: .13em; text-transform: uppercase; }
+.palmas-development-copy h3 { margin: 0; font-family: var(--font-title), Georgia, serif; font-size: clamp(1.5rem, 3vw, 2.15rem); font-weight: 500; letter-spacing: -.05em; }
+.palmas-development-title { margin: 8px 0 12px; font-size: .83rem; font-weight: 600; }
+.palmas-development-description { margin: 0; color: var(--pl-muted); font-size: .73rem; line-height: 1.6; }
+.palmas-development-detail { margin-top: auto; padding-top: 23px; color: #997348; font-size: .65rem; line-height: 1.45; }
+.palmas-lake-final-cta { position: relative; padding: 130px 0; background: var(--pl-ink-soft); color: #fff; }
+.palmas-lake-broker { padding: 112px 0; background: var(--pl-sand); }
+.palmas-lake-broker-grid { display: grid; grid-template-columns: minmax(270px, .72fr) minmax(0, 1.28fr); align-items: center; gap: clamp(50px, 9vw, 125px); }
+.palmas-lake-broker-image { position: relative; min-height: 520px; overflow: hidden; background: var(--pl-ink); }
+.palmas-lake-broker-image img { object-fit: cover; object-position: center 25%; }
+.palmas-lake-broker-image::after { position: absolute; inset: 0; content: ""; background: linear-gradient(0deg, rgba(7,17,21,.72), transparent 55%); }
+.palmas-lake-broker-image span { position: absolute; z-index: 1; bottom: 20px; left: 20px; color: var(--pl-gold-light); font-size: .67rem; letter-spacing: .1em; line-height: 1.55; text-transform: uppercase; }
+.palmas-lake-broker-copy { max-width: 590px; }
+.palmas-lake-broker-copy h2 { max-width: 590px; }
+.palmas-lake-broker-copy > p:not(.palmas-lake-kicker) { max-width: 500px; margin-bottom: 27px; color: var(--pl-muted); font-size: .91rem; line-height: 1.82; }
+.palmas-lake-broker-points { display: grid; gap: 0; margin: 26px 0 32px; border-top: 1px solid var(--pl-line); }
+.palmas-lake-broker-points span { padding: 13px 0; border-bottom: 1px solid var(--pl-line); color: var(--pl-ink); font-size: .72rem; }
+.palmas-lake-lead { padding: 112px 0; background: #ebe5db; }
+.palmas-lake-lead-grid { display: grid; grid-template-columns: minmax(0, .82fr) minmax(0, 1.18fr); align-items: center; gap: clamp(50px, 9vw, 125px); }
+.palmas-lake-lead-copy { max-width: 500px; }
+.palmas-lake-lead-copy h2 { max-width: 490px; margin-bottom: 20px; font-size: clamp(2.7rem, 5vw, 4.8rem); font-weight: 500; line-height: .98; letter-spacing: -.065em; }
+.palmas-lake-lead-copy > p:not(.palmas-lake-kicker) { max-width: 430px; color: var(--pl-muted); font-size: .91rem; line-height: 1.82; }
+.palmas-lake-lead-profile { display: flex; align-items: center; gap: 13px; margin-top: 36px; }
+.palmas-lake-lead-avatar { position: relative; display: block; width: 58px; height: 58px; overflow: hidden; border: 2px solid var(--pl-gold-light); border-radius: 50%; background: var(--pl-ink); }
+.palmas-lake-lead-avatar img { object-fit: cover; object-position: center 18%; transform: scale(1.2); }
+.palmas-lake-lead-profile > span:last-child { display: grid; gap: 4px; }
+.palmas-lake-lead-profile strong { color: var(--pl-ink); font-size: .8rem; }
+.palmas-lake-lead-profile small { color: var(--pl-muted); font-size: .67rem; }
+.palmas-lake-lead-form { display: grid; gap: 18px; padding: clamp(25px, 4vw, 42px); background: var(--pl-paper); box-shadow: 0 20px 55px rgba(13,23,27,.08); }
+.palmas-lake-lead-form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.palmas-lake-lead-form label { display: grid; gap: 7px; color: var(--pl-ink); font-size: .68rem; font-weight: 700; }
+.palmas-lake-lead-form label span { color: var(--pl-muted); font-weight: 400; }
+.palmas-lake-lead-form input:not([type="checkbox"]), .palmas-lake-lead-form select { width: 100%; min-height: 47px; border: 1px solid rgba(13,23,27,.22); border-radius: 3px; padding: 0 13px; background: rgba(255,255,255,.6); color: var(--pl-ink); font: inherit; font-size: .76rem; }
+.palmas-lake-lead-form input:focus, .palmas-lake-lead-form select:focus { outline: 2px solid var(--pl-gold); outline-offset: 2px; }
+.palmas-lake-lead-consent { display: flex !important; grid-template-columns: auto 1fr; align-items: flex-start; gap: 9px !important; color: var(--pl-muted) !important; font-size: .66rem !important; font-weight: 400 !important; line-height: 1.55; }
+.palmas-lake-lead-consent input { flex: 0 0 auto; margin-top: 2px; accent-color: var(--pl-gold); }
+.palmas-lake-lead-form > .palmas-lake-button { justify-self: start; border: 0; cursor: pointer; }
+.palmas-lake-lead-status { display: flex; align-items: center; gap: 8px; margin: 0; font-size: .72rem; line-height: 1.5; }
+.palmas-lake-lead-status--success { color: #28754b; }
+.palmas-lake-lead-status--error { color: #a2473c; }
+.palmas-lake-lead-whatsapp { display: inline-flex; align-items: center; justify-content: center; min-height: 42px; border: 1px solid rgba(98,233,149,.45); border-radius: 999px; padding: 0 17px; background: rgba(98,233,149,.1); color: #28754b; font-size: .68rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+.palmas-lake-final-cta::before { position: absolute; top: 0; right: 12%; width: 1px; height: 100%; background: rgba(255,255,255,.08); content: ""; transform: rotate(26deg); transform-origin: top; }
+.palmas-lake-final-cta-inner { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: flex-start; }
+.palmas-lake-final-cta .palmas-lake-kicker { color: var(--pl-gold-light); }
+.palmas-lake-final-cta h2 { margin-bottom: 20px; font-size: clamp(3rem, 6vw, 6rem); }
+.palmas-lake-final-cta-inner > p { max-width: 430px; margin-bottom: 30px; color: rgba(255,255,255,.68); }
+.palmas-lake-footer { padding: 31px 0 36px; background: #091014; color: rgba(255,255,255,.58); }
+.palmas-lake-footer-grid { display: grid; grid-template-columns: 1fr 1fr 1.35fr 1fr; align-items: center; gap: 28px; }
+.palmas-lake-footer p { margin: 0; font-size: .65rem; line-height: 1.65; }
+.palmas-lake-footer-technical { display: grid; gap: 6px; max-width: 300px; font-size: .65rem; line-height: 1.65; }
+.palmas-lake-footer-technical strong { color: var(--pl-gold-light); font-size: .62rem; letter-spacing: .1em; text-transform: uppercase; }
+.palmas-lake-footer-technical span { color: rgba(255,255,255,.42); }
+.palmas-lake-footer-note { justify-self: end; max-width: 265px; color: rgba(255,255,255,.35); text-align: right; }
+
+@media (max-width: 900px) {
+  .palmas-lake-nav nav { display: none; }
+  .palmas-lake-hero-content { padding-top: 85px; }
+  .palmas-lake-stats-grid { grid-template-columns: repeat(3, 1fr); gap: 22px 0; }
+  .palmas-lake-stats-grid > div:nth-child(3) { border-right: 0; }
+  .palmas-lake-stats-grid > div:nth-child(4), .palmas-lake-stats-grid > div:nth-child(5) { padding-top: 8px; }
+  .palmas-lake-intro-grid, .palmas-lake-lifestyle-grid { grid-template-columns: 1fr; gap: 48px; }
+  .palmas-lake-intro-copy { padding-top: 0; }
+  .palmas-lake-lifestyle-image { min-height: 450px; }
+  .palmas-lake-lead-grid { grid-template-columns: 1fr; gap: 42px; }
+  .palmas-lake-sunset { min-height: 590px; }
+  .palmas-lake-sunset-copy { padding-top: 90px; padding-bottom: 58px; }
+  .palmas-lake-pillars-grid { grid-template-columns: repeat(2, 1fr); }
+  .palmas-lake-pillar:nth-child(3) { padding-left: 0; border-left: 0; }
+  .palmas-lake-pillar:nth-child(3), .palmas-lake-pillar:nth-child(4) { border-top: 1px solid var(--pl-line); }
+  .palmas-lake-developments-grid { grid-template-columns: 1fr; }
+  .palmas-lake-gallery-head { grid-template-columns: 1fr; gap: 17px; }
+  .palmas-lake-gallery-grid { grid-template-columns: 1fr 1fr; grid-auto-rows: 270px; }
+  .palmas-lake-gallery-card--wide { grid-column: 1 / -1; grid-row: auto; }
+  .palmas-lake-amenities-grid { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 600px) {
+  .palmas-lake-container { width: min(88vw, 520px); }
+  .palmas-lake-hero { min-height: 760px; }
+  .palmas-lake-nav { padding-top: 21px; }
+  .palmas-lake-nav-button { min-height: 34px; padding: 0 11px; font-size: .57rem; }
+  .palmas-lake-hero-content { padding-top: 75px; padding-bottom: 80px; }
+  .palmas-lake-hero h1 { font-size: clamp(3.3rem, 15vw, 5rem); }
+  .palmas-lake-hero-lede { max-width: 320px; font-size: .87rem; }
+  .palmas-lake-hero-actions { align-items: flex-start; flex-direction: column; gap: 17px; }
+  .palmas-lake-stats-grid { grid-template-columns: repeat(2, 1fr); padding: 20px 0; }
+  .palmas-lake-stats-grid > div, .palmas-lake-stats-grid > div:first-child { padding: 7px 12px; border-right: 1px solid rgba(13,23,27,.18); }
+  .palmas-lake-stats-grid > div:nth-child(2n) { border-right: 0; }
+  .palmas-lake-stats-grid > div:nth-child(3) { border-right: 1px solid rgba(13,23,27,.18); }
+  .palmas-lake-stats strong { font-size: 1.15rem; }
+  .palmas-lake-section { padding: 77px 0; }
+  .palmas-lake-section h2 { font-size: 2.45rem; }
+  .palmas-lake-intro-grid { gap: 28px; }
+  .palmas-lake-pillars-grid { grid-template-columns: 1fr 1fr; }
+  .palmas-lake-pillar { min-height: 190px; padding: 23px 15px 20px 0; }
+  .palmas-lake-pillar:not(:first-child) { padding-left: 15px; }
+  .palmas-lake-pillar:nth-child(3) { padding-left: 0; }
+  .palmas-lake-lifestyle-image { min-height: 340px; }
+  .palmas-lake-sunset { min-height: 650px; }
+  .palmas-lake-sunset-copy { padding-top: 85px; padding-bottom: 51px; }
+  .palmas-lake-sunset-copy h2 { font-size: 3.2rem; }
+  .palmas-lake-sunset-tags { display: grid; gap: 13px; }
+  .palmas-lake-broker { padding: 77px 0; }
+  .palmas-lake-lead { padding: 77px 0; }
+  .palmas-lake-lead-form { padding: 22px 19px; }
+  .palmas-lake-lead-form-grid { grid-template-columns: 1fr; }
+  .palmas-lake-broker-grid { grid-template-columns: 1fr; gap: 36px; }
+  .palmas-lake-broker-image { min-height: 390px; }
+  .palmas-lake-overview { min-height: 630px; }
+  .palmas-lake-overview-copy { padding-top: 80px; padding-bottom: 55px; }
+  .palmas-lake-overview-tags { display: grid; gap: 13px; }
+  .palmas-lake-gallery { padding: 78px 0; }
+  .palmas-lake-gallery-grid { grid-template-columns: 1fr; grid-auto-rows: 260px; gap: 8px; }
+  .palmas-lake-gallery-card--wide { grid-column: auto; }
+  .palmas-lake-amenities { padding: 78px 0; }
+  .palmas-lake-amenities-grid { grid-template-columns: 1fr; gap: 8px; }
+  .palmas-lake-amenity-card { min-height: 260px; }
+  .palmas-lake-lifestyle-copy h2 { font-size: 2.45rem; }
+  .palmas-development-card { grid-template-columns: 1fr; }
+  .palmas-development-image { min-height: 270px; }
+  .palmas-development-copy { min-height: 240px; padding: 22px 19px 21px; }
+  .palmas-lake-final-cta { padding: 90px 0; }
+  .palmas-lake-footer-grid { grid-template-columns: 1fr; gap: 17px; }
+  .palmas-lake-footer-technical { max-width: 360px; }
+  .palmas-lake-footer-note { justify-self: start; text-align: left; }
+}
+
+.palmas-detail-page { min-height: 100vh; background: var(--pl-paper, #f4f0e8); color: var(--pl-ink, #0d171b); }
+.palmas-detail-hero { position: relative; min-height: min(710px, 82vh); display: flex; flex-direction: column; justify-content: space-between; color: #fff; background: #102025; overflow: hidden; }
+.palmas-detail-hero img { object-fit: cover; object-position: center; }
+.palmas-detail-hero--garden img { object-position: center 36%; }
+.palmas-detail-overlay { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(7,17,21,.94), rgba(7,17,21,.3)), linear-gradient(0deg, rgba(7,17,21,.86), transparent 58%); }
+.palmas-detail-top, .palmas-detail-hero-copy { position: relative; z-index: 1; width: min(1220px, 90vw); margin: 0 auto; }
+.palmas-detail-top { display: flex; justify-content: space-between; gap: 20px; padding-top: 29px; color: rgba(255,255,255,.72); font-size: .65rem; letter-spacing: .13em; text-transform: uppercase; }
+.palmas-detail-back, .palmas-detail-footer a { display: inline-flex; align-items: center; gap: 8px; color: inherit; }
+.palmas-detail-back:hover, .palmas-detail-footer a:hover { color: #fff; }
+.palmas-detail-hero-copy { padding-bottom: 82px; }
+.palmas-detail-hero-copy p { color: var(--pl-gold-light, #ead7b5); font-size: .68rem; letter-spacing: .19em; text-transform: uppercase; }
+.palmas-detail-hero-copy h1 { margin: 15px 0 10px; font-size: clamp(3.8rem, 8vw, 7rem); font-weight: 500; line-height: .9; letter-spacing: -.07em; }
+.palmas-detail-hero-copy h2 { margin: 0; color: rgba(255,255,255,.78); font-family: var(--font-title), Georgia, serif; font-size: clamp(1.4rem, 2.6vw, 2.2rem); font-weight: 500; }
+.palmas-detail-main { display: grid; grid-template-columns: minmax(0, 1fr) minmax(340px, .95fr); gap: clamp(50px, 10vw, 140px); width: min(1060px, 85vw); margin: 0 auto; padding: 100px 0 112px; }
+.palmas-detail-copy h2 { max-width: 480px; margin: 0 0 20px; font-size: clamp(2.35rem, 4.5vw, 4.2rem); font-weight: 500; line-height: 1; letter-spacing: -.06em; }
+.palmas-detail-copy > p:not(.palmas-lake-kicker) { max-width: 485px; margin-bottom: 31px; color: var(--pl-muted, #738087); font-size: .92rem; line-height: 1.8; }
+.palmas-detail-specs { align-self: center; border-top: 1px solid rgba(13,23,27,.18); }
+.palmas-detail-specs div { display: flex; align-items: center; gap: 28px; min-height: 72px; border-bottom: 1px solid rgba(13,23,27,.18); }
+.palmas-detail-specs span { color: var(--pl-gold, #caa66d); font-size: .64rem; letter-spacing: .12em; }
+.palmas-detail-specs strong { font-size: .8rem; font-weight: 600; }
+.palmas-detail-footer { padding: 26px 7.5vw 34px; background: #091014; color: rgba(255,255,255,.65); font-size: .68rem; letter-spacing: .08em; text-transform: uppercase; }
+.palmas-sky-container { width: min(1220px, 90vw); margin: 0 auto; }
+.palmas-sky-highlights { background: var(--pl-gold-light, #ead7b5); color: var(--pl-ink, #0d171b); }
+.palmas-sky-highlights-grid { display: grid; grid-template-columns: repeat(4, 1fr); }
+.palmas-sky-highlights-grid > div { display: grid; gap: 8px; min-height: 130px; align-content: center; padding: 22px 25px; border-right: 1px solid rgba(13,23,27,.16); }
+.palmas-sky-highlights-grid > div:first-child { padding-left: 0; }
+.palmas-sky-highlights-grid > div:last-child { border-right: 0; }
+.palmas-sky-highlights span { color: rgba(13,23,27,.58); font-size: .64rem; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; }
+.palmas-sky-highlights strong { font-family: var(--font-title), Georgia, serif; font-size: clamp(1.2rem, 2.2vw, 1.75rem); font-weight: 500; line-height: 1.1; }
+.palmas-sky-story { padding: 110px 0; background: var(--pl-paper, #f4f0e8); }
+.palmas-sky-story-grid { display: grid; grid-template-columns: minmax(0, .88fr) minmax(0, 1.12fr); gap: clamp(50px, 10vw, 140px); }
+.palmas-sky-story h2, .palmas-sky-section-heading h2, .palmas-sky-plan-copy h2, .palmas-sky-leisure h2 { max-width: 650px; margin: 0; font-size: clamp(2.45rem, 5vw, 4.8rem); font-weight: 500; line-height: .98; letter-spacing: -.065em; }
+.palmas-sky-story-grid > div:last-child { max-width: 540px; padding-top: 35px; }
+.palmas-sky-story-grid > div:last-child p, .palmas-sky-plan-copy > p:not(.palmas-lake-kicker), .palmas-sky-section-heading > p:last-child { color: var(--pl-muted, #738087); font-size: .9rem; line-height: 1.8; }
+.palmas-sky-gallery { padding: 112px 0 124px; background: var(--pl-sand, #e8dfd0); }
+.palmas-sky-section-heading { max-width: 820px; margin-bottom: 48px; }
+.palmas-sky-section-heading .palmas-lake-kicker { margin-bottom: 17px; }
+.palmas-sky-section-heading > p:last-child { max-width: 510px; margin-top: 25px; }
+.palmas-sky-gallery-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.palmas-sky-gallery figure { margin: 0; }
+.palmas-sky-gallery figure > div { position: relative; aspect-ratio: 2100 / 2900; overflow: hidden; background: #cfc4b3; }
+.palmas-sky-gallery img { object-fit: cover; }
+.palmas-sky-gallery figcaption { padding-top: 15px; color: var(--pl-muted, #738087); font-size: .68rem; letter-spacing: .08em; text-transform: uppercase; }
+.palmas-sky-plan { padding: 115px 0; background: var(--pl-paper, #f4f0e8); }
+.palmas-sky-plan-grid { display: grid; grid-template-columns: minmax(0, 1.13fr) minmax(320px, .87fr); align-items: center; gap: clamp(45px, 7vw, 100px); }
+.palmas-sky-plan-image { position: relative; aspect-ratio: 1600 / 900; overflow: hidden; border: 1px solid rgba(13,23,27,.1); background: #fff; }
+.palmas-sky-plan-image img { object-fit: cover; }
+.palmas-sky-plan-copy { max-width: 470px; }
+.palmas-sky-plan-copy h2 { margin: 0 0 24px; font-size: clamp(2.3rem, 4.3vw, 4.1rem); }
+.palmas-sky-plan-tags { display: grid; gap: 0; margin-top: 28px; border-top: 1px solid rgba(13,23,27,.17); }
+.palmas-sky-plan-tags span { padding: 14px 0; border-bottom: 1px solid rgba(13,23,27,.17); color: var(--pl-ink, #0d171b); font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.palmas-sky-leisure { padding: 112px 0 120px; background: var(--pl-ink, #0d171b); color: #fff; }
+.palmas-sky-leisure .palmas-lake-kicker { color: var(--pl-gold-light, #ead7b5); }
+.palmas-sky-leisure h2 { max-width: 480px; }
+.palmas-sky-leisure-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(360px, .9fr); gap: clamp(50px, 10vw, 145px); align-items: start; }
+.palmas-sky-leisure-list { border-top: 1px solid rgba(255,255,255,.2); }
+.palmas-sky-leisure-list div { display: grid; grid-template-columns: 42px 1fr; gap: 17px; align-items: center; min-height: 74px; border-bottom: 1px solid rgba(255,255,255,.2); }
+.palmas-sky-leisure-list span { color: var(--pl-gold-light, #ead7b5); font-size: .64rem; letter-spacing: .12em; }
+.palmas-sky-leisure-list strong { color: rgba(255,255,255,.85); font-size: .82rem; font-weight: 500; line-height: 1.45; }
+.palmas-sky-units { padding: 112px 0 125px; background: var(--pl-paper, #f4f0e8); }
+.palmas-sky-table-wrap { overflow-x: auto; border-top: 1px solid rgba(13,23,27,.18); }
+.palmas-sky-table-wrap table { width: 100%; border-collapse: collapse; min-width: 650px; }
+.palmas-sky-table-wrap th, .palmas-sky-table-wrap td { padding: 16px 17px; border-bottom: 1px solid rgba(13,23,27,.14); text-align: left; }
+.palmas-sky-table-wrap th { color: var(--pl-muted, #738087); font-size: .62rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+.palmas-sky-table-wrap td { color: var(--pl-ink, #0d171b); font-size: .78rem; }
+.palmas-sky-table-wrap td:first-child { color: var(--pl-gold, #caa66d); font-weight: 700; }
+.palmas-sky-status { display: inline-flex; align-items: center; min-height: 26px; border-radius: 999px; padding: 0 10px; font-size: .61rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+.palmas-sky-status--available { background: rgba(38,110,72,.12); color: #236b47; }
+.palmas-sky-status--reserved { background: rgba(173,123,37,.14); color: #986d20; }
+.palmas-sky-status--sold { background: rgba(13,23,27,.1); color: var(--pl-muted, #738087); }
+.palmas-sky-status--consult { background: rgba(202,166,109,.18); color: #8d6a32; }
+.palmas-lake-whatsapp-float { position: fixed; right: 24px; bottom: 24px; z-index: 30; display: inline-flex; align-items: center; gap: 11px; min-height: 68px; padding: 7px 14px 7px 7px; overflow: hidden; isolation: isolate; border: 1px solid rgba(255,255,255,.5); border-radius: 999px; background: linear-gradient(135deg, rgba(16,32,37,.78), rgba(16,32,37,.48) 56%, rgba(255,255,255,.18)); box-shadow: 0 18px 45px rgba(3,12,15,.24), inset 0 1px 0 rgba(255,255,255,.42); color: #fff; text-shadow: 0 1px 5px rgba(0,0,0,.25); backdrop-filter: blur(18px) saturate(135%); -webkit-backdrop-filter: blur(18px) saturate(135%); transition: transform .2s ease, border-color .2s ease, background .2s ease; }
+.palmas-lake-whatsapp-float::before { position: absolute; z-index: -1; top: -42px; left: 18%; width: 105px; height: 76px; border-radius: 50%; background: rgba(255,255,255,.22); content: ""; filter: blur(18px); }
+.palmas-lake-whatsapp-float:hover { border-color: rgba(234,215,181,.9); background: linear-gradient(135deg, rgba(16,32,37,.9), rgba(16,32,37,.6) 56%, rgba(255,255,255,.2)); color: #fff; transform: translateY(-3px); }
+.palmas-lake-whatsapp-avatar { position: relative; display: block; width: 54px; height: 54px; overflow: hidden; border: 2px solid rgba(234,215,181,.95); border-radius: 50%; background: #102025; box-shadow: 0 4px 14px rgba(0,0,0,.2); }
+.palmas-lake-whatsapp-avatar img { object-fit: cover; object-position: center 18%; transform: scale(1.22); }
+.palmas-lake-whatsapp-copy { display: grid; gap: 2px; min-width: 172px; }
+.palmas-lake-whatsapp-copy strong { font-size: .82rem; line-height: 1.1; }
+.palmas-lake-whatsapp-copy small { color: rgba(255,255,255,.78); font-size: .67rem; line-height: 1.2; }
+.palmas-lake-whatsapp-icon { color: #62e995; }
+@media (max-width: 700px) {
+  .palmas-detail-hero { min-height: 620px; }
+  .palmas-detail-top { align-items: flex-start; flex-direction: column; gap: 13px; }
+  .palmas-detail-hero-copy { padding-bottom: 58px; }
+  .palmas-detail-main { grid-template-columns: 1fr; width: 88vw; padding: 77px 0 84px; }
+  .palmas-detail-specs { width: 100%; }
+  .palmas-sky-highlights-grid { grid-template-columns: repeat(2, 1fr); }
+  .palmas-sky-highlights-grid > div, .palmas-sky-highlights-grid > div:first-child { min-height: 112px; padding: 17px 13px; border-bottom: 1px solid rgba(13,23,27,.16); }
+  .palmas-sky-highlights-grid > div:nth-child(2n) { border-right: 0; }
+  .palmas-sky-story, .palmas-sky-gallery, .palmas-sky-plan, .palmas-sky-leisure, .palmas-sky-units { padding: 78px 0 84px; }
+  .palmas-sky-story-grid, .palmas-sky-plan-grid, .palmas-sky-leisure-grid { grid-template-columns: 1fr; gap: 37px; }
+  .palmas-sky-story-grid > div:last-child { padding-top: 0; }
+  .palmas-sky-gallery-grid { grid-template-columns: 1fr; gap: 28px; }
+  .palmas-sky-gallery figure > div { aspect-ratio: 3 / 4; }
+  .palmas-sky-leisure-grid { gap: 44px; }
+  .palmas-sky-leisure-list div { min-height: 68px; }
+  .palmas-lake-whatsapp-float { right: 14px; bottom: 14px; width: 54px; height: 54px; min-height: 54px; justify-content: center; padding: 4px; }
+  .palmas-lake-whatsapp-avatar { width: 46px; height: 46px; }
+  .palmas-lake-whatsapp-copy { display: none; }
+}
