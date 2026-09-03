@@ -166,7 +166,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/politica-de-privacidade",
     "/termos-de-servico",
     "/termos-de-uso",
-    "/lake-village"
+    "/lake-village",
+    "/quinta-do-lago",
+    "/acordes"
   ].map((path) => ({
     url: `${baseUrl}${path}`,
     lastModified: catalogueFreshness,

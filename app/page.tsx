@@ -345,7 +345,9 @@ export default async function HomePage({
 
   const categoryCards = buildCategoryCards(readySaleCards);
   const areaCards = buildAreaCards(readySaleCards);
-  const featuredLandings = publicLandingPages.slice(0, 2);
+  // The editorial landing-page registry is the single source for these home
+  // cards. New entries appear here automatically without another home edit.
+  const featuredLandings = publicLandingPages;
 
   return (
     <>
@@ -545,6 +547,11 @@ export default async function HomePage({
       {featuredLandings.length ? (
         <section className="section wp-featured-landing-section">
           <div className="container">
+            <div className="wp-section-head wp-featured-landing-head">
+              <p className="wp-section-eyebrow">Conheça nossos projetos</p>
+              <h2 className="section-title">Empreendimentos em destaque</h2>
+              <p className="section-subtitle text-card">Páginas especiais para conhecer cada projeto com mais detalhes.</p>
+            </div>
             <div className="wp-featured-landing-grid">
               {featuredLandings.map((landing) => (
                 <Link
