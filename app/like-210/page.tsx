@@ -7,12 +7,14 @@ import {
   BriefcaseBusiness,
   Building2,
   Check,
+  Clock3,
   Coffee,
   Dumbbell,
   ExternalLink,
   MapPin,
   MessageCircle,
   PawPrint,
+  Route,
   Sparkles,
   Waves
 } from "lucide-react";
@@ -25,6 +27,9 @@ const siteUrl = getSiteUrl();
 const pageUrl = `${siteUrl}/like-210`;
 const heroImage = "/like-210/facade.jpg";
 const whatsappUrl = buildWhatsAppUrl("Olá, Pedro. Quero conhecer o LIKE 210 e receber a apresentação.");
+const like210MapsUrl = "https://maps.app.goo.gl/rd2NzJiLNYHU3dG97";
+const like210Coordinates = "-10.197196,-48.312549";
+const like210MapEmbedUrl = `https://www.google.com/maps?q=${like210Coordinates}&z=14&output=embed`;
 
 export const metadata: Metadata = {
   title: "LIKE 210 | Um novo jeito de viver Palmas",
@@ -49,6 +54,17 @@ const locationFacts = [
   ["17 min", "do Estádio Nilton Santos"],
   ["27 min", "do aeroporto"]
 ];
+
+const palmasRoutes = [
+  { name: "Praça dos Girassóis", context: "Centro de Palmas" },
+  { name: "Capim Dourado Shopping", context: "Plano Diretor Norte" },
+  { name: "Parque Cesamar", context: "Plano Diretor Sul" },
+  { name: "Praia da Graciosa", context: "Orla de Palmas" },
+  { name: "Aeroporto de Palmas", context: "Brigadeiro Lysias Rodrigues" }
+].map((point) => ({
+  ...point,
+  url: `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(`${point.name}, Palmas - TO`)}&destination=${like210Coordinates}`
+}));
 
 const amenities = [
   { icon: Waves, title: "Rooftop & piscina", text: "No alto da 210, a cidade vira cenário para desacelerar." },
@@ -86,6 +102,7 @@ export default function Like210Page() {
           </a>
           <nav aria-label="Navegação principal">
             <a href="#projeto">O projeto</a>
+            <a href="#localizacao">Localização</a>
             <a href="#experiencia">Experiência</a>
             <a href="#plantas">Plantas</a>
             <a href="#atendimento">Atendimento</a>
@@ -150,7 +167,45 @@ export default function Like210Page() {
           </div>
           <div className="like210-location-bottom">
             <span><MapPin size={17} /> Avenida NS-05 · Palmas, Tocantins</span>
-            <a href="https://www.google.com/maps/search/IFTO+Palmas+TO" target="_blank" rel="noreferrer">Abrir no mapa <ExternalLink size={14} /></a>
+            <a href={like210MapsUrl} target="_blank" rel="noreferrer">Abrir no mapa <ExternalLink size={14} /></a>
+          </div>
+          <div className="like210-map-block">
+            <div className="like210-map-frame">
+              <iframe
+                title="Mapa da localização do empreendimento LIKE 210 em Palmas"
+                src={like210MapEmbedUrl}
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+              />
+              <div className="like210-map-caption">
+                <MapPin size={15} />
+                <span>LIKE 210 · Avenida NS-05 · Palmas/TO</span>
+                <a href={like210MapsUrl} target="_blank" rel="noreferrer" aria-label="Abrir a localização do LIKE 210 no Google Maps">
+                  Ver no Google Maps <ExternalLink size={13} />
+                </a>
+              </div>
+            </div>
+            <div className="like210-routes-panel">
+              <div className="like210-routes-heading">
+                <p className="like210-kicker">Rotas rápidas</p>
+                <h3>Saindo dos principais pontos de Palmas.</h3>
+                <p>Escolha um ponto de partida e veja o caminho até o LIKE 210.</p>
+              </div>
+              <div className="like210-routes-grid">
+                {palmasRoutes.map((point) => (
+                  <article className="like210-route-card" key={point.name}>
+                    <div>
+                      <span><Clock3 size={14} /> Rota até o LIKE 210</span>
+                      <strong>{point.name}</strong>
+                      <small>{point.context}</small>
+                    </div>
+                    <a href={point.url} target="_blank" rel="noreferrer" aria-label={`Traçar rota de ${point.name} até o LIKE 210`}>
+                      <Route size={15} /> Traçar rota
+                    </a>
+                  </article>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </section>
