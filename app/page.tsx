@@ -100,6 +100,51 @@ const objectiveCards = [
   }
 ] as const;
 
+const palmasLakeTowers = [
+  {
+    name: "Lake Sky",
+    type: "Residencial · 2032",
+    description: "Coberturas duplex e mansões suspensas com vista permanente para o lago.",
+    image: "/brand/palmas-lake/sky.jpg",
+    href: "/palmas-lake/lake-sky"
+  },
+  {
+    name: "Lake Garden",
+    type: "Residencial · 2032",
+    description: "Espaço, paisagismo exuberante e a calma de morar de frente para o lago.",
+    image: "/brand/palmas-lake/garden.jpg",
+    href: "/palmas-lake/lake-garden"
+  },
+  {
+    name: "Lake Park",
+    type: "Residencial · 2032",
+    description: "Plantas amplas, living integrado e um ponto de entrada especial no residencial.",
+    image: "/brand/palmas-lake/park.jpg",
+    href: "/palmas-lake/lake-park"
+  },
+  {
+    name: "Lake Loft",
+    type: "Multifuncional · 2029",
+    description: "Compactos inteligentes preparados para morar, hospedar e investir.",
+    image: "/brand/palmas-lake/loft.jpg",
+    href: "/palmas-lake/lake-loft"
+  },
+  {
+    name: "Lake Office",
+    type: "Business center · 2029",
+    description: "Salas e lajes corporativas conectadas ao Mall, à marina e à orla.",
+    image: "/brand/palmas-lake/office.jpg",
+    href: "/palmas-lake/lake-office"
+  },
+  {
+    name: "Lake Mall",
+    type: "Shopping conceito · 2029",
+    description: "Gastronomia, serviços e encontros com a água como paisagem todos os dias.",
+    image: "/brand/palmas-lake/mall.jpg",
+    href: "/palmas-lake/lake-mall"
+  }
+] as const;
+
 const purposeLabelMap: Record<PropertyPurpose, string> = {
   VENDA: "Venda",
   LOCACAO: "Locação",
@@ -506,6 +551,56 @@ export default async function HomePage({
           </div>
         </section>
       ) : null}
+
+      <section className="section wp-palmas-lake-section" aria-labelledby="wp-palmas-lake-title">
+        <div className="container">
+          <div className="wp-palmas-lake-intro">
+            <div className="wp-palmas-lake-copy">
+              <p className="wp-section-eyebrow">Palmas Lake</p>
+              <h2 id="wp-palmas-lake-title">Um novo horizonte para viver Palmas.</h2>
+              <p>
+                Um complexo multifuncional à beira do lago, com residências, lofts, escritórios e experiências de lazer em um só endereço.
+              </p>
+              <Link href="/palmas-lake" className="button button-primary">
+                Conhecer o Palmas Lake <span aria-hidden="true">↗</span>
+              </Link>
+            </div>
+            <div className="wp-palmas-lake-feature">
+              <HomeImage
+                src="/brand/palmas-lake/palmas-lake-overview.jpg"
+                alt="Vista geral do complexo Palmas Lake à beira do lago"
+                sizes="(max-width: 760px) 100vw, 48vw"
+                className="wp-cover-image"
+              />
+              <span className="wp-palmas-lake-feature-shade" aria-hidden="true" />
+              <span className="wp-palmas-lake-feature-label">Um endereço · seis experiências</span>
+            </div>
+          </div>
+
+          <div className="wp-palmas-lake-grid">
+            {palmasLakeTowers.map((tower, index) => (
+              <Link key={tower.href} href={tower.href} className="wp-palmas-lake-card">
+                <div className="wp-palmas-lake-card-media">
+                  <HomeImage
+                    src={tower.image}
+                    alt={`Conheça o ${tower.name}`}
+                    sizes="(max-width: 640px) 100vw, (max-width: 960px) 50vw, 33vw"
+                    className="wp-cover-image"
+                  />
+                  <span className="wp-image-shade" aria-hidden="true" />
+                  <span className="wp-palmas-lake-card-number">0{index + 1}</span>
+                </div>
+                <div className="wp-palmas-lake-card-body">
+                  <p>{tower.type}</p>
+                  <h3>{tower.name}</h3>
+                  <span>{tower.description}</span>
+                  <strong>Ver detalhes <span aria-hidden="true">↗</span></strong>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
 
       <section className="section wp-soft-section">
         <div className="container">
