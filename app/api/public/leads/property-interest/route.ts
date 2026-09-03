@@ -2,6 +2,7 @@ import { InteractionChannel, InteractionType, LeadIntent, LeadSource } from "@pr
 import { fail, ok } from "@/lib/api/http";
 import { prisma } from "@/lib/prisma";
 import { publicPropertyInterestSchema } from "@/lib/validation/schemas";
+import { ensureLandingPageTask, recordLandingPageEvent, resolveLandingPage } from "@/lib/data/marketing-landing-pages";
 
 export async function POST(request: Request) {
   const body = await request.json();
@@ -11,7 +12,9 @@ export async function POST(request: Request) {
     return fail("Payload inválido para interesse no imóvel.", 422, parsed.error.flatten());
   }
 
-  const { name, whatsapp, email, message, propertySlug, lgpdConsent } = parsed.data;
+  const { name, whatsapp, email, message, propertySlug, sourcePage, landingPageSlug, lgpdConsent } = parsed.data;
+
+  const landingPage = await resolveLandingPage({ slug: landingPageSlug, publicPath: sourcePage });
 
   const property = propertySlug
     ? await prisma.property.findUnique({
@@ -35,6 +38,8 @@ export async function POST(request: Request) {
           source: LeadSource.SITE,
           intent: LeadIntent.COMPRAR,
           linkedPropertyId: property?.id ?? existingLead.linkedPropertyId,
+          landingPageId: landingPage?.id ?? existingLead.landingPageId,
+          sourcePage: sourcePage || existingLead.sourcePage,
           lgpdConsentAt: lgpdConsent ? new Date() : existingLead.lgpdConsentAt,
           notes: message ? `${existingLead.notes ?? ""}\n${message}`.trim() : existingLead.notes
         }
@@ -47,6 +52,8 @@ export async function POST(request: Request) {
           source: LeadSource.SITE,
           intent: LeadIntent.COMPRAR,
           linkedPropertyId: property?.id,
+          landingPageId: landingPage?.id ?? undefined,
+          sourcePage: sourcePage || undefined,
           lgpdConsentAt: lgpdConsent ? new Date() : undefined,
           notes: message || undefined
         }
@@ -64,6 +71,11 @@ export async function POST(request: Request) {
       }
     }
   });
+
+  if (landingPage) {
+    await ensureLandingPageTask(lead.id, landingPage.name);
+    await recordLandingPageEvent(landingPage.id, "FORM_SUBMISSION");
+  }
 
   return ok({ leadId: lead.id, propertyId: property?.id ?? null }, { status: 201 });
 }

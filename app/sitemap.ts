@@ -3,18 +3,11 @@ import {
   listPublishedBlogCategoriesWithCounts,
   listPublishedBlogPosts
 } from "@/lib/data/blog";
-import { listPublicBuilders, listPublicDevelopments } from "@/lib/data/developments";
 import { listPublicProperties } from "@/lib/data/properties";
 import { listPublishedSeoLandingPages } from "@/lib/data/seo-landing-pages";
-import { slugify } from "@/lib/crm/slug";
 import { getSiteUrl } from "@/lib/site-url";
 
 const STATIC_ROUTE_LAST_MODIFIED = new Date("2026-06-09T00:00:00.000Z");
-
-function cityToSeoSlug(city: string) {
-  const normalized = slugify(city);
-  return normalized.endsWith("-to") ? normalized : `${normalized}-to`;
-}
 
 function toDate(value: unknown): Date | undefined {
   if (!value) return undefined;
@@ -39,11 +32,9 @@ function maxDate(dates: Array<Date | undefined>): Date | undefined {
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = getSiteUrl();
-  const [properties, developments, seoPages, builders, blogPosts, blogCategories] = await Promise.all([
+  const [properties, seoPages, blogPosts, blogCategories] = await Promise.all([
     listPublicProperties(),
-    listPublicDevelopments(),
     listPublishedSeoLandingPages(),
-    listPublicBuilders(),
     listPublishedBlogPosts(),
     listPublishedBlogCategoriesWithCounts()
   ]);
@@ -60,29 +51,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.9
   }));
 
-  const developmentRoutes = developments.map((development) => ({
-    url: `${baseUrl}/lancamentos/${development.slug}`,
-    lastModified: pickLastModified(
-      (development as { updatedAt?: Date | string | null }).updatedAt,
-      (development as { publishedAt?: Date | string | null }).publishedAt
-    ),
-    changeFrequency: "weekly" as const,
-    priority: 0.9
-  }));
-
-  const builderRoutes = builders.map((builder) => ({
-    url: `${baseUrl}/construtoras/${builder.slug}`,
-    lastModified: pickLastModified(builder.updatedAt),
-    changeFrequency: "weekly" as const,
-    priority: 0.8
-  }));
-
-  const seoRoutes = seoPages.map((page) => ({
+  const seoRoutes = seoPages
+    .filter((page) => page.path !== "/palmas-to/imoveis-na-planta")
+    .map((page) => ({
     url: `${baseUrl}${page.path}`,
     lastModified: pickLastModified(page.updatedAt),
     changeFrequency: "weekly" as const,
     priority: 0.85
-  }));
+    }));
 
   const blogRoutes = blogPosts.map((post) => ({
     url: `${baseUrl}/blog/${post.slug}`,
@@ -105,45 +81,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.65
   }));
 
-  // Auto-generated city/district/builder index routes — their freshness
-  // tracks the latest development that lives in that bucket.
-  const autoLaunchBuckets = new Map<string, Date | undefined>();
-  developments.forEach((development) => {
-    const devDate = toDate(
-      (development as { updatedAt?: Date | string | null }).updatedAt
-    );
-    const citySlug = cityToSeoSlug(development.city);
-    const targets = [`/${citySlug}/lancamentos`];
-    if (development.district) {
-      targets.push(`/${citySlug}/${slugify(development.district)}/lancamentos`);
-    }
-    const builderSlug =
-      development.builder?.slug ??
-      (development.displayBuilderName ? slugify(development.displayBuilderName) : null);
-    if (builderSlug) {
-      targets.push(`/${citySlug}/construtora/${builderSlug}/lancamentos`);
-    }
-    targets.forEach((path) => {
-      const current = autoLaunchBuckets.get(path);
-      autoLaunchBuckets.set(path, maxDate([current, devDate]));
-    });
-  });
-
-  const autoLaunchRoutes = Array.from(autoLaunchBuckets.entries()).map(([path, date]) => ({
-    url: `${baseUrl}${path}`,
-    lastModified: pickLastModified(date),
-    changeFrequency: "weekly" as const,
-    priority: 0.8
-  }));
-
   // Static routes use the freshness of the catalogue as a whole so they
   // signal "site refreshed" only when content actually changed, instead of
   // every crawl.
   const catalogueFreshness =
     maxDate([
       ...propertyRoutes.map((r) => toDate(r.lastModified)),
-      ...developmentRoutes.map((r) => toDate(r.lastModified)),
-      ...builderRoutes.map((r) => toDate(r.lastModified)),
       ...seoRoutes.map((r) => toDate(r.lastModified)),
       ...blogRoutes.map((r) => toDate(r.lastModified)),
       ...blogCategoryRoutes.map((r) => toDate(r.lastModified))
@@ -153,9 +96,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "",
     "/imoveis",
     "/imoveis/prontos",
-    "/empreendimentos",
     "/lancamentos",
-    "/construtoras",
     "/imoveis/leilao",
     "/investidores",
     "/venda-seu-imovel",
@@ -168,7 +109,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/termos-de-uso",
     "/lake-village",
     "/quinta-do-lago",
-    "/acordes"
+    "/acordes",
+    "/like-210"
   ].map((path) => ({
     url: `${baseUrl}${path}`,
     lastModified: catalogueFreshness,
@@ -179,9 +121,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   return [
     ...staticRoutes,
     ...propertyRoutes,
-    ...developmentRoutes,
-    ...builderRoutes,
-    ...autoLaunchRoutes,
     ...seoRoutes,
     ...blogRoutes,
     ...blogCategoryRoutes

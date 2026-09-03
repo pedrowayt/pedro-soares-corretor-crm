@@ -35,6 +35,7 @@ Plataforma fullstack para captação, qualificação e fechamento de leads imobi
 - Tarefas (`/crm/tarefas`)
 - Relatórios (`/crm/relatorios`)
 - Configurações (`/crm/configuracoes`)
+- Landing pages (`/crm/landing-pages`)
 
 ## API
 
@@ -52,6 +53,8 @@ Plataforma fullstack para captação, qualificação e fechamento de leads imobi
 - `POST /api/crm/visits`
 - `POST /api/crm/proposals`
 
+Landing pages customizadas são criadas e publicadas pelo Codex. O CRM não edita o layout: ele registra a página, vincula a captação ao lead por `landingPageId`, preserva `sourcePage` e cria uma tarefa de primeiro contato quando a origem é identificada.
+
 ### Mídia / Integrações
 - `POST /api/media/images/direct-upload`
 - `POST /api/media/videos/direct-upload`
@@ -64,7 +67,7 @@ Plataforma fullstack para captação, qualificação e fechamento de leads imobi
 ## Banco de dados
 
 Todos os modelos centrais estão no `prisma/schema.prisma`:
-- `User`, `Lead`, `LeadInteraction`, `PipelineStageHistory`
+- `User`, `Lead`, `LandingPage`, `LeadInteraction`, `PipelineStageHistory`
 - `Property`, `PropertyMedia`, `Owner`
 - `Visit`, `Proposal`, `Task`
 - `InvestorOpportunity`, `AuctionCase`, `PortalPublication`

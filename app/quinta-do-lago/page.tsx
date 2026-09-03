@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import { ArrowRight, Check, Clock3, Dumbbell, ExternalLink, FileText, Globe2, Heart, Leaf, MapPin, MessageCircle, Route, ShieldCheck, Waves } from "lucide-react";
 import { QuintaDoLagoLeadForm } from "@/components/public/quinta-do-lago-lead-form";
+import { LandingPageTracker } from "@/components/public/landing-page-tracker";
 import { buildWhatsAppUrl } from "@/lib/integrations/whatsapp-links";
 import { getSiteUrl } from "@/lib/site-url";
 
@@ -52,6 +53,7 @@ const whatsappUrl = buildWhatsAppUrl(
 export default function QuintaDoLagoPage() {
   return (
     <div className="qdl-landing">
+      <LandingPageTracker landingPageSlug="quinta-do-lago" />
       <header className="qdl-header">
         <a className="qdl-wordmark" href="#inicio" aria-label="Quinta do Lago — início">
           <Image src="/brand/quinta-do-lago/logo-horizontal.jpg" alt="Quinta do Lago" width={176} height={118} priority className="qdl-header-logo" />

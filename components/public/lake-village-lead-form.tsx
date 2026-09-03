@@ -40,6 +40,8 @@ export function LakeVillageLeadForm() {
           interest,
           groupConsent,
           developmentSlug: "lake-village-residences",
+          landingPageSlug: "lake-village",
+          sourcePage: window.location.pathname,
           lgpdConsent: data.get("lgpdConsent") === "on"
         })
       });

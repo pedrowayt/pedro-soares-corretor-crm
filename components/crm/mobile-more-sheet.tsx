@@ -5,12 +5,12 @@ import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 import {
   BarChart3,
-  Building2,
   CalendarCheck,
   ChevronRight,
   FileSignature,
   Hammer,
   Inbox,
+  LayoutDashboard,
   ListTodo,
   LogOut,
   Newspaper,
@@ -34,8 +34,6 @@ const GROUPS: ReadonlyArray<Group> = [
       { href: "/crm/inbox", label: "Inbox", Icon: Inbox },
       { href: "/crm/captacao", label: "Captação ativa", Icon: Target },
       { href: "/crm/leiloes", label: "Leilões", Icon: Hammer },
-      { href: "/crm/empreendimentos", label: "Empreendimentos", Icon: Building2 },
-      { href: "/crm/construtoras", label: "Construtoras", Icon: Hammer },
       { href: "/crm/proprietarios", label: "Proprietários", Icon: UserCheck },
       { href: "/crm/visitas", label: "Visitas", Icon: CalendarCheck },
       { href: "/crm/propostas", label: "Propostas", Icon: FileSignature },
@@ -46,6 +44,7 @@ const GROUPS: ReadonlyArray<Group> = [
     title: "Conteúdo",
     items: [
       { href: "/crm/paginas-seo", label: "Páginas SEO", Icon: Search },
+      { href: "/crm/landing-pages", label: "Landing pages", Icon: LayoutDashboard },
       { href: "/crm/blog", label: "Blog", Icon: Newspaper }
     ]
   },

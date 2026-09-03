@@ -14,9 +14,8 @@ const seoFooterLinkGroups: SeoFooterLinkGroup[] = [
     links: [
       { href: "/imoveis", label: "Imóveis em Palmas TO" },
       { href: "/palmas-to/imoveis-prontos", label: "Imóveis prontos em Palmas" },
-      { href: "/palmas-to/imoveis-na-planta", label: "Imóveis na planta em Palmas" },
       { href: "/palmas-to/imoveis-leilao", label: "Imóveis de leilão em Palmas" },
-      { href: "/lancamentos", label: "Lançamentos em Palmas" }
+      { href: "/lancamentos", label: "Lançamentos em destaque em Palmas" }
     ]
   },
   {
@@ -50,11 +49,9 @@ const seoFooterLinkGroups: SeoFooterLinkGroup[] = [
     ]
   },
   {
-    title: "Planta e leilão",
+    title: "Lançamentos e leilões",
     links: [
-      { href: "/lancamentos?city=Palmas&propertyType=APARTAMENTO", label: "Apartamentos na planta em Palmas" },
-      { href: "/lancamentos?city=Palmas&propertyType=CASA", label: "Casas na planta em Palmas" },
-      { href: "/lancamentos?city=Palmas&propertyType=LOTE", label: "Lotes em lançamento em Palmas" },
+      { href: "/lancamentos", label: "Lançamentos em destaque" },
       { href: "/imoveis/leilao?city=Palmas&type=APARTAMENTO", label: "Apartamentos de leilão em Palmas" },
       { href: "/imoveis/leilao?city=Palmas&type=CASA", label: "Casas de leilão em Palmas" }
     ]

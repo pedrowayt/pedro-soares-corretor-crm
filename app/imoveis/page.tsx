@@ -7,11 +7,10 @@ const baseUrl = getSiteUrl();
 export const metadata: Metadata = {
   title: "Imóveis em Palmas TO | Pedro Soares Corretor de Imóveis",
   description:
-    "Encontre imóveis prontos, imóveis na planta e imóveis de leilão em Palmas TO com atendimento direto de Pedro Soares.",
+    "Encontre imóveis prontos e imóveis de leilão em Palmas TO com atendimento direto de Pedro Soares.",
   keywords: [
     "imóveis em Palmas TO",
     "imóveis prontos Palmas",
-    "imóveis na planta Palmas",
     "imóveis de leilão Palmas",
     "Pedro Soares corretor"
   ],
@@ -28,9 +27,9 @@ const categoryCards = [
     image: "/brand/areas/plano-diretor-sul.png"
   },
   {
-    href: "/empreendimentos",
-    title: "Lançamentos e empreendimentos",
-    subtitle: "Apartamentos, casas, lotes e condomínios em fase de lançamento ou pré-cadastro.",
+    href: "/lancamentos",
+    title: "Lançamentos em destaque",
+    subtitle: "Campanhas especiais apresentadas em landing pages com atendimento direto.",
     image: "/brand/areas/plano-diretor-norte.png"
   },
   {
@@ -56,7 +55,7 @@ export default function ImoveisPage() {
     "@type": "CollectionPage",
     name: "Imóveis em Palmas TO",
     description:
-      "Página de entrada para imóveis prontos, na planta e leilão em Palmas TO.",
+      "Página de entrada para imóveis prontos, lançamentos em destaque e leilão em Palmas TO.",
     url: `${baseUrl}/imoveis`,
     inLanguage: "pt-BR"
   };
@@ -83,7 +82,7 @@ export default function ImoveisPage() {
               Imóveis prontos
             </Link>
             <Link href="/lancamentos" className="wp-type-chip">
-              Imóveis na planta
+              Lançamentos
             </Link>
             <Link href="/imoveis/leilao" className="wp-type-chip">
               Imóveis leilão
@@ -108,7 +107,7 @@ export default function ImoveisPage() {
                 <h2 style={{ margin: 0 }}>{item.title}</h2>
                 <p className="section-subtitle text-card">{item.subtitle}</p>
                 <Link href={item.href} className="button button-primary" style={{ width: "100%" }}>
-                  Ver imóveis
+                  {item.href === "/lancamentos" ? "Conhecer lançamentos" : "Ver imóveis"}
                 </Link>
               </div>
             </article>

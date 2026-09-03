@@ -8,6 +8,7 @@ import {
 import { fail, ok } from "@/lib/api/http";
 import { prisma } from "@/lib/prisma";
 import { publicWhatsappClickSchema } from "@/lib/validation/schemas";
+import { ensureLandingPageTask, recordLandingPageEvent, resolveLandingPage } from "@/lib/data/marketing-landing-pages";
 
 export async function POST(request: Request) {
   const body = await request.json();
@@ -30,8 +31,12 @@ export async function POST(request: Request) {
     leadName,
     leadEmail,
     messageTemplate,
+    sourcePage,
+    landingPageSlug,
     context
   } = parsed.data;
+
+  const landingPage = await resolveLandingPage({ slug: landingPageSlug, publicPath: sourcePage });
 
   const property = propertyId
     ? await prisma.property.findUnique({ where: { id: propertyId } })
@@ -73,6 +78,8 @@ export async function POST(request: Request) {
           linkedDevelopmentId: development?.id,
           linkedDevelopmentUnitTypeId: unitType?.id,
           linkedDevelopmentUnitId: unit?.id,
+          landingPageId: landingPage?.id,
+          sourcePage: sourcePage || undefined,
           email: leadEmail || undefined,
           developmentLeadStatus:
             context === "schedule"
@@ -90,6 +97,8 @@ export async function POST(request: Request) {
           linkedDevelopmentId: development?.id,
           linkedDevelopmentUnitTypeId: unitType?.id,
           linkedDevelopmentUnitId: unit?.id,
+          landingPageId: landingPage?.id,
+          sourcePage: sourcePage || undefined,
           developmentLeadStatus:
             context === "schedule"
               ? DevelopmentLeadStatus.AGENDOU_APRESENTACAO
@@ -124,6 +133,11 @@ export async function POST(request: Request) {
         }
       }
     });
+
+    if (landingPage) {
+      await ensureLandingPageTask(lead.id, landingPage.name);
+      await recordLandingPageEvent(landingPage.id, "WHATSAPP_CLICK", { context: context ?? "default" });
+    }
   }
 
   return ok({

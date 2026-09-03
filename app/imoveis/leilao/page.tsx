@@ -95,7 +95,7 @@ export default async function ImoveisLeilaoPage({
               Imóveis prontos
             </Link>
             <Link href="/lancamentos" className="wp-type-chip">
-              Imóveis na planta
+              Lançamentos
             </Link>
             <Link href="/imoveis/leilao" className="wp-type-chip active">
               Imóveis leilão

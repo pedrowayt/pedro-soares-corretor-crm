@@ -3,6 +3,7 @@ import { fail, ok } from "@/lib/api/http";
 import { slugify } from "@/lib/crm/slug";
 import { prisma } from "@/lib/prisma";
 import { publicSellerCaptureSchema } from "@/lib/validation/schemas";
+import { ensureLandingPageTask, recordLandingPageEvent, resolveLandingPage } from "@/lib/data/marketing-landing-pages";
 
 export async function POST(request: Request) {
   const body = await request.json();
@@ -12,7 +13,9 @@ export async function POST(request: Request) {
     return fail("Payload inválido para captação de proprietário.", 422, parsed.error.flatten());
   }
 
-  const { name, whatsapp, propertyType, district, city, askingPrice, statusDescription, photos, lgpdConsent } = parsed.data;
+  const { name, whatsapp, propertyType, district, city, askingPrice, statusDescription, photos, sourcePage, landingPageSlug, lgpdConsent } = parsed.data;
+
+  const landingPage = await resolveLandingPage({ slug: landingPageSlug, publicPath: sourcePage });
 
   const owner = await prisma.owner.create({
     data: {
@@ -60,14 +63,21 @@ export async function POST(request: Request) {
       phone: whatsapp,
       source: LeadSource.SITE,
       intent: LeadIntent.VENDER,
+      landingPageId: landingPage?.id ?? undefined,
       linkedOwnerId: owner.id,
       linkedPropertyId: property.id,
+      sourcePage: sourcePage || undefined,
       desiredCity: city,
       desiredDistrict: district,
       notes: statusDescription,
       lgpdConsentAt: lgpdConsent ? new Date() : undefined
     }
   });
+
+  if (landingPage) {
+    await ensureLandingPageTask(lead.id, landingPage.name);
+    await recordLandingPageEvent(landingPage.id, "FORM_SUBMISSION");
+  }
 
   return ok({ leadId: lead.id, propertyId: property.id, ownerId: owner.id }, { status: 201 });
 }

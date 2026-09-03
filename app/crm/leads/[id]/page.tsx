@@ -35,6 +35,7 @@ function initials(name: string) {
 function formatDateTime(value: Date | string | null | undefined) {
   if (!value) return "—";
   return new Date(value).toLocaleString("pt-BR", {
+    timeZone: "America/Araguaina",
     day: "2-digit",
     month: "short",
     year: "numeric",
@@ -188,6 +189,18 @@ export default async function CrmLeadDetailPage({
                 <dd>{lead.desiredDistrict ?? "—"}</dd>
               </div>
               <div>
+                <dt>Cadastro</dt>
+                <dd><time dateTime={lead.createdAt.toISOString()}>{formatDateTime(lead.createdAt)}</time></dd>
+              </div>
+              <div>
+                <dt>Página de cadastro</dt>
+                <dd>{lead.sourcePage ?? "Não registrada"}</dd>
+              </div>
+              <div>
+                <dt>Landing page</dt>
+                <dd>{lead.landingPage?.name ?? "Não vinculada"}</dd>
+              </div>
+              <div>
                 <dt>Último contato</dt>
                 <dd>{formatDateTime(lead.lastContactAt)}</dd>
               </div>
@@ -214,7 +227,8 @@ export default async function CrmLeadDetailPage({
                 {lead.linkedDevelopment ? (
                   <li>
                     <Building2 size={14} strokeWidth={1.75} aria-hidden="true" />
-                    <Link href={`/crm/empreendimentos`}>{lead.linkedDevelopment.title}</Link>
+                    <span>{lead.linkedDevelopment.title}</span>
+                    <small>Registro legado</small>
                     {lead.linkedDevelopmentUnitType ? (
                       <span>{lead.linkedDevelopmentUnitType.name}</span>
                     ) : null}

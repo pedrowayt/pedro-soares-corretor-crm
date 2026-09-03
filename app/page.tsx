@@ -5,11 +5,6 @@ import Link from "next/link";
 import { listPublishedBlogPosts } from "@/lib/data/blog";
 import { publicLandingPages } from "@/lib/data/landing-pages";
 import { PropertySpecs } from "@/components/public/property-specs";
-import {
-  developmentPublicStageLabels,
-  listHighlightedDevelopments
-} from "@/lib/data/developments";
-import { getDevelopmentStageLabel } from "@/lib/development-investment";
 import { listPublicProperties } from "@/lib/data/properties";
 import {
   PROPERTY_TYPE_LABELS,
@@ -38,7 +33,7 @@ export const metadata: Metadata = {
   }
 };
 
-type SearchMode = "geral" | "planta" | "leilao";
+type SearchMode = "geral" | "leilao";
 
 type HomePropertyCard = {
   id: string;
@@ -97,10 +92,10 @@ const objectiveCards = [
     action: "Ver opções para investir"
   },
   {
-    title: "Quero conhecer lançamentos",
-    description: "Empreendimentos, pré-cadastros, plantas e condições em primeira mão.",
-    href: "/empreendimentos",
-    action: "Conhecer empreendimentos"
+    title: "Quero conhecer um lançamento",
+    description: "Páginas especiais com informações, condições e atendimento para cada campanha.",
+    href: "/lancamentos",
+    action: "Ver lançamentos"
   }
 ] as const;
 
@@ -314,7 +309,6 @@ function formatCountLabel(count: number, singular: string, plural: string) {
 }
 
 function getSearchMode(modeInput: string | string[] | undefined): SearchMode {
-  if (modeInput === "planta") return "planta";
   if (modeInput === "leilao") return "leilao";
   return "geral";
 }
@@ -327,9 +321,8 @@ export default async function HomePage({
   const filters = await searchParams;
   const searchMode = getSearchMode(filters.mode);
 
-  const [propertiesRaw, developmentsRaw, blogPosts] = await Promise.all([
+  const [propertiesRaw, blogPosts] = await Promise.all([
     listPublicProperties(),
-    listHighlightedDevelopments(8),
     listPublishedBlogPosts(3)
   ]);
 
@@ -340,8 +333,6 @@ export default async function HomePage({
 
   const latestProperties = allCards.slice(0, 6);
   const auctionCards = allCards.filter(isAuctionCard).slice(0, 3);
-
-  const developmentCards = developmentsRaw.slice(0, 3);
 
   const categoryCards = buildCategoryCards(readySaleCards);
   const areaCards = buildAreaCards(readySaleCards);
@@ -372,14 +363,13 @@ export default async function HomePage({
           <p className="wp-hero-eyebrow">Pedro Soares • Especialista em imóveis em Palmas</p>
           <h1>Encontre seu próximo imóvel em Palmas e região.</h1>
           <p className="wp-hero-lede">
-            Casas, apartamentos, lotes e empreendimentos selecionados para morar ou investir.
+            Casas, apartamentos, lotes e oportunidades selecionadas para morar ou investir.
           </p>
 
           <div className="wp-search-tabs" role="tablist" aria-label="Tipos de busca">
             {(
               [
                 { key: "geral", label: "Busca Geral" },
-                { key: "planta", label: "Lançamentos" },
                 { key: "leilao", label: "Imóveis Leilão" }
               ] as Array<{ key: SearchMode; label: string }>
             ).map((tab) => (
@@ -393,46 +383,7 @@ export default async function HomePage({
             ))}
           </div>
 
-          {searchMode === "planta" ? (
-            <form className="wp-search-panel" action="/lancamentos" method="GET">
-              <div>
-                <label htmlFor="district">Bairro</label>
-                <input id="district" name="district" placeholder="Plano Diretor Sul" />
-              </div>
-              <div>
-                <label htmlFor="maxPrice">Preço inicial até</label>
-                <input id="maxPrice" name="maxPrice" type="number" placeholder="900000" />
-              </div>
-              <button type="submit" className="button button-primary">
-                Encontrar imóveis
-              </button>
-
-              <details className="wp-search-advanced">
-                <summary>Mais filtros</summary>
-                <div className="wp-search-advanced-content">
-                  <div>
-                    <label htmlFor="publicStage">Status</label>
-                    <select id="publicStage" name="publicStage" defaultValue="">
-                      <option value="">Todos</option>
-                      {Object.entries(developmentPublicStageLabels).map(([value, label]) => (
-                        <option key={value} value={value}>
-                          {label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label htmlFor="minPrice">Preço inicial a partir de</label>
-                    <input id="minPrice" name="minPrice" type="number" placeholder="300000" />
-                  </div>
-                  <div>
-                    <label htmlFor="bedrooms">Quartos</label>
-                    <input id="bedrooms" name="bedrooms" type="number" min={1} placeholder="2" />
-                  </div>
-                </div>
-              </details>
-            </form>
-          ) : searchMode === "leilao" ? (
+          {searchMode === "leilao" ? (
             <form className="wp-search-panel" action="/imoveis/leilao" method="GET">
               <div>
                 <label htmlFor="district-auction">Região</label>
@@ -549,8 +500,8 @@ export default async function HomePage({
           <div className="container">
             <div className="wp-section-head wp-featured-landing-head">
               <p className="wp-section-eyebrow">Conheça nossos projetos</p>
-              <h2 className="section-title">Empreendimentos em destaque</h2>
-              <p className="section-subtitle text-card">Páginas especiais para conhecer cada projeto com mais detalhes.</p>
+              <h2 className="section-title">Lançamentos em destaque</h2>
+              <p className="section-subtitle text-card">Conheça as campanhas atuais e fale diretamente com Pedro Soares.</p>
             </div>
             <div className="wp-featured-landing-grid">
               {featuredLandings.map((landing) => (
@@ -568,10 +519,10 @@ export default async function HomePage({
                   <span className="wp-image-shade wp-featured-landing-shade" aria-hidden="true" />
                   <div className="wp-featured-landing-copy">
                     <span className="badge">{landing.status}</span>
-                    <p className="wp-section-eyebrow">Oportunidade em destaque · {landing.category}</p>
+                    <p className="wp-section-eyebrow">Lançamento em destaque · {landing.category}</p>
                     <h2>{landing.title}</h2>
                     <p>{landing.summary}</p>
-                    <span className="button button-primary">Conhecer empreendimento</span>
+                    <span className="button button-primary">Conhecer lançamento</span>
                   </div>
                 </Link>
               ))}
@@ -628,7 +579,6 @@ export default async function HomePage({
             </p>
           </div>
           <div className="wp-type-switches" style={{ marginTop: 18 }}>
-            <Link href="/palmas-to/imoveis-na-planta" className="wp-type-chip">Imóveis na Planta em Palmas</Link>
             <Link href="/palmas-to/imoveis-leilao" className="wp-type-chip">Imóveis de Leilão em Palmas</Link>
             <Link href="/palmas-to/plano-diretor-sul/imoveis" className="wp-type-chip">Plano Diretor Sul</Link>
             <Link href="/palmas-to/plano-diretor-norte/imoveis" className="wp-type-chip">Plano Diretor Norte</Link>
@@ -637,69 +587,6 @@ export default async function HomePage({
             <Link href="/palmas-to/aureny/imoveis" className="wp-type-chip">Aureny</Link>
             <Link href="/palmas-to/centro/imoveis" className="wp-type-chip">Centro de Palmas</Link>
           </div>
-        </div>
-      </section>
-
-      <section className="section wp-soft-section" style={{ paddingTop: 24 }}>
-        <div className="container">
-          <div className="wp-section-head">
-            <h2 className="section-title">Imóveis na planta</h2>
-            <p className="section-subtitle text-card">
-              Lançamentos com ficha técnica completa, cronograma, FAQ e captação de lead por empreendimento.
-            </p>
-          </div>
-          {developmentCards.length ? (
-            <div className="wp-property-grid wp-property-grid-3" style={{ marginTop: 20 }}>
-              {developmentCards.map((development) => {
-                const media =
-                  development.media.find((item) => item.isPrimary)?.url ??
-                  development.media.find((item) => item.kind === "HERO")?.url ??
-                  development.media.find((item) => item.kind === "GALLERY")?.url ??
-                  "/brand/logo-light-bg.png";
-
-                return (
-                  <article key={development.id} className="wp-property-card compact">
-                    <div className="wp-property-media">
-                      <HomeImage
-                        src={media}
-                        alt={development.title}
-                        sizes="(max-width: 640px) 100vw, (max-width: 960px) 50vw, 33vw"
-                        className="wp-cover-image"
-                      />
-                      <span className="wp-image-shade" aria-hidden="true" />
-                      <div className="wp-media-badges">
-                        <span className="badge">Lançamento</span>
-                        <span className="badge">{getDevelopmentStageLabel(development.stage)}</span>
-                      </div>
-                      <p>{development.city} • {development.district}</p>
-                    </div>
-                    <div className="wp-property-body">
-                      <h3>{development.title}</h3>
-                      <p className="wp-price">
-                        A partir de{" "}
-                        {development.startingPriceNumber
-                          ? formatCurrencyBRL(development.startingPriceNumber)
-                          : "Sob consulta"}
-                      </p>
-                      <div className="wp-spec-row">
-                        <span>{development.bedroomsFrom ?? "-"} a {development.bedroomsTo ?? "-"} quartos</span>
-                        <span>{development.areaFromM2Number ?? "-"} a {development.areaToM2Number ?? "-"} m²</span>
-                      </div>
-                      <Link href={`/lancamentos/${development.slug}`} className="button button-primary" style={{ width: "100%" }}>
-                        Ver empreendimento
-                      </Link>
-                    </div>
-                  </article>
-                );
-              })}
-            </div>
-          ) : (
-            <article className="card" style={{ padding: 16, marginTop: 20 }}>
-              <p className="text-card" style={{ margin: 0, color: "var(--text-muted)" }}>
-                Nenhum lançamento publicado no backend.
-              </p>
-            </article>
-          )}
         </div>
       </section>
 
@@ -860,7 +747,7 @@ export default async function HomePage({
           <div className="wp-section-head">
             <h2 className="section-title">Nossa equipe</h2>
             <p className="section-subtitle text-card">
-              Atendimento consultivo em imóveis, lançamentos e leilões com padrão comercial único.
+              Atendimento consultivo em imóveis, campanhas de lançamento e leilões com padrão comercial único.
             </p>
           </div>
 
@@ -889,7 +776,7 @@ export default async function HomePage({
               <div className="wp-team-body">
                 <h3>Atendimento Lançamentos</h3>
                 <p>Suporte para tipologias, tabela e fluxo de proposta.</p>
-                <Link href="/lancamentos">Ver empreendimentos</Link>
+                <Link href="/lancamentos">Ver lançamentos</Link>
               </div>
             </article>
 

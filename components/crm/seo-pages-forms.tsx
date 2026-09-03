@@ -134,7 +134,6 @@ export function SeoPagesForms({ pages }: { pages: SeoPageItem[] }) {
             <select name="listingMode" defaultValue={SeoListingMode.TODOS}>
               <option value={SeoListingMode.TODOS}>Todos</option>
               <option value={SeoListingMode.PRONTOS}>Imóveis prontos</option>
-              <option value={SeoListingMode.PLANTA}>Imóveis na planta</option>
               <option value={SeoListingMode.LEILAO}>Imóveis leilão</option>
             </select>
           </div>
@@ -247,7 +246,6 @@ export function SeoPagesForms({ pages }: { pages: SeoPageItem[] }) {
               <select name="listingMode" defaultValue={selectedPage.listingMode}>
                 <option value={SeoListingMode.TODOS}>Todos</option>
                 <option value={SeoListingMode.PRONTOS}>Imóveis prontos</option>
-                <option value={SeoListingMode.PLANTA}>Imóveis na planta</option>
                 <option value={SeoListingMode.LEILAO}>Imóveis leilão</option>
               </select>
             </div>

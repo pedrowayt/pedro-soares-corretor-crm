@@ -7,6 +7,7 @@ import {
   PropertyPurpose
 } from "@prisma/client";
 import { fail, ok } from "@/lib/api/http";
+import { recordLandingPageEvent, resolveLandingPage } from "@/lib/data/marketing-landing-pages";
 import { prisma } from "@/lib/prisma";
 
 export async function POST(request: Request, { params }: { params: Promise<{ slug: string }> }) {
@@ -28,7 +29,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
     unitTypeName?: string;
     unitId?: string;
     unitLabel?: string;
+    sourcePage?: string;
   };
+  const landingPage = await resolveLandingPage({ publicPath: body.sourcePage });
 
   const unitType = body.unitTypeId
     ? await prisma.developmentUnitType.findFirst({
@@ -69,6 +72,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
             linkedDevelopmentId: development.id,
             linkedDevelopmentUnitTypeId: unitType?.id ?? existingLead.linkedDevelopmentUnitTypeId,
             linkedDevelopmentUnitId: unit?.id ?? existingLead.linkedDevelopmentUnitId,
+            sourcePage: body.sourcePage || existingLead.sourcePage,
             developmentLeadStatus: DevelopmentLeadStatus.RECEBEU_TABELA
           }
         })
@@ -83,6 +87,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
             linkedDevelopmentId: development.id,
             linkedDevelopmentUnitTypeId: unitType?.id,
             linkedDevelopmentUnitId: unit?.id,
+            sourcePage: body.sourcePage || undefined,
             developmentLeadStatus: DevelopmentLeadStatus.RECEBEU_TABELA
           }
         });
@@ -108,6 +113,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ slu
         }
       }
     });
+
+    await recordLandingPageEvent(landingPage?.id, "DOWNLOAD");
   }
 
   return ok({

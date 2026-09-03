@@ -3,15 +3,19 @@ import { prisma } from "@/lib/prisma";
 
 const hasDatabase = Boolean(process.env.DATABASE_URL);
 
-export async function listLeads() {
+export async function listLeads(filters: { landingPageSlug?: string } = {}) {
   if (!hasDatabase) return [];
   try {
     return await prisma.lead.findMany({
+      where: filters.landingPageSlug
+        ? { landingPage: { slug: filters.landingPageSlug } }
+        : undefined,
       orderBy: { createdAt: "desc" },
       include: {
         linkedProperty: true,
         linkedDevelopment: true,
         linkedDevelopmentUnitType: true,
+        landingPage: true,
         ownerUser: true
       }
     });

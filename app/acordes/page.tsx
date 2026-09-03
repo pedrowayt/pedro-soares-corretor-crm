@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { AcordesLeadForm } from "@/components/public/acordes-lead-form";
 import { AcordesWhatsAppBubble } from "@/components/public/acordes-whatsapp-bubble";
+import { LandingPageTracker } from "@/components/public/landing-page-tracker";
 import { buildWhatsAppUrl } from "@/lib/integrations/whatsapp-links";
 import { getSiteUrl } from "@/lib/site-url";
 
@@ -77,6 +78,7 @@ function WhatsAppLink({ children, className = "acordes-button acordes-button--ou
 export default function AcordesPage() {
   return (
     <div className="acordes-landing">
+      <LandingPageTracker landingPageSlug="acordes" />
       <section className="acordes-hero">
         <Image src={heroImage} alt="Fachada do Acordes Tower by Tewal" fill priority sizes="100vw" className="acordes-hero-image" />
         <div className="acordes-hero-wash" />

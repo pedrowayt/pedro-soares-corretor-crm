@@ -31,6 +31,7 @@ type Props = {
   developmentId: string;
   developmentSlug: string;
   developmentName: string;
+  landingPageSlug?: string;
   whatsappMessage?: string;
   tablePdfUrl?: string | null;
   unitTypes?: UnitTypeOption[];
@@ -59,6 +60,7 @@ export function DevelopmentInterestForm({
   developmentId,
   developmentSlug,
   developmentName,
+  landingPageSlug,
   whatsappMessage,
   tablePdfUrl,
   unitTypes = [],
@@ -108,9 +110,11 @@ export function DevelopmentInterestForm({
       message: String(formData.get("message") ?? ""),
       developmentSlug,
       developmentId,
+      landingPageSlug,
       unitTypeId: selectedUnitType?.id,
       unitId: selectedUnit?.id,
       requestTable: requestedTable,
+      sourcePage: window.location.pathname,
       lgpdConsent: true
     };
 
@@ -170,7 +174,8 @@ export function DevelopmentInterestForm({
           unitTypeId: selectedUnitType?.id,
           unitTypeName: selectedUnitType?.name,
           unitId: selectedUnit?.id,
-          unitLabel: selectedUnit?.displayName ?? selectedUnit?.label
+          unitLabel: selectedUnit?.displayName ?? selectedUnit?.label,
+          sourcePage: window.location.pathname
         })
       });
 
@@ -213,6 +218,7 @@ export function DevelopmentInterestForm({
           leadPhone: formData.get("whatsapp"),
           leadEmail: formData.get("email"),
           messageTemplate: message,
+          sourcePage: window.location.pathname,
           context
         })
       });

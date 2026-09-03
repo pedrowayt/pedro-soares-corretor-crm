@@ -9,7 +9,8 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
   const isLakeVillageLanding = pathname === "/lake-village";
   const isQuintaDoLagoLanding = pathname === "/quinta-do-lago";
   const isAcordesLanding = pathname === "/acordes";
-  const isStandaloneLanding = isLakeVillageLanding || isQuintaDoLagoLanding || isAcordesLanding;
+  const isLike210Landing = pathname === "/like-210";
+  const isStandaloneLanding = isLakeVillageLanding || isQuintaDoLagoLanding || isAcordesLanding || isLike210Landing;
 
   return (
     <>

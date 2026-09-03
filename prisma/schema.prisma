@@ -143,6 +143,30 @@ enum ProposalStatus {
   EXPIRADA
 }
 
+enum LandingPageType {
+  DEVELOPMENT
+  CAMPAIGN
+  REGION
+  CAPTURE
+}
+
+enum LandingPageStatus {
+  DRAFT
+  REVIEW
+  PUBLISHED
+  PAUSED
+  ARCHIVED
+}
+
+enum LandingPageEventType {
+  PAGE_VIEW
+  CTA_CLICK
+  FORM_START
+  FORM_SUBMISSION
+  WHATSAPP_CLICK
+  DOWNLOAD
+}
+
 enum OpportunityStatus {
   ANALISE
   ATIVA
@@ -385,6 +409,8 @@ model Lead {
   linkedDevelopmentUnit       DevelopmentUnit?     @relation("LeadDevelopmentUnit", fields: [linkedDevelopmentUnitId], references: [id], onDelete: SetNull)
   linkedOwnerId               String?
   linkedOwner                 Owner?               @relation(fields: [linkedOwnerId], references: [id], onDelete: SetNull)
+  landingPageId               String?
+  landingPage                 LandingPage?         @relation("LandingPageLeads", fields: [landingPageId], references: [id], onDelete: SetNull)
 
   interactions LeadInteraction[]
   stageHistory PipelineStageHistory[]
@@ -401,6 +427,46 @@ model Lead {
   @@index([linkedDevelopmentUnitTypeId])
   @@index([linkedDevelopmentUnitId])
   @@index([developmentLeadStatus])
+  @@index([landingPageId])
+}
+
+model LandingPage {
+  id                  String           @id @default(cuid())
+  name                String
+  slug                String           @unique
+  publicPath          String           @unique
+  type                LandingPageType  @default(CAMPAIGN)
+  status              LandingPageStatus @default(DRAFT)
+  formKey             String?
+  deployUrl           String?
+  deployRef           String?
+  publishedAt         DateTime?
+  pausedAt            DateTime?
+  createdAt           DateTime         @default(now())
+  updatedAt           DateTime         @updatedAt
+
+  linkedDevelopmentId String?
+  linkedDevelopment   Development?     @relation("DevelopmentLandingPages", fields: [linkedDevelopmentId], references: [id], onDelete: SetNull)
+  leads               Lead[]           @relation("LandingPageLeads")
+  events              LandingPageEvent[]
+
+  @@index([status])
+  @@index([type])
+  @@index([linkedDevelopmentId])
+}
+
+model LandingPageEvent {
+  id            String               @id @default(cuid())
+  landingPageId String
+  type          LandingPageEventType
+  sessionId     String?
+  metadata      Json?
+  createdAt     DateTime             @default(now())
+
+  landingPage LandingPage @relation(fields: [landingPageId], references: [id], onDelete: Cascade)
+
+  @@index([landingPageId, type, createdAt])
+  @@index([landingPageId, createdAt])
 }
 
 model LeadInteraction {
@@ -575,6 +641,7 @@ model Development {
   faqs         DevelopmentFaq[]
   leads        Lead[]
   interactions LeadInteraction[]
+  landingPages LandingPage[]       @relation("DevelopmentLandingPages")
 
   @@index([status, stage])
   @@index([city, district])

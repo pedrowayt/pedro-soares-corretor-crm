@@ -14,13 +14,44 @@ function buildContext(lead: Awaited<ReturnType<typeof listLeads>>[number]) {
   return "—";
 }
 
-export default async function CrmLeadsPage() {
-  const leads = await listLeads();
+function formatDateTime(value: Date | string | null | undefined) {
+  if (!value) return "—";
+  return new Date(value).toLocaleString("pt-BR", {
+    timeZone: "America/Araguaina",
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+}
+
+function sourcePageLabel(lead: Awaited<ReturnType<typeof listLeads>>[number]) {
+  return lead.sourcePage ?? "Não registrada";
+}
+
+function landingPageLabel(lead: Awaited<ReturnType<typeof listLeads>>[number]) {
+  return lead.landingPage?.name ?? "—";
+}
+
+export default async function CrmLeadsPage({
+  searchParams
+}: {
+  searchParams?: Promise<{ landingPage?: string }>;
+}) {
+  const params = await searchParams;
+  const landingPageSlug = params?.landingPage?.trim() || undefined;
+  const leads = await listLeads({ landingPageSlug });
 
   return (
     <>
       <h1 className="section-title" style={{ marginTop: 0 }}>Leads</h1>
       <p className="section-subtitle">Cadastro e acompanhamento de origem, interesse e próximo passo.</p>
+      {landingPageSlug ? (
+        <p className="badge" style={{ display: "inline-flex", marginTop: 10 }}>
+          Filtro: landing page <strong style={{ marginLeft: 5 }}>{landingPageSlug}</strong>
+        </p>
+      ) : null}
 
       <div id="quick-create" className="crm-quick-form-target" style={{ marginTop: 18, marginBottom: 20 }}>
         <QuickLeadForm />
@@ -33,7 +64,10 @@ export default async function CrmLeadsPage() {
             <tr>
               <th style={thStyle}>Nome</th>
               <th style={thStyle}>Contato</th>
+              <th style={thStyle}>Cadastro</th>
               <th style={thStyle}>Origem</th>
+              <th style={thStyle}>Landing page</th>
+              <th style={thStyle}>Página de cadastro</th>
               <th style={thStyle}>Interesse</th>
               <th style={thStyle}>Etapa</th>
               <th style={thStyle}>Contexto</th>
@@ -49,7 +83,12 @@ export default async function CrmLeadsPage() {
                   </Link>
                 </td>
                 <td style={tdStyle}>{lead.phone}</td>
+                <td style={tdStyle}>
+                  <time dateTime={lead.createdAt.toISOString()}>{formatDateTime(lead.createdAt)}</time>
+                </td>
                 <td style={tdStyle}>{lead.source}</td>
+                <td style={tdStyle}>{landingPageLabel(lead)}</td>
+                <td style={tdStyle}>{sourcePageLabel(lead)}</td>
                 <td style={tdStyle}>{lead.intent}</td>
                 <td style={tdStyle}>{lead.stage}</td>
                 <td style={tdStyle}>{buildContext(lead)}</td>
@@ -82,8 +121,20 @@ export default async function CrmLeadsPage() {
                 <dd>{lead.phone}</dd>
               </div>
               <div>
+                <dt>Cadastro</dt>
+                <dd><time dateTime={lead.createdAt.toISOString()}>{formatDateTime(lead.createdAt)}</time></dd>
+              </div>
+              <div>
                 <dt>Origem</dt>
                 <dd>{lead.source}</dd>
+              </div>
+              <div className="crm-record-card__fields-wide">
+                <dt>Landing page</dt>
+                <dd>{landingPageLabel(lead)}</dd>
+              </div>
+              <div className="crm-record-card__fields-wide">
+                <dt>Página de cadastro</dt>
+                <dd>{sourcePageLabel(lead)}</dd>
               </div>
               <div>
                 <dt>Interesse</dt>

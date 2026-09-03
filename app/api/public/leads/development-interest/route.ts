@@ -10,6 +10,7 @@ import { fail, ok } from "@/lib/api/http";
 import { prisma } from "@/lib/prisma";
 import { publicDevelopmentInterestSchema } from "@/lib/validation/schemas";
 import { syncLakeVillageLeadToGoogleSheets } from "@/lib/integrations/google-sheets";
+import { ensureLandingPageTask, recordLandingPageEvent, resolveLandingPage } from "@/lib/data/marketing-landing-pages";
 
 export async function POST(request: Request) {
   const body = await request.json();
@@ -31,8 +32,12 @@ export async function POST(request: Request) {
     unitTypeId,
     unitId,
     requestTable,
+    sourcePage,
+    landingPageSlug,
     lgpdConsent
   } = parsed.data;
+
+  const landingPage = await resolveLandingPage({ slug: landingPageSlug, publicPath: sourcePage });
 
   const development = developmentId
     ? await prisma.development.findUnique({ where: { id: developmentId } })
@@ -84,6 +89,8 @@ export async function POST(request: Request) {
           linkedDevelopmentId: development?.id ?? existingLead.linkedDevelopmentId,
           linkedDevelopmentUnitTypeId: unitType?.id ?? existingLead.linkedDevelopmentUnitTypeId,
           linkedDevelopmentUnitId: unit?.id ?? existingLead.linkedDevelopmentUnitId,
+          landingPageId: landingPage?.id ?? existingLead.landingPageId,
+          sourcePage: sourcePage || existingLead.sourcePage,
           developmentLeadStatus: requestTable
             ? DevelopmentLeadStatus.RECEBEU_TABELA
             : existingLead.developmentLeadStatus,
@@ -102,6 +109,8 @@ export async function POST(request: Request) {
           linkedDevelopmentId: development?.id,
           linkedDevelopmentUnitTypeId: unitType?.id ?? undefined,
           linkedDevelopmentUnitId: unit?.id ?? undefined,
+          landingPageId: landingPage?.id ?? undefined,
+          sourcePage: sourcePage || undefined,
           developmentLeadStatus: requestTable
             ? DevelopmentLeadStatus.RECEBEU_TABELA
             : DevelopmentLeadStatus.NOVO,
@@ -130,6 +139,11 @@ export async function POST(request: Request) {
       }
     }
   });
+
+  if (landingPage) {
+    await ensureLandingPageTask(lead.id, landingPage.name);
+    await recordLandingPageEvent(landingPage.id, "FORM_SUBMISSION");
+  }
 
   const sheetSync = developmentSlug === "lake-village-residences"
     ? await syncLakeVillageLeadToGoogleSheets({

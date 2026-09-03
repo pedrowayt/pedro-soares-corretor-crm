@@ -43,7 +43,6 @@ const PRIMARY_NAV: ReadonlyArray<TopbarLink> = [
   { href: "/crm/funil", label: "Funil", Icon: Workflow },
   { href: "/crm/imoveis", label: "Imóveis", Icon: Building2 },
   { href: "/crm/leiloes", label: "Leilões", Icon: Hammer },
-  { href: "/crm/empreendimentos", label: "Empreendimentos", Icon: Building2 },
   { href: "/crm/propostas", label: "Propostas", Icon: UserCheck }
 ];
 
@@ -53,8 +52,8 @@ const SECONDARY_NAV: ReadonlyArray<TopbarLink> = [
   { href: "/crm/visitas", label: "Visitas", Icon: UserCheck },
   { href: "/crm/tarefas", label: "Tarefas", Icon: Workflow },
   { href: "/crm/proprietarios", label: "Proprietários", Icon: UserCheck },
-  { href: "/crm/construtoras", label: "Construtoras", Icon: Building2 },
   { href: "/crm/paginas-seo", label: "Páginas SEO", Icon: Search },
+  { href: "/crm/landing-pages", label: "Landing pages", Icon: LayoutDashboard },
   { href: "/crm/blog", label: "Blog", Icon: LayoutDashboard },
   { href: "/crm/integracoes", label: "Integrações", Icon: Plug },
   { href: "/crm/relatorios", label: "Relatórios", Icon: LayoutDashboard },

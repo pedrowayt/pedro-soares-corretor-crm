@@ -1,11 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { SeoListingMode } from "@prisma/client";
-import { DevelopmentCard } from "@/components/public/development-card";
 import { PropertyCard } from "@/components/public/property-card";
 import { getPublishedSeoLandingPageByPath } from "@/lib/data/seo-landing-pages";
-import { listPublicDevelopments } from "@/lib/data/developments";
 import { listPublicProperties } from "@/lib/data/properties";
 import { getSiteUrl } from "@/lib/site-url";
 
@@ -194,127 +192,6 @@ export async function generateMetadata({
   };
 }
 
-async function renderAutoSeoLaunches(route: AutoSeoRoute, fullPath: string) {
-  const filters =
-    route.kind === "city"
-      ? { city: route.city }
-      : route.kind === "district"
-        ? { city: route.city, district: route.district }
-        : { city: route.city, builder: route.builderSlug };
-
-  const developments = await listPublicDevelopments(filters);
-
-  const h1 = buildAutoSeoH1(route);
-  const intro =
-    route.kind === "city"
-      ? `Compare empreendimentos na planta em ${route.city}, veja tipologias, status da obra e fale direto no WhatsApp para receber tabela e condições.`
-      : route.kind === "district"
-        ? `Conheça os lançamentos no ${route.district}, com foco em localização, faixa de preço e potencial de valorização.`
-        : `Seleção de empreendimentos da construtora ${route.builderName} com atendimento comercial para compra e investimento.`;
-
-  const itemList = developments.map((item, index) => ({
-    "@type": "ListItem",
-    position: index + 1,
-    url: `${baseUrl}/lancamentos/${item.slug}`,
-    name: item.title
-  }));
-
-  const collectionSchema = {
-    "@context": "https://schema.org",
-    "@type": "CollectionPage",
-    name: h1,
-    description: intro,
-    url: `${baseUrl}${fullPath}`,
-    inLanguage: "pt-BR",
-    mainEntity: {
-      "@type": "ItemList",
-      itemListElement: itemList
-    }
-  };
-
-  return (
-    <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionSchema) }} />
-
-      <section className="section" style={{ paddingBottom: 34 }}>
-        <div className="container">
-          <p className="wp-hero-eyebrow" style={{ marginBottom: 10 }}>
-            Pedro Soares • Lançamentos em Palmas TO
-          </p>
-          <h1 className="section-title" style={{ marginTop: 0 }}>
-            {h1}
-          </h1>
-          <p className="section-subtitle text-card" style={{ maxWidth: "90ch" }}>
-            {intro}
-          </p>
-        </div>
-      </section>
-
-      <section className="section" style={{ paddingTop: 0 }}>
-        <div className="container">
-          {developments.length ? (
-            <div className="grid-3">
-              {developments.map((development) => (
-                <DevelopmentCard
-                  key={development.id}
-                  slug={development.slug}
-                  title={development.title}
-                  district={development.district}
-                  city={development.city}
-                  stageLabel={development.stageLabel}
-                  deliveryDate={development.deliveryDate}
-                  startingPrice={development.startingPriceNumber}
-                  areaFromM2={development.areaFromM2Number}
-                  areaToM2={development.areaToM2Number}
-                  bedroomsFrom={development.bedroomsFrom}
-                  bedroomsTo={development.bedroomsTo}
-                  suitesFrom={development.suitesFrom}
-                  suitesTo={development.suitesTo}
-                  parkingFrom={development.parkingFrom}
-                  parkingTo={development.parkingTo}
-                  builderName={development.displayBuilderName}
-                  imageUrl={
-                    development.media.find((item) => item.isPrimary)?.url ??
-                    development.media.find((item) => item.kind === "HERO")?.url ??
-                    development.media[0]?.url
-                  }
-                />
-              ))}
-            </div>
-          ) : (
-            <article className="card" style={{ padding: 16 }}>
-              <p className="text-card" style={{ margin: 0, color: "var(--text-muted)" }}>
-                Nenhum lançamento encontrado nesta página no momento.
-              </p>
-            </article>
-          )}
-        </div>
-      </section>
-
-      <section className="section" style={{ paddingTop: 24 }}>
-        <div className="container">
-          <div className="wp-cta-bar">
-            <h3>Quer receber tabela e condições dos lançamentos?</h3>
-            <div>
-              <a
-                className="button button-whatsapp"
-                href="https://wa.me/5563984845101?text=Ol%C3%A1%20Pedro%2C%20quero%20receber%20a%20tabela%20dos%20lan%C3%A7amentos."
-                target="_blank"
-                rel="noreferrer"
-              >
-                Falar no WhatsApp
-              </a>
-              <Link className="button button-ghost" href="/lancamentos">
-                Ver todos os lançamentos
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-    </>
-  );
-}
-
 export default async function SeoLandingPage({
   params
 }: {
@@ -325,7 +202,11 @@ export default async function SeoLandingPage({
   const autoRoute = resolveAutoSeoRoute(citySlug, segments);
 
   if (autoRoute) {
-    return renderAutoSeoLaunches(autoRoute, path);
+    redirect("/lancamentos");
+  }
+
+  if (path === "/palmas-to/imoveis-na-planta") {
+    redirect("/lancamentos");
   }
 
   const page = await getPublishedSeoLandingPageByPath(path);
@@ -334,18 +215,9 @@ export default async function SeoLandingPage({
     notFound();
   }
 
-  const [propertiesRaw, developmentsRaw] = await Promise.all([
-    listPublicProperties({ city: page.city }),
-    listPublicDevelopments()
-  ]);
+  const propertiesRaw = await listPublicProperties({ city: page.city });
 
   const properties = propertiesRaw.filter((property) => districtMatches(property.district, page.district));
-  const developments = developmentsRaw.filter((development) => {
-    const sameCity = normalizeText(development.city) === normalizeText(page.city);
-    const sameDistrict = districtMatches(development.district, page.district);
-    return sameCity && sameDistrict;
-  });
-
   const readyProperties = properties.filter(
     (item) =>
       item.purpose !== "LANCAMENTO" &&
@@ -364,28 +236,14 @@ export default async function SeoLandingPage({
         ? readyProperties
         : properties;
 
-  const highlightedDevelopments =
-    page.listingMode === SeoListingMode.PLANTA || page.listingMode === SeoListingMode.TODOS
-      ? developments
-      : [];
-
   const listedProperties = highlightedProperties.slice(0, 12);
-  const listedDevelopments = highlightedDevelopments.slice(0, 12);
 
-  const itemList = [
-    ...listedProperties.map((item, index) => ({
+  const itemList = listedProperties.map((item, index) => ({
       "@type": "ListItem",
       position: index + 1,
       url: `${baseUrl}/imoveis/${item.slug}`,
       name: item.title
-    })),
-    ...listedDevelopments.map((item, index) => ({
-      "@type": "ListItem",
-      position: listedProperties.length + index + 1,
-      url: `${baseUrl}/lancamentos/${item.slug}`,
-      name: item.title
-    }))
-  ];
+    }));
 
   const collectionSchema = {
     "@context": "https://schema.org",
@@ -469,42 +327,6 @@ export default async function SeoLandingPage({
                   unitCount={property.unitCount}
                   imageUrl={property.media?.[0]?.url}
                   status={property.status}
-                />
-              ))}
-            </div>
-          </div>
-        </section>
-      ) : null}
-
-      {highlightedDevelopments.length ? (
-        <section className="section" style={{ paddingTop: 0 }}>
-          <div className="container">
-            <h2 className="section-title">Empreendimentos na planta</h2>
-            <div className="grid-3" style={{ marginTop: 16 }}>
-              {highlightedDevelopments.slice(0, 9).map((development) => (
-                <DevelopmentCard
-                  key={development.id}
-                  slug={development.slug}
-                  title={development.title}
-                  district={development.district}
-                  city={development.city}
-                  stageLabel={development.stageLabel}
-                  deliveryDate={development.deliveryDate}
-                  startingPrice={development.startingPriceNumber}
-                  areaFromM2={development.areaFromM2Number}
-                  areaToM2={development.areaToM2Number}
-                  bedroomsFrom={development.bedroomsFrom}
-                  bedroomsTo={development.bedroomsTo}
-                  suitesFrom={development.suitesFrom}
-                  suitesTo={development.suitesTo}
-                  parkingFrom={development.parkingFrom}
-                  parkingTo={development.parkingTo}
-                  builderName={development.displayBuilderName}
-                  imageUrl={
-                    development.media.find((item) => item.isPrimary)?.url ??
-                    development.media.find((item) => item.kind === "HERO")?.url ??
-                    development.media.find((item) => item.kind === "GALLERY")?.url
-                  }
                 />
               ))}
             </div>

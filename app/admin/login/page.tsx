@@ -79,7 +79,7 @@ export default async function AdminLoginPage({
           <div className="admin-login-brand-copy">
             <p className="admin-login-kicker">Área exclusiva</p>
             <h1>Seu negócio imobiliário, mais perto de cada oportunidade.</h1>
-            <p>Entre no CRM para acompanhar leads, imóveis, empreendimentos e os próximos passos da sua operação.</p>
+            <p>Entre no CRM para acompanhar leads, imóveis, campanhas e os próximos passos da sua operação.</p>
           </div>
           <div className="admin-login-brand-points" aria-label="Recursos do CRM">
             <span><ShieldCheck size={17} /> Acesso protegido</span>
@@ -142,9 +142,9 @@ export default async function AdminLoginPage({
                 <span><strong>Home pública</strong><small>Ver o site</small></span>
                 <ArrowRight size={14} />
               </Link>
-              <Link href="/empreendimentos" className="admin-login-shortcut">
+              <Link href="/lancamentos" className="admin-login-shortcut">
                 <Building2 size={16} />
-                <span><strong>Empreendimentos</strong><small>Ver lançamentos</small></span>
+                <span><strong>Lançamentos</strong><small>Ver campanhas ativas</small></span>
                 <ArrowRight size={14} />
               </Link>
             </div>

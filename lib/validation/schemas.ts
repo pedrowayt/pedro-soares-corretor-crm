@@ -15,6 +15,7 @@ import {
   LeadIntent,
   LeadSource,
   LeadStage,
+  LandingPageEventType,
   PortalPublicationStatus,
   ProposalStatus,
   PropertyPurpose,
@@ -32,6 +33,8 @@ export const publicPropertyInterestSchema = z.object({
   email: z.string().email().optional().or(z.literal("")),
   message: z.string().optional(),
   propertySlug: z.string().optional(),
+  sourcePage: z.string().trim().max(500).optional(),
+  landingPageSlug: z.string().trim().max(160).optional(),
   lgpdConsent: z.boolean().optional().default(true)
 });
 
@@ -44,6 +47,8 @@ export const publicSellerCaptureSchema = z.object({
   askingPrice: z.coerce.number().positive(),
   statusDescription: z.string().optional(),
   photos: z.array(z.string().url()).optional(),
+  sourcePage: z.string().trim().max(500).optional(),
+  landingPageSlug: z.string().trim().max(160).optional(),
   lgpdConsent: z.boolean().optional().default(true)
 });
 
@@ -60,6 +65,8 @@ export const publicWhatsappClickSchema = z.object({
   leadName: z.string().optional(),
   leadEmail: z.string().email().optional().or(z.literal("")),
   messageTemplate: z.string().optional(),
+  sourcePage: z.string().trim().max(500).optional(),
+  landingPageSlug: z.string().trim().max(160).optional(),
   context: z.enum(["development", "unit_type", "schedule"]).optional()
 });
 
@@ -75,7 +82,17 @@ export const publicDevelopmentInterestSchema = z.object({
   unitTypeId: z.string().optional(),
   unitId: z.string().optional(),
   requestTable: z.boolean().optional().default(false),
+  sourcePage: z.string().trim().max(500).optional(),
+  landingPageSlug: z.string().trim().max(160).optional(),
   lgpdConsent: z.boolean().optional().default(true)
+});
+
+export const publicLandingPageEventSchema = z.object({
+  landingPageSlug: z.string().trim().min(1).max(160),
+  sourcePage: z.string().trim().max(500).optional(),
+  type: z.nativeEnum(LandingPageEventType),
+  sessionId: z.string().trim().max(120).optional(),
+  metadata: z.record(z.string(), z.string().trim().max(200)).optional()
 });
 
 export const crmCreateLeadSchema = z.object({

@@ -871,6 +871,7 @@ export async function getLeadDetail(id: string) {
         ownerUser: { select: { id: true, name: true, email: true } },
         linkedProperty: { select: { id: true, slug: true, title: true, price: true, city: true, district: true } },
         linkedDevelopment: { select: { id: true, slug: true, title: true } },
+        landingPage: { select: { id: true, name: true, slug: true, publicPath: true } },
         linkedDevelopmentUnitType: { select: { id: true, name: true } },
         linkedOwner: { select: { id: true, name: true, phone: true } },
         visits: {

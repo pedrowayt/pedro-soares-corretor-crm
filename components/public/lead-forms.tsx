@@ -52,6 +52,7 @@ export function PropertyInterestForm({
             email: formData.get("email"),
             message: formData.get("message"),
             propertySlug,
+            sourcePage: window.location.pathname,
             lgpdConsent: true
           });
           setStatus({ type: "success", message: "Recebemos seu interesse. Retorno em breve." });
@@ -117,6 +118,7 @@ export function SellerCaptureForm() {
             askingPrice: Number(formData.get("askingPrice")),
             statusDescription: formData.get("statusDescription"),
             photos: [],
+            sourcePage: window.location.pathname,
             lgpdConsent: true
           });
           setStatus({ type: "success", message: "Cadastro recebido. Vamos avaliar seu imóvel." });

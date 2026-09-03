@@ -22,8 +22,6 @@ const SIDEBAR_SECTIONS: ReadonlyArray<SidebarSection> = [
       { href: "/crm/imoveis", label: "Imóveis" },
       { href: "/crm/captacao", label: "Captação ativa" },
       { href: "/crm/leiloes", label: "Leilões" },
-      { href: "/crm/empreendimentos", label: "Empreendimentos" },
-      { href: "/crm/construtoras", label: "Construtoras" },
       { href: "/crm/proprietarios", label: "Proprietários" },
       { href: "/crm/propostas", label: "Propostas" }
     ]
@@ -31,6 +29,7 @@ const SIDEBAR_SECTIONS: ReadonlyArray<SidebarSection> = [
   {
     title: "Conteúdo",
     items: [
+      { href: "/crm/landing-pages", label: "Landing pages" },
       { href: "/crm/paginas-seo", label: "Páginas SEO" },
       { href: "/crm/blog", label: "Blog" }
     ]

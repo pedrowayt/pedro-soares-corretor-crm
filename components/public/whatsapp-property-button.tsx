@@ -30,7 +30,8 @@ export function WhatsAppPropertyButton({
         body: JSON.stringify({
           propertyId,
           propertySlug,
-          messageTemplate: message
+          messageTemplate: message,
+          sourcePage: window.location.pathname
         })
       });
     } finally {

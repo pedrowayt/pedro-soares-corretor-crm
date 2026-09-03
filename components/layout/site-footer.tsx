@@ -17,7 +17,7 @@ export function SiteFooter() {
             width={1254}
             height={1254}
           />
-          <p className="site-footer-impact">Especialista em imóveis prontos, na planta e leilões em Palmas.</p>
+          <p className="site-footer-impact">Especialista em imóveis prontos, lançamentos e leilões em Palmas.</p>
         </div>
 
         <div className="site-footer-links-wrap">
@@ -25,9 +25,8 @@ export function SiteFooter() {
             <p className="site-footer-group-title">Imóveis</p>
             <nav className="site-footer-link-list">
               <Link href="/imoveis/prontos">Imóveis prontos</Link>
-              <Link href="/lancamentos">Imóveis na planta</Link>
+              <Link href="/lancamentos">Lançamentos em destaque</Link>
               <Link href="/imoveis/leilao">Imóveis leilão</Link>
-              <Link href="/construtoras">Construtoras</Link>
             </nav>
           </section>
 
