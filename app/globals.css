@@ -4378,6 +4378,12 @@ body:has(.crm-shell) > main {
   line-height: 1.08;
 }
 
+.wp-hero-lede {
+  margin-top: 10px !important;
+  color: rgba(247, 248, 250, 0.88) !important;
+  font-size: var(--fs-16) !important;
+}
+
 .wp-hero-content p {
   color: rgba(247, 248, 250, 0.9);
   max-width: 760px;
@@ -4386,7 +4392,7 @@ body:has(.crm-shell) > main {
 }
 
 .wp-hero-eyebrow {
-  margin: 0 auto;
+  margin: 0;
   width: fit-content;
   border: 1px solid rgba(242, 194, 122, 0.55);
   padding: 0.34rem 0.62rem;
@@ -4425,7 +4431,7 @@ body:has(.crm-shell) > main {
   border: 1px solid #dbe3ef;
   padding: 16px;
   display: grid;
-  grid-template-columns: 1fr 1fr 220px;
+  grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(170px, auto);
   gap: 12px;
   box-shadow: 0 18px 30px rgba(7, 13, 24, 0.16);
 }
@@ -4433,6 +4439,7 @@ body:has(.crm-shell) > main {
 .wp-search-panel .button {
   min-height: 46px;
   align-self: end;
+  min-width: 170px;
 }
 
 .wp-search-advanced {
@@ -4468,6 +4475,128 @@ body:has(.crm-shell) > main {
 
 .wp-soft-section {
   background: #e9eef5;
+}
+
+.wp-objectives-section {
+  background: #f8fbff;
+  padding-top: 58px;
+  padding-bottom: 58px;
+}
+
+.wp-section-eyebrow {
+  margin: 0 0 8px;
+  color: var(--sophistication-gold-600, #9f6c22);
+  font-size: var(--fs-12);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.wp-objective-grid {
+  margin-top: 26px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.wp-objective-card {
+  min-height: 208px;
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  padding: 22px;
+  border: 1px solid #d9e2ee;
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: 0 10px 24px rgba(24, 49, 82, 0.06);
+  transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.wp-objective-card:hover,
+.wp-objective-card:focus-visible {
+  transform: translateY(-3px);
+  border-color: rgba(190, 132, 48, 0.62);
+  box-shadow: 0 16px 30px rgba(24, 49, 82, 0.1);
+}
+
+.wp-objective-card-index {
+  color: var(--sophistication-gold-600, #9f6c22);
+  font-size: var(--fs-12);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.wp-objective-card h3,
+.wp-objective-card p {
+  margin: 0;
+}
+
+.wp-objective-card h3 {
+  color: #142b49;
+  font-size: var(--fs-18);
+  line-height: 1.2;
+}
+
+.wp-objective-card p {
+  color: #5a6b80;
+  font-size: var(--fs-14);
+  line-height: 1.55;
+}
+
+.wp-objective-card-action {
+  margin-top: auto;
+  color: #9f6c22;
+  font-size: var(--fs-14);
+  font-weight: 700;
+}
+
+.wp-featured-landing-section {
+  padding-top: 0;
+  background: #f8fbff;
+}
+
+.wp-featured-landing {
+  min-height: 360px;
+  display: flex;
+  align-items: center;
+  border-radius: 18px;
+  background-position: center;
+  background-size: cover;
+  overflow: hidden;
+  box-shadow: 0 20px 42px rgba(7, 13, 24, 0.16);
+}
+
+.wp-featured-landing-copy {
+  width: min(560px, 100%);
+  display: grid;
+  gap: 12px;
+  padding: 42px;
+  color: #ffffff;
+}
+
+.wp-featured-landing-copy .wp-section-eyebrow {
+  margin: 6px 0 0;
+  color: #f2c27a;
+}
+
+.wp-featured-landing-copy h2,
+.wp-featured-landing-copy p {
+  margin: 0;
+}
+
+.wp-featured-landing-copy h2 {
+  font-size: clamp(1.8rem, 3vw, 2.6rem);
+  line-height: 1.05;
+}
+
+.wp-featured-landing-copy > p:not(.wp-section-eyebrow) {
+  color: rgba(255, 255, 255, 0.84);
+  line-height: 1.6;
+}
+
+.wp-featured-landing-copy .button {
+  width: fit-content;
+  margin-top: 8px;
 }
 
 .wp-section-head {
@@ -9232,6 +9361,10 @@ body:has(.crm-shell) > main {
     background-position: 72% center;
   }
 
+  .wp-featured-landing-copy {
+    padding: 30px 24px;
+  }
+
   .development-stage-timeline,
   .development-investment-metrics {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -9279,6 +9412,15 @@ body:has(.crm-shell) > main {
   .search-shell,
   .wp-search-panel {
     grid-template-columns: 1fr;
+  }
+
+  .wp-objective-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .wp-featured-landing {
+    min-height: 420px;
+    background-position: 62% center;
   }
 
   .wiz-card {

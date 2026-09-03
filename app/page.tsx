@@ -2,11 +2,11 @@ import type { Metadata } from "next";
 import { PropertyPurpose, PropertyStatus, PropertyType } from "@prisma/client";
 import Link from "next/link";
 import { listPublishedBlogPosts } from "@/lib/data/blog";
+import { publicLandingPages } from "@/lib/data/landing-pages";
 import { PropertySpecs } from "@/components/public/property-specs";
 import {
   developmentPublicStageLabels,
-  listHighlightedDevelopments,
-  listPublicDevelopments
+  listHighlightedDevelopments
 } from "@/lib/data/developments";
 import { getDevelopmentStageLabel } from "@/lib/development-investment";
 import { listPublicProperties } from "@/lib/data/properties";
@@ -81,6 +81,27 @@ type CategoryCard = {
   count: number;
   imageUrl: string;
 };
+
+const objectiveCards = [
+  {
+    title: "Quero comprar para morar",
+    description: "Casas, apartamentos e condomínios escolhidos para a sua rotina.",
+    href: "/imoveis/prontos?purpose=VENDA",
+    action: "Ver imóveis para morar"
+  },
+  {
+    title: "Quero investir",
+    description: "Oportunidades para avaliar localização, liquidez e potencial de valorização.",
+    href: "/imoveis/prontos?purpose=INVESTIMENTO",
+    action: "Ver opções para investir"
+  },
+  {
+    title: "Quero conhecer lançamentos",
+    description: "Empreendimentos, pré-cadastros, plantas e condições em primeira mão.",
+    href: "/empreendimentos",
+    action: "Conhecer empreendimentos"
+  }
+] as const;
 
 const purposeLabelMap: Record<PropertyPurpose, string> = {
   VENDA: "Venda",
@@ -278,10 +299,9 @@ export default async function HomePage({
   const filters = await searchParams;
   const searchMode = getSearchMode(filters.mode);
 
-  const [propertiesRaw, developmentsRaw, allDevelopmentsRaw, blogPosts] = await Promise.all([
+  const [propertiesRaw, developmentsRaw, blogPosts] = await Promise.all([
     listPublicProperties(),
     listHighlightedDevelopments(8),
-    listPublicDevelopments(),
     listPublishedBlogPosts(3)
   ]);
 
@@ -295,18 +315,9 @@ export default async function HomePage({
 
   const developmentCards = developmentsRaw.slice(0, 3);
 
-  const readyForSaleCount = allCards.filter(
-    (card) => card.purpose === "VENDA" && !isAuctionCard(card)
-  ).length;
-  const developmentsCount = allDevelopmentsRaw.length;
-  const auctionCount = allCards.filter(isAuctionCard).length;
-
-  function pluralize(count: number, singular: string, plural: string) {
-    return `${count} ${count === 1 ? singular : plural}`;
-  }
-
   const categoryCards = buildCategoryCards(readySaleCards);
   const areaCards = buildAreaCards(readySaleCards);
+  const featuredLanding = publicLandingPages[0];
 
   return (
     <>
@@ -321,12 +332,16 @@ export default async function HomePage({
 
         <div className="container wp-hero-content">
           <p className="wp-hero-eyebrow">Pedro Soares • Especialista em imóveis em Palmas</p>
+          <h1>Encontre seu próximo imóvel em Palmas e região.</h1>
+          <p className="wp-hero-lede">
+            Casas, apartamentos, lotes e empreendimentos selecionados para morar ou investir.
+          </p>
 
           <div className="wp-search-tabs" role="tablist" aria-label="Tipos de busca">
             {(
               [
                 { key: "geral", label: "Busca Geral" },
-                { key: "planta", label: "Imóveis na Planta" },
+                { key: "planta", label: "Lançamentos" },
                 { key: "leilao", label: "Imóveis Leilão" }
               ] as Array<{ key: SearchMode; label: string }>
             ).map((tab) => (
@@ -351,7 +366,7 @@ export default async function HomePage({
                 <input id="maxPrice" name="maxPrice" type="number" placeholder="900000" />
               </div>
               <button type="submit" className="button button-primary">
-                Buscar{developmentsCount ? ` ${pluralize(developmentsCount, "lançamento", "lançamentos")}` : ""}
+                Encontrar imóveis
               </button>
 
               <details className="wp-search-advanced">
@@ -397,7 +412,7 @@ export default async function HomePage({
                 </select>
               </div>
               <button type="submit" className="button button-primary">
-                Buscar{auctionCount ? ` ${pluralize(auctionCount, "oportunidade", "oportunidades")}` : ""}
+                Ver oportunidades
               </button>
 
               <details className="wp-search-advanced">
@@ -444,7 +459,7 @@ export default async function HomePage({
                 <input id="district-ready" name="district" placeholder="Plano Diretor Sul" />
               </div>
               <button type="submit" className="button button-primary">
-                Buscar{readyForSaleCount ? ` ${pluralize(readyForSaleCount, "imóvel", "imóveis")}` : ""}
+                Encontrar imóveis
               </button>
 
               <details className="wp-search-advanced">
@@ -468,6 +483,48 @@ export default async function HomePage({
           )}
         </div>
       </section>
+
+      <section className="section wp-objectives-section">
+        <div className="container">
+          <div className="wp-section-head">
+            <p className="wp-section-eyebrow">Atendimento sob medida</p>
+            <h2 className="section-title">O que você está buscando?</h2>
+            <p className="section-subtitle text-card">
+              Comece pelo seu objetivo e encontre o caminho mais rápido para a próxima decisão.
+            </p>
+          </div>
+          <div className="wp-objective-grid">
+            {objectiveCards.map((objective, index) => (
+              <Link key={objective.href} href={objective.href} className="wp-objective-card">
+                <span className="wp-objective-card-index" aria-hidden="true">0{index + 1}</span>
+                <h3>{objective.title}</h3>
+                <p>{objective.description}</p>
+                <span className="wp-objective-card-action">{objective.action} <span aria-hidden="true">→</span></span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {featuredLanding ? (
+        <section className="section wp-featured-landing-section">
+          <div className="container">
+            <Link
+              href={featuredLanding.href}
+              className="wp-featured-landing"
+              style={{ backgroundImage: `linear-gradient(90deg, rgba(7, 13, 24, 0.94) 0%, rgba(7, 13, 24, 0.72) 48%, rgba(7, 13, 24, 0.2) 100%), url(${featuredLanding.image})` }}
+            >
+              <div className="wp-featured-landing-copy">
+                <span className="badge">{featuredLanding.status}</span>
+                <p className="wp-section-eyebrow">Oportunidade em destaque · {featuredLanding.category}</p>
+                <h2>{featuredLanding.title}</h2>
+                <p>{featuredLanding.summary}</p>
+                <span className="button button-primary">Conhecer empreendimento</span>
+              </div>
+            </Link>
+          </div>
+        </section>
+      ) : null}
 
       <section className="section wp-soft-section">
         <div className="container">
