@@ -41,5 +41,65 @@ export const publicLandingPages: PublicLandingPage[] = [
     summary: "Um empreendimento contemporâneo com studios, apartamentos de 2 suítes, lazer elevado e vocação para morar ou investir.",
     image: "/brand/acordes/fachada-3.webp",
     status: "Lançamento"
+  },
+  {
+    slug: "lake-sky",
+    href: "/palmas-lake/lake-sky",
+    title: "Lake Sky",
+    category: "Residencial · 2032",
+    location: "Palmas Lake · Palmas/TO",
+    summary: "Coberturas duplex e mansões suspensas com vista permanente para o lago de Palmas.",
+    image: "/brand/palmas-lake/sky.jpg",
+    status: "Lançamento Palmas Lake"
+  },
+  {
+    slug: "lake-garden",
+    href: "/palmas-lake/lake-garden",
+    title: "Lake Garden",
+    category: "Residencial · 2032",
+    location: "Palmas Lake · Palmas/TO",
+    summary: "Residências amplas, paisagismo exuberante e a tranquilidade de morar de frente para o lago.",
+    image: "/brand/palmas-lake/garden.jpg",
+    status: "Lançamento Palmas Lake"
+  },
+  {
+    slug: "lake-park",
+    href: "/palmas-lake/lake-park",
+    title: "Lake Park",
+    category: "Residencial · 2032",
+    location: "Palmas Lake · Palmas/TO",
+    summary: "Plantas amplas, living integrado e um ponto de entrada especial entre as torres residenciais do complexo.",
+    image: "/brand/palmas-lake/park.jpg",
+    status: "Lançamento Palmas Lake"
+  },
+  {
+    slug: "lake-loft",
+    href: "/palmas-lake/lake-loft",
+    title: "Lake Loft",
+    category: "Multifuncional · 2029",
+    location: "Palmas Lake · Palmas/TO",
+    summary: "Lofts compactos e inteligentes preparados para morar, hospedar ou investir.",
+    image: "/brand/palmas-lake/loft.jpg",
+    status: "Lançamento Palmas Lake"
+  },
+  {
+    slug: "lake-office",
+    href: "/palmas-lake/lake-office",
+    title: "Lake Office",
+    category: "Business center · 2029",
+    location: "Palmas Lake · Palmas/TO",
+    summary: "Salas e lajes corporativas conectadas ao Lake Mall, à marina e ao ritmo da orla.",
+    image: "/brand/palmas-lake/office.jpg",
+    status: "Lançamento Palmas Lake"
+  },
+  {
+    slug: "lake-mall",
+    href: "/palmas-lake/lake-mall",
+    title: "Lake Mall",
+    category: "Shopping conceito · 2029",
+    location: "Palmas Lake · Palmas/TO",
+    summary: "Gastronomia, serviços e encontros com a água como paisagem, integrados à Marina e às torres do complexo.",
+    image: "/brand/palmas-lake/mall.jpg",
+    status: "Lançamento Palmas Lake"
   }
 ];

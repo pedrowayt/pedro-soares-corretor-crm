@@ -9,8 +9,7 @@ import { PropertySpecs } from "@/components/public/property-specs";
 import { listPublicProperties } from "@/lib/data/properties";
 import {
   PROPERTY_TYPE_LABELS,
-  PROPERTY_TYPE_OPTIONS,
-  PROPERTY_TYPE_ORDER
+  PROPERTY_TYPE_OPTIONS
 } from "@/lib/property-types";
 import { getSiteUrl } from "@/lib/site-url";
 import { formatCurrencyBRL } from "@/lib/utils";
@@ -69,13 +68,6 @@ type FeaturedArea = {
   district: string;
   city: string;
   aliases: string[];
-  imageUrl: string;
-};
-
-type CategoryCard = {
-  label: string;
-  type: PropertyType;
-  count: number;
   imageUrl: string;
 };
 
@@ -193,8 +185,6 @@ const featuredAreas: FeaturedArea[] = [
     imageUrl: "/brand/areas/taquaralto-aureny.png"
   }
 ];
-
-const propertyTypeOrder: PropertyType[] = PROPERTY_TYPE_ORDER;
 
 type HomeImageProps = {
   src: string;
@@ -325,30 +315,6 @@ function buildAreaCards(properties: HomePropertyCard[]) {
     .map(({ key, district, city, count, imageUrl }) => ({ key, district, city, count, imageUrl }));
 }
 
-function buildCategoryCards(properties: HomePropertyCard[]) {
-  const categoryMap = new Map<PropertyType, CategoryCard>();
-
-  for (const property of properties) {
-    const existing = categoryMap.get(property.type);
-
-    if (existing) {
-      existing.count += 1;
-      continue;
-    }
-
-    categoryMap.set(property.type, {
-      label: property.typeLabel,
-      type: property.type,
-      count: 1,
-      imageUrl: property.imageUrl
-    });
-  }
-
-  return [...categoryMap.values()].sort(
-    (a, b) => propertyTypeOrder.indexOf(a.type) - propertyTypeOrder.indexOf(b.type)
-  );
-}
-
 function formatCountLabel(count: number, singular: string, plural: string) {
   return `${count} ${count === 1 ? singular : plural}`;
 }
@@ -378,7 +344,6 @@ export default async function HomePage({
 
   const featuredProperties = readySaleCards.slice(0, 6);
 
-  const categoryCards = buildCategoryCards(readySaleCards);
   const areaCards = buildAreaCards(readySaleCards);
   // The editorial landing-page registry is the single source for these home
   // cards. New entries appear here automatically without another home edit.
@@ -712,42 +677,6 @@ export default async function HomePage({
             <article className="card" style={{ padding: 16, marginTop: 20 }}>
               <p className="text-card" style={{ margin: 0, color: "var(--text-muted)" }}>
                 Nenhum imóvel disponível no backend.
-              </p>
-            </article>
-          )}
-        </div>
-      </section>
-
-      <section className="section wp-soft-section" style={{ paddingTop: 24 }}>
-        <div className="container">
-          <div className="wp-section-head">
-            <h2 className="section-title">Imóveis por categorias</h2>
-            <p className="section-subtitle text-card">Explore o portfólio por tipo de ativo e perfil de compra.</p>
-          </div>
-          {categoryCards.length ? (
-            <div className="wp-category-grid">
-              {categoryCards.slice(0, 5).map((category, index) => (
-                <Link
-                  key={category.type}
-                  href={`/imoveis/prontos?type=${encodeURIComponent(category.type)}`}
-                  className={`wp-category-card ${index === 0 ? "large" : ""}`}
-                >
-                  <HomeImage
-                    src={category.imageUrl}
-                    alt=""
-                    sizes="(max-width: 640px) 100vw, (max-width: 960px) 50vw, 25vw"
-                    className="wp-cover-image"
-                  />
-                  <span className="wp-image-shade" aria-hidden="true" />
-                  <h3>{category.label}</h3>
-                  <p>{formatCountLabel(category.count, "listagem", "listagens")}</p>
-                </Link>
-              ))}
-            </div>
-          ) : (
-            <article className="card" style={{ padding: 16 }}>
-              <p className="text-card" style={{ margin: 0, color: "var(--text-muted)" }}>
-                Nenhuma categoria com imóveis à venda no backend.
               </p>
             </article>
           )}
