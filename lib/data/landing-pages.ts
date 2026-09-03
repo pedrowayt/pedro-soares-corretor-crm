@@ -29,7 +29,7 @@ export const publicLandingPages: PublicLandingPage[] = [
     category: "Imóveis de luxo",
     location: "Recanto Santa Luzia · Miracema do Tocantins/TO",
     summary: "Condomínio de chácaras com lago, lazer, esporte, família e infraestrutura completa.",
-    image: "/brand/quinta-do-lago/revista/hero-lago.jpg",
+    image: "/brand/quinta-do-lago/fotos/quiosques.jpeg",
     status: "Atendimento personalizado"
   }
 ];

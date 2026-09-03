@@ -6,10 +6,10 @@ import { buildWhatsAppUrl } from "@/lib/integrations/whatsapp-links";
 import { getSiteUrl } from "@/lib/site-url";
 
 const siteUrl = getSiteUrl();
-const heroImage = "/brand/quinta-do-lago/revista/hero-lago.jpg";
-const destinationImage = "/brand/quinta-do-lago/revista/quiosque.jpg";
-const lifestyleImage = "/brand/quinta-do-lago/revista/academia.jpg";
-const curationImage = "/brand/quinta-do-lago/revista/aerea.jpg";
+const heroImage = "/brand/quinta-do-lago/fotos/quiosques.jpeg";
+const destinationImage = "/brand/quinta-do-lago/fotos/bares-de-praia.jpeg";
+const lifestyleImage = "/brand/quinta-do-lago/fotos/academia.jpeg";
+const curationImage = "/brand/quinta-do-lago/fotos/pier.jpeg";
 const mapUrl = "https://maps.app.goo.gl/rPkuKojMAe2Bnjh98?g_st=ic";
 const mapEmbedUrl = "https://www.google.com/maps?q=Condom%C3%ADnio+de+Ch%C3%A1caras+Quinta+do+Lago%2C+Condominio+Ecol%C3%B3gico+Portal+da+Serra+do+Carmo%2C+Miracema+do+Tocantins+-+TO&output=embed";
 const plantUrl = "https://drive.google.com/file/d/1o6Qt3m0cYhKAQZkUDQA0n-PFbjvnafDr/view?usp=drivesdk";
@@ -69,7 +69,7 @@ export default function QuintaDoLagoPage() {
 
       <div>
         <section id="inicio" className="qdl-hero">
-          <Image src={heroImage} alt="Lago do Quinta do Lago ao entardecer" fill priority sizes="100vw" className="qdl-hero-image" />
+          <Image src={heroImage} alt="Quiosques à beira do lago do Quinta do Lago" fill priority quality={90} sizes="100vw" className="qdl-hero-image" />
           <div className="qdl-hero-shade" />
           <div className="qdl-hero-content qdl-container">
             <p className="qdl-eyebrow">Recanto Santa Luzia · Tocantins</p>
@@ -98,7 +98,7 @@ export default function QuintaDoLagoPage() {
               <a className="qdl-text-link" href="#contato">Quero receber a apresentação <ArrowRight size={16} /></a>
             </div>
             <div className="qdl-destination-media">
-              <Image src={destinationImage} alt="Quiosque com churrasqueira à beira do lago" fill sizes="(max-width: 800px) 92vw, 48vw" />
+              <Image src={destinationImage} alt="Bar de praia à beira do lago do Quinta do Lago" fill quality={90} sizes="(max-width: 800px) 92vw, 48vw" />
               <div className="qdl-image-label"><MapPin size={14} /> Recanto Santa Luzia · TO</div>
             </div>
           </div>
@@ -124,7 +124,7 @@ export default function QuintaDoLagoPage() {
 
         <section className="qdl-editorial">
           <div className="qdl-editorial-image">
-            <Image src={lifestyleImage} alt="Academia com vista para a natureza" fill sizes="(max-width: 800px) 100vw, 50vw" />
+            <Image src={lifestyleImage} alt="Academia envidraçada com vista para o lago e a natureza" fill quality={90} sizes="(max-width: 800px) 100vw, 50vw" />
           </div>
           <div className="qdl-editorial-copy">
             <p className="qdl-eyebrow qdl-eyebrow--olive">O coração do Quinta do Lago</p>
@@ -216,7 +216,7 @@ export default function QuintaDoLagoPage() {
         <section id="curadoria" className="qdl-section qdl-curation">
           <div className="qdl-container qdl-curation-grid">
             <div className="qdl-curation-media">
-              <Image src={curationImage} alt="Vista aérea da infraestrutura e das ruas do condomínio" fill sizes="(max-width: 800px) 92vw, 42vw" />
+              <Image src={curationImage} alt="Píer junto ao lago e à área verde do condomínio" fill quality={90} sizes="(max-width: 800px) 92vw, 42vw" />
               <div className="qdl-floating-note"><Globe2 size={17} /><span>Condomínio planejado<br /><strong>para chegar e aproveitar</strong></span></div>
             </div>
             <div className="qdl-curation-copy">
