@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ChevronLeft, ChevronRight, VolumeX } from "lucide-react";
+import { ChevronLeft, ChevronRight, Volume2, VolumeX } from "lucide-react";
 
 const reels = [
   {
@@ -36,8 +36,16 @@ export function PalmasLakeReels() {
   const sectionRef = useRef<HTMLElement>(null);
   const viewportRef = useRef<HTMLDivElement>(null);
   const videoRefs = useRef<Array<HTMLVideoElement | null>>([]);
+  const audioRef = useRef<HTMLAudioElement>(null);
 
   const [trackOffset, setTrackOffset] = useState(0);
+  const [isAudioPlaying, setIsAudioPlaying] = useState(false);
+
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = 0.22;
+    }
+  }, []);
 
   useEffect(() => {
     const section = sectionRef.current;
@@ -99,6 +107,23 @@ export function PalmasLakeReels() {
     setActiveIndex((index + reels.length) % reels.length);
   }
 
+  async function toggleAudio() {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    if (audio.paused) {
+      try {
+        await audio.play();
+        setIsAudioPlaying(true);
+      } catch {
+        setIsAudioPlaying(false);
+      }
+    } else {
+      audio.pause();
+      setIsAudioPlaying(false);
+    }
+  }
+
   return (
     <section className="palmas-lake-reels" ref={sectionRef} aria-labelledby="palmas-lake-reels-title">
       <div className="palmas-lake-container">
@@ -108,8 +133,19 @@ export function PalmasLakeReels() {
             <h2 id="palmas-lake-reels-title">Veja como é viver este horizonte.</h2>
           </div>
           <div className="palmas-lake-reels-heading-side">
-            <p>Imagens reais do projeto, em uma experiência silenciosa e contínua para explorar no seu ritmo.</p>
-            <span><VolumeX size={15} /> Reprodução automática · sem áudio</span>
+            <p>Imagens reais do projeto para você sentir o ritmo do Palmas Lake. Explore no seu tempo e ative o áudio ambiente quando quiser.</p>
+            <span>{isAudioPlaying ? <><Volume2 size={15} /> Áudio ambiente ativo</> : <><VolumeX size={15} /> Reprodução automática · áudio opcional</>}</span>
+            <audio ref={audioRef} loop preload="metadata" src="/audio/lake-village-lake-ambience.mp3" />
+            <button
+              type="button"
+              className="palmas-lake-reels-audio-toggle"
+              aria-pressed={isAudioPlaying}
+              aria-label={isAudioPlaying ? "Silenciar áudio ambiente do Palmas Lake" : "Ativar áudio ambiente do Palmas Lake"}
+              onClick={toggleAudio}
+            >
+              {isAudioPlaying ? <Volume2 size={16} /> : <VolumeX size={16} />}
+              <span>{isAudioPlaying ? "Silenciar áudio" : "Ativar áudio"}</span>
+            </button>
           </div>
         </div>
 
@@ -128,7 +164,6 @@ export function PalmasLakeReels() {
                     preload={index === 0 ? "auto" : "metadata"}
                     aria-label={reel.label}
                   />
-                  <span className="palmas-lake-reels-muted"><VolumeX size={14} /> Sem áudio</span>
                 </div>
                 <div className="palmas-lake-reels-caption">
                   <span>0{index + 1}</span>
