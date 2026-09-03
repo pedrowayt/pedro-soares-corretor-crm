@@ -7,12 +7,14 @@ import { SiteHeader } from "@/components/layout/site-header";
 export function SiteChrome({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isLakeVillageLanding = pathname === "/lake-village";
+  const isQuintaDoLagoLanding = pathname === "/quinta-do-lago";
+  const isStandaloneLanding = isLakeVillageLanding || isQuintaDoLagoLanding;
 
   return (
     <>
-      {isLakeVillageLanding ? null : <SiteHeader />}
-      <main className={isLakeVillageLanding ? "site-main--landing" : undefined}>{children}</main>
-      {isLakeVillageLanding ? null : <SiteFooter />}
+      {isStandaloneLanding ? null : <SiteHeader />}
+      <main className={isStandaloneLanding ? "site-main--landing" : undefined}>{children}</main>
+      {isStandaloneLanding ? null : <SiteFooter />}
     </>
   );
 }

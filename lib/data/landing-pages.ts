@@ -21,5 +21,15 @@ export const publicLandingPages: PublicLandingPage[] = [
     summary: "Condomínio fechado à beira do lago de Palmas, para morar, investir ou ter uma segunda residência.",
     image: "/brand/lake-village-cover.png",
     status: "Pré-cadastro aberto"
+  },
+  {
+    slug: "quinta-do-lago",
+    href: "/quinta-do-lago",
+    title: "Quinta do Lago",
+    category: "Imóveis de luxo",
+    location: "Recanto Santa Luzia · Miracema do Tocantins/TO",
+    summary: "Condomínio de chácaras com lago, lazer, esporte, família e infraestrutura completa.",
+    image: "/brand/quinta-do-lago/revista/hero-lago.jpg",
+    status: "Atendimento personalizado"
   }
 ];
