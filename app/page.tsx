@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { PropertyPurpose, PropertyStatus, PropertyType } from "@prisma/client";
+import Image from "next/image";
 import Link from "next/link";
 import { listPublishedBlogPosts } from "@/lib/data/blog";
 import { publicLandingPages } from "@/lib/data/landing-pages";
@@ -153,6 +154,33 @@ const featuredAreas: FeaturedArea[] = [
 ];
 
 const propertyTypeOrder: PropertyType[] = PROPERTY_TYPE_ORDER;
+
+type HomeImageProps = {
+  src: string;
+  alt: string;
+  sizes: string;
+  priority?: boolean;
+  className?: string;
+};
+
+function HomeImage({ src, alt, sizes, priority = false, className = "" }: HomeImageProps) {
+  const canUseNextImage =
+    src.startsWith("/") ||
+    src.startsWith("https://imagedelivery.net/") ||
+    src.startsWith("https://images.unsplash.com/");
+
+  return (
+    <Image
+      src={src}
+      alt={alt}
+      fill
+      sizes={sizes}
+      priority={priority}
+      unoptimized={!canUseNextImage}
+      className={`wp-home-image ${className}`.trim()}
+    />
+  );
+}
 
 function normalizePropertyCard(property: {
   id: string;
@@ -317,18 +345,26 @@ export default async function HomePage({
 
   const categoryCards = buildCategoryCards(readySaleCards);
   const areaCards = buildAreaCards(readySaleCards);
-  const featuredLanding = publicLandingPages[0];
+  const featuredLandings = publicLandingPages.slice(0, 2);
 
   return (
     <>
       <section className="wp-hero">
-        <div className="wp-hero-media" />
+        <div className="wp-hero-media">
+          <HomeImage
+            src="/brand/home-search-showcase.PNG"
+            alt="Vista de imóveis em Palmas"
+            sizes="100vw"
+            priority
+          />
+        </div>
         <div className="wp-hero-overlay" />
         <div
           className="wp-hero-portrait"
           aria-hidden="true"
-          style={{ backgroundImage: "url(/brand/eu.png)" }}
-        />
+        >
+          <HomeImage src="/brand/eu.png" alt="" sizes="(max-width: 960px) 0px, 38vw" />
+        </div>
 
         <div className="container wp-hero-content">
           <p className="wp-hero-eyebrow">Pedro Soares • Especialista em imóveis em Palmas</p>
@@ -506,22 +542,33 @@ export default async function HomePage({
         </div>
       </section>
 
-      {featuredLanding ? (
+      {featuredLandings.length ? (
         <section className="section wp-featured-landing-section">
           <div className="container">
-            <Link
-              href={featuredLanding.href}
-              className="wp-featured-landing"
-              style={{ backgroundImage: `linear-gradient(90deg, rgba(7, 13, 24, 0.94) 0%, rgba(7, 13, 24, 0.72) 48%, rgba(7, 13, 24, 0.2) 100%), url(${featuredLanding.image})` }}
-            >
-              <div className="wp-featured-landing-copy">
-                <span className="badge">{featuredLanding.status}</span>
-                <p className="wp-section-eyebrow">Oportunidade em destaque · {featuredLanding.category}</p>
-                <h2>{featuredLanding.title}</h2>
-                <p>{featuredLanding.summary}</p>
-                <span className="button button-primary">Conhecer empreendimento</span>
-              </div>
-            </Link>
+            <div className="wp-featured-landing-grid">
+              {featuredLandings.map((landing) => (
+                <Link
+                  key={landing.slug}
+                  href={landing.href}
+                  className="wp-featured-landing"
+                >
+                  <HomeImage
+                    src={landing.image}
+                    alt=""
+                    sizes="(max-width: 760px) 100vw, 50vw"
+                    className="wp-cover-image"
+                  />
+                  <span className="wp-image-shade wp-featured-landing-shade" aria-hidden="true" />
+                  <div className="wp-featured-landing-copy">
+                    <span className="badge">{landing.status}</span>
+                    <p className="wp-section-eyebrow">Oportunidade em destaque · {landing.category}</p>
+                    <h2>{landing.title}</h2>
+                    <p>{landing.summary}</p>
+                    <span className="button button-primary">Conhecer empreendimento</span>
+                  </div>
+                </Link>
+              ))}
+            </div>
           </div>
         </section>
       ) : null}
@@ -541,8 +588,14 @@ export default async function HomePage({
                   key={area.key}
                   href={`/imoveis/prontos?city=${encodeURIComponent(area.city)}&district=${encodeURIComponent(area.district)}`}
                   className="wp-area-card"
-                  style={{ backgroundImage: `linear-gradient(180deg, rgba(7, 13, 24, 0.08), rgba(7, 13, 24, 0.68)), url(${area.imageUrl})` }}
                 >
+                  <HomeImage
+                    src={area.imageUrl}
+                    alt=""
+                    sizes="(max-width: 640px) 100vw, (max-width: 960px) 50vw, 33vw"
+                    className="wp-cover-image"
+                  />
+                  <span className="wp-image-shade" aria-hidden="true" />
                   <span>{area.city}</span>
                   <h3>{area.district}</h3>
                   <strong>{formatCountLabel(area.count, "imóvel", "imóveis")}</strong>
@@ -599,12 +652,14 @@ export default async function HomePage({
 
                 return (
                   <article key={development.id} className="wp-property-card compact">
-                    <div
-                      className="wp-property-media"
-                      style={{
-                        backgroundImage: `linear-gradient(180deg, rgba(7, 13, 24, 0.1), rgba(7, 13, 24, 0.68)), url(${media})`
-                      }}
-                    >
+                    <div className="wp-property-media">
+                      <HomeImage
+                        src={media}
+                        alt={development.title}
+                        sizes="(max-width: 640px) 100vw, (max-width: 960px) 50vw, 33vw"
+                        className="wp-cover-image"
+                      />
+                      <span className="wp-image-shade" aria-hidden="true" />
                       <div className="wp-media-badges">
                         <span className="badge">Lançamento</span>
                         <span className="badge">{getDevelopmentStageLabel(development.stage)}</span>
@@ -654,12 +709,14 @@ export default async function HomePage({
                 const isSold = property.status === "VENDIDO";
                 return (
                   <article key={property.id} className={`wp-property-card ${isSold ? "is-sold" : ""}`}>
-                    <div
-                      className="wp-property-media"
-                      style={{
-                        backgroundImage: `linear-gradient(180deg, rgba(7, 13, 24, 0.06), rgba(7, 13, 24, 0.62)), url(${property.imageUrl})`
-                      }}
-                    >
+                    <div className="wp-property-media">
+                      <HomeImage
+                        src={property.imageUrl}
+                        alt={property.title}
+                        sizes="(max-width: 640px) 100vw, (max-width: 960px) 50vw, 33vw"
+                        className="wp-cover-image"
+                      />
+                      <span className="wp-image-shade" aria-hidden="true" />
                       <div className="wp-media-badges">
                         {isSold ? <span className="badge badge-tone-sold">Vendido</span> : null}
                         <span className="badge">{property.purposeLabel}</span>
@@ -711,10 +768,14 @@ export default async function HomePage({
                   key={category.type}
                   href={`/imoveis/prontos?type=${encodeURIComponent(category.type)}`}
                   className={`wp-category-card ${index === 0 ? "large" : ""}`}
-                  style={{
-                    backgroundImage: `linear-gradient(180deg, rgba(7, 13, 24, 0.08), rgba(7, 13, 24, 0.66)), url(${category.imageUrl})`
-                  }}
                 >
+                  <HomeImage
+                    src={category.imageUrl}
+                    alt=""
+                    sizes="(max-width: 640px) 100vw, (max-width: 960px) 50vw, 25vw"
+                    className="wp-cover-image"
+                  />
+                  <span className="wp-image-shade" aria-hidden="true" />
                   <h3>{category.label}</h3>
                   <p>{formatCountLabel(category.count, "listagem", "listagens")}</p>
                 </Link>
@@ -745,12 +806,14 @@ export default async function HomePage({
                 const isSold = property.status === "VENDIDO";
                 return (
                   <article key={property.id} className={`wp-property-card compact ${isSold ? "is-sold" : ""}`}>
-                    <div
-                      className="wp-property-media"
-                      style={{
-                        backgroundImage: `linear-gradient(180deg, rgba(7, 13, 24, 0.08), rgba(7, 13, 24, 0.7)), url(${property.imageUrl})`
-                      }}
-                    >
+                    <div className="wp-property-media">
+                      <HomeImage
+                        src={property.imageUrl}
+                        alt={property.title}
+                        sizes="(max-width: 640px) 100vw, (max-width: 960px) 50vw, 33vw"
+                        className="wp-cover-image"
+                      />
+                      <span className="wp-image-shade" aria-hidden="true" />
                       <div className="wp-media-badges">
                         {isSold ? <span className="badge badge-tone-sold">Vendido</span> : null}
                         <span className="badge">Leilão</span>
@@ -796,7 +859,9 @@ export default async function HomePage({
 
           <div className="wp-team-grid">
             <article className="wp-team-card">
-              <div className="wp-team-media" style={{ backgroundImage: "url(/brand/pedro-portrait-1.png)" }} />
+              <div className="wp-team-media">
+                <HomeImage src="/brand/pedro-portrait-1.png" alt="Pedro Soares" sizes="(max-width: 640px) 100vw, 33vw" />
+              </div>
               <div className="wp-team-body">
                 <h3>Pedro Soares</h3>
                 <p>Corretor de Imóveis • CRECI 5861-TO</p>
@@ -811,7 +876,9 @@ export default async function HomePage({
             </article>
 
             <article className="wp-team-card">
-              <div className="wp-team-media" style={{ backgroundImage: "url(/brand/pedro-portrait-3.png)" }} />
+              <div className="wp-team-media">
+                <HomeImage src="/brand/pedro-portrait-3.png" alt="Atendimento de lançamentos" sizes="(max-width: 640px) 100vw, 33vw" />
+              </div>
               <div className="wp-team-body">
                 <h3>Atendimento Lançamentos</h3>
                 <p>Suporte para tipologias, tabela e fluxo de proposta.</p>
@@ -820,7 +887,9 @@ export default async function HomePage({
             </article>
 
             <article className="wp-team-card">
-              <div className="wp-team-media" style={{ backgroundImage: "url(/brand/pedro-portrait-4.png)" }} />
+              <div className="wp-team-media">
+                <HomeImage src="/brand/pedro-portrait-4.png" alt="Time investidor e leilão" sizes="(max-width: 640px) 100vw, 33vw" />
+              </div>
               <div className="wp-team-body">
                 <h3>Time Investidor e Leilão</h3>
                 <p>Análise de margem, risco jurídico e potencial de revenda.</p>
@@ -846,12 +915,14 @@ export default async function HomePage({
                 const cover = post.coverImageUrl ?? "/brand/logo-light-bg.png";
                 return (
                   <article key={post.id} className="wp-property-card compact">
-                    <div
-                      className="wp-property-media"
-                      style={{
-                        backgroundImage: `linear-gradient(180deg, rgba(7,13,24,0.05), rgba(7,13,24,0.6)), url(${cover})`
-                      }}
-                    >
+                    <div className="wp-property-media">
+                      <HomeImage
+                        src={cover}
+                        alt={post.title}
+                        sizes="(max-width: 640px) 100vw, (max-width: 960px) 50vw, 33vw"
+                        className="wp-cover-image"
+                      />
+                      <span className="wp-image-shade" aria-hidden="true" />
                       <div className="wp-media-badges">
                         {post.tags.slice(0, 2).map((tag) => (
                           <span key={tag.id} className="badge">

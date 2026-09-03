@@ -4605,6 +4605,7 @@ body:has(.crm-shell) > main {
 }
 
 .wp-hero-media {
+  overflow: hidden;
   background: linear-gradient(120deg, #070d18 0%, #0f223d 55%, #17120e 100%);
 }
 
@@ -4614,11 +4615,34 @@ body:has(.crm-shell) > main {
       rgba(7, 13, 24, 0.8) 20%,
       rgba(7, 13, 24, 0.48) 58%,
       rgba(7, 13, 24, 0.65) 100%
-    ),
-    url("/brand/home-search-showcase.png");
-  background-size: cover;
-  background-position: center center;
-  background-repeat: no-repeat;
+    );
+}
+
+.wp-home-image {
+  display: block;
+}
+
+.wp-cover-image {
+  object-fit: cover;
+  object-position: center;
+  z-index: 0;
+}
+
+.wp-image-shade {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(7, 13, 24, 0.08), rgba(7, 13, 24, 0.68));
+}
+
+.wp-featured-landing-shade {
+  background: linear-gradient(
+    90deg,
+    rgba(7, 13, 24, 0.94) 0%,
+    rgba(7, 13, 24, 0.72) 48%,
+    rgba(7, 13, 24, 0.2) 100%
+  );
 }
 
 .wp-hero-portrait {
@@ -4633,6 +4657,12 @@ body:has(.crm-shell) > main {
   pointer-events: none;
   z-index: 1;
   filter: drop-shadow(0 24px 40px rgba(0, 0, 0, 0.45));
+}
+
+.wp-hero-portrait .wp-home-image {
+  object-fit: contain;
+  object-position: right bottom;
+  z-index: 0;
 }
 
 @media (max-width: 960px) {
@@ -4840,17 +4870,19 @@ body:has(.crm-shell) > main {
 }
 
 .wp-featured-landing {
+  position: relative;
+  isolation: isolate;
   min-height: 360px;
   display: flex;
   align-items: center;
   border-radius: 18px;
-  background-position: center;
-  background-size: cover;
   overflow: hidden;
   box-shadow: 0 20px 42px rgba(7, 13, 24, 0.16);
 }
 
 .wp-featured-landing-copy {
+  position: relative;
+  z-index: 2;
   width: min(560px, 100%);
   display: grid;
   gap: 12px;
@@ -4905,6 +4937,8 @@ body:has(.crm-shell) > main {
 }
 
 .wp-area-card {
+  position: relative;
+  isolation: isolate;
   min-height: 210px;
   border-radius: 12px;
   padding: 14px;
@@ -4912,12 +4946,17 @@ body:has(.crm-shell) > main {
   align-content: end;
   gap: 2px;
   color: #ffffff;
-  background-size: cover;
-  background-position: center;
   border: 1px solid rgba(255, 255, 255, 0.25);
 }
 
-.wp-area-card span {
+.wp-area-card > span:not(.wp-image-shade),
+.wp-area-card > h3,
+.wp-area-card > strong {
+  position: relative;
+  z-index: 2;
+}
+
+.wp-area-card > span:not(.wp-image-shade) {
   opacity: 0.88;
   font-size: var(--fs-14);
 }
@@ -4981,8 +5020,8 @@ body:has(.crm-shell) > main {
 
 .wp-property-media {
   position: relative;
-  background-size: cover;
-  background-position: center;
+  isolation: isolate;
+  overflow: hidden;
   padding: 12px;
   display: flex;
   flex-direction: column;
@@ -4990,12 +5029,16 @@ body:has(.crm-shell) > main {
 }
 
 .wp-media-badges {
+  position: relative;
+  z-index: 2;
   display: flex;
   gap: 6px;
   flex-wrap: wrap;
 }
 
 .wp-property-media p {
+  position: relative;
+  z-index: 2;
   margin: 0;
   color: #f8fafc;
   font-size: var(--fs-14);
@@ -5039,14 +5082,14 @@ body:has(.crm-shell) > main {
 }
 
 .wp-category-card {
+  position: relative;
+  isolation: isolate;
   min-height: 190px;
   border-radius: 12px;
   padding: 14px;
   display: grid;
   align-content: end;
   color: #ffffff;
-  background-size: cover;
-  background-position: center;
   border: 1px solid rgba(255, 255, 255, 0.26);
 }
 
@@ -5056,11 +5099,15 @@ body:has(.crm-shell) > main {
 }
 
 .wp-category-card h3 {
+  position: relative;
+  z-index: 2;
   margin: 0;
   font-size: var(--fs-20);
 }
 
 .wp-category-card p {
+  position: relative;
+  z-index: 2;
   margin: 2px 0 0;
   font-size: var(--fs-14);
 }
@@ -5080,9 +5127,9 @@ body:has(.crm-shell) > main {
 }
 
 .wp-team-media {
+  position: relative;
+  overflow: hidden;
   height: 280px;
-  background-size: cover;
-  background-position: center;
 }
 
 .wp-team-body {
