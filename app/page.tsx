@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { listPublishedBlogPosts } from "@/lib/data/blog";
 import { publicLandingPages } from "@/lib/data/landing-pages";
+import { LandingPagesSlider } from "@/components/public/landing-pages-slider";
 import { PropertySpecs } from "@/components/public/property-specs";
 import { listPublicProperties } from "@/lib/data/properties";
 import {
@@ -176,7 +177,6 @@ function HomeImage({ src, alt, sizes, priority = false, className = "" }: HomeIm
     />
   );
 }
-
 function normalizePropertyCard(property: {
   id: string;
   slug: string;
@@ -331,8 +331,7 @@ export default async function HomePage({
     (card) => card.purpose === "VENDA" && !isAuctionCard(card) && card.status === "DISPONIVEL"
   );
 
-  const latestProperties = allCards.slice(0, 6);
-  const auctionCards = allCards.filter(isAuctionCard).slice(0, 3);
+  const featuredProperties = readySaleCards.slice(0, 6);
 
   const categoryCards = buildCategoryCards(readySaleCards);
   const areaCards = buildAreaCards(readySaleCards);
@@ -503,30 +502,7 @@ export default async function HomePage({
               <h2 className="section-title">Lançamentos em destaque</h2>
               <p className="section-subtitle text-card">Conheça as campanhas atuais e fale diretamente com Pedro Soares.</p>
             </div>
-            <div className="wp-featured-landing-grid">
-              {featuredLandings.map((landing) => (
-                <Link
-                  key={landing.slug}
-                  href={landing.href}
-                  className="wp-featured-landing"
-                >
-                  <HomeImage
-                    src={landing.image}
-                    alt=""
-                    sizes="(max-width: 760px) 100vw, 50vw"
-                    className="wp-cover-image"
-                  />
-                  <span className="wp-image-shade wp-featured-landing-shade" aria-hidden="true" />
-                  <div className="wp-featured-landing-copy">
-                    <span className="badge">{landing.status}</span>
-                    <p className="wp-section-eyebrow">Lançamento em destaque · {landing.category}</p>
-                    <h2>{landing.title}</h2>
-                    <p>{landing.summary}</p>
-                    <span className="button button-primary">Conhecer lançamento</span>
-                  </div>
-                </Link>
-              ))}
-            </div>
+            <LandingPagesSlider landings={featuredLandings} />
           </div>
         </section>
       ) : null}
@@ -592,17 +568,20 @@ export default async function HomePage({
 
       <section className="section" style={{ paddingTop: 24 }}>
         <div className="container">
-          <div className="wp-section-head">
-            <h2 className="section-title">Imóveis em destaque</h2>
-            <p className="section-subtitle text-card">Novos anúncios e ativos com melhor momento comercial.</p>
+          <div className="wp-featured-properties-head">
+            <div className="wp-section-head">
+              <p className="wp-section-eyebrow">Seleção atual</p>
+              <h2 className="section-title">Imóveis em destaque</h2>
+              <p className="section-subtitle text-card">Oportunidades disponíveis, selecionadas para morar ou investir.</p>
+            </div>
+            <Link href="/imoveis/prontos" className="button button-ghost">Ver todos os imóveis</Link>
           </div>
 
-          {latestProperties.length ? (
+          {featuredProperties.length ? (
             <div className="wp-property-grid" style={{ marginTop: 20 }}>
-              {latestProperties.map((property) => {
-                const isSold = property.status === "VENDIDO";
+              {featuredProperties.map((property) => {
                 return (
-                  <article key={property.id} className={`wp-property-card ${isSold ? "is-sold" : ""}`}>
+                  <article key={property.id} className="wp-property-card">
                     <div className="wp-property-media">
                       <HomeImage
                         src={property.imageUrl}
@@ -612,7 +591,6 @@ export default async function HomePage({
                       />
                       <span className="wp-image-shade" aria-hidden="true" />
                       <div className="wp-media-badges">
-                        {isSold ? <span className="badge badge-tone-sold">Vendido</span> : null}
                         <span className="badge">{property.purposeLabel}</span>
                         <span className="badge">{property.typeLabel}</span>
                       </div>
@@ -627,12 +605,8 @@ export default async function HomePage({
                         parkingSpaces={property.parkingSpaces}
                         areaM2={property.areaM2}
                       />
-                      <Link
-                        href={property.href}
-                        className={isSold ? "button button-ghost" : "button button-primary"}
-                        style={{ width: "100%" }}
-                      >
-                        {isSold ? "Ver imóvel vendido" : "Ver imóvel"}
+                      <Link href={property.href} className="button button-primary" style={{ width: "100%" }}>
+                        Ver imóvel
                       </Link>
                     </div>
                   </article>
@@ -685,111 +659,42 @@ export default async function HomePage({
         </div>
       </section>
 
-      <section className="section" style={{ paddingTop: 24 }}>
-        <div className="container">
-          <div className="wp-section-head">
-            <h2 className="section-title">Imóveis leilão</h2>
-            <p className="section-subtitle text-card">
-              Oportunidades com leitura de risco, margem e suporte para tomada de decisão rápida.
-            </p>
-          </div>
-
-          {auctionCards.length ? (
-            <div className="wp-property-grid wp-property-grid-3" style={{ marginTop: 20 }}>
-              {auctionCards.map((property) => {
-                const isSold = property.status === "VENDIDO";
-                return (
-                  <article key={property.id} className={`wp-property-card compact ${isSold ? "is-sold" : ""}`}>
-                    <div className="wp-property-media">
-                      <HomeImage
-                        src={property.imageUrl}
-                        alt={property.title}
-                        sizes="(max-width: 640px) 100vw, (max-width: 960px) 50vw, 33vw"
-                        className="wp-cover-image"
-                      />
-                      <span className="wp-image-shade" aria-hidden="true" />
-                      <div className="wp-media-badges">
-                        {isSold ? <span className="badge badge-tone-sold">Vendido</span> : null}
-                        <span className="badge">Leilão</span>
-                        <span className="badge">Oportunidade</span>
-                      </div>
-                      <p>{property.city} • {property.district}</p>
-                    </div>
-                    <div className="wp-property-body">
-                      <h3>{property.title}</h3>
-                      <p className="wp-price">{formatCurrencyBRL(property.price)}</p>
-                      <PropertySpecs
-                        bedrooms={property.bedrooms}
-                        bathrooms={property.bathrooms}
-                        parkingSpaces={property.parkingSpaces}
-                        areaM2={property.areaM2}
-                      />
-                      <Link href={property.href} className="button button-ghost" style={{ width: "100%" }}>
-                        {isSold ? "Ver imóvel vendido" : "Analisar oportunidade"}
-                      </Link>
-                    </div>
-                  </article>
-                );
-              })}
-            </div>
-          ) : (
-            <article className="card" style={{ padding: 16, marginTop: 20 }}>
-              <p className="text-card" style={{ margin: 0, color: "var(--text-muted)" }}>
-                Nenhuma oportunidade de leilão disponível no backend.
-              </p>
-            </article>
-          )}
-        </div>
-      </section>
-
       <section className="section wp-soft-section" style={{ paddingTop: 24 }}>
         <div className="container">
           <div className="wp-section-head">
-            <h2 className="section-title">Nossa equipe</h2>
+            <p className="wp-section-eyebrow">Experiência do início ao fechamento</p>
+            <h2 className="section-title">Decisão imobiliária com clareza.</h2>
             <p className="section-subtitle text-card">
-              Atendimento consultivo em imóveis, campanhas de lançamento e leilões com padrão comercial único.
+              Você não precisa navegar sozinho entre anúncios, tabelas e documentos para encontrar a melhor oportunidade.
             </p>
           </div>
 
-          <div className="wp-team-grid">
-            <article className="wp-team-card">
-              <div className="wp-team-media">
-                <HomeImage src="/brand/pedro-portrait-1.png" alt="Pedro Soares" sizes="(max-width: 640px) 100vw, 33vw" />
-              </div>
-              <div className="wp-team-body">
-                <h3>Pedro Soares</h3>
-                <p>Corretor de Imóveis • CRECI 5861-TO</p>
-                <a
-                  href="https://wa.me/5563984845101?text=Ol%C3%A1%20Pedro%2C%20quero%20falar%20sobre%20im%C3%B3veis."
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  WhatsApp comercial
-                </a>
-              </div>
+          <div className="wp-trust-grid">
+            <article className="wp-trust-card">
+              <span className="wp-trust-card-index">01</span>
+              <h3>Curadoria objetiva</h3>
+              <p>Imóveis e lançamentos organizados por objetivo, localização e momento de compra.</p>
             </article>
-
-            <article className="wp-team-card">
-              <div className="wp-team-media">
-                <HomeImage src="/brand/pedro-portrait-3.png" alt="Atendimento de lançamentos" sizes="(max-width: 640px) 100vw, 33vw" />
-              </div>
-              <div className="wp-team-body">
-                <h3>Atendimento Lançamentos</h3>
-                <p>Suporte para tipologias, tabela e fluxo de proposta.</p>
-                <Link href="/lancamentos">Ver lançamentos</Link>
-              </div>
+            <article className="wp-trust-card">
+              <span className="wp-trust-card-index">02</span>
+              <h3>Análise que orienta</h3>
+              <p>Informações essenciais para comparar opções com mais segurança e menos ruído.</p>
             </article>
-
-            <article className="wp-team-card">
-              <div className="wp-team-media">
-                <HomeImage src="/brand/pedro-portrait-4.png" alt="Time investidor e leilão" sizes="(max-width: 640px) 100vw, 33vw" />
-              </div>
-              <div className="wp-team-body">
-                <h3>Time Investidor e Leilão</h3>
-                <p>Análise de margem, risco jurídico e potencial de revenda.</p>
-                <Link href="/leiloes-oportunidades">Explorar oportunidades</Link>
-              </div>
+            <article className="wp-trust-card">
+              <span className="wp-trust-card-index">03</span>
+              <h3>Atendimento direto</h3>
+              <p>Conversa clara no WhatsApp para tirar dúvidas e avançar no seu ritmo.</p>
             </article>
+          </div>
+          <div className="wp-trust-action">
+            <a
+              href="https://wa.me/5563984845101?text=Ol%C3%A1%20Pedro%2C%20quero%20encontrar%20um%20im%C3%B3vel."
+              target="_blank"
+              rel="noreferrer"
+              className="button button-whatsapp"
+            >
+              Falar com Pedro
+            </a>
           </div>
         </div>
       </section>
