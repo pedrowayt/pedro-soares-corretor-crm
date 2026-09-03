@@ -17412,6 +17412,34 @@ body:has(.crm-shell) > main {
 .palmas-lake-overview-tags { display: flex; flex-wrap: wrap; gap: 20px; padding-top: 23px; border-top: 1px solid rgba(255,255,255,.2); }
 .palmas-lake-overview-tags span { display: inline-flex; align-items: center; gap: 8px; color: rgba(255,255,255,.84); font-size: .67rem; letter-spacing: .08em; text-transform: uppercase; }
 .palmas-lake-overview-tags svg { color: var(--pl-gold-light); }
+.palmas-lake-reels { overflow: hidden; padding: 110px 0 118px; background: var(--pl-sand); color: var(--pl-ink); }
+.palmas-lake-reels-heading { display: grid; grid-template-columns: minmax(0, 1fr) minmax(260px, .55fr); align-items: end; gap: 60px; margin-bottom: 47px; }
+.palmas-lake-reels-heading h2 { max-width: 670px; margin: 0; font-size: clamp(2.6rem, 5.2vw, 5rem); font-weight: 500; line-height: .97; letter-spacing: -.07em; }
+.palmas-lake-reels-heading-side { max-width: 315px; padding-bottom: 4px; }
+.palmas-lake-reels-heading-side p { margin: 0 0 18px; color: var(--pl-muted); font-size: .88rem; line-height: 1.75; }
+.palmas-lake-reels-heading-side span { display: inline-flex; align-items: center; gap: 7px; color: #927243; font-size: .62rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+.palmas-lake-reels-viewport { position: relative; width: 100%; }
+.palmas-lake-reels-track { display: flex; gap: 18px; width: max-content; transition: transform .65s cubic-bezier(.22,.61,.36,1); }
+.palmas-lake-reels-slide { flex: 0 0 min(73vw, 308px); opacity: .48; transform: scale(.92); transform-origin: center top; transition: opacity .45s ease, transform .45s ease; }
+.palmas-lake-reels-slide.is-active { opacity: 1; transform: scale(1); }
+.palmas-lake-reels-video-wrap { position: relative; aspect-ratio: 9 / 16; overflow: hidden; background: #17282d; box-shadow: 0 20px 45px rgba(13,23,27,.15); }
+.palmas-lake-reels-video-wrap::after { position: absolute; inset: 0; background: linear-gradient(0deg, rgba(7,17,21,.78), transparent 36%); content: ""; pointer-events: none; }
+.palmas-lake-reels-video-wrap video { display: block; width: 100%; height: 100%; object-fit: cover; }
+.palmas-lake-reels-muted { position: absolute; z-index: 1; right: 14px; bottom: 14px; display: inline-flex; align-items: center; gap: 6px; padding: 7px 9px; border: 1px solid rgba(255,255,255,.3); border-radius: 999px; background: rgba(7,17,21,.4); color: rgba(255,255,255,.85); font-size: .58rem; letter-spacing: .08em; text-transform: uppercase; backdrop-filter: blur(10px); }
+.palmas-lake-reels-caption { display: grid; grid-template-columns: 31px minmax(0, 1fr); gap: 12px; padding-top: 15px; }
+.palmas-lake-reels-caption > span { color: #a67d4a; font-size: .62rem; letter-spacing: .12em; }
+.palmas-lake-reels-caption div { display: grid; gap: 4px; }
+.palmas-lake-reels-caption strong { font-family: var(--font-title), Georgia, serif; font-size: 1.2rem; font-weight: 500; line-height: 1.05; }
+.palmas-lake-reels-caption small { color: var(--pl-muted); font-size: .68rem; line-height: 1.45; }
+.palmas-lake-reels-arrow { position: absolute; z-index: 2; top: clamp(210px, 65vw, 274px); display: grid; width: 46px; height: 46px; place-items: center; border: 1px solid rgba(255,255,255,.7); border-radius: 50%; background: rgba(13,23,27,.72); color: #fff; cursor: pointer; transform: translateY(-50%); transition: background .2s ease, transform .2s ease; }
+.palmas-lake-reels-arrow:hover { background: var(--pl-ink); transform: translateY(-50%) scale(1.05); }
+.palmas-lake-reels-arrow--prev { left: 13px; }
+.palmas-lake-reels-arrow--next { right: 13px; }
+.palmas-lake-reels-controls { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-top: 27px; }
+.palmas-lake-reels-dots { display: flex; align-items: center; gap: 7px; }
+.palmas-lake-reels-dots button { width: 28px; height: 2px; padding: 0; border: 0; background: rgba(13,23,27,.2); cursor: pointer; transition: width .25s ease, background .25s ease; }
+.palmas-lake-reels-dots button.is-active { width: 54px; background: var(--pl-ink); }
+.palmas-lake-reels-controls > span { color: var(--pl-muted); font-size: .63rem; font-weight: 700; letter-spacing: .14em; }
 .palmas-lake-exclusive { padding: 112px 0 118px; background: var(--pl-paper); }
 .palmas-lake-exclusive-grid { display: grid; grid-template-columns: minmax(0, 1.12fr) minmax(320px, .88fr); align-items: start; gap: clamp(48px, 8vw, 118px); }
 .palmas-lake-exclusive-copy { max-width: 670px; }
@@ -17862,6 +17890,14 @@ body:has(.crm-shell) > main {
 .palmas-lake-whatsapp-copy small { color: rgba(255,255,255,.78); font-size: .67rem; line-height: 1.2; }
 .palmas-lake-whatsapp-icon { color: #62e995; }
 @media (max-width: 700px) {
+  .palmas-lake-reels { padding: 78px 0 84px; }
+  .palmas-lake-reels-heading { grid-template-columns: 1fr; gap: 24px; margin-bottom: 32px; }
+  .palmas-lake-reels-heading h2 { font-size: 2.65rem; }
+  .palmas-lake-reels-heading-side { max-width: 350px; }
+  .palmas-lake-reels-arrow { width: 40px; height: 40px; }
+  .palmas-lake-reels-arrow--prev { left: 7px; }
+  .palmas-lake-reels-arrow--next { right: 7px; }
+  .palmas-lake-reels-caption strong { font-size: 1.1rem; }
   .palmas-detail-hero { min-height: 620px; }
   .palmas-detail-top { align-items: flex-start; flex-direction: column; gap: 13px; }
   .palmas-detail-hero-copy { padding-bottom: 58px; }
