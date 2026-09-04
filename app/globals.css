@@ -148,8 +148,8 @@
 .maestria-broker-mini strong { font-family: var(--font-title), Georgia, serif; font-size: 1.45rem; font-weight: 500; }
 .maestria-broker-mini small { color: rgba(255,255,255,.56); font-size: .63rem; }
 .maestria-broker-mini a { display: inline-flex; align-items: center; gap: 6px; margin-top: 5px; color: var(--maestria-gold-light); font-size: .67rem; font-weight: 700; }
-.maestria-lead-form-wrap { padding: 30px; background: var(--maestria-paper); color: var(--maestria-ink); box-shadow: 18px 18px 0 rgba(0,0,0,.16); }
-.maestria-lead-form { display: grid; gap: 21px; }
+.maestria-lead-form-wrap { width: 100%; min-width: 0; padding: 30px; background: var(--maestria-paper); color: var(--maestria-ink); box-shadow: 18px 18px 0 rgba(0,0,0,.16); }
+.maestria-lead-form { display: grid; min-width: 0; gap: 21px; }
 .maestria-form-heading > span { color: var(--maestria-wine-soft); font-size: .62rem; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; }
 .maestria-form-heading h3 { margin: 11px 0 7px; color: var(--maestria-wine); font-family: var(--font-title), Georgia, serif; font-size: 2.1rem; font-weight: 500; line-height: 1; }
 .maestria-form-heading p { margin-bottom: 0; color: var(--maestria-muted); font-size: .76rem; line-height: 1.55; }
@@ -158,8 +158,9 @@
 .maestria-form-fields label span { color: var(--maestria-muted); font-size: .61rem; font-weight: 500; }
 .maestria-form-fields input:not([type="checkbox"]), .maestria-form-fields select { width: 100%; min-height: 45px; border: 1px solid rgba(59,17,31,.2); border-radius: 0; background: rgba(255,255,255,.42); color: var(--maestria-ink); padding: .7rem .75rem; font: inherit; font-size: .75rem; }
 .maestria-form-fields input:focus, .maestria-form-fields select:focus { outline: 2px solid var(--maestria-gold); outline-offset: 2px; }
-.maestria-consent { display: flex; align-items: flex-start; gap: 9px; color: var(--maestria-muted); font-size: .63rem; line-height: 1.45; }
-.maestria-consent input { flex: 0 0 auto; margin-top: 2px; accent-color: var(--maestria-wine); }
+.maestria-consent { display: flex; width: 100%; min-width: 0; align-items: flex-start; gap: 9px; color: var(--maestria-muted); font-size: .63rem; line-height: 1.45; }
+.maestria-consent input { width: 15px; min-height: 15px; flex: 0 0 15px; margin: 2px 0 0; accent-color: var(--maestria-wine); }
+.maestria-consent span { min-width: 0; max-width: 100%; flex: 1 1 auto; overflow-wrap: anywhere; }
 .maestria-form-feedback { display: flex; align-items: flex-start; gap: 8px; margin: 0; padding: 11px 12px; font-size: .7rem; line-height: 1.45; }
 .maestria-form-feedback--success { background: rgba(48,135,77,.12); color: #216438; }
 .maestria-form-feedback--error { background: rgba(170,44,44,.1); color: #9b3030; }
