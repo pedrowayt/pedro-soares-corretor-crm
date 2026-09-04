@@ -20221,7 +20221,8 @@ body:has(.crm-shell) > main {
 .urban-haute-contact-points span { display: flex; align-items: center; gap: 9px; }
 .urban-haute-contact-points svg { color: var(--uh-sand-light); }
 .urban-haute-broker { display: flex; align-items: center; gap: 13px; margin-top: 35px; }
-.urban-haute-broker-avatar { display: grid; place-items: center; width: 48px; height: 48px; border: 1px solid rgba(234,216,183,.45); color: var(--uh-sand-light); font-family: var(--font-title), Georgia, serif; font-size: 1.25rem; }
+.urban-haute-broker-avatar { position: relative; width: 48px; height: 48px; flex: 0 0 48px; overflow: hidden; border: 1px solid rgba(234,216,183,.72); border-radius: 50%; background: var(--uh-black); }
+.urban-haute-broker-avatar img { object-fit: cover; object-position: center 24%; transform: scale(1.14); }
 .urban-haute-broker strong, .urban-haute-broker span { display: block; }
 .urban-haute-broker strong { color: #fff; font-family: var(--font-title), Georgia, serif; font-size: 1.2rem; font-weight: 500; }
 .urban-haute-broker span { margin-top: 5px; color: rgba(255,255,255,.5); font-size: .6rem; letter-spacing: .07em; text-transform: uppercase; }
