@@ -215,6 +215,7 @@ const SEARCH_PLACEHOLDERS: Record<CapturePortalProviderId, string> = {
   "facebook-marketplace": "https://www.facebook.com/marketplace/palmas/propertyforsale/"
 };
 const CAPTURE_PAGE_SIZE = 10;
+const CRM_TIME_ZONE = "America/Araguaina";
 
 function buildBrowserCollectorBookmarklet() {
   const script = `(()=>{const seen=new Set(),items=[];const clean=v=>(v||'').replace(/\\u00a0/g,' ').replace(/[ \\t\\r\\f]+/g,' ').trim();const num=v=>{let m=v.match(/R\\$\\s*([\\d.,]+)\\s*(?:milh[aã]o|milh[oõ]es)/i);if(m){const n=Number((m[1].includes(',')?m[1].replace(/\\./g,'').replace(',','.'):m[1].replace(/\\.(?=\\d{3}(?:\\D|$))/g,'')));return Number.isFinite(n)?n*1000000:0}m=v.match(/R\\$\\s*([\\d.,]+)\\s*mil\\b/i);if(m){const n=Number((m[1].includes(',')?m[1].replace(/\\./g,'').replace(',','.'):m[1].replace(/\\.(?=\\d{3}(?:\\D|$))/g,'')));return Number.isFinite(n)?(n<10000?n*1000:n):0}m=v.match(/R\\$\\s*[\\d.,]+/i);if(!m)return 0;const t=m[0].replace(/[^\\d,.]/g,''),n=Number(t.includes(',')?t.replace(/\\./g,'').replace(',','.'):t.replace(/\\.(?=\\d{3}(?:\\D|$))/g,''));return Number.isFinite(n)?n:0};const price=(lines,raw)=>{const c=[];(lines.length?lines:[raw]).forEach(l=>{const fee=/condom[ií]nio|iptu|taxa|seguro|m[²2]|por\\s*m[²2]/i.test(l);(l.match(/R\\$\\s*[\\d.,]+(?:\\s*(?:mil\\b|milh[aã]o|milh[oõ]es))?/gi)||[]).forEach(label=>{const value=num(label);if(value)c.push({label:clean(label),value,fee})})});const p=c.filter(x=>!x.fee),pool=p.length?p:c;return (pool.sort((a,b)=>b.value-a.value)[0]||{}).label||''};const noise=l=>!l||/^R\\$/i.test(l)||/condom[ií]nio|iptu|patrocinado|favorito|online|ver telefone|whatsapp|anunciante|publicado/i.test(l);const img=box=>{const i=box.querySelector('img[src],img[srcset]'),raw=(i&&(i.currentSrc||i.src||i.getAttribute('data-src')||i.getAttribute('data-original')||(i.srcset||'').split(',')[0].trim().split(/\\s+/)[0]))||'';if(!raw||raw.startsWith('data:'))return '';try{const u=new URL(raw,location.href);return /^https?:$/.test(u.protocol)?u.href:''}catch(e){return ''}};const provider=u=>{const h=u.hostname.toLowerCase();if(h.includes('olx.com.br'))return'olx';if(h.includes('zapimoveis.com.br'))return'zap';if(h.includes('imovelweb.com.br'))return'imovelweb';if(h.includes('chavesnamao.com.br'))return'chaves-na-mao';if(h.includes('facebook.com'))return'facebook-marketplace';return''};const isAd=u=>{const p=decodeURIComponent(u.pathname),h=provider(u);return h==='olx'?/(?:-|\\/)\\d{5,}/.test(p):h==='zap'?/\\/imovel\\/|\\/imoveis\\/|id-\\d{5,}|-\\d{7,}/.test(p):h==='imovelweb'?/\\/propriedades\\/|\\/imovel\\/|-\\d{7,}/.test(p):h==='chaves-na-mao'?/\\/imovel\\/|\\/imoveis\\/|\\/casa-|\\/apartamento-|\\/terreno-|\\/sobrado-|\\/chacara-|-\\d{5,}/.test(p):h==='facebook-marketplace'?/\\/marketplace\\/item\\/\\d+/.test(p):false};document.querySelectorAll('a[href]').forEach(a=>{try{const u=new URL(a.href,location.href);u.hash='';u.search='';if(!isAd(u)||seen.has(u.href))return;seen.add(u.href);const box=a.closest('article,li,section,div')||a,lines=((box.innerText||a.textContent||'').replace(/\\u00a0/g,' ').split(/\\n+/).map(clean).filter(Boolean)),rawText=lines.join('\\n'),locationText=lines.find(l=>/palmas|\\bto\\b|setor|plano diretor|jardim|centro/i.test(l))||'',anchorText=clean(a.innerText||a.getAttribute('aria-label')||a.getAttribute('title')||''),title=(anchorText&&!noise(anchorText)&&anchorText.length<=180?anchorText:lines.find(l=>!noise(l)&&!/palmas|\\bto\\b|setor|jardim|centro/i.test(l)))||document.title,description=lines.filter(l=>l!==title&&l!==locationText&&!/^R\\$/i.test(l)&&!/favorito|patrocinado|online|ver telefone/i.test(l)).slice(0,8).join('\\n');items.push({sourceUrl:u.href,title:title.slice(0,180),description,price:price(lines,rawText),location:locationText,imageUrl:img(box),rawText:rawText.slice(0,1200)});}catch(e){}});const out=JSON.stringify(items,null,2);navigator.clipboard.writeText(out).then(()=>alert('Captura copiada: '+items.length+' anúncios')).catch(()=>prompt('Copie a captura',out));})();`;
@@ -270,7 +271,8 @@ function formatDateTime(value: string | null) {
     month: "2-digit",
     year: "numeric",
     hour: "2-digit",
-    minute: "2-digit"
+    minute: "2-digit",
+    timeZone: CRM_TIME_ZONE
   }).format(new Date(value));
 }
 
@@ -280,7 +282,8 @@ function formatShortDateTime(value: string | null) {
     day: "2-digit",
     month: "2-digit",
     hour: "2-digit",
-    minute: "2-digit"
+    minute: "2-digit",
+    timeZone: CRM_TIME_ZONE
   }).format(new Date(value));
 }
 
@@ -354,6 +357,10 @@ function getScoreTone(score: number) {
   if (score >= 75) return "hot";
   if (score >= 55) return "warm";
   return "cold";
+}
+
+function hasSuspiciousPrice(listing: CaptureListingItem) {
+  return !Number.isFinite(listing.price) || listing.price <= 0 || listing.price > 10_000_000;
 }
 
 function getListingTimestamp(listing: CaptureListingItem) {
@@ -753,11 +760,17 @@ export function CaptureManager({ listings, alerts }: { listings: CaptureListingI
       const imported = results.reduce((total, result) => total + result.importedCount, 0);
       const failed = results.reduce((total, result) => total + result.failedCount, 0);
       const hasError = results.some((result) => result.alert.lastRunStatus === "error");
+      const empty = results.filter((result) => result.foundCount === 0).length;
+      const hasWarning = results.some((result) => result.alert.lastRunStatus === "warning");
       setFeedback({
-        tone: failed > 0 ? (hasError ? "error" : "warning") : "success",
+        tone: failed > 0 ? (hasError ? "error" : "warning") : hasWarning || !results.length ? "warning" : "success",
         message:
-          failed > 0
+          !results.length
+            ? "Nenhum monitoramento ativo foi executado."
+            : failed > 0
             ? `${results.length} monitoramentos executados; ${imported} importados/atualizados; ${failed} falhas.`
+            : empty > 0
+              ? `${results.length} monitoramentos executados; ${empty} sem anúncios lidos automaticamente; ${imported} importados/atualizados.`
             : `${results.length} monitoramentos executados; ${imported} anúncios importados/atualizados.`
       });
     } catch (error) {
@@ -999,7 +1012,7 @@ export function CaptureManager({ listings, alerts }: { listings: CaptureListingI
                 </div>
                 <div className="crm-capture-alert-card__stats">
                   <span><Clock3 size={14} strokeWidth={1.75} aria-hidden="true" /> {formatShortDateTime(alert.lastRunAt)}</span>
-                  <strong>{alert.lastRunImportedCount} importados</strong>
+                  <strong>{alert.lastRunFoundCount} encontrados · {alert.lastRunImportedCount} importados</strong>
                   <small>{alert.lastRunMessage ?? `${alert.maxResultsPerRun} anúncios por rodada`}</small>
                 </div>
                 <button
@@ -1367,6 +1380,7 @@ export function CaptureManager({ listings, alerts }: { listings: CaptureListingI
               const contactPhone = listing.advertiserPhone || listing.linkedOwnerPhone;
               const contactName = listing.linkedOwnerName || listing.advertiserName;
               const contactLabel = listing.linkedOwnerName ? "Proprietário vinculado" : "Contato do anúncio";
+              const suspiciousPrice = hasSuspiciousPrice(listing);
               const disabled = pendingId === listing.id || listing.status === "CAPTADO" || listing.status === "DESCARTADO";
               return (
                 <li key={listing.id} className="crm-capture-card">
@@ -1411,7 +1425,14 @@ export function CaptureManager({ listings, alerts }: { listings: CaptureListingI
                             : "Data de publicação não informada"}
                         </p>
                       </div>
-                      <strong className="crm-capture-card__price">{formatCurrencyBRL(listing.price)}</strong>
+                      <div>
+                        <strong className="crm-capture-card__price">{formatCurrencyBRL(listing.price)}</strong>
+                        {suspiciousPrice ? (
+                          <span className="crm-capture-pill" data-tone="warning" title="Confira o valor antes de abordar o anunciante">
+                            Revisar preço
+                          </span>
+                        ) : null}
+                      </div>
                     </div>
 
                     <div className="crm-capture-card__grid">

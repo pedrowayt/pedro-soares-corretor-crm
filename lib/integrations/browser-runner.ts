@@ -8,6 +8,7 @@ export type BrowserCapturedSearchItem = {
   description: string;
   price: string;
   location: string;
+  address: string;
   imageUrl: string;
   rawText: string;
   isPrivateSeller: boolean;
@@ -17,6 +18,16 @@ export type BrowserCapturedSearchResult = {
   requestedUrl: string;
   finalUrl: string;
   items: BrowserCapturedSearchItem[];
+  diagnostics: BrowserCaptureSearchDiagnostics;
+};
+
+export type BrowserCaptureSearchDiagnostics = {
+  pageTitle: string;
+  bodyTextLength: number;
+  candidateLinkCount: number;
+  hasResultSignal: boolean;
+  blockedMarker: string | null;
+  captureWarning: boolean;
 };
 
 const BROWSER_USER_AGENT =
@@ -112,7 +123,7 @@ export async function scrapePortalSearchWithBrowser(
     await prepareRuntimeHelpers(page);
     await autoScroll(page);
 
-    const items = await page.evaluate(
+    const evaluation = await page.evaluate(
       ({ limit: pageLimit, expectedProvider: pageProvider }) => {
         const seen = new Set<string>();
         const clean = (value: string | null | undefined) => (value ?? "").replace(/\u00a0/g, " ").replace(/[ \t\r\f]+/g, " ").trim();
@@ -174,6 +185,14 @@ export async function scrapePortalSearchWithBrowser(
             .slice(0, 8)
             .join("\n")
             .slice(0, 1200);
+        const chooseAddress = (lines: string[], title: string, location: string) =>
+          lines.find(
+            (line) =>
+              line !== title &&
+              line !== location &&
+              /^(rua|r\.?\s|avenida|av\.?\s|alameda|travessa|tv\.?\s|rodovia|estrada|praça|pc\.?\s|quadra|qd\.?\s|lote|setor|jardim|residencial|condom[ií]nio)/i.test(line) &&
+              /\d|quadra|qd\.?|lote|setor/i.test(line)
+          ) ?? "";
         const firstImageUrl = (box: Element) => {
           const image = box.querySelector<HTMLImageElement>("img[src],img[srcset]");
           const raw =
@@ -222,7 +241,32 @@ export async function scrapePortalSearchWithBrowser(
           return privateSignal || !brokerSignal;
         };
 
-        return Array.from(document.querySelectorAll<HTMLAnchorElement>("a[href]"))
+        const bodyText = (document.body?.innerText || "").replace(/\s+/g, " ").trim();
+        const blockedMarkers = [
+          "acesso negado",
+          "access denied",
+          "verifique se você é humano",
+          "verifique se voce e humano",
+          "captcha",
+          "não foi possível carregar",
+          "nao foi possivel carregar",
+          "temporariamente indisponível",
+          "temporariamente indisponivel"
+        ];
+        const blockedMarker = blockedMarkers.find((marker) => bodyText.toLowerCase().includes(marker)) ?? null;
+        const hasResultSignal =
+          /\b\d[\d.]*\s*[-–]\s*\d[\d.]*\s+de\s+[\d.]+\s+resultados\b/i.test(bodyText) ||
+          /\b\d[\d.]*\s+resultados\b/i.test(bodyText);
+        const candidateAnchors = Array.from(document.querySelectorAll<HTMLAnchorElement>("a[href]")).filter((anchor) => {
+          try {
+            const url = new URL(anchor.href, window.location.href);
+            return isAd(url);
+          } catch {
+            return false;
+          }
+        });
+
+        const items = candidateAnchors
           .flatMap((anchor) => {
             try {
               const url = new URL(anchor.href, window.location.href);
@@ -237,6 +281,7 @@ export async function scrapePortalSearchWithBrowser(
               const price = choosePrice(lines, rawText);
               const title = chooseTitle(anchor, lines);
               const location = lines.find((line) => /palmas|\bto\b|setor|plano diretor|jardim|centro/i.test(line)) ?? "";
+              const address = chooseAddress(lines, title, location);
               const imageUrl = firstImageUrl(box);
               const description = chooseDescription(lines, title, location);
               return [
@@ -246,6 +291,7 @@ export async function scrapePortalSearchWithBrowser(
                   description,
                   price,
                   location,
+                  address,
                   imageUrl,
                   rawText: rawText.slice(0, 1200),
                   isPrivateSeller: detectPrivateSeller(rawText)
@@ -256,6 +302,19 @@ export async function scrapePortalSearchWithBrowser(
             }
           })
           .slice(0, pageLimit);
+
+        const candidateLinkCount = candidateAnchors.length;
+        return {
+          items,
+          diagnostics: {
+            pageTitle: document.title || "",
+            bodyTextLength: bodyText.length,
+            candidateLinkCount,
+            hasResultSignal,
+            blockedMarker,
+            captureWarning: items.length === 0
+          }
+        };
       },
       { limit, expectedProvider }
     );
@@ -263,7 +322,8 @@ export async function scrapePortalSearchWithBrowser(
     return {
       requestedUrl: searchUrl,
       finalUrl: page.url(),
-      items
+      items: evaluation.items,
+      diagnostics: evaluation.diagnostics
     };
   } catch (error) {
     throw normalizeBrowserError(error);

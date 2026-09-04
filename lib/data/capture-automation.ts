@@ -11,20 +11,68 @@ import { prisma } from "@/lib/prisma";
 
 const hasDatabase = Boolean(process.env.DATABASE_URL);
 
+const PROVIDER_LABELS: Record<string, string> = {
+  olx: "OLX",
+  zap: "ZAP Imóveis",
+  imovelweb: "Imovelweb",
+  "chaves-na-mao": "Chaves na Mão",
+  "facebook-marketplace": "Facebook Marketplace"
+};
+
 function plural(value: number, singular: string, pluralLabel: string) {
   return `${value} ${value === 1 ? singular : pluralLabel}`;
 }
 
-function buildRunMessage(input: { found: number; imported: number; skippedExisting: number; skippedPrivate: number; failed: number }) {
-  if (input.found === 0) return "Nenhum anúncio encontrado na busca.";
+function buildRunMessage(input: {
+  found: number;
+  imported: number;
+  skippedExisting: number;
+  skippedPrivate: number;
+  skippedFullAddress: number;
+  skippedPrice: number;
+  failed: number;
+  provider: string;
+  diagnostics?: {
+    blockedMarker: string | null;
+    candidateLinkCount: number;
+    hasResultSignal: boolean;
+  };
+}) {
+  if (input.found === 0) {
+    const providerLabel = PROVIDER_LABELS[input.provider] ?? input.provider;
+    if (input.diagnostics?.blockedMarker) {
+      return `${providerLabel} bloqueou a leitura automática (${input.diagnostics.blockedMarker}). Use "Captura do navegador" para importar os anúncios.`;
+    }
+    if (input.diagnostics?.hasResultSignal || input.diagnostics?.candidateLinkCount === 0) {
+      return `A busca da ${providerLabel} foi aberta, mas nenhum anúncio foi lido automaticamente. O portal pode ter alterado ou bloqueado a página; use "Captura do navegador" para importar.`;
+    }
+    return `Nenhum anúncio encontrado na busca da ${providerLabel}.`;
+  }
 
   const parts: string[] = [];
   if (input.imported > 0) parts.push(`${plural(input.imported, "importado/atualizado", "importados/atualizados")}`);
   if (input.skippedPrivate > 0) parts.push(`${plural(input.skippedPrivate, "ignorado", "ignorados")} por não parecer particular`);
+  if (input.skippedFullAddress > 0) parts.push(`${plural(input.skippedFullAddress, "ignorado", "ignorados")} sem endereço completo`);
+  if (input.skippedPrice > 0) parts.push(`${plural(input.skippedPrice, "ignorado", "ignorados")} fora da faixa de preço`);
   if (input.skippedExisting > 0) parts.push(`${plural(input.skippedExisting, "já estava", "já estavam")} na fila`);
   if (input.failed > 0) parts.push(`${plural(input.failed, "falhou", "falharam")}`);
 
   return parts.length ? `${input.found} encontrados; ${parts.join("; ")}.` : `${input.found} encontrados; nada novo para importar.`;
+}
+
+function parseBrowserPrice(value: string | null | undefined) {
+  const text = value?.trim() ?? "";
+  const match = text.match(/R\$\s*([\d.,]+)\s*(milh[aã]o|milh[oõ]es|mil)?/i);
+  if (!match) return null;
+
+  const normalized = match[1].includes(",")
+    ? match[1].replace(/\./g, "").replace(",", ".")
+    : match[1].replace(/\.(?=\d{3}(?:\D|$))/g, "");
+  const parsed = Number(normalized);
+  if (!Number.isFinite(parsed) || parsed <= 0) return null;
+  if (/milh/i.test(match[2] ?? "")) return parsed * 1_000_000;
+  if (/mil/i.test(match[2] ?? "")) return parsed * 1_000;
+  return parsed;
 }
 
 async function updateAlertRunStatus(
@@ -67,7 +115,20 @@ export async function runBrowserCaptureAlert(alertId: string, actorId?: string |
       ? search.items.filter((item) => isBrowserCapturedPrivateSeller(item))
       : search.items;
     const skippedPrivateCount = search.items.length - privateFilteredItems.length;
-    const urls = privateFilteredItems.map((item) => item.sourceUrl).filter(Boolean);
+    const addressFilteredItems = alert.onlyFullAddress
+      ? privateFilteredItems.filter((item) => Boolean(item.address?.trim()))
+      : privateFilteredItems;
+    const skippedFullAddressCount = privateFilteredItems.length - addressFilteredItems.length;
+    const priceFilteredItems = addressFilteredItems.filter((item) => {
+      if (alert.priceMin === null && alert.priceMax === null) return true;
+      const price = parseBrowserPrice(item.price);
+      if (price === null) return false;
+      if (alert.priceMin !== null && price < Number(alert.priceMin)) return false;
+      if (alert.priceMax !== null && price > Number(alert.priceMax)) return false;
+      return true;
+    });
+    const skippedPriceCount = addressFilteredItems.length - priceFilteredItems.length;
+    const urls = priceFilteredItems.map((item) => item.sourceUrl).filter(Boolean);
     const existing = urls.length
       ? await prisma.capturedListing.findMany({
           where: { sourceUrl: { in: urls } },
@@ -75,7 +136,7 @@ export async function runBrowserCaptureAlert(alertId: string, actorId?: string |
         })
       : [];
     const existingUrls = new Set(existing.map((item) => item.sourceUrl).filter(Boolean));
-    const itemsToImport = privateFilteredItems.filter((item) => !existingUrls.has(item.sourceUrl));
+    const itemsToImport = priceFilteredItems.filter((item) => !existingUrls.has(item.sourceUrl));
     const imported = await importBrowserCapturedListings(
       {
         provider: alert.provider as CapturePortalProviderId,
@@ -87,16 +148,20 @@ export async function runBrowserCaptureAlert(alertId: string, actorId?: string |
       },
       actorId
     );
-    const skippedExistingCount = privateFilteredItems.length - itemsToImport.length;
-    const skippedCount = skippedPrivateCount + skippedExistingCount;
+    const skippedExistingCount = priceFilteredItems.length - itemsToImport.length;
+    const skippedCount = skippedPrivateCount + skippedFullAddressCount + skippedPriceCount + skippedExistingCount;
     const message = buildRunMessage({
       found: search.items.length,
       imported: imported.importedCount,
       skippedExisting: skippedExistingCount,
       skippedPrivate: skippedPrivateCount,
-      failed: imported.failedCount
+      skippedFullAddress: skippedFullAddressCount,
+      skippedPrice: skippedPriceCount,
+      failed: imported.failedCount,
+      provider: alert.provider,
+      diagnostics: search.diagnostics
     });
-    const status = imported.failedCount > 0 ? "warning" : "success";
+    const status = imported.failedCount > 0 || search.items.length === 0 ? "warning" : "success";
     const updatedAlert = await updateAlertRunStatus(alert.id, {
       status,
       message,
@@ -121,8 +186,14 @@ export async function runBrowserCaptureAlert(alertId: string, actorId?: string |
             skippedCount,
             skippedExistingCount,
             skippedPrivateCount,
+            skippedFullAddressCount,
+            skippedPriceCount,
             onlyPrivateSeller: alert.onlyPrivateSeller,
+            onlyFullAddress: alert.onlyFullAddress,
+            priceMin: alert.priceMin,
+            priceMax: alert.priceMax,
             failedCount: imported.failedCount,
+            diagnostics: search.diagnostics,
             mode: "browser"
           } as Prisma.InputJsonValue
         }
