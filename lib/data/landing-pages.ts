@@ -23,6 +23,16 @@ export const publicLandingPages: PublicLandingPage[] = [
     status: "Lançamento"
   },
   {
+    slug: "heritage-fama",
+    href: "/heritage",
+    title: "Heritage Fama",
+    category: "Residencial de alto padrão",
+    location: "Orla de Palmas · Palmas/TO",
+    summary: "Um legado projetado para transformar a orla de Palmas, com qualidade, sofisticação e propósito.",
+    image: "/heritage/hero-project.png",
+    status: "Lançamento"
+  },
+  {
     slug: "maestria",
     href: "/maestria",
     title: "Maestria Urban Design",
