@@ -107,6 +107,22 @@
 .maestria-story-image { position: relative; min-height: 550px; overflow: hidden; background: #6d6a61; }
 .maestria-story-image img { object-fit: cover; object-position: center; }
 .maestria-story-image span { position: absolute; right: 17px; bottom: 17px; left: 17px; padding: 13px 15px; background: rgba(39,12,22,.86); color: rgba(255,255,255,.85); font-size: .63rem; letter-spacing: .1em; text-transform: uppercase; }
+.maestria-location-section { padding: 0; background: var(--maestria-gold); color: var(--maestria-wine-deep); }
+.maestria-location-grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(330px, .75fr); align-items: stretch; gap: clamp(42px, 7vw, 100px); }
+.maestria-location-image { position: relative; min-height: 540px; overflow: hidden; }
+.maestria-location-image img { object-fit: cover; object-position: center; transition: transform .8s ease; }
+.maestria-location-image:hover img { transform: scale(1.035); }
+.maestria-location-image span { position: absolute; right: 18px; bottom: 18px; padding: 9px 12px; background: rgba(39,12,22,.88); color: #fff; font-size: .63rem; font-weight: 700; letter-spacing: .13em; text-transform: uppercase; }
+.maestria-location-copy { align-self: center; padding: 68px 0; }
+.maestria-location-copy .maestria-kicker { color: var(--maestria-wine); }
+.maestria-location-copy h2 { max-width: 12ch; margin-bottom: 21px; color: var(--maestria-wine-deep); font-family: var(--font-title), Georgia, serif; font-size: clamp(2.4rem, 4.4vw, 4.35rem); font-weight: 500; line-height: 1.01; letter-spacing: -.05em; }
+.maestria-location-copy > p:not(.maestria-kicker) { max-width: 42ch; color: rgba(39,12,22,.7); font-size: .87rem; line-height: 1.8; }
+.maestria-location-facts { display: grid; gap: 13px; margin: 31px 0 32px; padding-top: 19px; border-top: 1px solid rgba(39,12,22,.28); }
+.maestria-location-facts div { display: flex; align-items: baseline; justify-content: space-between; gap: 15px; }
+.maestria-location-facts strong { color: var(--maestria-wine); font-family: var(--font-title), Georgia, serif; font-size: 1.18rem; font-weight: 500; }
+.maestria-location-facts span { color: rgba(39,12,22,.6); font-size: .62rem; letter-spacing: .08em; text-align: right; text-transform: uppercase; }
+.maestria-button--wine { background: var(--maestria-wine); color: var(--maestria-gold-light); }
+.maestria-button--wine:hover { background: var(--maestria-wine-deep); color: #fff; }
 .maestria-section-heading { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, .72fr); align-items: end; column-gap: 60px; margin-bottom: 50px; }
 .maestria-section-heading .maestria-kicker { grid-column: 1 / -1; }
 .maestria-section-heading h2 { margin-bottom: 0; color: var(--maestria-gold-light); }
@@ -137,6 +153,45 @@
 .maestria-plan-unit { display: block; margin: 14px 0 28px; color: rgba(255,255,255,.64); font-size: .64rem; letter-spacing: .25em; text-transform: uppercase; }
 .maestria-plan-rule { width: 100%; height: 1px; margin-bottom: 24px; background: rgba(217,193,140,.38); }
 .maestria-plan-card p { max-width: 32ch; color: rgba(255,255,255,.68); font-size: .81rem; line-height: 1.7; }
+
+.maestria-floorplans-block { margin-top: 84px; }
+.maestria-floorplans-heading { display: flex; align-items: end; justify-content: space-between; gap: 35px; margin-bottom: 28px; }
+.maestria-floorplans-heading .maestria-kicker { margin-bottom: 0; }
+.maestria-floorplans-heading > p:last-child { max-width: 48ch; margin: 0; color: var(--maestria-muted); font-size: .8rem; line-height: 1.7; }
+.maestria-floorplans-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.maestria-floorplan-card { overflow: hidden; border: 1px solid rgba(59,17,31,.14); background: rgba(255,255,255,.35); }
+.maestria-floorplan-image { position: relative; display: block; aspect-ratio: 1.48; overflow: hidden; background: #f7f1e8; }
+.maestria-floorplan-image img { object-fit: contain; transition: transform .45s ease; }
+.maestria-floorplan-image:hover img { transform: scale(1.035); }
+.maestria-floorplan-image span { position: absolute; right: 10px; bottom: 10px; padding: 7px 9px; background: rgba(39,12,22,.88); color: #fff; font-size: .58rem; letter-spacing: .08em; text-transform: uppercase; }
+.maestria-floorplan-copy { display: grid; gap: 7px; padding: 16px 17px 18px; }
+.maestria-floorplan-copy > div { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.maestria-floorplan-copy strong { color: var(--maestria-wine); font-family: var(--font-title), Georgia, serif; font-size: 1.17rem; font-weight: 500; }
+.maestria-floorplan-copy b { color: var(--maestria-wine-soft); font-size: .66rem; white-space: nowrap; }
+.maestria-floorplan-copy small { color: var(--maestria-muted); font-size: .63rem; letter-spacing: .04em; }
+
+.maestria-units-section { padding: 112px 0; background: var(--maestria-wine); color: #fff; }
+.maestria-section-heading--units h2 { color: var(--maestria-gold-light); }
+.maestria-section-heading--units > p:last-child { color: rgba(255,255,255,.68); }
+.maestria-units-reference { display: grid; grid-template-columns: 185px minmax(0, 1fr); align-items: center; gap: 28px; margin-bottom: 30px; padding: 20px; border: 1px solid rgba(217,193,140,.35); background: rgba(39,12,22,.35); }
+.maestria-reference-image { position: relative; aspect-ratio: 597 / 855; overflow: hidden; background: var(--maestria-paper); }
+.maestria-reference-image img { object-fit: contain; }
+.maestria-units-reference > div:last-child { display: grid; justify-items: start; gap: 8px; }
+.maestria-units-reference .maestria-kicker { margin-bottom: 4px; color: var(--maestria-gold-light); }
+.maestria-units-reference strong { color: #fff; font-family: var(--font-title), Georgia, serif; font-size: 1.7rem; font-weight: 500; }
+.maestria-units-reference span { max-width: 48ch; color: rgba(255,255,255,.62); font-size: .76rem; line-height: 1.65; }
+.maestria-units-reference a { display: inline-flex; align-items: center; gap: 8px; margin-top: 7px; color: var(--maestria-gold-light); font-size: .67rem; font-weight: 700; letter-spacing: .05em; }
+.maestria-units-table-wrap { overflow-x: auto; border: 1px solid rgba(217,193,140,.35); background: rgba(255,255,255,.06); }
+.maestria-units-table { width: 100%; min-width: 760px; border-collapse: collapse; text-align: left; }
+.maestria-units-table th { padding: 15px 17px; background: var(--maestria-wine-deep); color: var(--maestria-gold-light); font-size: .61rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+.maestria-units-table td { padding: 11px 17px; border-top: 1px solid rgba(217,193,140,.18); color: rgba(255,255,255,.82); font-size: .73rem; white-space: nowrap; }
+.maestria-units-table tbody tr:first-child td { border-top: 0; }
+.maestria-units-table tbody tr:nth-child(2n + 1) td { background: rgba(255,255,255,.025); }
+.maestria-units-table td strong, .maestria-units-table td small { display: block; }
+.maestria-units-table td strong { color: #fff; font-size: .76rem; letter-spacing: .04em; }
+.maestria-units-table td small { margin-top: 4px; color: rgba(255,255,255,.53); font-size: .61rem; }
+.maestria-units-floor { width: 75px; color: var(--maestria-gold-light) !important; font-family: var(--font-title), Georgia, serif; font-size: 1.25rem !important; vertical-align: top; }
+.maestria-unit-status { display: inline-flex; align-items: center; min-height: 25px; border: 1px solid rgba(217,193,140,.5); border-radius: 999px; padding: 0 10px; color: var(--maestria-gold-light); font-size: .58rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
 
 .maestria-contact-section { padding: 112px 0; background: var(--maestria-wine-deep); color: #fff; }
 .maestria-contact-grid { display: grid; grid-template-columns: minmax(0, .88fr) minmax(400px, 1.12fr); gap: clamp(42px, 8vw, 110px); align-items: start; }
@@ -180,9 +235,13 @@
   .maestria-hero-image { object-position: 23% center; }
   .maestria-feature-grid { grid-template-columns: repeat(2, 1fr); }
   .maestria-feature-card:nth-child(3) { padding-left: 0; border-left: 0; }
+  .maestria-location-grid { grid-template-columns: 1fr; gap: 0; }
+  .maestria-location-image { min-height: 510px; }
+  .maestria-location-copy { padding: 74px 0 82px; }
   .maestria-gallery-grid { grid-template-columns: 1fr; }
   .maestria-gallery-intro { padding: 76px 0 38px; }
   .maestria-gallery-image { min-height: 520px; }
+  .maestria-floorplans-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .maestria-contact-grid { grid-template-columns: 1fr; }
 }
 
@@ -201,6 +260,11 @@
   .maestria-story-grid, .maestria-plan-grid { grid-template-columns: 1fr; gap: 40px; }
   .maestria-story-copy h2, .maestria-section-heading h2, .maestria-plan-grid h2, .maestria-contact-copy h2, .maestria-gallery-intro h2 { font-size: 2.55rem; }
   .maestria-story-image { min-height: 360px; }
+  .maestria-location-image { min-height: 360px; }
+  .maestria-location-copy { padding: 66px 0 72px; }
+  .maestria-location-copy h2 { max-width: 13ch; font-size: 2.55rem; }
+  .maestria-location-facts div { align-items: flex-start; flex-direction: column; gap: 3px; }
+  .maestria-location-facts span { text-align: left; }
   .maestria-section-heading { display: block; margin-bottom: 37px; }
   .maestria-section-heading h2 { margin-bottom: 18px; }
   .maestria-feature-grid { grid-template-columns: 1fr; }
@@ -208,6 +272,16 @@
   .maestria-feature-card:first-child { padding-top: 8px; }
   .maestria-gallery-intro { padding: 72px 0 34px; }
   .maestria-gallery-image { min-height: 390px; }
+  .maestria-floorplans-block { margin-top: 62px; }
+  .maestria-floorplans-heading { display: block; }
+  .maestria-floorplans-heading > p:last-child { margin-top: 13px; }
+  .maestria-floorplans-grid { grid-template-columns: 1fr; }
+  .maestria-units-section { padding: 78px 0; }
+  .maestria-units-reference { grid-template-columns: 120px minmax(0, 1fr); gap: 17px; padding: 13px; }
+  .maestria-units-reference strong { font-size: 1.35rem; }
+  .maestria-units-reference span { font-size: .68rem; }
+  .maestria-units-table-wrap { margin-right: -1px; margin-left: -1px; }
+  .maestria-units-table th, .maestria-units-table td { padding-right: 12px; padding-left: 12px; }
   .maestria-plan-card { padding: 35px 27px 30px; }
   .maestria-form-fields { grid-template-columns: 1fr; gap: 14px; }
   .maestria-lead-form-wrap { padding: 23px 19px; }

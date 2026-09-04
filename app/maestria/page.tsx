@@ -58,6 +58,21 @@ const amenities = [
   "Preparação para aquecimento dos chuveiros a gás"
 ];
 
+const maestriaFloorplans = [
+  { src: "/brand/maestria/foto-1.jpg", title: "Final 02 · varanda aberta", area: "132,86 m²", detail: "3 suítes · apartamento final 02" },
+  { src: "/brand/maestria/foto-2.jpg", title: "Final 02 · varanda integrada", area: "132,86 m²", detail: "3 suítes · apartamento final 02" },
+  { src: "/brand/maestria/foto-3.jpg", title: "Final 03-B", area: "129,22 m²", detail: "3 suítes · varanda aberta" },
+  { src: "/brand/maestria/foto-4.jpg", title: "Final 03-A · varanda integrada", area: "146,40 m²", detail: "3 suítes · imagem comercial de 147 m²" },
+  { src: "/brand/maestria/foto-5.jpg", title: "Final 03-A · varanda aberta", area: "146,40 m²", detail: "3 suítes · imagem comercial de 147 m²" },
+  { src: "/brand/maestria/foto-6.jpg", title: "Final 01-A", area: "144,24 m²", detail: "3 suítes · imagem comercial de 144 m²" },
+  { src: "/brand/maestria/foto-7.jpg", title: "Final 01-B", area: "140,40 m²", detail: "3 suítes · imagem comercial de 140 m²" }
+];
+
+const maestriaUnitFloors = [33, 32, 31, 30, 29, 28, 27, 26, 25, 24, 23, 22, 21, 20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4].map((floor) => ({
+  floor,
+  finalLetter: [31, 30, 19, 18, 11, 10, 7].includes(floor) ? "B" : "A"
+}));
+
 export default function MaestriaPage() {
   return (
     <div className="maestria-landing">
@@ -71,8 +86,10 @@ export default function MaestriaPage() {
             </a>
             <nav aria-label="Navegação principal">
               <a href="#projeto">O projeto</a>
+              <a href="#localizacao">Localização</a>
               <a href="#experiencia">Experiência</a>
               <a href="#plantas">Plantas</a>
+              <a href="#unidades">Unidades</a>
             </nav>
             <a className="maestria-button maestria-button--outline maestria-button--small" href="#atendimento">Falar com Pedro</a>
           </header>
@@ -116,6 +133,26 @@ export default function MaestriaPage() {
         </div>
       </section>
 
+      <section id="localizacao" className="maestria-location-section" aria-labelledby="maestria-location-title">
+        <div className="maestria-container maestria-location-grid">
+          <div className="maestria-location-image">
+            <Image src="/brand/maestria/orla-14.jpg" alt="Vista aérea da Orla 14 de Palmas, às margens do Lago de Palmas" fill sizes="(max-width: 900px) 90vw, 58vw" />
+            <span>Orla 14 · Palmas / TO</span>
+          </div>
+          <div className="maestria-location-copy">
+            <p className="maestria-kicker">Uma localização rara</p>
+            <h2 id="maestria-location-title">Viver na Orla 14 é ter o lago como horizonte.</h2>
+            <p>O Maestria nasce em um dos endereços mais desejados de Palmas: entre a cidade, a natureza e a paisagem definitiva do Lago de Palmas.</p>
+            <div className="maestria-location-facts">
+              <div><strong>Orla 14</strong><span>Endereço do Maestria</span></div>
+              <div><strong>Lago de Palmas</strong><span>Vista permanente</span></div>
+              <div><strong>Palmas / TO</strong><span>Capital em movimento</span></div>
+            </div>
+            <a className="maestria-button maestria-button--wine" href="#atendimento">Conhecer o endereço <ArrowRight size={16} /></a>
+          </div>
+        </div>
+      </section>
+
       <section id="experiencia" className="maestria-section maestria-section--wine">
         <div className="maestria-container">
           <div className="maestria-section-heading">
@@ -145,6 +182,69 @@ export default function MaestriaPage() {
             <div className="maestria-amenities">{amenities.map((item) => <span key={item}><Check size={15} />{item}</span>)}</div>
           </div>
           <div className="maestria-plan-card"><span className="maestria-plan-number">129 <small>a</small> 147</span><span className="maestria-plan-unit">m²</span><div className="maestria-plan-rule" /><p>Apartamentos com varanda aberta ou integrada, suíte master e o cuidado Urban em todos os detalhes.</p><a className="maestria-text-link" href="#atendimento">Receber plantas <ArrowRight size={16} /></a></div>
+        </div>
+        <div className="maestria-container maestria-floorplans-block">
+          <div className="maestria-floorplans-heading">
+            <p className="maestria-kicker">Plantas disponíveis</p>
+            <p>Veja as configurações dos finais e amplie cada imagem para consultar os ambientes e medidas.</p>
+          </div>
+          <div className="maestria-floorplans-grid">
+            {maestriaFloorplans.map((plan) => (
+              <article className="maestria-floorplan-card" key={plan.src}>
+                <a href={plan.src} target="_blank" rel="noreferrer" className="maestria-floorplan-image" aria-label={`Ampliar planta ${plan.title}`}>
+                  <Image src={plan.src} alt={`Planta ${plan.title} do Maestria Urban Design`} fill sizes="(max-width: 680px) 90vw, (max-width: 1000px) 45vw, 30vw" />
+                  <span>Ampliar planta ↗</span>
+                </a>
+                <div className="maestria-floorplan-copy">
+                  <div><strong>{plan.title}</strong><b>{plan.area}</b></div>
+                  <small>{plan.detail}</small>
+                </div>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section id="unidades" className="maestria-units-section" aria-labelledby="maestria-units-title">
+        <div className="maestria-container">
+          <div className="maestria-section-heading maestria-section-heading--units">
+            <p className="maestria-kicker">Espelho de unidades</p>
+            <h2 id="maestria-units-title">Escolha o seu andar.</h2>
+            <p>São 90 apartamentos distribuídos do 4º ao 33º pavimento. Consulte a disponibilidade, o valor e a condição atualizada de cada unidade no atendimento.</p>
+          </div>
+          <div className="maestria-units-reference">
+            <div className="maestria-reference-image">
+              <Image src="/brand/maestria/espelho-de-vendas.jpg" alt="Espelho de vendas do Maestria Urban Design" fill sizes="(max-width: 760px) 90vw, 260px" />
+            </div>
+            <div>
+              <p className="maestria-kicker">Referência comercial</p>
+              <strong>Espelho de vendas</strong>
+              <span>Finais, áreas privativas e pavimentos conforme material enviado.</span>
+              <a href="/brand/maestria/espelho-de-vendas.jpg" target="_blank" rel="noreferrer">Abrir imagem original <ArrowRight size={15} /></a>
+            </div>
+          </div>
+          <div className="maestria-units-table-wrap">
+            <table className="maestria-units-table">
+              <thead>
+                <tr><th>Pav.</th><th>Final 03</th><th>Final 02</th><th>Final 01</th><th>Status</th></tr>
+              </thead>
+              <tbody>
+                {maestriaUnitFloors.map(({ floor, finalLetter }) => {
+                  const final03Area = finalLetter === "B" ? "129,22 m²" : "146,40 m²";
+                  const final01Area = finalLetter === "B" ? "140,40 m²" : "144,24 m²";
+                  return (
+                    <tr key={floor}>
+                      <td className="maestria-units-floor">{floor}º</td>
+                      <td><strong>{floor}03 {finalLetter}</strong><small>{final03Area}</small></td>
+                      <td><strong>{floor}02</strong><small>{finalLetter === "B" ? "136,41 m²" : "132,86 m²"}</small></td>
+                      <td><strong>{floor}01 {finalLetter}</strong><small>{final01Area}</small></td>
+                      <td><span className="maestria-unit-status">Consulte</span></td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
         </div>
       </section>
 
