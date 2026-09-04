@@ -68,7 +68,7 @@ export default async function AdminLoginPage({
         <aside className="admin-login-brand">
           <Link href="/" className="admin-login-brand-link" aria-label="Voltar para a home Pedro Soares">
             <Image
-              src="/brand/logo-home-2026.PNG"
+              src="/brand/logo-home-2026.png"
               alt="Pedro Soares Corretor de Imóveis"
               width={813}
               height={182}
