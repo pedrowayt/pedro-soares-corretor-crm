@@ -30,7 +30,8 @@ export async function listCrmLandingPages() {
     const pages = await prisma.landingPage.findMany({
       orderBy: [{ status: "asc" }, { updatedAt: "desc" }],
       include: {
-        _count: { select: { leads: true } }
+        _count: { select: { leads: true } },
+        linkedDevelopment: { select: { title: true, slug: true } }
       }
     });
 
