@@ -1,8 +1,17 @@
 import { QuickTaskForm } from "@/components/crm/quick-forms";
+import { TaskList, type TaskListItem } from "@/components/crm/task-list";
 import { listTasks } from "@/lib/data/crm";
 
 export default async function CrmTarefasPage() {
   const tasks = await listTasks();
+  const taskItems: TaskListItem[] = tasks.map((task) => ({
+    id: task.id,
+    title: task.title,
+    description: task.description,
+    status: task.status,
+    dueAt: task.dueAt?.toISOString() ?? null,
+    lead: task.lead ? { id: task.lead.id, name: task.lead.name } : null
+  }));
 
   return (
     <>
@@ -13,26 +22,7 @@ export default async function CrmTarefasPage() {
         <QuickTaskForm />
       </div>
 
-      <ul className="crm-summary-grid" aria-label="Tarefas">
-        {tasks.map((task) => (
-          <li className="crm-summary-card" key={task.id}>
-            <header className="crm-summary-card__head">
-              <strong className="crm-summary-card__title">{task.title}</strong>
-              <span className="crm-summary-card__pill">{task.status}</span>
-            </header>
-            <dl className="crm-summary-card__fields">
-              <div className="crm-summary-card__fields-wide">
-                <dt>Descrição</dt>
-                <dd>{task.description ?? "Sem descrição"}</dd>
-              </div>
-              <div className="crm-summary-card__fields-wide">
-                <dt>Vencimento</dt>
-                <dd>{task.dueAt ? new Date(task.dueAt).toLocaleString("pt-BR") : "—"}</dd>
-              </div>
-            </dl>
-          </li>
-        ))}
-      </ul>
+      <TaskList initialTasks={taskItems} />
     </>
   );
 }

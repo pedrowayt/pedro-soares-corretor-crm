@@ -249,6 +249,7 @@ export async function getSaasDashboardSnapshot(profile?: {
       hotLeads,
       upcomingVisits,
       upcomingTasks,
+      overdueTasks,
       leadsBySource,
       pipelineSummary,
       monthlyLeads,
@@ -321,6 +322,18 @@ export async function getSaasDashboardSnapshot(profile?: {
         where: {
           status: TaskStatus.PENDENTE,
           dueAt: { gte: dayStart, lte: sevenDaysAhead }
+        },
+        orderBy: { dueAt: "asc" },
+        take: 8,
+        include: {
+          lead: { select: { id: true, name: true } },
+          property: { select: { id: true, title: true } }
+        }
+      }),
+      prisma.task.findMany({
+        where: {
+          status: TaskStatus.PENDENTE,
+          dueAt: { lt: dayStart }
         },
         orderBy: { dueAt: "asc" },
         take: 8,
@@ -543,9 +556,25 @@ export async function getSaasDashboardSnapshot(profile?: {
           title: `${tasksPending} pendentes`,
           detail: "Follow-ups e rotina comercial",
           tone: tasksPending > 0 ? "warn" : "success"
+        },
+        {
+          id: "overdue-tasks",
+          label: "Atrasadas",
+          title: `${overdueTasks.length} tarefas vencidas`,
+          detail: overdueTasks.length > 0 ? "Priorize e atualize a agenda" : "Nenhuma tarefa vencida",
+          tone: overdueTasks.length > 0 ? "warn" : "success"
         }
       ],
       agenda: [
+        ...overdueTasks.map((task) => ({
+          id: `overdue-task-${task.id}`,
+          kind: "task" as const,
+          when: task.dueAt ?? new Date(),
+          leadId: task.lead?.id ?? null,
+          leadName: task.lead?.name ?? null,
+          subject: `Vencida: ${task.title}`,
+          status: task.status
+        })),
         ...upcomingVisits.map((visit) => ({
           id: `visit-${visit.id}`,
           kind: "visit" as const,

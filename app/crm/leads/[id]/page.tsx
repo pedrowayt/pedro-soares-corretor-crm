@@ -16,6 +16,7 @@ import {
   Tag
 } from "lucide-react";
 import { LeadScorePill } from "@/components/crm/lead-score-pill";
+import { LeadActions } from "@/components/crm/lead-actions";
 import { WhatsappTemplatePicker } from "@/components/crm/whatsapp-template-picker";
 import { computeLeadScore } from "@/lib/crm/lead-scoring";
 import { matchPropertiesForLead } from "@/lib/crm/property-matching";
@@ -141,11 +142,7 @@ export default async function CrmLeadDetailPage({
         </div>
 
         <div className="crm-lead-detail__actions">
-          {wa ? (
-            <a className="button button-primary" href={wa} target="_blank" rel="noreferrer">
-              <MessageCircle size={16} strokeWidth={1.75} aria-hidden="true" /> WhatsApp
-            </a>
-          ) : null}
+          <LeadActions leadId={lead.id} leadName={lead.name} whatsappUrl={wa} />
           {tel ? (
             <a className="button button-ghost" href={tel}>
               <Phone size={16} strokeWidth={1.75} aria-hidden="true" /> Ligar

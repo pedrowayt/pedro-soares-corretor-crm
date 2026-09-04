@@ -1,7 +1,9 @@
 import Link from "next/link";
 import type { CSSProperties } from "react";
+import { LeadActions } from "@/components/crm/lead-actions";
 import { LeadDevelopmentStatusControl } from "@/components/crm/lead-development-status-control";
 import { QuickLeadForm } from "@/components/crm/quick-forms";
+import { buildWhatsappLink } from "@/lib/crm/whatsapp-templates";
 import { listLeads } from "@/lib/data/crm";
 
 function buildContext(lead: Awaited<ReturnType<typeof listLeads>>[number]) {
@@ -32,6 +34,11 @@ function sourcePageLabel(lead: Awaited<ReturnType<typeof listLeads>>[number]) {
 
 function landingPageLabel(lead: Awaited<ReturnType<typeof listLeads>>[number]) {
   return lead.landingPage?.name ?? "—";
+}
+
+function leadWhatsappUrl(lead: Awaited<ReturnType<typeof listLeads>>[number]) {
+  const firstName = lead.name.split(" ")[0] ?? lead.name;
+  return buildWhatsappLink(lead.phone, `Olá ${firstName}, aqui é o Pedro Soares, corretor de imóveis. Recebi seu contato e posso ajudar?`);
 }
 
 export default async function CrmLeadsPage({
@@ -72,6 +79,7 @@ export default async function CrmLeadsPage({
               <th style={thStyle}>Etapa</th>
               <th style={thStyle}>Contexto</th>
               <th style={thStyle}>Status lançamento</th>
+              <th style={thStyle}>Ações</th>
             </tr>
           </thead>
           <tbody>
@@ -98,6 +106,9 @@ export default async function CrmLeadsPage({
                     initialStatus={lead.developmentLeadStatus}
                     disabled={!lead.linkedDevelopmentId}
                   />
+                </td>
+                <td style={tdStyle}>
+                  <LeadActions leadId={lead.id} leadName={lead.name} whatsappUrl={leadWhatsappUrl(lead)} compact />
                 </td>
               </tr>
             ))}
@@ -151,6 +162,7 @@ export default async function CrmLeadsPage({
                 initialStatus={lead.developmentLeadStatus}
                 disabled={!lead.linkedDevelopmentId}
               />
+              <LeadActions leadId={lead.id} leadName={lead.name} whatsappUrl={leadWhatsappUrl(lead)} compact />
             </footer>
           </li>
         ))}

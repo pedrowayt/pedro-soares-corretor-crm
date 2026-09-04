@@ -89,8 +89,8 @@ export async function POST(request: Request) {
           linkedDevelopmentId: development?.id ?? existingLead.linkedDevelopmentId,
           linkedDevelopmentUnitTypeId: unitType?.id ?? existingLead.linkedDevelopmentUnitTypeId,
           linkedDevelopmentUnitId: unit?.id ?? existingLead.linkedDevelopmentUnitId,
-          landingPageId: landingPage?.id ?? existingLead.landingPageId,
-          sourcePage: sourcePage || existingLead.sourcePage,
+          landingPageId: existingLead.landingPageId ?? landingPage?.id,
+          sourcePage: existingLead.sourcePage ?? sourcePage,
           developmentLeadStatus: requestTable
             ? DevelopmentLeadStatus.RECEBEU_TABELA
             : existingLead.developmentLeadStatus,

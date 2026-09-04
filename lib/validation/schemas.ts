@@ -23,6 +23,7 @@ import {
   PropertyType,
   SeoListingMode,
   SeoPageStatus,
+  TaskStatus,
   TaskPriority
 } from "@prisma/client";
 import { z } from "zod";
@@ -420,6 +421,11 @@ export const createTaskSchema = z.object({
   leadId: z.string().optional(),
   propertyId: z.string().optional(),
   assignedToId: z.string().optional()
+});
+
+export const updateTaskSchema = z.object({
+  status: z.nativeEnum(TaskStatus).optional(),
+  dueAt: z.string().datetime().nullable().optional()
 });
 
 export const createVisitSchema = z.object({

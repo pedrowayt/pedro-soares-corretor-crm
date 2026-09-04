@@ -38,8 +38,8 @@ export async function POST(request: Request) {
           source: LeadSource.SITE,
           intent: LeadIntent.COMPRAR,
           linkedPropertyId: property?.id ?? existingLead.linkedPropertyId,
-          landingPageId: landingPage?.id ?? existingLead.landingPageId,
-          sourcePage: sourcePage || existingLead.sourcePage,
+          landingPageId: existingLead.landingPageId ?? landingPage?.id,
+          sourcePage: existingLead.sourcePage ?? sourcePage,
           lgpdConsentAt: lgpdConsent ? new Date() : existingLead.lgpdConsentAt,
           notes: message ? `${existingLead.notes ?? ""}\n${message}`.trim() : existingLead.notes
         }

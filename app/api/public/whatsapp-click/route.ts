@@ -37,6 +37,13 @@ export async function POST(request: Request) {
   } = parsed.data;
 
   const landingPage = await resolveLandingPage({ slug: landingPageSlug, publicPath: sourcePage });
+  const whatsappLeadId = leadPhone ? `wa-${leadPhone.replace(/\D/g, "")}` : null;
+  const existingWhatsappLead = whatsappLeadId
+    ? await prisma.lead.findUnique({
+        where: { id: whatsappLeadId },
+        select: { landingPageId: true, sourcePage: true }
+      })
+    : null;
 
   const property = propertyId
     ? await prisma.property.findUnique({ where: { id: propertyId } })
@@ -71,15 +78,15 @@ export async function POST(request: Request) {
 
   const lead = leadPhone
     ? await prisma.lead.upsert({
-        where: { id: `wa-${leadPhone.replace(/\D/g, "")}` },
+        where: { id: whatsappLeadId! },
         update: {
           source: LeadSource.WHATSAPP,
           linkedPropertyId: property?.id,
           linkedDevelopmentId: development?.id,
           linkedDevelopmentUnitTypeId: unitType?.id,
           linkedDevelopmentUnitId: unit?.id,
-          landingPageId: landingPage?.id,
-          sourcePage: sourcePage || undefined,
+          landingPageId: existingWhatsappLead?.landingPageId ?? landingPage?.id,
+          sourcePage: existingWhatsappLead?.sourcePage ?? sourcePage,
           email: leadEmail || undefined,
           developmentLeadStatus:
             context === "schedule"
@@ -87,7 +94,7 @@ export async function POST(request: Request) {
               : DevelopmentLeadStatus.EM_ATENDIMENTO
         },
         create: {
-          id: `wa-${leadPhone.replace(/\D/g, "")}`,
+          id: whatsappLeadId!,
           name: leadName ?? "Lead WhatsApp",
           phone: leadPhone,
           email: leadEmail || undefined,
