@@ -9,6 +9,15 @@ import { getSiteUrl } from "@/lib/site-url";
 
 const STATIC_ROUTE_LAST_MODIFIED = new Date("2026-06-09T00:00:00.000Z");
 
+const PALMAS_LAKE_TOWERS = [
+  "lake-sky",
+  "lake-garden",
+  "lake-park",
+  "lake-loft",
+  "lake-office",
+  "lake-mall"
+] as const;
+
 function toDate(value: unknown): Date | undefined {
   if (!value) return undefined;
   if (value instanceof Date) return Number.isFinite(value.getTime()) ? value : undefined;
@@ -108,19 +117,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/termos-de-servico",
     "/termos-de-uso",
     "/palmas-lake",
-    "/palmas-lake/lake-sky",
-    "/palmas-lake/lake-garden",
-    "/palmas-lake/lake-park",
-    "/palmas-lake/lake-loft",
-    "/palmas-lake/lake-office",
-    "/palmas-lake/lake-mall",
     "/lake-village",
     "/quinta-do-lago",
     "/acordes",
     "/like-210",
     "/you",
     "/heritage",
-    "/comodoro"
+    "/comodoro",
+    "/maestria",
+    "/yacht-fama"
   ].map((path) => ({
     url: `${baseUrl}${path}`,
     lastModified: catalogueFreshness,
@@ -128,8 +133,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: path === "" ? 1 : 0.8
   }));
 
+  const palmasLakeTowerRoutes = PALMAS_LAKE_TOWERS.map((slug) => ({
+    url: `${baseUrl}/palmas-lake/${slug}`,
+    lastModified: catalogueFreshness,
+    changeFrequency: "weekly" as const,
+    priority: 0.85
+  }));
+
   return [
     ...staticRoutes,
+    ...palmasLakeTowerRoutes,
     ...propertyRoutes,
     ...seoRoutes,
     ...blogRoutes,

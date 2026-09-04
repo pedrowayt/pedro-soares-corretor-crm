@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, ArrowUpRight, MessageCircle } from "lucide-react";
+import { getSiteUrl } from "@/lib/site-url";
 
 const items = {
   "lake-sky": { name: "Lake Sky", group: "Residencial", year: "2032", image: "sky-hero", title: "Máxima exclusividade", description: "Coberturas duplex e mansões suspensas com vista permanente para o lago — o produto de maior padrão do complexo.", specs: ["331,29 a 662,58 m²", "4 suítes", "4 a 6 vagas", "Piscina interna e cinema"] },
@@ -272,7 +273,21 @@ export function generateStaticParams() { return Object.keys(items).map((slug) =>
 export function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   return params.then(({ slug }) => {
     const item = items[slug as Slug];
-    return item ? { title: `${item.name} | Palmas Lake`, description: `${item.title} Conheça o ${item.name}, parte do complexo Palmas Lake.` } : { title: "Palmas Lake" };
+    if (!item) return { title: "Palmas Lake" };
+
+    const pageUrl = `${getSiteUrl()}/palmas-lake/${slug}`;
+    return {
+      title: `${item.name} | Palmas Lake`,
+      description: `${item.title} Conheça o ${item.name}, parte do complexo Palmas Lake.`,
+      alternates: { canonical: pageUrl },
+      openGraph: {
+        type: "website",
+        locale: "pt_BR",
+        url: pageUrl,
+        title: `${item.name} | Palmas Lake`,
+        description: `${item.title} Conheça o ${item.name}, parte do complexo Palmas Lake.`
+      }
+    };
   });
 }
 
