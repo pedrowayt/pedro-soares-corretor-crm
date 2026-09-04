@@ -159,6 +159,9 @@
   :global(.yacht-contact-grid){ gap: 44px; }
   :global(.yacht-contact-grid > .yacht-form-card){ max-width: 760px; }
 }
+
+:global(.yacht-contact-broker-photo){ position: relative; display: block; width: 65px; height: 65px; overflow: hidden; border: 1px solid rgba(217,208,192,.45); border-radius: 50%; background: #102b34; }
+:global(.yacht-contact-broker-photo img){ object-fit: cover; object-position: center 27%; transform: scale(1.38); }
 @media (max-width: 620px) {
   :global(.yacht-container){ width: min(100% - 40px, 500px); }
   :global(.yacht-nav){ min-height: 88px; }
