@@ -13,6 +13,16 @@ export type PublicLandingPage = {
 // A home consome todos os itens deste array e cria os cards automaticamente.
 export const publicLandingPages: PublicLandingPage[] = [
   {
+    slug: "comodoro-by-fama",
+    href: "/comodoro",
+    title: "Comodoro by Fama",
+    category: "Residencial de alto padrão",
+    location: "Orla 14 · Palmas/TO",
+    summary: "Uma honraria na Orla 14, com arquitetura autoral, lazer completo e a paisagem do Lago de Palmas como horizonte.",
+    image: "/brand/comodoro/site/fachada.webp",
+    status: "Lançamento"
+  },
+  {
     slug: "you-by-fama",
     href: "/you",
     title: "YOU by Fama",
