@@ -473,8 +473,8 @@ export default async function HomePage({
 
           <div className="wp-hero-media">
             <HomeImage
-              src="/brand/home-search-showcase.PNG"
-              alt="Residência e edifício residencial em Palmas ao entardecer"
+              src="/brand/pedro-portrait-5.png"
+              alt="Pedro Soares, corretor de imóveis em Palmas"
               sizes="(max-width: 900px) 100vw, 54vw"
               priority
             />
