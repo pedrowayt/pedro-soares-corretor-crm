@@ -118,6 +118,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/quinta-do-lago",
     "/acordes",
     "/like-210"
+    "/you",
   ].map((path) => ({
     url: `${baseUrl}${path}`,
     lastModified: catalogueFreshness,
