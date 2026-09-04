@@ -161,5 +161,15 @@ export const publicLandingPages: PublicLandingPage[] = [
     summary: "Studios e apartamentos de 1 e 2 quartos para morar ou investir, com lazer no rooftop e vocação para hospedagem.",
     image: "/yacht/facade.jpg",
     status: "Lançamento"
+  },
+  {
+    slug: "terraco-urban",
+    href: "/terraco-urban",
+    title: "Terraço Urban",
+    category: "Apartamentos prontos para morar",
+    location: "Orla 14 · Palmas/TO",
+    summary: "Apartamentos amplos, lazer resort e vista para o Lago de Palmas em um endereço pronto para morar.",
+    image: "/terraco-urban/comercial-2.png",
+    status: "Pronto para morar"
   }
 ];
