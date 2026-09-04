@@ -13,6 +13,16 @@ export type PublicLandingPage = {
 // A home consome todos os itens deste array e cria os cards automaticamente.
 export const publicLandingPages: PublicLandingPage[] = [
   {
+    slug: "you-by-fama",
+    href: "/you",
+    title: "YOU by Fama",
+    category: "Residencial contemporâneo",
+    location: "Região da Orla · Palmas/TO",
+    summary: "Arquitetura contemporânea, vista para o lago, lazer, bem-estar e conveniência para viver a Orla do seu jeito.",
+    image: "/brand/you/optimized/render-exterior.jpg",
+    status: "Lançamento"
+  },
+  {
     slug: "maestria",
     href: "/maestria",
     title: "Maestria Urban Design",
