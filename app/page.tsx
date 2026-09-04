@@ -352,133 +352,139 @@ export default async function HomePage({
   return (
     <>
       <section className="wp-hero">
-        <div className="wp-hero-media">
-          <HomeImage
-            src="/brand/home-search-showcase.PNG"
-            alt="Vista de imóveis em Palmas"
-            sizes="100vw"
-            priority
-          />
-        </div>
-        <div className="wp-hero-overlay" />
-        <div
-          className="wp-hero-portrait"
-          aria-hidden="true"
-        >
-          <HomeImage src="/brand/eu.png" alt="" sizes="(max-width: 960px) 0px, 38vw" />
-        </div>
+        <div className="container wp-hero-shell">
+          <div className="wp-hero-content">
+            <p className="wp-hero-eyebrow">Pedro Soares <span>•</span> Especialista em imóveis em Palmas</p>
+            <h1>O lugar certo muda tudo.</h1>
+            <p className="wp-hero-lede">
+              Encontre imóveis, lançamentos e oportunidades com uma curadoria mais clara para morar, investir ou começar um novo capítulo.
+            </p>
+            <div className="wp-hero-proof" aria-label="Diferenciais do atendimento">
+              <span>Curadoria local</span>
+              <span>Leitura de mercado</span>
+              <span>Atendimento direto</span>
+            </div>
 
-        <div className="container wp-hero-content">
-          <p className="wp-hero-eyebrow">Pedro Soares • Especialista em imóveis em Palmas</p>
-          <h1>Encontre seu próximo imóvel em Palmas e região.</h1>
-          <p className="wp-hero-lede">
-            Casas, apartamentos, lotes e oportunidades selecionadas para morar ou investir.
-          </p>
+            <div className="wp-search-tabs" role="tablist" aria-label="Tipos de busca">
+              {(
+                [
+                  { key: "geral", label: "Busca Geral" },
+                  { key: "leilao", label: "Imóveis Leilão" }
+                ] as Array<{ key: SearchMode; label: string }>
+              ).map((tab) => (
+                <Link
+                  key={tab.key}
+                  href={`/?mode=${tab.key}`}
+                  className={`wp-search-tab ${searchMode === tab.key ? "active" : ""}`}
+                >
+                  {tab.label}
+                </Link>
+              ))}
+            </div>
 
-          <div className="wp-search-tabs" role="tablist" aria-label="Tipos de busca">
-            {(
-              [
-                { key: "geral", label: "Busca Geral" },
-                { key: "leilao", label: "Imóveis Leilão" }
-              ] as Array<{ key: SearchMode; label: string }>
-            ).map((tab) => (
-              <Link
-                key={tab.key}
-                href={`/?mode=${tab.key}`}
-                className={`wp-search-tab ${searchMode === tab.key ? "active" : ""}`}
-              >
-                {tab.label}
-              </Link>
-            ))}
+            {searchMode === "leilao" ? (
+              <form className="wp-search-panel" action="/imoveis/leilao" method="GET">
+                <div>
+                  <label htmlFor="district-auction">Região</label>
+                  <input id="district-auction" name="district" placeholder="Bairro ou região" />
+                </div>
+                <div>
+                  <label htmlFor="type-auction">Tipo</label>
+                  <select id="type-auction" name="type" defaultValue="">
+                    <option value="">Todos</option>
+                    {PROPERTY_TYPE_OPTIONS.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <button type="submit" className="button button-primary">
+                  Ver oportunidades
+                </button>
+
+                <details className="wp-search-advanced">
+                  <summary>Mais filtros</summary>
+                  <div className="wp-search-advanced-content">
+                    <div>
+                      <label htmlFor="maxPrice-auction">Preço até</label>
+                      <input id="maxPrice-auction" name="maxPrice" type="number" placeholder="800000" />
+                    </div>
+                    <div>
+                      <label htmlFor="bedrooms-auction">Quartos</label>
+                      <input id="bedrooms-auction" name="bedrooms" type="number" min={0} placeholder="2" />
+                    </div>
+                    <div>
+                      <label htmlFor="area-auction">Metragem mínima</label>
+                      <input id="area-auction" name="minAreaM2" type="number" min={0} placeholder="60" />
+                    </div>
+                  </div>
+                </details>
+              </form>
+            ) : (
+              <form className="wp-search-panel" action="/imoveis/prontos" method="GET">
+                <div>
+                  <label htmlFor="purpose">Finalidade</label>
+                  <select id="purpose" name="purpose" defaultValue="VENDA">
+                    <option value="VENDA">Venda</option>
+                    <option value="LOCACAO">Locação</option>
+                    <option value="INVESTIMENTO">Investimento</option>
+                  </select>
+                </div>
+                <div>
+                  <label htmlFor="type">Tipo</label>
+                  <select id="type" name="type" defaultValue="">
+                    <option value="">Todos</option>
+                    {PROPERTY_TYPE_OPTIONS.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label htmlFor="district-ready">Bairro ou região</label>
+                  <input id="district-ready" name="district" placeholder="Plano Diretor Sul" />
+                </div>
+                <button type="submit" className="button button-primary">
+                  Encontrar imóveis
+                </button>
+
+                <details className="wp-search-advanced">
+                  <summary>Mais filtros</summary>
+                  <div className="wp-search-advanced-content">
+                    <div>
+                      <label htmlFor="maxPrice-ready">Preço até</label>
+                      <input id="maxPrice-ready" name="maxPrice" type="number" placeholder="1200000" />
+                    </div>
+                    <div>
+                      <label htmlFor="bedrooms-ready">Quartos</label>
+                      <input id="bedrooms-ready" name="bedrooms" type="number" min={0} placeholder="3" />
+                    </div>
+                    <div>
+                      <label htmlFor="area-ready">Metragem mínima</label>
+                      <input id="area-ready" name="minAreaM2" type="number" min={0} placeholder="80" />
+                    </div>
+                  </div>
+                </details>
+              </form>
+            )}
           </div>
 
-          {searchMode === "leilao" ? (
-            <form className="wp-search-panel" action="/imoveis/leilao" method="GET">
-              <div>
-                <label htmlFor="district-auction">Região</label>
-                <input id="district-auction" name="district" placeholder="Bairro ou região" />
-              </div>
-              <div>
-                <label htmlFor="type-auction">Tipo</label>
-                <select id="type-auction" name="type" defaultValue="">
-                  <option value="">Todos</option>
-                  {PROPERTY_TYPE_OPTIONS.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <button type="submit" className="button button-primary">
-                Ver oportunidades
-              </button>
-
-              <details className="wp-search-advanced">
-                <summary>Mais filtros</summary>
-                <div className="wp-search-advanced-content">
-                  <div>
-                    <label htmlFor="maxPrice-auction">Preço até</label>
-                    <input id="maxPrice-auction" name="maxPrice" type="number" placeholder="800000" />
-                  </div>
-                  <div>
-                    <label htmlFor="bedrooms-auction">Quartos</label>
-                    <input id="bedrooms-auction" name="bedrooms" type="number" min={0} placeholder="2" />
-                  </div>
-                  <div>
-                    <label htmlFor="area-auction">Metragem mínima</label>
-                    <input id="area-auction" name="minAreaM2" type="number" min={0} placeholder="60" />
-                  </div>
-                </div>
-              </details>
-            </form>
-          ) : (
-            <form className="wp-search-panel" action="/imoveis/prontos" method="GET">
-              <div>
-                <label htmlFor="purpose">Finalidade</label>
-                <select id="purpose" name="purpose" defaultValue="VENDA">
-                  <option value="VENDA">Venda</option>
-                  <option value="LOCACAO">Locação</option>
-                  <option value="INVESTIMENTO">Investimento</option>
-                </select>
-              </div>
-              <div>
-                <label htmlFor="type">Tipo</label>
-                <select id="type" name="type" defaultValue="">
-                  <option value="">Todos</option>
-                  {PROPERTY_TYPE_OPTIONS.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label htmlFor="district-ready">Bairro ou região</label>
-                <input id="district-ready" name="district" placeholder="Plano Diretor Sul" />
-              </div>
-              <button type="submit" className="button button-primary">
-                Encontrar imóveis
-              </button>
-
-              <details className="wp-search-advanced">
-                <summary>Mais filtros</summary>
-                <div className="wp-search-advanced-content">
-                  <div>
-                    <label htmlFor="maxPrice-ready">Preço até</label>
-                    <input id="maxPrice-ready" name="maxPrice" type="number" placeholder="1200000" />
-                  </div>
-                  <div>
-                    <label htmlFor="bedrooms-ready">Quartos</label>
-                    <input id="bedrooms-ready" name="bedrooms" type="number" min={0} placeholder="3" />
-                  </div>
-                  <div>
-                    <label htmlFor="area-ready">Metragem mínima</label>
-                    <input id="area-ready" name="minAreaM2" type="number" min={0} placeholder="80" />
-                  </div>
-                </div>
-              </details>
-            </form>
-          )}
+          <div className="wp-hero-media">
+            <HomeImage
+              src="/brand/home-search-showcase.PNG"
+              alt="Residência e edifício residencial em Palmas ao entardecer"
+              sizes="(max-width: 900px) 100vw, 54vw"
+              priority
+            />
+            <div className="wp-hero-overlay" />
+            <div className="wp-hero-media-meta">
+              <span>Palmas · Tocantins</span>
+              <strong>Imóveis escolhidos para a vida que você quer construir.</strong>
+            </div>
+            <span className="wp-hero-media-index" aria-hidden="true">01 / 04</span>
+          </div>
         </div>
       </section>
 

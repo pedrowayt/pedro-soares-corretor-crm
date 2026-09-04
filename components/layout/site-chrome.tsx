@@ -14,7 +14,8 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
   const isHeritageLanding = pathname === "/heritage";
   const isYouLanding = pathname === "/you";
   const isPalmasLakeLanding = pathname.startsWith("/palmas-lake");
-  const isStandaloneLanding = isLakeVillageLanding || isQuintaDoLagoLanding || isAcordesLanding || isLike210Landing || isMaestriaLanding || isHeritageLanding || isYouLanding || isPalmasLakeLanding;
+  const isComodoroLanding = pathname === "/comodoro";
+  const isStandaloneLanding = isLakeVillageLanding || isQuintaDoLagoLanding || isAcordesLanding || isLike210Landing || isMaestriaLanding || isHeritageLanding || isYouLanding || isPalmasLakeLanding || isComodoroLanding;
 
   return (
     <>
