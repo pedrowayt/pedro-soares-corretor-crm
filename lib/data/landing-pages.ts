@@ -141,5 +141,15 @@ export const publicLandingPages: PublicLandingPage[] = [
     summary: "Gastronomia, serviços e encontros com a água como paisagem, integrados à Marina e às torres do complexo.",
     image: "/brand/palmas-lake/mall.jpg",
     status: "Lançamento Palmas Lake"
+  },
+  {
+    slug: "yacht-by-fama",
+    href: "/yacht-fama",
+    title: "Yacht by Fama",
+    category: "Studios e apartamentos",
+    location: "Orla 14 · Palmas/TO",
+    summary: "Studios e apartamentos de 1 e 2 quartos para morar ou investir, com lazer no rooftop e vocação para hospedagem.",
+    image: "/yacht/facade.jpg",
+    status: "Lançamento"
   }
 ];
