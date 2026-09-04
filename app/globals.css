@@ -150,6 +150,7 @@
 .like210-gallery-card { position: relative; min-height: 0; overflow: hidden; background: #9a9488; }
 .like210-gallery-card--tall { grid-row: span 2; }
 .like210-gallery-card img { object-fit: cover; transition: transform .55s ease; }
+.like210-gallery-card--contain img { object-fit: contain; background: #e9dfd0; }
 .like210-gallery-card:hover img { transform: scale(1.04); }
 .like210-gallery-card > div { position: absolute; right: 0; bottom: 0; left: 0; display: grid; gap: 3px; padding: 55px 18px 18px; background: linear-gradient(transparent, rgba(8,13,16,.82)); color: #fff; }
 .like210-gallery-card strong { font-family: var(--font-title), serif; font-size: 1.2rem; font-weight: 500; }
@@ -168,6 +169,16 @@
 .like210-typology-card li { display: flex; align-items: center; gap: 8px; color: var(--like210-ink-soft); font-size: .74rem; }
 .like210-typology-card li svg { color: #c3764f; }
 .like210-typology-card .like210-button { align-self: flex-start; margin-top: auto; }
+
+.like210-units-table-wrap { overflow-x: auto; border: 1px solid rgba(12,18,23,.18); background: rgba(255,255,255,.35); }
+.like210-units-table { width: 100%; min-width: 780px; border-collapse: collapse; text-align: left; }
+.like210-units-table th { padding: 15px 17px; background: var(--like210-ink); color: var(--like210-copper-light); font-size: .62rem; font-weight: 700; letter-spacing: .11em; text-transform: uppercase; }
+.like210-units-table td { padding: 14px 17px; border-top: 1px solid rgba(12,18,23,.13); color: var(--like210-ink-soft); font-size: .74rem; white-space: nowrap; }
+.like210-units-table tbody tr:first-child td { border-top: 0; }
+.like210-units-table tbody tr:nth-child(3n + 1) td { border-top-color: rgba(12,18,23,.28); }
+.like210-units-floor { width: 72px; color: #c3764f !important; font-family: var(--font-title), serif; font-size: 1.35rem !important; font-weight: 500; vertical-align: top; }
+.like210-units-list { font-weight: 700; letter-spacing: .03em; }
+.like210-unit-status { display: inline-flex; align-items: center; min-height: 25px; border: 1px solid rgba(195,118,79,.45); border-radius: 999px; padding: 0 10px; color: #a45f3f; font-size: .61rem; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; }
 
 .like210-contact-section { padding: 110px 0; background: var(--like210-ink-soft); color: #fff; }
 .like210-contact-grid { display: grid; grid-template-columns: minmax(0, .84fr) minmax(0, 1.16fr); align-items: start; gap: clamp(44px, 8vw, 115px); }
@@ -247,6 +258,8 @@
   .like210-routes-panel { padding: 23px 18px; }
   .like210-route-card { align-items: flex-start; flex-direction: column; }
   .like210-amenities-grid, .like210-typology-grid, .like210-form-fields { grid-template-columns: 1fr; }
+  .like210-units-table-wrap { margin-right: -1px; margin-left: -1px; }
+  .like210-units-table th, .like210-units-table td { padding-right: 13px; padding-left: 13px; }
   .like210-amenity-card { min-height: 180px; padding: 25px 0; }
   .like210-amenity-card:not(:nth-child(2n + 1)) { padding-left: 0; border-left: 0; }
   .like210-gallery-section { padding-bottom: 76px; }

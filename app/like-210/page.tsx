@@ -78,8 +78,27 @@ const amenities = [
 const gallery = [
   { src: "/like-210/rooftop.jpg", title: "Like Lounge", text: "Convivência com vista para a cidade", className: "like210-gallery-card--tall" },
   { src: "/like-210/flat-02.jpg", title: "Um espaço que funciona", text: "Planta pensada para o seu dia" },
-  { src: "/like-210/implantation.jpg", title: "Conectado à cidade", text: "Em frente ao IFTO" }
+  { src: "/like-210/implantation.jpg", title: "Conectado à cidade", text: "Em frente ao IFTO" },
+  { src: "/like-210/implantacao-tipos.jpg", title: "Implantação dos tipos", text: "Tipo 01 e Tipo 02", className: "like210-gallery-card--contain" },
+  { src: "/like-210/implantacao-pavimentos.jpg", title: "Pavimentos", text: "Rooftop e pavimento tipo", className: "like210-gallery-card--contain" },
+  { src: "/like-210/area-gourmet.jpg", title: "Área gourmet", text: "No alto, cada encontro ganha uma vista inesquecível" },
+  { src: "/like-210/academia.jpg", title: "Academia", text: "Movimento, bem-estar e qualidade de vida" },
+  { src: "/like-210/like-laundry.jpg", title: "Like Laundry", text: "Praticidade para a rotina" }
 ];
+
+const like210Units = Array.from({ length: 19 }, (_, floorIndex) => {
+  const floor = floorIndex + 1;
+  const unit = (suffix: number) => `${floor}${String(suffix).padStart(2, "0")}`;
+
+  return {
+    floor: `${floor}º`,
+    groups: [
+      { units: [1, 3, 5, 7].map(unit), type: "Tipo 01", view: "Vista cidade", area: "27,03 m²" },
+      { units: [2, 4, 6].map(unit), type: "Tipo 01", view: "Vista serra", area: "27,03 m²" },
+      { units: [8].map(unit), type: "Tipo 02", view: "Vista serra", area: "41,97 m²" }
+    ]
+  };
+});
 
 function Like210WhatsAppLink({ children, className = "like210-button like210-button--outline" }: { children: React.ReactNode; className?: string }) {
   return (
@@ -105,6 +124,7 @@ export default function Like210Page() {
             <a href="#localizacao">Localização</a>
             <a href="#experiencia">Experiência</a>
             <a href="#plantas">Plantas</a>
+            <a href="#unidades">Unidades</a>
             <a href="#atendimento">Atendimento</a>
           </nav>
           <Like210WhatsAppLink className="like210-button like210-button--nav">Falar com Pedro</Like210WhatsAppLink>
@@ -266,6 +286,35 @@ export default function Like210Page() {
               <ul><li><Check size={15} /> Ambientes bem resolvidos</li><li><Check size={15} /> Varanda</li><li><Check size={15} /> 1 ou 2 quartos</li></ul>
               <a className="like210-button like210-button--dark" href="#atendimento">Receber planta <ArrowRight size={16} /></a>
             </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="unidades" className="like210-section like210-section--sand" aria-labelledby="like210-units-title">
+        <div className="container">
+          <div className="like210-section-heading">
+            <p className="like210-kicker">Espelho de unidades</p>
+            <h2 id="like210-units-title">Escolha o seu andar.</h2>
+            <p>Confira a organização das 152 unidades do LIKE 210 por pavimento, tipologia, área e vista. Consulte a disponibilidade atualizada no atendimento.</p>
+          </div>
+          <div className="like210-units-table-wrap">
+            <table className="like210-units-table">
+              <thead>
+                <tr><th>Pav.</th><th>Unidades</th><th>Tipologia</th><th>Vista</th><th>Área</th><th>Status</th></tr>
+              </thead>
+              <tbody>
+                {like210Units.map(({ floor, groups }) => groups.map((group, groupIndex) => (
+                  <tr key={`${floor}-${group.type}-${group.view}`}>
+                    {groupIndex === 0 ? <td rowSpan={groups.length} className="like210-units-floor">{floor}</td> : null}
+                    <td className="like210-units-list">{group.units.join(" · ")}</td>
+                    <td>{group.type}</td>
+                    <td>{group.view}</td>
+                    <td>{group.area}</td>
+                    <td><span className="like210-unit-status">Consulte</span></td>
+                  </tr>
+                ))) }
+              </tbody>
+            </table>
           </div>
         </div>
       </section>
