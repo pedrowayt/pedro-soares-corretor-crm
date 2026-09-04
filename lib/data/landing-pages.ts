@@ -13,6 +13,16 @@ export type PublicLandingPage = {
 // A home consome todos os itens deste array e cria os cards automaticamente.
 export const publicLandingPages: PublicLandingPage[] = [
   {
+    slug: "maestria",
+    href: "/maestria",
+    title: "Maestria Urban Design",
+    category: "Apartamentos de alto padrão",
+    location: "Orla 14 · Palmas/TO",
+    summary: "Arquitetura autoral, lazer completo e vista definitiva para o Lago de Palmas em todas as unidades.",
+    image: "/brand/maestria/projeto-arquitetonico.png",
+    status: "Lançamento"
+  },
+  {
     slug: "like-210",
     href: "/like-210",
     title: "LIKE 210",
