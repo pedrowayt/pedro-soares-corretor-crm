@@ -12,12 +12,13 @@ export function SiteFooter() {
         <div className="site-footer-brand">
           <Image
             className="site-footer-logo"
-            src="/brand/logo-icon-dark.png"
+            src="/brand/logo-home-2026.png"
             alt="Pedro Soares Corretor de Imóveis"
-            width={1254}
-            height={1254}
+            width={813}
+            height={182}
           />
           <p className="site-footer-impact">Especialista em imóveis prontos, lançamentos e leilões em Palmas.</p>
+          <p className="site-footer-location">Palmas · Tocantins<br />CRECI 5861-TO</p>
         </div>
 
         <div className="site-footer-links-wrap">
@@ -25,31 +26,33 @@ export function SiteFooter() {
             <p className="site-footer-group-title">Imóveis</p>
             <nav className="site-footer-link-list">
               <Link href="/imoveis/prontos">Imóveis prontos</Link>
-              <Link href="/lancamentos">Lançamentos em destaque</Link>
-              <Link href="/imoveis/leilao">Imóveis leilão</Link>
+              <Link href="/lancamentos">Lançamentos</Link>
+              <Link href="/imoveis/prontos?purpose=INVESTIMENTO">Investir</Link>
+              <Link href="/imoveis/leilao">Leilões</Link>
             </nav>
           </section>
 
           <section className="site-footer-group" aria-label="Navegação institucional">
             <p className="site-footer-group-title">Institucional</p>
             <nav className="site-footer-link-list">
-              <Link href="/sobre">Sobre</Link>
-              <Link href="/blog">Blog</Link>
-              <Link href="/venda-seu-imovel">Anunciar</Link>
+              <Link href="/sobre">Sobre Pedro</Link>
+              <Link href="/blog">Conteúdos</Link>
+              <Link href="/venda-seu-imovel">Vender imóvel</Link>
               <Link href="/contato">Contato</Link>
-              <Link href="/admin/login">Área admin</Link>
             </nav>
           </section>
         </div>
 
         <div className="site-footer-contact">
+          <p className="site-footer-contact-kicker">Atendimento direto</p>
+          <strong className="site-footer-contact-title">Seu próximo imóvel começa com uma boa conversa.</strong>
           <a
             className="site-footer-whatsapp"
             href="https://wa.me/5563984845101?text=Ol%C3%A1%20Pedro%2C%20quero%20falar%20sobre%20im%C3%B3veis."
             target="_blank"
             rel="noreferrer"
           >
-            Falar no WhatsApp
+            Falar com Pedro
           </a>
 
           <a

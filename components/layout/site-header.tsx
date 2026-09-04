@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
 type NavLinkItem = {
@@ -14,22 +15,34 @@ type NavItem = NavLinkItem & {
 };
 
 const propertySubNav: NavLinkItem[] = [
+  { href: "/imoveis", label: "Todos os imóveis" },
   { href: "/imoveis/prontos", label: "Imóveis prontos" },
-  { href: "/lancamentos", label: "Lançamentos em destaque" },
-  { href: "/imoveis/leilao", label: "Imóveis leilão" }
+  { href: "/imoveis/leilao", label: "Leilões" }
 ];
 
 const mainNav: NavItem[] = [
-  { href: "/", label: "Home" },
   { href: "/imoveis", label: "Imóveis", children: propertySubNav },
-  { href: "/sobre", label: "Sobre" },
-  { href: "/blog", label: "Blog" },
-  { href: "/venda-seu-imovel", label: "Anunciar" },
-  { href: "/contato", label: "Contato" }
+  { href: "/lancamentos", label: "Lançamentos" },
+  { href: "/imoveis/prontos?purpose=INVESTIMENTO", label: "Investir" },
+  { href: "/venda-seu-imovel", label: "Vender imóvel" },
+  { href: "/sobre", label: "Sobre Pedro" },
+  { href: "/blog", label: "Conteúdos" }
 ];
 
 export function SiteHeader() {
+  const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const isActive = (item: NavItem) => {
+    const path = item.href.split("?")[0];
+    if (path === "/imoveis") {
+      return pathname === "/imoveis" || pathname.startsWith("/imoveis/leilao");
+    }
+    if (path === "/imoveis/prontos") {
+      return pathname.startsWith("/imoveis/prontos");
+    }
+    return path === "/" ? pathname === "/" : pathname.startsWith(path);
+  };
 
   useEffect(() => {
     document.body.style.overflow = isMenuOpen ? "hidden" : "";
@@ -63,8 +76,8 @@ export function SiteHeader() {
         <nav className="site-nav site-nav-desktop" aria-label="Menu principal">
           {mainNav.map((item) =>
             item.children ? (
-              <div key={item.href} className="site-nav-item site-nav-item-has-children">
-                <Link href={item.href} className="site-nav-link">
+              <div key={item.href} className={`site-nav-item site-nav-item-has-children${isActive(item) ? " is-active" : ""}`}>
+                <Link href={item.href} className="site-nav-link" aria-current={isActive(item) ? "page" : undefined}>
                   {item.label}
                   <span className="site-nav-caret" aria-hidden>
                     ▾
@@ -79,7 +92,7 @@ export function SiteHeader() {
                 </div>
               </div>
             ) : (
-              <Link key={item.href} href={item.href} className="site-nav-link">
+              <Link key={item.href} href={item.href} className="site-nav-link" aria-current={isActive(item) ? "page" : undefined}>
                 {item.label}
               </Link>
             )
@@ -93,7 +106,7 @@ export function SiteHeader() {
             target="_blank"
             rel="noreferrer"
           >
-            Fale comigo
+            Falar com Pedro
           </a>
         </div>
 
@@ -149,9 +162,6 @@ export function SiteHeader() {
                   </span>
                 </summary>
                 <div className="site-mobile-subnav">
-                  <Link href={item.href} onClick={() => setIsMenuOpen(false)}>
-                    Todos os imóveis
-                  </Link>
                   {item.children.map((child) => (
                     <Link key={child.href} href={child.href} onClick={() => setIsMenuOpen(false)}>
                       {child.label}
@@ -175,7 +185,7 @@ export function SiteHeader() {
             target="_blank"
             rel="noreferrer"
           >
-            Fale comigo
+            Falar com Pedro
           </a>
         </div>
       </aside>
