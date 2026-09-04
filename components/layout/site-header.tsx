@@ -17,14 +17,14 @@ type NavItem = NavLinkItem & {
 const propertySubNav: NavLinkItem[] = [
   { href: "/imoveis", label: "Todos os imóveis" },
   { href: "/imoveis/prontos", label: "Imóveis prontos" },
-  { href: "/imoveis/leilao", label: "Leilões" }
+  { href: "/imoveis/leilao", label: "Leilões" },
+  { href: "/gestao-exclusiva", label: "Gestão Exclusiva" }
 ];
 
 const mainNav: NavItem[] = [
   { href: "/imoveis", label: "Imóveis", children: propertySubNav },
   { href: "/lancamentos", label: "Lançamentos" },
   { href: "/imoveis/prontos?purpose=INVESTIMENTO", label: "Investir" },
-  { href: "/venda-seu-imovel", label: "Vender imóvel" },
   { href: "/sobre", label: "Sobre Pedro" },
   { href: "/blog", label: "Conteúdos" }
 ];

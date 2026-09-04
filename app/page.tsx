@@ -811,8 +811,8 @@ export default async function HomePage({
             >
               Falar sobre captação
             </a>
-            <Link className="button button-primary" href="/venda-seu-imovel">
-              Anunciar imóvel
+            <Link className="button button-primary" href="/gestao-exclusiva">
+              Gestão exclusiva
             </Link>
           </div>
         </div>

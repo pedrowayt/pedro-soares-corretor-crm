@@ -13,6 +13,16 @@ export type PublicLandingPage = {
 // A home consome todos os itens deste array e cria os cards automaticamente.
 export const publicLandingPages: PublicLandingPage[] = [
   {
+    slug: "gestao-exclusiva",
+    href: "/gestao-exclusiva",
+    title: "Gestão Exclusiva de Venda",
+    category: "Serviço para proprietários",
+    location: "Palmas/TO",
+    summary: "Venda seu imóvel com estratégia, divulgação profissional e um único responsável pela negociação.",
+    image: "/brand/pedro-portrait-3.png",
+    status: "Atendimento personalizado"
+  },
+  {
     slug: "comodoro-by-fama",
     href: "/comodoro",
     title: "Comodoro by Fama",

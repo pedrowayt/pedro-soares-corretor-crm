@@ -37,7 +37,7 @@ export function SiteFooter() {
             <nav className="site-footer-link-list">
               <Link href="/sobre">Sobre Pedro</Link>
               <Link href="/blog">Conteúdos</Link>
-              <Link href="/venda-seu-imovel">Vender imóvel</Link>
+              <Link href="/gestao-exclusiva">Gestão Exclusiva</Link>
               <Link href="/contato">Contato</Link>
             </nav>
           </section>
@@ -62,7 +62,7 @@ export function SiteFooter() {
           >
             WhatsApp: (63) 98484-5101
           </a>
-          <Link href="/venda-seu-imovel">Quero anunciar meu imóvel</Link>
+          <Link href="/gestao-exclusiva">Quero vender meu imóvel com estratégia</Link>
 
           <div className="site-footer-social">
             <a href="https://www.instagram.com/pedrosoarespmw/" target="_blank" rel="noreferrer" aria-label="Instagram">

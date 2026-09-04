@@ -108,7 +108,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/lancamentos",
     "/imoveis/leilao",
     "/investidores",
-    "/venda-seu-imovel",
+    "/gestao-exclusiva",
     "/blog",
     "/sobre",
     "/contato",

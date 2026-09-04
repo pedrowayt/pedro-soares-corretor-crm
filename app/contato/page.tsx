@@ -47,7 +47,7 @@ export default function ContatoPage() {
             </p>
           </article>
           <article className="card" style={{ padding: 18, gridColumn: "span 2" }}>
-            <h3 style={{ marginTop: 0 }}>Venda seu imóvel</h3>
+            <h3 style={{ marginTop: 0 }}>Captação de proprietário</h3>
             <SellerCaptureForm />
           </article>
         </div>
