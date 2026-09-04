@@ -1,0 +1,214 @@
+/* Yacht by Fama landing page */
+:global(body:has(.yacht-landing) > header), :global(body:has(.yacht-landing) > footer){ display: none; }
+:global(.yacht-landing){ --yacht-blue: #082f3e; --yacht-deep: #06222c; --yacht-sand: #d9d0c0; --yacht-ink: #12313b; --yacht-coral: #db806f; --yacht-pale: #f0ece3; background: var(--yacht-sand); color: var(--yacht-ink); overflow: hidden; }
+:global(.yacht-landing *), :global(.yacht-landing *::before), :global(.yacht-landing *::after){ box-sizing: border-box; }
+:global(.yacht-landing a){ color: inherit; text-decoration: none; }
+:global(.yacht-container){ width: min(1160px, calc(100% - 64px)); margin: 0 auto; }
+:global(.yacht-hero){ position: relative; display: grid; min-height: min(850px, 94vh); color: #fff; isolation: isolate; }
+:global(.yacht-hero-image){ z-index: -2; object-fit: cover; object-position: center 46%; }
+:global(.yacht-hero-shade){ position: absolute; z-index: -1; inset: 0; background: linear-gradient(90deg, rgba(4,25,33,.9) 0%, rgba(5,31,41,.64) 43%, rgba(5,31,41,.16) 100%), linear-gradient(0deg, rgba(4,22,29,.58), transparent 48%); }
+:global(.yacht-nav){ display: flex; align-items: center; justify-content: space-between; gap: 25px; min-height: 104px; }
+:global(.yacht-logo){ display: block; width: 148px; height: auto; }
+:global(.yacht-nav nav){ display: flex; align-items: center; gap: clamp(17px, 3vw, 38px); margin-left: auto; color: rgba(255,255,255,.76); font-size: .65rem; letter-spacing: .12em; text-transform: uppercase; }
+:global(.yacht-nav nav a){ transition: color .2s ease; }
+:global(.yacht-nav nav a:hover){ color: #fff; }
+:global(.yacht-button){ display: inline-flex; align-items: center; justify-content: center; gap: 9px; min-height: 47px; padding: 0 19px; border: 1px solid transparent; font-size: .66rem; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; transition: transform .2s ease, background .2s ease, color .2s ease, border-color .2s ease; }
+:global(.yacht-button:hover){ transform: translateY(-2px); }
+:global(.yacht-button--outline){ border-color: rgba(255,255,255,.5); color: #fff; }
+:global(.yacht-button--outline:hover){ border-color: #fff; background: rgba(255,255,255,.1); }
+:global(.yacht-button--sand){ background: var(--yacht-sand); color: var(--yacht-deep); }
+:global(.yacht-button--sand:hover){ background: #fff; }
+:global(.yacht-button--blue){ background: var(--yacht-blue); color: #fff; }
+:global(.yacht-button--blue:hover){ background: var(--yacht-deep); }
+:global(.yacht-hero-content){ display: flex; align-items: center; justify-content: space-between; gap: 30px; padding: 55px 0 125px; }
+:global(.yacht-hero-copy){ max-width: 660px; }
+:global(.yacht-eyebrow), :global(.yacht-kicker){ display: flex; align-items: center; gap: 10px; margin: 0 0 22px; color: var(--yacht-coral); font-size: .63rem; font-weight: 700; letter-spacing: .22em; text-transform: uppercase; }
+:global(.yacht-eyebrow){ color: var(--yacht-sand); }
+:global(.yacht-eyebrow span){ width: 30px; height: 1px; background: var(--yacht-coral); }
+:global(.yacht-overline){ max-width: 360px; margin: 0 0 18px; color: rgba(255,255,255,.66); font-size: .62rem; letter-spacing: .26em; line-height: 1.65; }
+:global(.yacht-hero h1){ max-width: 700px; margin: 0 0 23px; font-family: Georgia, 'Times New Roman', serif; font-size: clamp(3.6rem, 7vw, 7.8rem); font-weight: 400; line-height: .91; letter-spacing: -.065em; }
+:global(.yacht-hero h1 em){ color: var(--yacht-coral); font-style: normal; }
+:global(.yacht-hero-lede){ max-width: 485px; margin: 0; color: rgba(255,255,255,.79); font-size: .91rem; line-height: 1.8; }
+:global(.yacht-hero-actions){ display: flex; align-items: center; flex-wrap: wrap; gap: 23px; margin-top: 33px; }
+:global(.yacht-text-link){ display: inline-flex; align-items: center; gap: 8px; font-size: .68rem; font-weight: 700; letter-spacing: .06em; transition: gap .2s ease, color .2s ease; }
+:global(.yacht-text-link:hover){ gap: 12px; }
+:global(.yacht-text-link--light){ color: #fff; }
+:global(.yacht-text-link--dark){ color: var(--yacht-blue); }
+:global(.yacht-hero-stamp){ display: grid; justify-items: end; align-self: end; gap: 9px; margin-bottom: 18px; color: rgba(255,255,255,.7); }
+:global(.yacht-hero-stamp span){ font-family: Georgia, 'Times New Roman', serif; font-size: 2.7rem; letter-spacing: .23em; line-height: 1; }
+:global(.yacht-hero-stamp small){ color: var(--yacht-sand); font-size: .56rem; letter-spacing: .24em; }
+:global(.yacht-scroll-cue){ position: absolute; right: 32px; bottom: 31px; display: inline-flex; align-items: center; gap: 10px; color: rgba(255,255,255,.68); font-size: .6rem; letter-spacing: .14em; text-transform: uppercase; }
+:global(.yacht-scroll-cue svg){ color: var(--yacht-coral); }
+:global(.yacht-stat-strip){ background: var(--yacht-coral); color: var(--yacht-deep); }
+:global(.yacht-stat-grid){ display: grid; grid-template-columns: repeat(4, 1fr); padding: 24px 0; }
+:global(.yacht-stat-grid > div){ display: grid; gap: 7px; padding: 0 23px; border-right: 1px solid rgba(6,34,44,.25); }
+:global(.yacht-stat-grid > div:first-child){ padding-left: 0; }
+:global(.yacht-stat-grid > div:last-child){ border-right: 0; }
+:global(.yacht-stat-grid strong){ font-family: Georgia, 'Times New Roman', serif; font-size: clamp(1.5rem, 2.5vw, 2.15rem); font-weight: 400; line-height: 1; }
+:global(.yacht-stat-grid span){ max-width: 20ch; color: rgba(6,34,44,.72); font-size: .58rem; letter-spacing: .1em; line-height: 1.45; text-transform: uppercase; }
+:global(.yacht-video-section), :global(.yacht-section), :global(.yacht-contact){ padding: 112px 0; }
+:global(.yacht-video-section){ background: var(--yacht-pale); }
+:global(.yacht-video-grid), :global(.yacht-story-grid), :global(.yacht-contact-grid), :global(.yacht-works-grid){ display: grid; align-items: center; grid-template-columns: minmax(0, 1.1fr) minmax(0, .9fr); gap: clamp(45px, 8vw, 112px); }
+:global(.yacht-video-frame){ position: relative; min-height: 390px; overflow: hidden; background: var(--yacht-deep); box-shadow: 20px 20px 0 rgba(8,47,62,.14); }
+:global(.yacht-video-frame iframe){ display: block; width: 100%; height: 100%; min-height: 390px; border: 0; }
+:global(.yacht-video-fallback){ position: absolute; right: 14px; bottom: 13px; display: inline-flex; align-items: center; gap: 6px; padding: 9px 11px; background: rgba(6,34,44,.84); color: #fff !important; font-size: .59rem; letter-spacing: .05em; text-transform: uppercase; }
+:global(.yacht-video-copy h2), :global(.yacht-story-copy h2), :global(.yacht-section-heading h2), :global(.yacht-works-copy h2), :global(.yacht-contact-copy h2), :global(.yacht-gallery-heading h2){ max-width: 12ch; margin: 0 0 21px; font-family: Georgia, 'Times New Roman', serif; font-size: clamp(2.6rem, 5vw, 5.1rem); font-weight: 400; line-height: .98; letter-spacing: -.06em; }
+:global(.yacht-video-copy p:not(.yacht-kicker)), :global(.yacht-story-copy p:not(.yacht-kicker)), :global(.yacht-section-heading > p:last-child), :global(.yacht-works-copy p:not(.yacht-kicker)), :global(.yacht-contact-copy > p:not(.yacht-kicker)){ max-width: 48ch; color: rgba(18,49,59,.72); font-size: .86rem; line-height: 1.85; }
+:global(.yacht-video-copy .yacht-text-link){ margin-top: 13px; }
+:global(.yacht-section--sand){ background: var(--yacht-sand); }
+:global(.yacht-story-grid){ grid-template-columns: minmax(0, .88fr) minmax(0, 1.12fr); }
+:global(.yacht-story-copy h2){ max-width: 10ch; }
+:global(.yacht-story-points){ display: grid; gap: 11px; margin: 27px 0 31px; padding-top: 18px; border-top: 1px solid rgba(8,47,62,.2); }
+:global(.yacht-story-points span){ display: flex; align-items: center; gap: 8px; font-size: .7rem; letter-spacing: .04em; }
+:global(.yacht-story-points svg){ color: var(--yacht-coral); }
+:global(.yacht-story-image){ position: relative; min-height: 570px; overflow: hidden; }
+:global(.yacht-story-image img){ object-fit: cover; object-position: 56% center; }
+:global(.yacht-story-image span){ position: absolute; right: 15px; bottom: 15px; padding: 9px 11px; background: rgba(6,34,44,.86); color: #fff; font-size: .58rem; letter-spacing: .13em; text-transform: uppercase; }
+:global(.yacht-section--blue){ background: var(--yacht-blue); color: #fff; }
+:global(.yacht-section--blue .yacht-kicker), :global(.yacht-section--dark .yacht-kicker), :global(.yacht-contact .yacht-kicker){ color: var(--yacht-coral); }
+:global(.yacht-section-heading){ display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, .78fr); align-items: end; gap: 45px; margin-bottom: 52px; }
+:global(.yacht-section-heading .yacht-kicker){ grid-column: 1 / -1; margin-bottom: -18px; }
+:global(.yacht-section-heading h2){ max-width: 10ch; margin-bottom: 0; color: var(--yacht-sand); }
+:global(.yacht-section-heading > p:last-child){ margin: 0 0 4px; color: rgba(255,255,255,.68); }
+:global(.yacht-amenities-grid){ display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid rgba(217,208,192,.33); }
+:global(.yacht-amenity){ min-height: 250px; padding: 27px 22px 20px 0; border-bottom: 1px solid rgba(217,208,192,.33); }
+:global(.yacht-amenity:not(:first-child)){ padding-left: 22px; border-left: 1px solid rgba(217,208,192,.33); }
+:global(.yacht-amenity svg){ color: var(--yacht-coral); }
+:global(.yacht-amenity h3){ margin: 34px 0 10px; color: #fff; font-family: Georgia, 'Times New Roman', serif; font-size: 1.4rem; font-weight: 400; }
+:global(.yacht-amenity p){ margin: 0; color: rgba(255,255,255,.62); font-size: .76rem; line-height: 1.7; }
+:global(.yacht-gallery-section){ padding: 103px 0 112px; background: var(--yacht-pale); }
+:global(.yacht-gallery-heading){ display: flex; align-items: end; justify-content: space-between; gap: 40px; margin-bottom: 43px; }
+:global(.yacht-gallery-heading h2){ max-width: 10ch; margin-bottom: 0; }
+:global(.yacht-gallery-heading > p){ max-width: 25ch; margin: 0 0 5px; color: rgba(18,49,59,.57); font-size: .62rem; letter-spacing: .12em; line-height: 1.65; text-align: right; text-transform: uppercase; }
+:global(.yacht-gallery-grid){ display: grid; grid-template-columns: repeat(4, 1fr); gap: 13px; }
+:global(.yacht-gallery-grid figure){ margin: 0; }
+:global(.yacht-gallery-grid figure > div){ position: relative; aspect-ratio: .92; overflow: hidden; background: #c5beb0; }
+:global(.yacht-gallery-grid img){ object-fit: cover; transition: transform .5s ease; }
+:global(.yacht-gallery-grid figure:hover img){ transform: scale(1.04); }
+:global(.yacht-gallery-grid figcaption){ display: grid; gap: 6px; padding: 14px 2px 0; }
+:global(.yacht-gallery-grid figcaption span){ color: var(--yacht-coral); font-size: .58rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
+:global(.yacht-gallery-grid figcaption strong){ font-family: Georgia, 'Times New Roman', serif; font-size: 1.15rem; font-weight: 400; }
+:global(.yacht-section-heading--dark h2){ color: var(--yacht-blue); }
+:global(.yacht-section-heading--dark > p:last-child){ color: rgba(18,49,59,.67); }
+:global(.yacht-plans-grid){ display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
+:global(.yacht-plans-grid figure){ margin: 0; overflow: hidden; border: 1px solid rgba(8,47,62,.15); background: rgba(255,255,255,.34); }
+:global(.yacht-plans-grid figure > div){ position: relative; aspect-ratio: 16 / 9; overflow: hidden; background: #e7e0d2; }
+:global(.yacht-plans-grid img){ object-fit: cover; object-position: left center; transition: transform .45s ease; }
+:global(.yacht-plans-grid figure:hover img){ transform: scale(1.025); }
+:global(.yacht-plans-grid figcaption){ display: grid; gap: 5px; padding: 17px 18px 19px; }
+:global(.yacht-plans-grid figcaption strong){ color: var(--yacht-blue); font-family: Georgia, 'Times New Roman', serif; font-size: 1.25rem; font-weight: 400; }
+:global(.yacht-plans-grid figcaption span){ color: rgba(18,49,59,.58); font-size: .6rem; letter-spacing: .1em; text-transform: uppercase; }
+:global(.yacht-section--dark){ background: var(--yacht-deep); color: #fff; }
+:global(.yacht-works-grid){ grid-template-columns: minmax(0, .75fr) minmax(0, 1.25fr); }
+:global(.yacht-works-copy h2){ color: var(--yacht-sand); }
+:global(.yacht-works-copy p:not(.yacht-kicker)){ color: rgba(255,255,255,.64); }
+:global(.yacht-works-gallery){ display: grid; grid-template-columns: 1.25fr .75fr; grid-template-rows: repeat(2, 1fr); gap: 12px; min-height: 485px; }
+:global(.yacht-work-main), :global(.yacht-work-small){ position: relative; overflow: hidden; }
+:global(.yacht-work-main){ grid-row: 1 / -1; }
+:global(.yacht-works-gallery img){ object-fit: cover; transition: transform .5s ease; }
+:global(.yacht-works-gallery > div:hover img){ transform: scale(1.035); }
+:global(.yacht-contact){ background: var(--yacht-blue); color: #fff; }
+:global(.yacht-contact-grid){ grid-template-columns: minmax(0, .78fr) minmax(400px, 1.22fr); align-items: start; }
+:global(.yacht-contact-copy h2){ color: var(--yacht-sand); }
+:global(.yacht-contact-copy > p:not(.yacht-kicker)){ color: rgba(255,255,255,.67); }
+:global(.yacht-contact-broker){ display: flex; align-items: center; gap: 16px; margin-top: 39px; }
+:global(.yacht-contact-broker > span){ display: grid; width: 65px; height: 65px; place-items: center; border: 1px solid rgba(217,208,192,.45); border-radius: 50%; color: var(--yacht-sand); font-family: Georgia, 'Times New Roman', serif; font-size: 1.2rem; }
+:global(.yacht-contact-broker > div){ display: grid; gap: 5px; }
+:global(.yacht-contact-broker strong){ font-family: Georgia, 'Times New Roman', serif; font-size: 1.35rem; font-weight: 400; }
+:global(.yacht-contact-broker small){ color: rgba(255,255,255,.54); font-size: .62rem; }
+:global(.yacht-contact-broker a){ display: inline-flex; align-items: center; gap: 6px; margin-top: 4px; color: var(--yacht-coral); font-size: .67rem; font-weight: 700; }
+:global(.yacht-form-card){ padding: 31px; background: var(--yacht-pale); color: var(--yacht-ink); box-shadow: 18px 18px 0 rgba(0,0,0,.16); }
+:global(.yacht-form){ display: grid; gap: 21px; }
+:global(.yacht-form-heading > span){ color: var(--yacht-coral); font-size: .62rem; font-weight: 700; letter-spacing: .17em; text-transform: uppercase; }
+:global(.yacht-form-heading h3){ margin: 11px 0 7px; color: var(--yacht-blue); font-family: Georgia, 'Times New Roman', serif; font-size: 2.25rem; font-weight: 400; line-height: 1; }
+:global(.yacht-form-heading p){ margin: 0; color: rgba(18,49,59,.62); font-size: .75rem; line-height: 1.6; }
+:global(.yacht-form-grid){ display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+:global(.yacht-form-grid label){ display: grid; gap: 7px; color: var(--yacht-blue); font-size: .69rem; font-weight: 700; }
+:global(.yacht-form-grid label span){ color: rgba(18,49,59,.5); font-size: .6rem; font-weight: 500; }
+:global(.yacht-form-grid input:not([type="checkbox"])), :global(.yacht-form-grid select){ width: 100%; min-height: 45px; border: 1px solid rgba(8,47,62,.2); border-radius: 0; background: rgba(255,255,255,.45); color: var(--yacht-ink); padding: .7rem .75rem; font: inherit; font-size: .75rem; }
+:global(.yacht-form-grid input:focus), :global(.yacht-form-grid select:focus){ outline: 2px solid var(--yacht-coral); outline-offset: 2px; }
+:global(.yacht-consent){ display: flex; align-items: flex-start; gap: 9px; color: rgba(18,49,59,.6); font-size: .62rem; line-height: 1.45; }
+:global(.yacht-consent input){ width: 15px; min-height: 15px; flex: 0 0 15px; margin: 2px 0 0; accent-color: var(--yacht-blue); }
+:global(.yacht-consent span){ flex: 1 1 auto; }
+:global(.yacht-form .yacht-button){ width: 100%; }
+:global(.yacht-feedback){ display: flex; align-items: flex-start; gap: 8px; margin: 0; padding: 11px 12px; font-size: .7rem; line-height: 1.45; }
+:global(.yacht-feedback--success){ background: rgba(48,135,77,.12); color: #216438; }
+:global(.yacht-feedback--error){ background: rgba(170,44,44,.1); color: #9b3030; }
+:global(.yacht-button--whatsapp){ width: 100%; margin-top: 15px; background: #25d366; color: #06321a; }
+:global(.yacht-footer){ padding: 39px 0 40px; background: #041b23; color: rgba(255,255,255,.62); }
+:global(.yacht-footer-grid){ display: flex; align-items: center; justify-content: space-between; gap: 35px; }
+:global(.yacht-footer-grid > img){ width: 125px; height: auto; }
+:global(.yacht-footer-grid > div){ max-width: 560px; }
+:global(.yacht-footer-grid p){ margin: 0 0 10px; color: var(--yacht-sand); font-family: Georgia, 'Times New Roman', serif; font-size: 1.2rem; }
+:global(.yacht-footer-grid small){ display: block; color: rgba(255,255,255,.4); font-size: .6rem; line-height: 1.6; }
+:global(.yacht-whatsapp){ position: fixed; right: 22px; bottom: 22px; z-index: 20; display: inline-flex; align-items: center; gap: 8px; min-height: 50px; padding: 0 16px; background: #25d366; color: #06321a !important; box-shadow: 0 13px 30px rgba(0,0,0,.23); font-size: .66rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; transition: transform .2s ease, background .2s ease; }
+:global(.yacht-whatsapp:hover){ background: #74f0a0; transform: translateY(-3px); }
+
+@media (max-width: 920px) {
+  :global(.yacht-hero){ min-height: 760px; }
+  :global(.yacht-nav nav){ display: none; }
+  :global(.yacht-nav-cta){ margin-left: auto; }
+  :global(.yacht-hero-content){ align-items: end; padding-bottom: 115px; }
+  :global(.yacht-video-grid), :global(.yacht-story-grid), :global(.yacht-works-grid), :global(.yacht-contact-grid){ grid-template-columns: 1fr; gap: 60px; }
+  :global(.yacht-video-frame){ min-height: 470px; }
+  :global(.yacht-video-frame iframe){ min-height: 470px; }
+  :global(.yacht-story-image){ min-height: 510px; }
+  :global(.yacht-amenities-grid){ grid-template-columns: repeat(2, 1fr); }
+  :global(.yacht-amenity:nth-child(3)){ padding-left: 0; border-left: 0; }
+  :global(.yacht-gallery-grid){ grid-template-columns: repeat(2, 1fr); row-gap: 26px; }
+  :global(.yacht-contact-grid){ gap: 44px; }
+  :global(.yacht-contact-grid > .yacht-form-card){ max-width: 760px; }
+}
+@media (max-width: 620px) {
+  :global(.yacht-container){ width: min(100% - 40px, 500px); }
+  :global(.yacht-nav){ min-height: 88px; }
+  :global(.yacht-logo){ width: 126px; }
+  :global(.yacht-nav-cta){ min-height: 38px; padding: 0 11px; font-size: .54rem; }
+  :global(.yacht-nav-cta svg){ display: none; }
+  :global(.yacht-hero){ min-height: 720px; }
+  :global(.yacht-hero-image){ object-position: 63% center; }
+  :global(.yacht-hero-shade){ background: linear-gradient(90deg, rgba(4,25,33,.92), rgba(5,31,41,.37)), linear-gradient(0deg, rgba(4,22,29,.68), transparent 58%); }
+  :global(.yacht-hero-content){ padding: 40px 0 112px; }
+  :global(.yacht-eyebrow){ margin-bottom: 17px; }
+  :global(.yacht-overline){ font-size: .55rem; }
+  :global(.yacht-hero h1){ font-size: clamp(3.25rem, 16vw, 5.2rem); }
+  :global(.yacht-hero-lede){ font-size: .84rem; }
+  :global(.yacht-hero-actions){ gap: 17px; margin-top: 26px; }
+  :global(.yacht-hero-actions .yacht-button){ min-height: 44px; padding: 0 14px; font-size: .59rem; }
+  :global(.yacht-hero-stamp){ display: none; }
+  :global(.yacht-scroll-cue){ right: 20px; bottom: 21px; font-size: .54rem; }
+  :global(.yacht-stat-grid){ grid-template-columns: repeat(2, 1fr); gap: 19px 0; padding: 21px 0; }
+  :global(.yacht-stat-grid > div), :global(.yacht-stat-grid > div:first-child){ padding: 0 13px; border-right: 1px solid rgba(6,34,44,.25); }
+  :global(.yacht-stat-grid > div:nth-child(2n)){ border-right: 0; }
+  :global(.yacht-stat-grid > div:nth-child(n+3)){ padding-top: 17px; border-top: 1px solid rgba(6,34,44,.25); }
+  :global(.yacht-stat-grid strong){ font-size: 1.55rem; }
+  :global(.yacht-stat-grid span){ font-size: .54rem; }
+  :global(.yacht-video-section), :global(.yacht-section), :global(.yacht-contact){ padding: 78px 0; }
+  :global(.yacht-video-grid), :global(.yacht-story-grid), :global(.yacht-works-grid), :global(.yacht-contact-grid){ gap: 42px; }
+  :global(.yacht-video-frame), :global(.yacht-video-frame iframe){ min-height: 270px; }
+  :global(.yacht-video-copy h2), :global(.yacht-story-copy h2), :global(.yacht-section-heading h2), :global(.yacht-works-copy h2), :global(.yacht-contact-copy h2), :global(.yacht-gallery-heading h2){ font-size: clamp(2.55rem, 13vw, 4rem); }
+  :global(.yacht-story-image){ min-height: 410px; }
+  :global(.yacht-section-heading){ display: block; margin-bottom: 34px; }
+  :global(.yacht-section-heading .yacht-kicker){ margin-bottom: 18px; }
+  :global(.yacht-section-heading h2){ margin-bottom: 18px; }
+  :global(.yacht-amenity){ min-height: 225px; padding-right: 13px; }
+  :global(.yacht-amenity:not(:first-child)){ padding-left: 13px; }
+  :global(.yacht-amenity:nth-child(3)){ padding-left: 0; }
+  :global(.yacht-amenity h3){ margin-top: 27px; font-size: 1.2rem; }
+  :global(.yacht-gallery-section){ padding: 77px 0 80px; }
+  :global(.yacht-gallery-heading){ display: block; margin-bottom: 30px; }
+  :global(.yacht-gallery-heading > p){ margin-top: 18px; text-align: left; }
+  :global(.yacht-gallery-grid){ gap: 24px 10px; }
+  :global(.yacht-gallery-grid figure > div){ aspect-ratio: .78; }
+  :global(.yacht-gallery-grid figcaption strong){ font-size: .98rem; }
+  :global(.yacht-plans-grid){ grid-template-columns: 1fr; }
+  :global(.yacht-plans-grid figure > div){ aspect-ratio: 1.35; }
+  :global(.yacht-works-gallery){ min-height: 400px; gap: 8px; }
+  :global(.yacht-contact-grid > .yacht-form-card){ max-width: none; }
+  :global(.yacht-form-card){ padding: 23px 18px; box-shadow: 10px 10px 0 rgba(0,0,0,.16); }
+  :global(.yacht-form-grid){ gap: 13px 10px; }
+  :global(.yacht-form-heading h3){ font-size: 1.85rem; }
+  :global(.yacht-footer-grid){ display: grid; gap: 23px; }
+  :global(.yacht-footer-grid > img){ width: 112px; }
+  :global(.yacht-whatsapp){ right: 15px; bottom: 15px; min-height: 46px; padding: 0 13px; font-size: .58rem; }
+}
