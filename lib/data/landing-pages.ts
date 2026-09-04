@@ -13,6 +13,16 @@ export type PublicLandingPage = {
 // A home consome todos os itens deste array e cria os cards automaticamente.
 export const publicLandingPages: PublicLandingPage[] = [
   {
+    slug: "urban-haute",
+    href: "/urban-haute",
+    title: "Urban Haute",
+    category: "Mixed-use de alta arquitetura",
+    location: "ACSU NO13 · Palmas/TO",
+    summary: "Residências, penthouses, offices e boulevard gastronômico ao lado do Capim Dourado Shopping.",
+    image: "/brand/urban-haute/social-23.png",
+    status: "Lançamento"
+  },
+  {
     slug: "gestao-exclusiva",
     href: "/gestao-exclusiva",
     title: "Gestão Exclusiva de Venda",

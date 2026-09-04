@@ -12,11 +12,13 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
   const isLike210Landing = pathname === "/like-210";
   const isMaestriaLanding = pathname === "/maestria";
   const isHeritageLanding = pathname === "/heritage";
+  const isYachtLanding = pathname === "/yacht-fama";
   const isYouLanding = pathname === "/you";
   const isTerracoUrbanLanding = pathname === "/terraco-urban";
   const isPalmasLakeLanding = pathname.startsWith("/palmas-lake");
   const isComodoroLanding = pathname === "/comodoro";
-  const isStandaloneLanding = isLakeVillageLanding || isQuintaDoLagoLanding || isAcordesLanding || isLike210Landing || isMaestriaLanding || isHeritageLanding || isYouLanding || isTerracoUrbanLanding || isPalmasLakeLanding || isComodoroLanding;
+  const isUrbanHauteLanding = pathname === "/urban-haute";
+  const isStandaloneLanding = isLakeVillageLanding || isQuintaDoLagoLanding || isAcordesLanding || isLike210Landing || isMaestriaLanding || isHeritageLanding || isYachtLanding || isYouLanding || isTerracoUrbanLanding || isPalmasLakeLanding || isComodoroLanding || isUrbanHauteLanding;
 
   return (
     <>

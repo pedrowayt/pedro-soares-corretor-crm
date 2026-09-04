@@ -1,6 +1,10 @@
 import {
+  DevelopmentPropertyType,
   DevelopmentPublicationStatus,
   DevelopmentStage,
+  DevelopmentUnitCategory,
+  LandingPageStatus,
+  LandingPageType,
   PrismaClient,
   LeadIntent,
   LeadSource,
@@ -371,6 +375,84 @@ async function main() {
       propertyId: property.id,
       portalName: "Portal Piloto",
       status: "PENDENTE"
+    }
+  });
+
+  const urbanHaute = await prisma.development.upsert({
+    where: { slug: "urban-haute" },
+    update: {},
+    create: {
+      slug: "urban-haute",
+      title: "Urban Haute",
+      tagline: "Uma nova maneira de viver, trabalhar e investir.",
+      summary: "Empreendimento mixed-use com residências, penthouses, offices e boulevard gastronômico ao lado do Capim Dourado Shopping.",
+      description: "Alta arquitetura, lazer elevado e infraestrutura corporativa em um novo ícone urbano de Palmas.",
+      district: "Plano Diretor Norte",
+      neighborhood: "ACSU NO13",
+      city: "Palmas",
+      address: "ACSU NO13, Avenida JK, Lote 02",
+      postalCode: "77001-080",
+      propertyType: DevelopmentPropertyType.COMPLEXO,
+      developerName: "Urban Incorporações LTDA",
+      builderName: "Urban Palmas 011 Empreendimentos Imobiliários SPE LTDA",
+      stage: DevelopmentStage.PRE_LAUNCH,
+      areaFromM2: 38.63,
+      areaToM2: 203.09,
+      landAreaM2: 5137.48,
+      floorsCount: 63,
+      elevatorsCount: 8,
+      totalUnits: 390,
+      availableUnits: null,
+      amenities: ["Rooftop Wellness", "Piscina panorâmica coberta", "Pavimento de lazer com 2.600 m²", "Boulevard gastronômico", "Academia Flex", "Quadras esportivas"],
+      differentials: ["245 m declarados no material comercial", "Mixed-use completo", "Ao lado do Capim Dourado Shopping", "Arquitetura de Roberto Carvalho"],
+      projectText: "Inspirado nos arranha-céus de Nova York, o Urban Haute integra moradia, negócios, lazer e gastronomia.",
+      apartmentsText: "Residências de 1, 2 e 3 quartos, penthouses de 125,25 a 203,09 m² e offices de 36 a 80 m².",
+      locationText: "ACSU NO13, Avenida JK, Lote 02, ao lado do Shopping Capim Dourado, em Palmas/TO.",
+      locationHighlights: "Capim Dourado Shopping, parques, gastronomia, escolas, academias e serviços de saúde no entorno.",
+      mapEmbedUrl: "https://www.google.com/maps?q=ACSU+NO13,+Avenida+JK,+Lote+02,+Palmas+-+TO&output=embed",
+      tablePdfUrl: null,
+      whatsappMessageTemplate: "Olá, Pedro. Quero conhecer o Urban Haute e receber a apresentação.",
+      ctaPrimaryLabel: "Consultar disponibilidade",
+      ctaPrimaryUrl: "/urban-haute#atendimento",
+      ctaSecondaryLabel: "Ver plantas",
+      ctaSecondaryUrl: "/urban-haute#plantas",
+      seoTitle: "Urban Haute em Palmas | Residências, Offices e Penthouses",
+      seoDescription: "Conheça o Urban Haute, mixed-use ao lado do Capim Dourado Shopping, com residências, penthouses, offices, lazer e boulevard gastronômico.",
+      seoKeyword: "Urban Haute Palmas",
+      showPrice: false,
+      isPublished: true,
+      status: DevelopmentPublicationStatus.PUBLISHED,
+      publishedAt: new Date()
+    }
+  });
+
+  for (const unitType of [
+    { id: "urban-haute-unit-1q", name: "Residência 1 quarto · 38,63 m²", unitCategory: DevelopmentUnitCategory.UM_QUARTO, bedrooms: 1, areaFromM2: 38.63, areaToM2: 39.61, description: "Tipo 01 · 19º ao 28º pavimento." },
+    { id: "urban-haute-unit-2q", name: "Residência 2 quartos · 49,69 a 79,21 m²", unitCategory: DevelopmentUnitCategory.DOIS_QUARTOS, bedrooms: 2, areaFromM2: 49.69, areaToM2: 79.21, description: "Tipos 01, 02 e 03 · 18º ao 48º pavimento." },
+    { id: "urban-haute-unit-3q", name: "Residência 3 quartos · 84,34 a 86,69 m²", unitCategory: DevelopmentUnitCategory.TRES_QUARTOS, bedrooms: 3, areaFromM2: 84.34, areaToM2: 86.69, description: "Tipo 03 · 18º e 44º ao 48º pavimento." },
+    { id: "urban-haute-penthouse", name: "Penthouse · 125,25 a 203,09 m²", unitCategory: DevelopmentUnitCategory.COBERTURA, bedrooms: 3, areaFromM2: 125.25, areaToM2: 203.09, description: "Unidades 5001 a 5802 · 50º ao 58º pavimento." },
+    { id: "urban-haute-office", name: "Haute Offices · 36 a 80 m²", unitCategory: DevelopmentUnitCategory.SALA_COMERCIAL, areaFromM2: 36, areaToM2: 80, description: "Salas comerciais e lajes corporativas · 6º ao 17º pavimento." }
+  ]) {
+    const { id, ...unitData } = unitType;
+    await prisma.developmentUnitType.upsert({
+      where: { id },
+      update: { developmentId: urbanHaute.id, ...unitData },
+      create: { id, developmentId: urbanHaute.id, position: 1, isAvailable: true, ...unitData }
+    });
+  }
+
+  await prisma.landingPage.upsert({
+    where: { slug: "urban-haute" },
+    update: { linkedDevelopmentId: urbanHaute.id, status: LandingPageStatus.PUBLISHED, publicPath: "/urban-haute" },
+    create: {
+      name: "Urban Haute",
+      slug: "urban-haute",
+      publicPath: "/urban-haute",
+      type: LandingPageType.DEVELOPMENT,
+      status: LandingPageStatus.PUBLISHED,
+      formKey: "development-interest",
+      linkedDevelopmentId: urbanHaute.id,
+      publishedAt: new Date()
     }
   });
 
