@@ -20392,10 +20392,29 @@ body:has(.wp-hero) { background: #fff; }
   object-fit: cover;
   object-position: center center;
   filter: saturate(.9) contrast(1.04);
-  transition: transform 1.2s cubic-bezier(.2, .7, .2, 1);
+  transform: scale(1.04);
+  animation: wp-hero-slow-zoom 22s ease-in-out infinite alternate;
+  will-change: transform;
 }
 
-.wp-hero-media:hover > .wp-home-image { transform: scale(1.025); }
+.wp-hero-media:hover > .wp-home-image { animation-play-state: paused; transform: scale(1.085); transition: transform 1.2s cubic-bezier(.2, .7, .2, 1); }
+
+@keyframes wp-hero-slow-zoom {
+  from { transform: scale(1.04); }
+  to { transform: scale(1.085); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wp-hero-media > .wp-home-image {
+    animation: none;
+    transform: scale(1.04);
+    transition: none;
+  }
+
+  .wp-hero-media:hover > .wp-home-image {
+    transform: scale(1.04);
+  }
+}
 
 .wp-hero-media .wp-hero-overlay {
   position: absolute;
