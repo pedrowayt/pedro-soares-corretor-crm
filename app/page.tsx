@@ -471,19 +471,28 @@ export default async function HomePage({
             )}
           </div>
 
-          <div className="wp-hero-media">
-            <HomeImage
-              src="/brand/pedro-portrait-5.png"
-              alt="Pedro Soares, corretor de imóveis em Palmas"
-              sizes="(max-width: 900px) 100vw, 54vw"
-              priority
-            />
-            <div className="wp-hero-overlay" />
-            <div className="wp-hero-media-meta">
-              <span>Palmas · Tocantins</span>
-              <strong>Imóveis escolhidos para a vida que você quer construir.</strong>
+          <div className="wp-hero-media-group">
+            <div className="wp-hero-media">
+              <HomeImage
+                src="/brand/pedro-portrait-5.png"
+                alt="Pedro Soares, corretor de imóveis em Palmas"
+                sizes="(max-width: 900px) 100vw, 54vw"
+                priority
+              />
+              <div className="wp-hero-overlay" />
+              <div className="wp-hero-media-meta">
+                <span>Palmas · Tocantins</span>
+                <strong>Imóveis escolhidos para a vida que você quer construir.</strong>
+              </div>
+              <span className="wp-hero-media-index" aria-hidden="true">01 / 04</span>
             </div>
-            <span className="wp-hero-media-index" aria-hidden="true">01 / 04</span>
+            <Link href="/lancamentos" className="wp-mobile-launches-cta">
+              <span className="wp-mobile-launches-cta__copy">
+                <small>Curadoria de lançamentos</small>
+                <strong>Ver lançamentos</strong>
+              </span>
+              <span className="wp-mobile-launches-cta__arrow" aria-hidden="true">↗</span>
+            </Link>
           </div>
         </div>
       </section>
