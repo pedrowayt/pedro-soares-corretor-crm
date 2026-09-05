@@ -154,7 +154,6 @@ export default function GestaoExclusivaPage() {
       </section>
 
       <footer className="exclusive-footer"><div className="exclusive-shell"><p><strong>Gestão Exclusiva de Venda</strong> · Pedro Soares · CRECI 5861-TO</p><small>A contratação, o prazo e as condições da exclusividade serão definidos em contrato entre as partes. As informações desta página têm caráter explicativo e não substituem a análise do imóvel nem a apresentação contratual.</small></div></footer>
-      <ExclusiveManagementWhatsAppButton className="exclusive-whatsapp-float" compact>Falar sobre meu imóvel</ExclusiveManagementWhatsAppButton>
     </div>
   );
 }

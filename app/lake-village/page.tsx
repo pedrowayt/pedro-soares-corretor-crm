@@ -3,7 +3,6 @@ import Image from "next/image";
 import { ArrowDown, ArrowRight, Building2, Clock3, Dumbbell, ExternalLink, Heart, MapPin, Route, ShieldCheck, Waves } from "lucide-react";
 import { LakeVillageLeadForm } from "@/components/public/lake-village-lead-form";
 import { LakeVillageAudio } from "@/components/public/lake-village-audio";
-import { LakeVillageWhatsAppBubble } from "@/components/public/lake-village-whatsapp-bubble";
 import { LandingPageTracker } from "@/components/public/landing-page-tracker";
 import { getSiteUrl } from "@/lib/site-url";
 
@@ -200,7 +199,6 @@ export default function LakeVillagePage() {
         </div>
       </section>
 
-      <LakeVillageWhatsAppBubble />
     </div>
   );
 }

@@ -339,7 +339,6 @@ export default function Like210Page() {
         </div>
       </footer>
 
-      <a className="like210-whatsapp-float" href={whatsappUrl} target="_blank" rel="noreferrer" aria-label="Falar sobre o LIKE 210 pelo WhatsApp"><MessageCircle size={20} /><span>Quero conhecer</span></a>
     </div>
   );
 }

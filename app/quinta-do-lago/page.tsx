@@ -268,9 +268,6 @@ export default function QuintaDoLagoPage() {
         <div className="qdl-container qdl-footer-legal">Material de apresentação do Condomínio de Chácaras Recanto Santa Luzia (Quinta do Lago), em Miracema do Tocantins/TO. Imagens ilustrativas. Consulte condições, disponibilidade e documentação atualizadas.</div>
       </footer>
 
-      <a className="qdl-whatsapp" href={whatsappUrl} target="_blank" rel="noreferrer" aria-label="Falar com Pedro Soares pelo WhatsApp">
-        <MessageCircle size={20} /><span>Fale comigo</span>
-      </a>
     </div>
   );
 }

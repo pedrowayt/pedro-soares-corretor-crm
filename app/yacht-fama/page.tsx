@@ -90,7 +90,6 @@ export default function YachtFamaPage() {
       <section id="atendimento" className="yacht-contact"><div className="yacht-container yacht-contact-grid"><div className="yacht-contact-copy"><p className="yacht-kicker">Próximo passo</p><h2>Receba o Yacht em detalhes.</h2><p>Deixe seus dados para receber a apresentação completa, as plantas e as condições disponíveis do projeto.</p><div className="yacht-contact-broker"><span className="yacht-contact-broker-photo"><Image src="/yacht/corretor.png" alt="Pedro Soares, corretor de imóveis" fill sizes="65px" /></span><div><strong>Pedro Soares</strong><small>Corretor de imóveis · CRECI 5861-TO</small><a href={whatsappUrl} target="_blank" rel="noreferrer"><MessageCircle size={15} /> Falar no WhatsApp</a></div></div></div><YachtLeadForm /></div></section>
 
       <footer className="yacht-footer"><div className="yacht-container yacht-footer-grid"><Image src="/yacht/logo-02.png" alt="Yacht by Fama" width={155} height={110} /><div><p>Yacht by Fama · Orla 14 · Palmas/TO</p><small>Imagens meramente ilustrativas. Informações, materiais, valores e condições deverão ser confirmados na apresentação comercial vigente.</small></div></div></footer>
-      <a className="yacht-whatsapp" href={whatsappUrl} target="_blank" rel="noreferrer" aria-label="Falar sobre o Yacht pelo WhatsApp"><MessageCircle size={19} /><span>Quero conhecer</span></a>
     </main>
   );
 }

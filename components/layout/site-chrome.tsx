@@ -1,6 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
+import { SiteWhatsAppBubble } from "@/components/public/site-whatsapp-bubble";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 
@@ -19,12 +20,14 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
   const isComodoroLanding = pathname === "/comodoro";
   const isUrbanHauteLanding = pathname === "/urban-haute";
   const isStandaloneLanding = isLakeVillageLanding || isQuintaDoLagoLanding || isAcordesLanding || isLike210Landing || isMaestriaLanding || isHeritageLanding || isYachtLanding || isYouLanding || isTerracoUrbanLanding || isPalmasLakeLanding || isComodoroLanding || isUrbanHauteLanding;
+  const isInternalArea = pathname.startsWith("/admin") || pathname.startsWith("/crm");
 
   return (
     <>
       {isStandaloneLanding ? null : <SiteHeader />}
       <main className={isStandaloneLanding ? "site-main--landing" : undefined}>{children}</main>
       {isStandaloneLanding ? null : <SiteFooter />}
+      {isInternalArea ? null : <SiteWhatsAppBubble />}
     </>
   );
 }

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, ArrowUpRight, MessageCircle } from "lucide-react";
+import { ArrowLeft, ArrowUpRight } from "lucide-react";
 import { getSiteUrl } from "@/lib/site-url";
 
 const items = {
@@ -358,10 +358,5 @@ export default async function PalmasLakeDevelopmentPage({ params }: { params: Pr
       <section className="palmas-sky-plan palmas-office-cta" id="condicoes" aria-labelledby="palmas-office-cta-title"><div className="palmas-sky-container palmas-office-cta-inner"><div><p className="palmas-lake-kicker">Lake Office · entrega 2029</p><h2 id="palmas-office-cta-title">Seu próximo endereço profissional pode estar no lago.</h2><p>Receba as plantas, o espelho de unidades e as condições atualizadas do Business Center.</p></div><a className="palmas-lake-button palmas-lake-button--gold" href={whatsappHref} target="_blank" rel="noreferrer">Receber plantas e condições <ArrowUpRight size={17} /></a></div></section>
     </>}
     <div className="palmas-detail-footer"><Link href="/palmas-lake"><ArrowLeft size={15} /> Voltar ao complexo</Link></div>
-    <a className="palmas-lake-whatsapp-float" href={whatsappHref} target="_blank" rel="noreferrer" aria-label={`Falar com Pedro Soares pelo WhatsApp sobre o ${item.name}`}>
-      <span className="palmas-lake-whatsapp-avatar"><Image src="/brand/pedro-whatsapp-avatar.png" alt="" fill sizes="56px" /></span>
-      <span className="palmas-lake-whatsapp-copy"><strong>Fale comigo</strong><small>WhatsApp · (63) 98484-5101</small></span>
-      <MessageCircle className="palmas-lake-whatsapp-icon" size={22} />
-    </a>
   </div>;
 }

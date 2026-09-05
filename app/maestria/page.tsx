@@ -256,7 +256,6 @@ export default function MaestriaPage() {
       </section>
 
       <footer className="maestria-footer"><div className="maestria-container"><div className="maestria-lockup"><span className="maestria-mark">✦</span><span><strong>MAESTRIA</strong><small>URBAN DESIGN</small></span></div><p>Um dos últimos terrenos à beira do Lago de Palmas.</p><small>Imagens meramente ilustrativas. O projeto, materiais e acabamentos poderão sofrer alterações conforme projetos e memoriais.</small></div></footer>
-      <a className="maestria-whatsapp-float" href={whatsappUrl} target="_blank" rel="noreferrer" aria-label="Falar sobre o Maestria Urban Design pelo WhatsApp"><MessageCircle size={19} /><span>Quero conhecer</span></a>
     </div>
   );
 }

@@ -13,7 +13,6 @@ import {
   Waves
 } from "lucide-react";
 import { AcordesLeadForm } from "@/components/public/acordes-lead-form";
-import { AcordesWhatsAppBubble } from "@/components/public/acordes-whatsapp-bubble";
 import { LandingPageTracker } from "@/components/public/landing-page-tracker";
 import { buildWhatsAppUrl } from "@/lib/integrations/whatsapp-links";
 import { getSiteUrl } from "@/lib/site-url";
@@ -246,7 +245,6 @@ export default function AcordesPage() {
       <footer className="acordes-footer">
         <div className="container acordes-footer-grid"><div><a href="#inicio" className="acordes-wordmark">ACORDES<span>•</span></a><p>Um produto Tewal · Orla 14 · Palmas/TO</p></div><div><p>Acordes Tower by Tewal, registrado sob o nº 2.806-R04-176.556 no Cartório de Registro de Imóveis de Palmas/TO.</p><small>Imagens meramente ilustrativas. A entrega seguirá os projetos finais aprovados e os respectivos memoriais descritivos.</small></div></div>
       </footer>
-      <AcordesWhatsAppBubble />
     </div>
   );
 }
