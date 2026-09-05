@@ -3,7 +3,7 @@ import { PropertyPurpose, PropertyStatus, PropertyType } from "@prisma/client";
 import Image from "next/image";
 import Link from "next/link";
 import { listPublishedBlogPosts } from "@/lib/data/blog";
-import { publicLandingPages } from "@/lib/data/landing-pages";
+import { exclusiveManagementLanding, publicLandingPages } from "@/lib/data/landing-pages";
 import { LandingPagesSlider } from "@/components/public/landing-pages-slider";
 import { PropertySpecs } from "@/components/public/property-specs";
 import { listPublicProperties } from "@/lib/data/properties";
@@ -506,6 +506,41 @@ export default async function HomePage({
                 <span className="wp-objective-card-action">{objective.action} <span aria-hidden="true">→</span></span>
               </Link>
             ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="section wp-exclusive-shortcut-section" aria-labelledby="wp-exclusive-shortcut-title">
+        <div className="container">
+          <div className="wp-exclusive-shortcut">
+            <div className="wp-exclusive-shortcut-media">
+              <HomeImage
+                src={exclusiveManagementLanding.image}
+                alt="Pedro Soares, corretor responsável pela Gestão Exclusiva"
+                sizes="(max-width: 760px) 100vw, 47vw"
+                className="wp-cover-image"
+              />
+              <span className="wp-exclusive-shortcut-shade" aria-hidden="true" />
+              <div className="wp-exclusive-shortcut-media-label">
+                <span>Para proprietários</span>
+                <strong>Exclusividade na gestão.<br />Alcance aberto.</strong>
+              </div>
+            </div>
+            <div className="wp-exclusive-shortcut-copy">
+              <p className="wp-section-eyebrow">Gestão Exclusiva de Venda</p>
+              <h2 id="wp-exclusive-shortcut-title">Seu imóvel merece uma estratégia, não apenas um anúncio.</h2>
+              <p>
+                Um único responsável organiza a divulgação, os interessados, as visitas e as propostas para você vender com mais clareza e controle.
+              </p>
+              <div className="wp-exclusive-shortcut-points" aria-label="Benefícios da Gestão Exclusiva">
+                <span>Preço e comunicação consistentes</span>
+                <span>Divulgação profissional e parcerias</span>
+                <span>Negociação conduzida de ponta a ponta</span>
+              </div>
+              <Link href={exclusiveManagementLanding.href} className="button button-primary">
+                Conhecer a Gestão Exclusiva <span aria-hidden="true">↗</span>
+              </Link>
+            </div>
           </div>
         </div>
       </section>

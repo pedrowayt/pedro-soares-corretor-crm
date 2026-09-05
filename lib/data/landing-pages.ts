@@ -9,8 +9,22 @@ export type PublicLandingPage = {
   status: string;
 };
 
-// Catálogo editorial central das landing pages de captação.
-// A home consome todos os itens deste array e cria os cards automaticamente.
+// Atalho editorial para proprietários. Ele aparece em uma faixa própria na
+// home, fora do catálogo de lançamentos e empreendimentos.
+export const exclusiveManagementLanding: PublicLandingPage = {
+  slug: "gestao-exclusiva",
+  href: "/gestao-exclusiva",
+  title: "Gestão Exclusiva de Venda",
+  category: "Serviço para proprietários",
+  location: "Palmas/TO",
+  summary: "Venda seu imóvel com estratégia, divulgação profissional e um único responsável pela negociação.",
+  image: "/brand/pedro-portrait-3.png",
+  status: "Atendimento personalizado"
+};
+
+// Catálogo editorial central das landing pages de lançamentos.
+// Serviços para proprietários ficam fora deste array para não serem misturados
+// à seção de empreendimentos da home nem à página /lancamentos.
 export const publicLandingPages: PublicLandingPage[] = [
   {
     slug: "urban-haute",
@@ -21,16 +35,6 @@ export const publicLandingPages: PublicLandingPage[] = [
     summary: "Residências, penthouses, offices e boulevard gastronômico ao lado do Capim Dourado Shopping.",
     image: "/brand/urban-haute/social-23.png",
     status: "Lançamento"
-  },
-  {
-    slug: "gestao-exclusiva",
-    href: "/gestao-exclusiva",
-    title: "Gestão Exclusiva de Venda",
-    category: "Serviço para proprietários",
-    location: "Palmas/TO",
-    summary: "Venda seu imóvel com estratégia, divulgação profissional e um único responsável pela negociação.",
-    image: "/brand/pedro-portrait-3.png",
-    status: "Atendimento personalizado"
   },
   {
     slug: "comodoro-by-fama",
