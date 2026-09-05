@@ -20709,6 +20709,7 @@ body:has(.wp-hero) { background: #fff; }
 @media (max-width: 640px) {
   .wp-hero { padding-top: 26px; }
   .wp-hero-media { min-height: 430px; border-radius: 2px 58px 2px 2px; box-shadow: 11px 14px 0 #f2eee8, 0 18px 35px rgba(20, 43, 73, .14); }
+  .wp-hero-media > .wp-home-image { object-position: center 36%; transform-origin: center top; }
   .wp-hero-media-index { top: 18px; right: 20px; }
   .wp-hero-media-meta { right: 20px; bottom: 21px; left: 20px; }
   .wp-hero-media-meta strong { font-size: 1.72rem; }
