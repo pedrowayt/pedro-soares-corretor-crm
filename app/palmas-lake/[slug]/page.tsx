@@ -186,6 +186,27 @@ const loftHighlights = [
   ["Total de unidades", "160 lofts"],
 ] as const;
 
+const loftUnitAreas = [
+  "49,46 m²",
+  "47,40 m²",
+  "47,75 m²",
+  "47,75 m²",
+  "57,98 m²",
+  "55,10 m²",
+  "45,94 m²",
+  "44,81 m²",
+  "44,51 m²",
+  "46,73 m²",
+] as const;
+
+const loftUnits = Array.from({ length: 16 }, (_, floorIndex) => {
+  const floor = floorIndex + 5;
+  return Array.from({ length: 10 }, (_, unitIndex) => {
+    const suffix = String(unitIndex + 1).padStart(2, "0");
+    return [String(floor), `Loft ${floor}${suffix}`, loftUnitAreas[unitIndex]] as const;
+  });
+}).flat();
+
 const loftGallery = [
   { src: "lake-loft-reception.jpg", title: "Recepção do Lake Loft", caption: "Um hall acolhedor para chegar e receber." },
   { src: "lake-loft-rooftop-bar.jpg", title: "Rooftop gourmet", caption: "Gastronomia, convivência e vista para o lago." },
@@ -322,6 +343,7 @@ export default async function PalmasLakeDevelopmentPage({ params }: { params: Pr
       <section className="palmas-sky-plan palmas-loft-plans" id="plantas" aria-labelledby="palmas-loft-plans-title"><div className="palmas-sky-container"><div className="palmas-sky-section-heading"><p className="palmas-lake-kicker">Plantas e layout</p><h2 id="palmas-loft-plans-title">Escolha a configuração que faz sentido para você.</h2><p>Veja a distribuição do 5º pavimento e conheça uma das opções de planta do Loft.</p></div><div className="palmas-loft-plans-grid">{loftPlans.map(([src, title, text]) => <figure className="palmas-loft-plan-card" key={src}><div><Image src={`/brand/palmas-lake/${src}`} alt={title} fill sizes="(max-width: 700px) 100vw, 50vw" unoptimized /></div><figcaption><strong>{title}</strong><span>{text}</span></figcaption></figure>)}</div></div></section>
       <section className="palmas-sky-gallery palmas-loft-gallery" aria-labelledby="palmas-loft-gallery-title"><div className="palmas-sky-container"><div className="palmas-sky-section-heading"><p className="palmas-lake-kicker">Galeria do Lake Loft</p><h2 id="palmas-loft-gallery-title">Ambientes pensados para viver e receber.</h2><p>Clique em qualquer imagem para abrir a foto em tamanho ampliado.</p></div><PalmasLakePhotoGallery items={loftGallery.map((item) => ({ ...item, src: `/brand/palmas-lake/${item.src}` }))} /></div></section>
       <section className="palmas-sky-leisure palmas-loft-leisure"><div className="palmas-sky-container palmas-sky-leisure-grid"><div><p className="palmas-lake-kicker">Lazer da torre</p><h2>Estrutura para viver, receber e investir.</h2><p className="palmas-loft-leisure-intro">Uma seleção de ambientes que amplia o valor de uso do loft e torna a operação mais prática para quem busca renda por hospedagem.</p></div><div className="palmas-sky-leisure-list">{loftLeisure.map((feature, index) => <div key={feature}><span>{String(index + 1).padStart(2, "0")}</span><strong>{feature}</strong></div>)}</div></div></section>
+      <section className="palmas-sky-units palmas-loft-units" id="unidades" aria-labelledby="palmas-loft-units-title"><div className="palmas-sky-container"><div className="palmas-sky-section-heading"><p className="palmas-lake-kicker">Espelho de unidades</p><h2 id="palmas-loft-units-title">Confira as unidades por andar.</h2><p>Veja as áreas de cada loft e consulte a disponibilidade e as condições atualizadas no atendimento.</p></div><div className="palmas-sky-table-wrap"><table><thead><tr><th>Pav.</th><th>Unidade</th><th>Área</th><th>Status</th></tr></thead><tbody>{loftUnits.map(([floor, unit, area]) => <tr key={unit}><td>{floor}</td><td>{unit}</td><td>{area}</td><td><span className="palmas-sky-status palmas-sky-status--consult">Consulte</span></td></tr>)}</tbody></table></div></div></section>
       <section className="palmas-sky-plan palmas-loft-cta" id="condicoes" aria-labelledby="palmas-loft-cta-title"><div className="palmas-sky-container palmas-loft-cta-inner"><div><p className="palmas-lake-kicker">Lake Loft · entrega 2029</p><h2 id="palmas-loft-cta-title">Quer entender se o loft combina com o seu plano?</h2><p>Receba plantas, disponibilidade e condições atualizadas para moradia ou investimento.</p></div><a className="palmas-lake-button palmas-lake-button--gold" href={whatsappHref} target="_blank" rel="noreferrer">Receber plantas e condições <ArrowUpRight size={17} /></a></div></section>
     </>}
     {isSky && <>
