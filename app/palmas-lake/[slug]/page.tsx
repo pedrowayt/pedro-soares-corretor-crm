@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, ArrowUpRight } from "lucide-react";
+import { PalmasLakePhotoGallery } from "@/components/public/palmas-lake-photo-gallery";
 import { getSiteUrl } from "@/lib/site-url";
 
 const items = {
@@ -186,13 +187,22 @@ const loftHighlights = [
 ] as const;
 
 const loftGallery = [
-  ["market", "Market de conveniência", "Praticidade para resolver o dia a dia sem sair da torre."],
-  ["laundry", "Laundry Express", "Lavanderia compartilhada para uma rotina mais leve — inclusive para hospedagens temporárias."],
-  ["hall", "Hall de recepção e convivência", "Um ambiente acolhedor para chegar, trabalhar, encontrar e permanecer."],
-] as const;
+  { src: "lake-loft-reception.jpg", title: "Recepção do Lake Loft", caption: "Um hall acolhedor para chegar e receber." },
+  { src: "lake-loft-rooftop-bar.jpg", title: "Rooftop gourmet", caption: "Gastronomia, convivência e vista para o lago." },
+  { src: "lake-loft-rooftop-gourmet.jpg", title: "Rooftop do Mall", caption: "Ambientes pensados para encontros e experiências." },
+  { src: "lake-loft-living-bedroom.jpg", title: "Loft com sala e dormitório", caption: "Integração entre estar, jantar e descanso." },
+  { src: "lake-loft-tipo-02-living.jpg", title: "Loft tipo 02 · sala", caption: "Interiores sugeridos para o Loft tipo 02." },
+  { src: "lake-loft-tipo-02-kitchen.jpg", title: "Loft tipo 02 · cozinha", caption: "Cozinha integrada à sala e à varanda." },
+  { src: "lake-loft-living.jpg", title: "Living do loft", caption: "Conforto e funcionalidade em cada ambiente." },
+  { src: "lake-loft-living-kitchen.jpg", title: "Sala e cozinha integradas", caption: "Uma planta compacta com espaços bem aproveitados." },
+  { src: "lake-loft-market.jpg", title: "Market de conveniência", caption: "Praticidade para resolver o dia a dia sem sair da torre." },
+  { src: "lake-loft-laundry.jpg", title: "Laundry Express", caption: "Lavanderia compartilhada para uma rotina mais leve." },
+  { src: "lake-loft-party-room.jpg", title: "Salão de festas", caption: "Um espaço para celebrar e estar perto de quem importa." },
+];
 
 const loftPlans = [
   ["lake-loft-5-pavimento.jpg", "Planta do 5º pavimento", "Lofts, salas comerciais e áreas de convivência no mesmo layout."],
+  ["lake-loft-tipo-01.jpg", "Loft tipo 01", "Apartamento com dois dormitórios, sala integrada, cozinha e varanda."],
   ["lake-loft-tipo-02.jpg", "Loft tipo 02", "Planta com dois dormitórios, sala integrada, cozinha e varanda."],
 ] as const;
 
@@ -310,7 +320,7 @@ export default async function PalmasLakeDevelopmentPage({ params }: { params: Pr
       <section className="palmas-sky-highlights palmas-loft-highlights" aria-label="Características do Lake Loft"><div className="palmas-sky-container palmas-sky-highlights-grid">{loftHighlights.map(([label, value]) => <div key={label}><span>{label}</span><strong>{value}</strong></div>)}</div></section>
       <section className="palmas-sky-story palmas-loft-story"><div className="palmas-sky-container palmas-sky-story-grid"><div><p className="palmas-lake-kicker">Lake Loft · torre multifuncional</p><h2>Um endereço que acompanha o seu momento.</h2></div><div><p>O Lake Loft combina a eficiência de uma unidade compacta com a estrutura de um destino completo. É uma solução para quem quer morar perto do lago, receber por temporada ou manter as duas possibilidades abertas.</p><p>Com entrega prevista para 2029, o projeto reúne moradia, hospedagem temporária e serviços em uma mesma experiência — com fácil acesso ao restante do Palmas Lake.</p></div></div></section>
       <section className="palmas-sky-plan palmas-loft-plans" id="plantas" aria-labelledby="palmas-loft-plans-title"><div className="palmas-sky-container"><div className="palmas-sky-section-heading"><p className="palmas-lake-kicker">Plantas e layout</p><h2 id="palmas-loft-plans-title">Escolha a configuração que faz sentido para você.</h2><p>Veja a distribuição do 5º pavimento e conheça uma das opções de planta do Loft.</p></div><div className="palmas-loft-plans-grid">{loftPlans.map(([src, title, text]) => <figure className="palmas-loft-plan-card" key={src}><div><Image src={`/brand/palmas-lake/${src}`} alt={title} fill sizes="(max-width: 700px) 100vw, 50vw" unoptimized /></div><figcaption><strong>{title}</strong><span>{text}</span></figcaption></figure>)}</div></div></section>
-      <section className="palmas-sky-gallery palmas-loft-gallery" aria-labelledby="palmas-loft-gallery-title"><div className="palmas-sky-container"><div className="palmas-sky-section-heading"><p className="palmas-lake-kicker">Serviços da torre</p><h2 id="palmas-loft-gallery-title">Tudo o que deixa a rotina mais simples.</h2><p>As áreas comuns foram pensadas para dar autonomia, conveniência e uma experiência mais completa para moradores e hóspedes.</p></div><div className="palmas-loft-gallery-grid">{loftGallery.map(([position, title, text]) => <figure className={`palmas-loft-gallery-card palmas-loft-gallery-card--${position}`} key={position}><div><Image src="/brand/palmas-lake/loft.jpg" alt={title} fill sizes="(max-width: 700px) 100vw, 33vw" /></div><figcaption><strong>{title}</strong><span>{text}</span></figcaption></figure>)}</div></div></section>
+      <section className="palmas-sky-gallery palmas-loft-gallery" aria-labelledby="palmas-loft-gallery-title"><div className="palmas-sky-container"><div className="palmas-sky-section-heading"><p className="palmas-lake-kicker">Galeria do Lake Loft</p><h2 id="palmas-loft-gallery-title">Ambientes pensados para viver e receber.</h2><p>Clique em qualquer imagem para abrir a foto em tamanho ampliado.</p></div><PalmasLakePhotoGallery items={loftGallery.map((item) => ({ ...item, src: `/brand/palmas-lake/${item.src}` }))} /></div></section>
       <section className="palmas-sky-leisure palmas-loft-leisure"><div className="palmas-sky-container palmas-sky-leisure-grid"><div><p className="palmas-lake-kicker">Lazer da torre</p><h2>Estrutura para viver, receber e investir.</h2><p className="palmas-loft-leisure-intro">Uma seleção de ambientes que amplia o valor de uso do loft e torna a operação mais prática para quem busca renda por hospedagem.</p></div><div className="palmas-sky-leisure-list">{loftLeisure.map((feature, index) => <div key={feature}><span>{String(index + 1).padStart(2, "0")}</span><strong>{feature}</strong></div>)}</div></div></section>
       <section className="palmas-sky-plan palmas-loft-cta" id="condicoes" aria-labelledby="palmas-loft-cta-title"><div className="palmas-sky-container palmas-loft-cta-inner"><div><p className="palmas-lake-kicker">Lake Loft · entrega 2029</p><h2 id="palmas-loft-cta-title">Quer entender se o loft combina com o seu plano?</h2><p>Receba plantas, disponibilidade e condições atualizadas para moradia ou investimento.</p></div><a className="palmas-lake-button palmas-lake-button--gold" href={whatsappHref} target="_blank" rel="noreferrer">Receber plantas e condições <ArrowUpRight size={17} /></a></div></section>
     </>}
