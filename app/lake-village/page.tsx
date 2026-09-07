@@ -126,6 +126,48 @@ export default function LakeVillagePage() {
         </div>
       </section>
 
+      <section className="lake-section lake-gallery-section">
+        <div className="container">
+          <div className="lake-gallery-heading">
+            <div>
+              <p className="lake-kicker lake-kicker--dark">Um convite para viver bem</p>
+              <h2>Um endereço que começa pela experiência.</h2>
+            </div>
+            <p>Conheça alguns dos cenários que traduzem a proposta do Lake Village Residences.</p>
+          </div>
+          <div className="lake-gallery-grid">
+            <figure className="lake-gallery-card lake-gallery-card--marina">
+              <div className="lake-gallery-image">
+                <Image
+                  src="/brand/lake-village/lake-marina.jpg"
+                  alt="Marina do Lake Village ao pôr do sol"
+                  fill
+                  sizes="(max-width: 860px) 100vw, 62vw"
+                />
+              </div>
+              <figcaption>
+                <span>Vida à beira do lago</span>
+                <strong>Praia, píer e momentos para desacelerar.</strong>
+              </figcaption>
+            </figure>
+            <figure className="lake-gallery-card lake-gallery-card--entrance">
+              <div className="lake-gallery-image">
+                <Image
+                  src="/brand/lake-village/entrance.jpg"
+                  alt="Entrada do condomínio Lake Village Residences"
+                  fill
+                  sizes="(max-width: 860px) 100vw, 38vw"
+                />
+              </div>
+              <figcaption>
+                <span>Chegar também faz parte</span>
+                <strong>Um acesso pensado para receber você.</strong>
+              </figcaption>
+            </figure>
+          </div>
+        </div>
+      </section>
+
       <section id="localizacao" className="lake-section lake-location lake-location--map">
         <div className="lake-location-copy">
           <p className="lake-kicker lake-kicker--dark"><MapPin size={15} /> Luzimangues · Palmas/TO</p>
