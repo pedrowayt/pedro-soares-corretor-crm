@@ -19939,6 +19939,13 @@ body:has(.crm-shell) > main {
 .palmas-sky-status--sold { background: rgba(13,23,27,.1); color: var(--pl-muted, #738087); }
 .palmas-sky-status--consult { background: rgba(202,166,109,.18); color: #8d6a32; }
 .palmas-sky-status--selected { background: rgba(67,95,125,.13); color: #3e5f82; }
+.palmas-loft-units-disclosure { border-top: 1px solid rgba(13,23,27,.18); }
+.palmas-loft-units-disclosure summary { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 19px 0; color: var(--pl-ink, #0d171b); cursor: pointer; font-size: .78rem; font-weight: 700; letter-spacing: .08em; list-style: none; text-transform: uppercase; }
+.palmas-loft-units-disclosure summary::-webkit-details-marker { display: none; }
+.palmas-loft-units-disclosure summary::after { display: inline-grid; width: 28px; height: 28px; flex: 0 0 auto; place-items: center; border: 1px solid rgba(13,23,27,.2); border-radius: 50%; color: var(--pl-gold, #caa66d); content: "+"; font-size: 1.1rem; font-weight: 400; line-height: 1; }
+.palmas-loft-units-disclosure[open] summary::after { content: "−"; }
+.palmas-loft-units-disclosure-hint { color: var(--pl-muted, #738087); font-size: .6rem; font-weight: 500; letter-spacing: .08em; }
+.palmas-loft-units-disclosure .palmas-sky-table-wrap { border-top: 0; padding-bottom: 4px; }
 .palmas-lake-whatsapp-float { position: fixed; right: 24px; bottom: 24px; z-index: 30; display: inline-flex; align-items: center; gap: 11px; min-height: 68px; padding: 7px 14px 7px 7px; overflow: hidden; isolation: isolate; border: 1px solid rgba(255,255,255,.5); border-radius: 999px; background: linear-gradient(135deg, rgba(16,32,37,.78), rgba(16,32,37,.48) 56%, rgba(255,255,255,.18)); box-shadow: 0 18px 45px rgba(3,12,15,.24), inset 0 1px 0 rgba(255,255,255,.42); color: #fff; text-shadow: 0 1px 5px rgba(0,0,0,.25); backdrop-filter: blur(18px) saturate(135%); -webkit-backdrop-filter: blur(18px) saturate(135%); transition: transform .2s ease, border-color .2s ease, background .2s ease; }
 .palmas-lake-whatsapp-float::before { position: absolute; z-index: -1; top: -42px; left: 18%; width: 105px; height: 76px; border-radius: 50%; background: rgba(255,255,255,.22); content: ""; filter: blur(18px); }
 .palmas-lake-whatsapp-float:hover { border-color: rgba(234,215,181,.9); background: linear-gradient(135deg, rgba(16,32,37,.9), rgba(16,32,37,.6) 56%, rgba(255,255,255,.2)); color: #fff; transform: translateY(-3px); }
