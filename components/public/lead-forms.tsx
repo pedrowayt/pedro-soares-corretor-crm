@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { PROPERTY_TYPE_OPTIONS } from "@/lib/property-types";
+import { getPublicAttribution } from "@/lib/attribution";
 
 type FormStatus = {
   type: "idle" | "success" | "error";
@@ -53,6 +54,7 @@ export function PropertyInterestForm({
             message: formData.get("message"),
             propertySlug,
             sourcePage: window.location.pathname,
+            attribution: getPublicAttribution(),
             lgpdConsent: true
           });
           setStatus({ type: "success", message: "Recebemos seu interesse. Retorno em breve." });
@@ -119,6 +121,7 @@ export function SellerCaptureForm() {
             statusDescription: formData.get("statusDescription"),
             photos: [],
             sourcePage: window.location.pathname,
+            attribution: getPublicAttribution(),
             lgpdConsent: true
           });
           setStatus({ type: "success", message: "Cadastro recebido. Vamos avaliar seu imóvel." });

@@ -33,6 +33,21 @@ export const metadata: Metadata = {
   }
 };
 
+const realEstateAgentSchema = {
+  "@context": "https://schema.org",
+  "@type": "RealEstateAgent",
+  name: "Pedro Soares",
+  url: baseUrl,
+  telephone: "+55 63 98484-5101",
+  areaServed: {
+    "@type": "City",
+    name: "Palmas",
+    containedInPlace: { "@type": "State", name: "Tocantins" }
+  },
+  knowsAbout: ["Imóveis em Palmas", "Lançamentos imobiliários", "Investimento imobiliário", "Leilões imobiliários"],
+  sameAs: ["https://www.instagram.com/pedrosoarespmw/"]
+};
+
 type SearchMode = "geral" | "leilao";
 
 type HomePropertyCard = {
@@ -351,13 +366,14 @@ export default async function HomePage({
 
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(realEstateAgentSchema) }} />
       <section className="wp-hero">
         <div className="container wp-hero-shell">
           <div className="wp-hero-content">
             <p className="wp-hero-eyebrow">Pedro Soares <span>•</span> Especialista em imóveis em Palmas</p>
-            <h1>O lugar certo muda tudo.</h1>
+            <h1>Corretor de imóveis em Palmas TO.</h1>
             <p className="wp-hero-lede">
-              Encontre imóveis, lançamentos e oportunidades com uma curadoria mais clara para morar, investir ou começar um novo capítulo.
+              O lugar certo muda tudo. Encontre imóveis, lançamentos e oportunidades com uma curadoria mais clara para morar, investir ou começar um novo capítulo.
             </p>
             <div className="wp-hero-proof" aria-label="Diferenciais do atendimento">
               <span>Curadoria local</span>

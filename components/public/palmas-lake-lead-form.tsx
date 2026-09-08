@@ -4,6 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import { ArrowRight, CheckCircle2, Send } from "lucide-react";
 import { buildWhatsAppUrl } from "@/lib/integrations/whatsapp-links";
+import { getPublicAttribution } from "@/lib/attribution";
 
 type Status = {
   type: "idle" | "success" | "error";
@@ -36,6 +37,7 @@ export function PalmasLakeLeadForm() {
           developmentSlug: "palmas-lake",
           landingPageSlug: "palmas-lake",
           sourcePage: window.location.pathname,
+          attribution: getPublicAttribution(),
           message: `Interesse no Palmas Lake. Perfil: ${interest}. Quero receber a apresentação, as tipologias, áreas comuns e condições disponíveis.`,
           lgpdConsent: data.get("lgpdConsent") === "on"
         })

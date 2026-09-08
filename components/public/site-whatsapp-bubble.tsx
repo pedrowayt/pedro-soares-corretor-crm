@@ -4,6 +4,7 @@ import Image from "next/image";
 import { MessageCircle, Sparkles } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { buildWhatsAppUrl } from "@/lib/integrations/whatsapp-links";
+import { getPublicAttribution } from "@/lib/attribution";
 
 function getWhatsappMessage(pathname: string) {
   if (pathname === "/gestao-exclusiva") {
@@ -54,7 +55,9 @@ export function SiteWhatsAppBubble() {
       keepalive: true,
       body: JSON.stringify({
         messageTemplate: whatsappMessage,
-        sourcePage: pathname
+        sourcePage: pathname,
+        ...(pathname.startsWith("/palmas-lake") ? { landingPageSlug: "palmas-lake" } : {}),
+        attribution: getPublicAttribution()
       })
     }).catch(() => undefined);
   }

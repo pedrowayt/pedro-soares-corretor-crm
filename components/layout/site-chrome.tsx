@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import { SiteWhatsAppBubble } from "@/components/public/site-whatsapp-bubble";
+import { AttributionCapture } from "@/components/public/attribution-capture";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 
@@ -24,6 +25,7 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
 
   return (
     <>
+      {!isInternalArea ? <AttributionCapture /> : null}
       {isStandaloneLanding ? null : <SiteHeader />}
       <main className={isStandaloneLanding ? "site-main--landing" : undefined}>{children}</main>
       {isStandaloneLanding ? null : <SiteFooter />}

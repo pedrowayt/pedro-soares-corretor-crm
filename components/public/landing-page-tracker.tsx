@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { attributionEventMetadata, getPublicAttribution } from "@/lib/attribution";
 
 type Props = {
   landingPageSlug: string;
@@ -19,6 +20,7 @@ export function LandingPageTracker({ landingPageSlug }: Props) {
     }
     window.sessionStorage.setItem(viewKey, "1");
 
+    const attribution = getPublicAttribution();
     const entryPoint = new URLSearchParams(window.location.search).get("entrada");
 
     void fetch("/api/public/landing-page-events", {
@@ -29,7 +31,14 @@ export function LandingPageTracker({ landingPageSlug }: Props) {
         sourcePage: window.location.pathname,
         type: "PAGE_VIEW",
         sessionId,
-        ...(entryPoint ? { metadata: { entryPoint } } : {})
+        ...(entryPoint || attribution
+          ? {
+              metadata: {
+                ...(entryPoint ? { entryPoint } : {}),
+                ...attributionEventMetadata(attribution)
+              }
+            }
+          : {})
       }),
       keepalive: true
     }).catch(() => undefined);

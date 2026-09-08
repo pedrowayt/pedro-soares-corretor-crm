@@ -391,6 +391,7 @@ model Lead {
   desiredDistrict       String?
   notes                 String?
   sourcePage            String?
+  attribution           Json?
   lastContactAt         DateTime?
   lgpdConsentAt         DateTime?
   developmentLeadStatus DevelopmentLeadStatus @default(NOVO)

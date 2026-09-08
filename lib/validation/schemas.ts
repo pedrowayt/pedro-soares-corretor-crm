@@ -36,6 +36,7 @@ export const publicPropertyInterestSchema = z.object({
   propertySlug: z.string().optional(),
   sourcePage: z.string().trim().max(500).optional(),
   landingPageSlug: z.string().trim().max(160).optional(),
+  attribution: z.record(z.string(), z.unknown()).optional(),
   lgpdConsent: z.boolean().optional().default(true)
 });
 
@@ -50,6 +51,7 @@ export const publicSellerCaptureSchema = z.object({
   photos: z.array(z.string().url()).optional(),
   sourcePage: z.string().trim().max(500).optional(),
   landingPageSlug: z.string().trim().max(160).optional(),
+  attribution: z.record(z.string(), z.unknown()).optional(),
   lgpdConsent: z.boolean().optional().default(true)
 });
 
@@ -68,6 +70,7 @@ export const publicWhatsappClickSchema = z.object({
   messageTemplate: z.string().optional(),
   sourcePage: z.string().trim().max(500).optional(),
   landingPageSlug: z.string().trim().max(160).optional(),
+  attribution: z.record(z.string(), z.unknown()).optional(),
   context: z.enum(["development", "unit_type", "schedule"]).optional()
 });
 
@@ -85,6 +88,7 @@ export const publicDevelopmentInterestSchema = z.object({
   requestTable: z.boolean().optional().default(false),
   sourcePage: z.string().trim().max(500).optional(),
   landingPageSlug: z.string().trim().max(160).optional(),
+  attribution: z.record(z.string(), z.unknown()).optional(),
   lgpdConsent: z.boolean().optional().default(true)
 });
 

@@ -9,6 +9,7 @@ import { fail, ok } from "@/lib/api/http";
 import { prisma } from "@/lib/prisma";
 import { publicWhatsappClickSchema } from "@/lib/validation/schemas";
 import { ensureLandingPageTask, recordLandingPageEvent, resolveLandingPage } from "@/lib/data/marketing-landing-pages";
+import { attributionEventMetadata, mergeAttribution } from "@/lib/attribution";
 
 export async function POST(request: Request) {
   const body = await request.json();
@@ -33,6 +34,7 @@ export async function POST(request: Request) {
     messageTemplate,
     sourcePage,
     landingPageSlug,
+    attribution: submittedAttribution,
     context
   } = parsed.data;
 
@@ -41,9 +43,10 @@ export async function POST(request: Request) {
   const existingWhatsappLead = whatsappLeadId
     ? await prisma.lead.findUnique({
         where: { id: whatsappLeadId },
-        select: { landingPageId: true, sourcePage: true }
+        select: { landingPageId: true, sourcePage: true, attribution: true }
       })
     : null;
+  const attribution = mergeAttribution(existingWhatsappLead?.attribution, submittedAttribution);
 
   const property = propertyId
     ? await prisma.property.findUnique({ where: { id: propertyId } })
@@ -87,6 +90,7 @@ export async function POST(request: Request) {
           linkedDevelopmentUnitId: unit?.id,
           landingPageId: existingWhatsappLead?.landingPageId ?? landingPage?.id,
           sourcePage: existingWhatsappLead?.sourcePage ?? sourcePage,
+          attribution,
           email: leadEmail || undefined,
           developmentLeadStatus:
             context === "schedule"
@@ -106,6 +110,7 @@ export async function POST(request: Request) {
           linkedDevelopmentUnitId: unit?.id,
           landingPageId: landingPage?.id,
           sourcePage: sourcePage || undefined,
+          attribution,
           developmentLeadStatus:
             context === "schedule"
               ? DevelopmentLeadStatus.AGENDOU_APRESENTACAO
@@ -136,15 +141,20 @@ export async function POST(request: Request) {
           unitTypeId,
           unitTypeName: unitType?.name ?? unitTypeName,
           unitId,
-          unitLabel: unit?.label ?? unitLabel
+          unitLabel: unit?.label ?? unitLabel,
+          ...attributionEventMetadata(attribution)
         }
       }
     });
 
-    if (landingPage) {
-      await ensureLandingPageTask(lead.id, landingPage.name);
-      await recordLandingPageEvent(landingPage.id, "WHATSAPP_CLICK", { context: context ?? "default" });
-    }
+    if (landingPage) await ensureLandingPageTask(lead.id, landingPage.name);
+  }
+
+  if (landingPage) {
+    await recordLandingPageEvent(landingPage.id, "WHATSAPP_CLICK", {
+      context: context ?? "default",
+      ...attributionEventMetadata(attribution)
+    });
   }
 
   return ok({

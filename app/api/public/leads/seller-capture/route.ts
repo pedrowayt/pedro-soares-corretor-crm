@@ -4,6 +4,7 @@ import { slugify } from "@/lib/crm/slug";
 import { prisma } from "@/lib/prisma";
 import { publicSellerCaptureSchema } from "@/lib/validation/schemas";
 import { ensureLandingPageTask, recordLandingPageEvent, resolveLandingPage } from "@/lib/data/marketing-landing-pages";
+import { attributionEventMetadata, mergeAttribution } from "@/lib/attribution";
 
 export async function POST(request: Request) {
   const body = await request.json();
@@ -13,7 +14,7 @@ export async function POST(request: Request) {
     return fail("Payload inválido para captação de proprietário.", 422, parsed.error.flatten());
   }
 
-  const { name, whatsapp, propertyType, district, city, askingPrice, statusDescription, photos, sourcePage, landingPageSlug, lgpdConsent } = parsed.data;
+  const { name, whatsapp, propertyType, district, city, askingPrice, statusDescription, photos, sourcePage, landingPageSlug, attribution: submittedAttribution, lgpdConsent } = parsed.data;
 
   const landingPage = await resolveLandingPage({ slug: landingPageSlug, publicPath: sourcePage });
 
@@ -67,6 +68,7 @@ export async function POST(request: Request) {
       linkedOwnerId: owner.id,
       linkedPropertyId: property.id,
       sourcePage: sourcePage || undefined,
+      attribution: mergeAttribution(undefined, submittedAttribution),
       desiredCity: city,
       desiredDistrict: district,
       notes: statusDescription,
@@ -76,7 +78,7 @@ export async function POST(request: Request) {
 
   if (landingPage) {
     await ensureLandingPageTask(lead.id, landingPage.name);
-    await recordLandingPageEvent(landingPage.id, "FORM_SUBMISSION");
+    await recordLandingPageEvent(landingPage.id, "FORM_SUBMISSION", attributionEventMetadata(submittedAttribution));
   }
 
   return ok({ leadId: lead.id, propertyId: property.id, ownerId: owner.id }, { status: 201 });

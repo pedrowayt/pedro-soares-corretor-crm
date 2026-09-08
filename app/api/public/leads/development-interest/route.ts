@@ -11,6 +11,7 @@ import { prisma } from "@/lib/prisma";
 import { publicDevelopmentInterestSchema } from "@/lib/validation/schemas";
 import { syncLakeVillageLeadToGoogleSheets } from "@/lib/integrations/google-sheets";
 import { ensureLandingPageTask, recordLandingPageEvent, resolveLandingPage } from "@/lib/data/marketing-landing-pages";
+import { attributionEventMetadata, mergeAttribution } from "@/lib/attribution";
 
 export async function POST(request: Request) {
   const body = await request.json();
@@ -34,6 +35,7 @@ export async function POST(request: Request) {
     requestTable,
     sourcePage,
     landingPageSlug,
+    attribution: submittedAttribution,
     lgpdConsent
   } = parsed.data;
 
@@ -68,6 +70,7 @@ export async function POST(request: Request) {
     where: { phone: whatsapp },
     orderBy: { createdAt: "desc" }
   });
+  const attribution = mergeAttribution(existingLead?.attribution, submittedAttribution);
 
   const note = [
     existingLead?.notes,
@@ -91,6 +94,7 @@ export async function POST(request: Request) {
           linkedDevelopmentUnitId: unit?.id ?? existingLead.linkedDevelopmentUnitId,
           landingPageId: existingLead.landingPageId ?? landingPage?.id,
           sourcePage: existingLead.sourcePage ?? sourcePage,
+          attribution,
           developmentLeadStatus: requestTable
             ? DevelopmentLeadStatus.RECEBEU_TABELA
             : existingLead.developmentLeadStatus,
@@ -111,6 +115,7 @@ export async function POST(request: Request) {
           linkedDevelopmentUnitId: unit?.id ?? undefined,
           landingPageId: landingPage?.id ?? undefined,
           sourcePage: sourcePage || undefined,
+          attribution,
           developmentLeadStatus: requestTable
             ? DevelopmentLeadStatus.RECEBEU_TABELA
             : DevelopmentLeadStatus.NOVO,
@@ -135,14 +140,15 @@ export async function POST(request: Request) {
         unitTypeName: unitType?.name,
         unitId,
         unitLabel: unit?.label,
-        requestTable
+        requestTable,
+        ...attributionEventMetadata(attribution)
       }
     }
   });
 
   if (landingPage) {
     await ensureLandingPageTask(lead.id, landingPage.name);
-    await recordLandingPageEvent(landingPage.id, "FORM_SUBMISSION");
+    await recordLandingPageEvent(landingPage.id, "FORM_SUBMISSION", attributionEventMetadata(attribution));
   }
 
   const sheetSync = developmentSlug === "lake-village-residences"
