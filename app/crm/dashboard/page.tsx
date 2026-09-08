@@ -7,6 +7,7 @@ import {
   CheckCircle2,
   FileText,
   Flame,
+  Globe2,
   Home,
   Plus,
   Receipt,
@@ -24,6 +25,7 @@ import { formatCurrencyBRL } from "@/lib/utils";
 type ProgressCard = SaasDashboardSnapshot["progressCards"][number];
 type MonthlyPoint = SaasDashboardSnapshot["charts"]["monthly"][number];
 type BarPoint = { label: string; count: number; percent: number };
+type SiteTraffic = SaasDashboardSnapshot["siteTraffic"];
 
 const DASHBOARD_TIME_ZONE = "America/Araguaina";
 
@@ -205,6 +207,89 @@ function BarList({ data, emptyLabel }: { data: BarPoint[]; emptyLabel: string })
   );
 }
 
+function SiteTrafficChart({ data }: { data: SiteTraffic["daily"] }) {
+  if (data.length === 0) return <p className="crm-panel__empty">Ainda não há visitas registradas.</p>;
+
+  const width = 720;
+  const height = 182;
+  const chartHeight = 116;
+  const max = Math.max(...data.map((item) => item.pageViews), 1);
+  const slot = width / data.length;
+  const barWidth = Math.max(4, Math.min(18, slot * 0.58));
+
+  return (
+    <svg
+      viewBox={`0 0 ${width} ${height}`}
+      className="crm-saas-traffic-chart"
+      role="img"
+      aria-label="Visitas ao site nos últimos 28 dias"
+    >
+      {[0, 1, 2, 3].map((line) => {
+        const y = 14 + (chartHeight / 3) * line;
+        return <line key={line} x1="0" x2={width} y1={y} y2={y} className="grid-line" />;
+      })}
+      {data.map((item, index) => {
+        const x = index * slot + (slot - barWidth) / 2;
+        const barHeight = (item.pageViews / max) * chartHeight;
+        const y = 14 + chartHeight - barHeight;
+        return (
+          <g key={item.label}>
+            <rect x={x} y={y} width={barWidth} height={Math.max(barHeight, item.pageViews ? 3 : 0)} rx="4" className="bar-pageviews">
+              <title>{`${item.label}: ${item.pageViews} páginas vistas · ${item.sessions} sessões`}</title>
+            </rect>
+            {index % 4 === 0 || index === data.length - 1 ? (
+              <text x={index * slot + slot / 2} y={height - 12} textAnchor="middle">
+                {item.label}
+              </text>
+            ) : null}
+          </g>
+        );
+      })}
+    </svg>
+  );
+}
+
+function SiteTrafficPanel({ traffic }: { traffic: SiteTraffic }) {
+  const { totals } = traffic;
+  return (
+    <section className="crm-saas-panel crm-saas-panel--wide crm-saas-site-traffic">
+      <header className="crm-saas-panel__head">
+        <div>
+          <h2>
+            <Globe2 size={17} strokeWidth={1.8} aria-hidden="true" /> Tráfego do site
+          </h2>
+          <p>Acessos e conversões dos últimos {traffic.periodDays} dias.</p>
+        </div>
+        <span className="crm-saas-site-traffic__status">Com consentimento analítico</span>
+      </header>
+
+      <div className="crm-saas-site-traffic__metrics">
+        <div><span>Hoje</span><strong>{totals.todayPageViews}</strong><small>páginas vistas</small></div>
+        <div><span>28 dias</span><strong>{totals.periodPageViews}</strong><small>páginas vistas</small></div>
+        <div><span>Sessões</span><strong>{totals.periodSessions}</strong><small>visitas anônimas</small></div>
+        <div><span>Conversão</span><strong>{totals.periodLeads}</strong><small>leads · {totals.conversionRate}% das sessões</small></div>
+      </div>
+
+      <SiteTrafficChart data={traffic.daily} />
+
+      <div className="crm-saas-site-traffic__breakdown">
+        <div>
+          <h3>Páginas mais acessadas</h3>
+          <BarList data={traffic.topPages} emptyLabel="Ainda não há páginas registradas." />
+        </div>
+        <div>
+          <h3>Origem dos acessos</h3>
+          <BarList data={traffic.sources} emptyLabel="Ainda não há origens registradas." />
+        </div>
+      </div>
+
+      <p className="crm-saas-site-traffic__note">
+        Os números respeitam o consentimento de analytics. A agenda lateral continua mostrando visitas comerciais agendadas.
+      </p>
+    </section>
+  );
+}
+
 function FunnelChart({ data }: { data: SaasDashboardSnapshot["charts"]["funnel"] }) {
   const max = Math.max(...data.map((item) => item.count), 1);
   return (
@@ -309,7 +394,7 @@ function VisitInsightCard({ snapshot }: { snapshot: SaasDashboardSnapshot }) {
     <section className="crm-saas-side-card crm-saas-visit-response">
       <header className="crm-saas-side-card__head">
         <h2>
-          <CalendarCheck size={17} strokeWidth={1.8} aria-hidden="true" /> Visitas
+          <CalendarCheck size={17} strokeWidth={1.8} aria-hidden="true" /> Visitas agendadas
         </h2>
         <Link href="/crm/visitas">Gerenciar</Link>
       </header>
@@ -423,6 +508,8 @@ export default async function CrmDashboardPage() {
           <ProgressCardTile key={card.id} card={card} />
         ))}
       </section>
+
+      <SiteTrafficPanel traffic={snapshot.siteTraffic} />
 
       <div className="crm-saas-layout">
         <main className="crm-saas-main">

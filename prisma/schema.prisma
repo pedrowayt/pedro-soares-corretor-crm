@@ -470,6 +470,26 @@ model LandingPageEvent {
   @@index([landingPageId, createdAt])
 }
 
+model SiteVisit {
+  id        String   @id @default(cuid())
+  sessionId String
+  path      String
+  referrer  String?
+  source    String?
+  medium    String?
+  campaign  String?
+  content   String?
+  term      String?
+  gclid     String?
+  title     String?
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([path, createdAt])
+  @@index([sessionId, createdAt])
+  @@index([source, medium, createdAt])
+}
+
 model LeadInteraction {
   id        String             @id @default(cuid())
   leadId    String

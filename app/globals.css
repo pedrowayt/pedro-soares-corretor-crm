@@ -18667,6 +18667,103 @@ body:has(.crm-shell) > main {
   grid-column: 1 / -1;
 }
 
+.crm-saas-site-traffic {
+  gap: 16px;
+  border-color: rgba(14, 165, 233, 0.22);
+  background:
+    linear-gradient(135deg, rgba(14, 165, 233, 0.06), transparent 45%),
+    var(--surface);
+}
+
+.crm-saas-site-traffic__status {
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.crm-saas-site-traffic__metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.crm-saas-site-traffic__metrics > div {
+  display: grid;
+  gap: 3px;
+  min-height: 76px;
+  padding: 11px 12px;
+  border: 1px solid var(--border);
+  border-radius: 13px;
+  background: var(--surface-soft);
+}
+
+.crm-saas-site-traffic__metrics span,
+.crm-saas-site-traffic__metrics small {
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  font-weight: 800;
+}
+
+.crm-saas-site-traffic__metrics strong {
+  color: var(--text-strong);
+  font-size: 1.25rem;
+  font-weight: 900;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.crm-saas-traffic-chart {
+  width: 100%;
+  height: auto;
+  min-height: 156px;
+  color: var(--text-muted);
+  overflow: visible;
+}
+
+.crm-saas-traffic-chart .grid-line {
+  stroke: currentColor;
+  opacity: 0.12;
+}
+
+.crm-saas-traffic-chart .bar-pageviews {
+  fill: var(--sophistication-gold-500);
+  opacity: 0.82;
+  transition: opacity 0.15s ease;
+}
+
+.crm-saas-traffic-chart .bar-pageviews:hover {
+  opacity: 1;
+}
+
+.crm-saas-traffic-chart text {
+  fill: currentColor;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.crm-saas-site-traffic__breakdown {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+}
+
+.crm-saas-site-traffic__breakdown h3 {
+  margin: 0 0 10px;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.crm-saas-site-traffic__note {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
 .crm-saas-panel__head,
 .crm-saas-side-card__head {
   display: flex;
@@ -19374,8 +19471,13 @@ body:has(.crm-shell) > main {
   .crm-saas-side,
   .crm-saas-property-list,
   .crm-profile-settings__grid,
-  .crm-saas-breakdown {
+  .crm-saas-breakdown,
+  .crm-saas-site-traffic__breakdown {
     grid-template-columns: 1fr;
+  }
+
+  .crm-saas-site-traffic__metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .crm-settings-page__head,

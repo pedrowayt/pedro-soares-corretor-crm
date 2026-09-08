@@ -100,6 +100,19 @@ export const publicLandingPageEventSchema = z.object({
   metadata: z.record(z.string(), z.string().trim().max(200)).optional()
 });
 
+export const publicSiteVisitSchema = z.object({
+  sessionId: z.string().trim().min(8).max(120),
+  path: z.string().trim().min(1).max(500),
+  referrer: z.string().trim().max(500).optional(),
+  source: z.string().trim().max(100).optional(),
+  medium: z.string().trim().max(100).optional(),
+  campaign: z.string().trim().max(200).optional(),
+  content: z.string().trim().max(200).optional(),
+  term: z.string().trim().max(200).optional(),
+  gclid: z.string().trim().max(200).optional(),
+  title: z.string().trim().max(300).optional()
+});
+
 export const crmCreateLeadSchema = z.object({
   name: z.string().min(2),
   phone: z.string().min(8),

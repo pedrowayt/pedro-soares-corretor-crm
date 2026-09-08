@@ -10,6 +10,7 @@ import {
 } from "@prisma/client";
 import { PIPELINE_ORDER } from "@/lib/crm/pipeline";
 import { prisma } from "@/lib/prisma";
+import { emptySiteTrafficSnapshot, getSiteTrafficSnapshot } from "@/lib/data/site-traffic";
 
 const hasDatabase = Boolean(process.env.DATABASE_URL);
 
@@ -227,7 +228,8 @@ export async function getSaasDashboardSnapshot(profile?: {
         thisMonth: 0,
         openValue: 0,
         acceptanceRate: 0
-      }
+      },
+      siteTraffic: emptySiteTrafficSnapshot()
     };
   }
 
@@ -262,7 +264,8 @@ export async function getSaasDashboardSnapshot(profile?: {
       proposalsThisMonth,
       acceptedProposalsThisMonth,
       refusedProposalsThisMonth,
-      openProposalValue
+      openProposalValue,
+      siteTraffic
     ] = await Promise.all([
       prisma.property.count(),
       prisma.property.count({ where: { status: PropertyStatus.DISPONIVEL } }),
@@ -400,7 +403,8 @@ export async function getSaasDashboardSnapshot(profile?: {
       prisma.proposal.aggregate({
         where: { status: { in: [ProposalStatus.ENVIADA, ProposalStatus.CONTRA_PROPOSTA] } },
         _sum: { offeredValue: true }
-      })
+      }),
+      getSiteTrafficSnapshot()
     ]);
 
     const pipelineValue = pipelineLeads.reduce((total, lead) => {
@@ -627,7 +631,8 @@ export async function getSaasDashboardSnapshot(profile?: {
         thisMonth: proposalsThisMonth,
         openValue: asMoney(openProposalValue._sum.offeredValue),
         acceptanceRate: proposalDecisionCount > 0 ? Math.round((acceptedProposalsThisMonth / proposalDecisionCount) * 100) : 0
-      }
+      },
+      siteTraffic
     };
   } catch {
     return {
@@ -672,7 +677,8 @@ export async function getSaasDashboardSnapshot(profile?: {
         thisMonth: 0,
         openValue: 0,
         acceptanceRate: 0
-      }
+      },
+      siteTraffic: emptySiteTrafficSnapshot()
     };
   }
 }
