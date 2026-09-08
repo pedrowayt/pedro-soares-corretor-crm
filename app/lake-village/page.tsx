@@ -26,13 +26,49 @@ export const metadata: Metadata = {
   }
 };
 
-const amenities = [
-  { icon: Waves, title: "Praia e píer", text: "Morar perto da praia é ter um pôr do sol só seu, todos os dias." },
-  { icon: Dumbbell, title: "Esporte e bem-estar", text: "Academia, beach tennis, yoga e espaços para viver no seu ritmo." },
-  { icon: Heart, title: "Convivência", text: "Ambientes pensados para receber, celebrar e estar perto de quem importa." },
-  { icon: ShieldCheck, title: "Segurança", text: "Segurança e conforto para a sua família em um ambiente reservado." },
-  { icon: Building2, title: "Comodidade", text: "Mais praticidade para a rotina, com serviços e espaços a poucos passos de casa." },
-  { icon: Waves, title: "Natureza", text: "Um projeto pensado para integrar arquitetura, paisagem e qualidade de vida." }
+const amenityGroups = [
+  {
+    icon: Waves,
+    eyebrow: "O lago como quintal",
+    title: "Dias que começam e terminam diante da água.",
+    text: "A paisagem deixa de ser cenário e passa a fazer parte da rotina, com espaços para contemplar, caminhar, pedalar e aproveitar cada pôr do sol.",
+    items: ["Praia", "Píer", "Orla", "Ciclovia", "Pista de caminhada", "Áreas verdes e paisagismo"]
+  },
+  {
+    icon: Dumbbell,
+    eyebrow: "Bem-estar",
+    title: "Seu ritmo. Seu espaço. Seu jeito de viver.",
+    text: "Do treino com vista para o lago ao momento de pausa, uma estrutura pensada para cuidar do corpo, da mente e da qualidade dos seus dias.",
+    items: ["SPA", "Academia com vista para o lago", "Piscina adulta", "Espaço para yoga e meditação"]
+  },
+  {
+    icon: Heart,
+    eyebrow: "Encontros",
+    title: "A melhor parte da vida acontece quando a gente compartilha.",
+    text: "Ambientes para receber os amigos, celebrar em família ou simplesmente encontrar um lugar gostoso para estar — sem precisar sair de casa.",
+    items: ["Parrilla e churrasqueiras", "Salão de jogos", "Rooftop", "Pool House", "Área de convivência aberta", "Área de convivência coberta"]
+  },
+  {
+    icon: Building2,
+    eyebrow: "Família e esporte",
+    title: "Liberdade para cada fase da família.",
+    text: "As crianças têm espaço para brincar, os adultos têm espaço para se movimentar e todos encontram novas formas de viver o condomínio juntos.",
+    items: ["Espaço Kids", "Playground", "Complexo esportivo", "Beach Tennis", "Espaço para pets"]
+  },
+  {
+    icon: ShieldCheck,
+    eyebrow: "Conforto e confiança",
+    title: "A tranquilidade de saber que tudo foi pensado.",
+    text: "Um endereço reservado, com segurança e soluções que aproximam conforto, praticidade e uma visão mais inteligente para o futuro.",
+    items: ["Segurança", "Estrutura para carregamento de veículos elétricos"]
+  },
+  {
+    icon: Building2,
+    eyebrow: "Conveniência",
+    title: "Mais tempo para o que realmente importa.",
+    text: "Com serviços, conveniência e uma proposta de educação por perto, a vida ganha fluidez e o condomínio se torna um destino completo.",
+    items: ["Malls / área de conveniência", "School / espaço relacionado à educação"]
+  }
 ];
 
 export default function LakeVillagePage() {
@@ -107,21 +143,29 @@ export default function LakeVillagePage() {
         </div>
       </section>
 
-      <section className="lake-section lake-section--deep">
+      <section id="estrutura" className="lake-section lake-section--deep">
         <div className="container">
           <div className="lake-section-heading">
-            <p className="lake-kicker">A experiência Lake Village</p>
-            <h2>Um condomínio onde desacelerar também faz parte da rotina.</h2>
-            <p>Arquitetura, paisagem e qualidade de vida em um endereço pensado para um novo capítulo.</p>
+            <p className="lake-kicker">Estrutura e lazer do Lake Village</p>
+            <h2>Um condomínio completo para viver o extraordinário todos os dias.</h2>
+            <p>Do primeiro café ao último mergulho, tudo foi pensado para transformar a rotina em uma experiência leve, segura e cheia de possibilidades.</p>
           </div>
-          <div className="lake-amenities-grid">
-            {amenities.map(({ icon: Icon, title, text }) => (
+          <div className="lake-amenities-grid" aria-label="Estrutura e lazer previstos para o Lake Village">
+            {amenityGroups.map(({ icon: Icon, eyebrow, title, text, items }) => (
               <article className="lake-amenity-card" key={title}>
                 <Icon size={23} strokeWidth={1.5} />
+                <p className="lake-amenity-eyebrow">{eyebrow}</p>
                 <h3>{title}</h3>
                 <p>{text}</p>
+                <ul className="lake-amenity-list">
+                  {items.map((item) => <li key={item}>{item}</li>)}
+                </ul>
               </article>
             ))}
+          </div>
+          <div className="lake-amenities-cta">
+            <p>Um novo endereço para morar, investir e aproveitar a vida com mais presença.</p>
+            <a className="lake-text-link lake-text-link--light" href="#cadastro">Quero receber a apresentação completa <ArrowRight size={16} /></a>
           </div>
         </div>
       </section>
