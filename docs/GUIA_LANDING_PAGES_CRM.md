@@ -2,6 +2,8 @@
 
 Este documento deve ser consultado pelo Codex sempre que uma nova landing page for criada para o site Pedro Soares Corretor.
 
+Para a parte de tráfego, consentimento, atribuição e conferência no dashboard, seguir também o checklist obrigatório em [`docs/GUIA_LANDING_PAGES_TRAFEGO_SITE.md`](./GUIA_LANDING_PAGES_TRAFEGO_SITE.md).
+
 ## Regra principal
 
 As landing pages são criadas e publicadas exclusivamente pelo Codex. O CRM não é um editor visual dessas páginas.
