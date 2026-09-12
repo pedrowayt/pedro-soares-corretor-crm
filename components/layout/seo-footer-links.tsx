@@ -53,6 +53,7 @@ const seoFooterLinkGroups: SeoFooterLinkGroup[] = [
     title: "Lançamentos e leilões",
     links: [
       { href: "/lancamentos", label: "Lançamentos em destaque" },
+      { href: "/loteamentos-palmas-to", label: "Loteamentos em Palmas" },
       { href: "/imoveis/leilao?city=Palmas&type=APARTAMENTO", label: "Apartamentos de leilão em Palmas" },
       { href: "/imoveis/leilao?city=Palmas&type=CASA", label: "Casas de leilão em Palmas" }
     ]

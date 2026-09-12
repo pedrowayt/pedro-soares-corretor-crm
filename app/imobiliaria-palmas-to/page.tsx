@@ -257,6 +257,11 @@ export default function ImobiliariaPalmasToPage() {
                 <Link href="/imoveis/na-planta" className="button button-ghost">Ver imóveis na planta</Link>
               </article>
               <article className="card" style={{ padding: 18 }}>
+                <h3 style={{ marginTop: 0 }}>Lotes e loteamentos</h3>
+                <p className="text-card">Um roteiro para analisar localização, infraestrutura, matrícula, financiamento e custos antes de comprar um lote.</p>
+                <Link href="/loteamentos-palmas-to" className="button button-ghost">Ler guia de loteamentos</Link>
+              </article>
+              <article className="card" style={{ padding: 18 }}>
                 <h3 style={{ marginTop: 0 }}>Leilões e investimento</h3>
                 <p className="text-card">Oportunidades que pedem leitura do edital, matrícula, ocupação, riscos e custo total antes do lance.</p>
                 <Link href="/imoveis/leilao" className="button button-ghost">Ver leilões</Link>

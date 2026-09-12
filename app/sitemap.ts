@@ -109,6 +109,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/lancamentos",
     "/imoveis/leilao",
     "/imobiliaria-palmas-to",
+    "/loteamentos-palmas-to",
     "/investidores",
     "/gestao-exclusiva",
     "/blog",
