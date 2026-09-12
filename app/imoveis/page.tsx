@@ -84,6 +84,9 @@ export default function ImoveisPage() {
             <Link href="/lancamentos" className="wp-type-chip">
               Lançamentos
             </Link>
+            <Link href="/imoveis/na-planta" className="wp-type-chip">
+              Imóveis na planta
+            </Link>
             <Link href="/imoveis/leilao" className="wp-type-chip">
               Imóveis leilão
             </Link>

@@ -10,6 +10,9 @@ function getWhatsappMessage(pathname: string) {
   if (pathname === "/gestao-exclusiva") {
     return "Olá, Pedro. Quero conversar sobre a Gestão Exclusiva para vender meu imóvel.";
   }
+  if (pathname === "/imoveis/na-planta") {
+    return "Olá, Pedro. Quero conhecer imóveis na planta, lançamentos e condomínios em Palmas/TO.";
+  }
   if (pathname.startsWith("/imoveis/")) {
     return "Olá, Pedro. Vi um imóvel no seu site e quero receber mais informações.";
   }
@@ -56,7 +59,7 @@ export function SiteWhatsAppBubble() {
       body: JSON.stringify({
         messageTemplate: whatsappMessage,
         sourcePage: pathname,
-        ...(pathname.startsWith("/palmas-lake") ? { landingPageSlug: "palmas-lake" } : {}),
+        ...(pathname.startsWith("/palmas-lake") ? { landingPageSlug: "palmas-lake" } : pathname === "/imoveis/na-planta" ? { landingPageSlug: "imoveis-na-planta" } : {}),
         attribution: getPublicAttribution()
       })
     }).catch(() => undefined);

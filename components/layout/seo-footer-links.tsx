@@ -15,6 +15,7 @@ const seoFooterLinkGroups: SeoFooterLinkGroup[] = [
       { href: "/imoveis", label: "Imóveis em Palmas TO" },
       { href: "/palmas-to/imoveis-prontos", label: "Imóveis prontos em Palmas" },
       { href: "/palmas-to/imoveis-leilao", label: "Imóveis de leilão em Palmas" },
+      { href: "/imoveis/na-planta", label: "Imóveis na planta em Palmas" },
       { href: "/lancamentos", label: "Lançamentos em destaque em Palmas" }
     ]
   },

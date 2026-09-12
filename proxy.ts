@@ -39,12 +39,6 @@ export async function proxy(request: NextRequest) {
   const canonical = canonicalRedirect(request);
   if (canonical) return canonical;
 
-  if (pathname === "/imoveis/na-planta" || pathname.startsWith("/imoveis/na-planta/")) {
-    const target = new URL("/lancamentos", request.url);
-    target.search = request.nextUrl.search;
-    return withSecurityHeaders(NextResponse.redirect(target, 301));
-  }
-
   if (pathname.startsWith("/crm") || pathname.startsWith("/api/crm")) {
     const sessionToken = await verifySessionCookie(request.cookies.get(CRM_SESSION_COOKIE)?.value);
 

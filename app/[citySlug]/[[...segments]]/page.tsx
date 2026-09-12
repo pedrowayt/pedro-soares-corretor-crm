@@ -206,7 +206,7 @@ export default async function SeoLandingPage({
   }
 
   if (path === "/palmas-to/imoveis-na-planta") {
-    redirect("/lancamentos");
+    redirect("/imoveis/na-planta");
   }
 
   const page = await getPublishedSeoLandingPageByPath(path);
