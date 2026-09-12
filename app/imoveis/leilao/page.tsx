@@ -9,7 +9,7 @@ const baseUrl = getSiteUrl();
 
 const typeOptions = PROPERTY_TYPE_OPTIONS;
 
-export const metadata: Metadata = {
+const baseMetadata: Metadata = {
   title: "Imóveis de leilão em Palmas TO | Oportunidades",
   description:
     "Encontre imóveis de leilão em Palmas TO com análise de oportunidade, bairro, valor e tipologia para decidir com mais segurança.",
@@ -24,6 +24,27 @@ export const metadata: Metadata = {
     canonical: `${baseUrl}/imoveis/leilao`
   }
 };
+
+type FilterSearchParams = Record<string, string | string[] | undefined>;
+
+function hasFilterQuery(searchParams: FilterSearchParams) {
+  return Object.values(searchParams).some((value) =>
+    Array.isArray(value) ? value.some((item) => Boolean(item)) : Boolean(value)
+  );
+}
+
+export async function generateMetadata({
+  searchParams
+}: {
+  searchParams: Promise<FilterSearchParams>;
+}): Promise<Metadata> {
+  const filters = await searchParams;
+
+  return {
+    ...baseMetadata,
+    robots: hasFilterQuery(filters) ? { index: false, follow: true } : undefined
+  };
+}
 
 function parseNumber(value: string | string[] | undefined) {
   if (typeof value !== "string" || value.trim() === "") return undefined;

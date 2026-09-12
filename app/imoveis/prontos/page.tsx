@@ -32,7 +32,7 @@ const sortOptions = [
 
 type SortValue = (typeof sortOptions)[number]["value"];
 
-export const metadata: Metadata = {
+const baseMetadata: Metadata = {
   title: "Imóveis prontos em Palmas TO | Casas e apartamentos",
   description:
     "Veja imóveis prontos em Palmas TO com filtros por bairro, valor, quartos e metragem. Atendimento direto com Pedro Soares.",
@@ -47,6 +47,27 @@ export const metadata: Metadata = {
     canonical: `${baseUrl}/imoveis/prontos`
   }
 };
+
+type FilterSearchParams = Record<string, string | string[] | undefined>;
+
+function hasFilterQuery(searchParams: FilterSearchParams) {
+  return Object.values(searchParams).some((value) =>
+    Array.isArray(value) ? value.some((item) => Boolean(item)) : Boolean(value)
+  );
+}
+
+export async function generateMetadata({
+  searchParams
+}: {
+  searchParams: Promise<FilterSearchParams>;
+}): Promise<Metadata> {
+  const filters = await searchParams;
+
+  return {
+    ...baseMetadata,
+    robots: hasFilterQuery(filters) ? { index: false, follow: true } : undefined
+  };
+}
 
 function parseNumber(value: string | string[] | undefined) {
   if (typeof value !== "string" || value.trim() === "") return undefined;

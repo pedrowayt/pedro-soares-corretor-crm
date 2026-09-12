@@ -353,22 +353,7 @@ export default async function PropertyDetailsPage({ params }: { params: Promise<
       addressCountry: "BR",
       postalCode: "77020-018",
       streetAddress: `${property.district} (região aproximada)`
-    },
-    aggregateRating: {
-      "@type": "AggregateRating",
-      ratingValue: aggregateRating.ratingValue,
-      reviewCount: aggregateRating.reviewCount
-    },
-    review: reviews.map((review) => ({
-      "@type": "Review",
-      author: { "@type": "Person", name: review.author },
-      reviewRating: {
-        "@type": "Rating",
-        ratingValue: review.rating,
-        bestRating: 5
-      },
-      reviewBody: review.text
-    }))
+    }
   };
 
   const faqSchema = {
