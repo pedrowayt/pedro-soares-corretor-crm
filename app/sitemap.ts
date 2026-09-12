@@ -108,6 +108,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/imoveis/na-planta",
     "/lancamentos",
     "/imoveis/leilao",
+    "/imobiliaria-palmas-to",
     "/investidores",
     "/gestao-exclusiva",
     "/blog",

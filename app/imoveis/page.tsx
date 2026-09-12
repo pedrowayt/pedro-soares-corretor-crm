@@ -136,6 +136,20 @@ export default function ImoveisPage() {
           </div>
         </div>
       </section>
+
+      <section className="section" style={{ paddingTop: 28 }}>
+        <div className="container card" style={{ padding: 22 }}>
+          <p className="wp-hero-eyebrow">Guia de compra em Palmas</p>
+          <h2 className="section-title" style={{ marginTop: 8 }}>Como escolher uma imobiliária em Palmas TO</h2>
+          <p className="section-subtitle text-card" style={{ maxWidth: "82ch" }}>
+            Veja o que comparar antes de comprar, vender ou investir: bairros, imóveis prontos, lançamentos,
+            financiamento, documentação e oportunidades de leilão.
+          </p>
+          <Link href="/imobiliaria-palmas-to" className="button button-primary">
+            Ler o guia completo
+          </Link>
+        </div>
+      </section>
     </>
   );
 }
