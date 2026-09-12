@@ -17,9 +17,9 @@ import { formatCurrencyBRL } from "@/lib/utils";
 const baseUrl = getSiteUrl();
 
 export const metadata: Metadata = {
-  title: "Pedro Soares | Corretor de Imóveis em Palmas TO",
+  title: "Imóveis em Palmas TO | Casas, apartamentos e lançamentos",
   description:
-    "Encontre imóveis prontos, lançamentos, leilões e oportunidades para investir em Palmas TO com atendimento direto de Pedro Soares.",
+    "Encontre casas, apartamentos, lotes e lançamentos em Palmas TO. Compare bairros, imóveis prontos e oportunidades para morar ou investir com Pedro Soares.",
   alternates: {
     canonical: baseUrl
   },
@@ -27,9 +27,9 @@ export const metadata: Metadata = {
     type: "website",
     locale: "pt_BR",
     url: baseUrl,
-    title: "Pedro Soares | Corretor de Imóveis em Palmas TO",
+    title: "Imóveis em Palmas TO | Casas, apartamentos e lançamentos",
     description:
-      "Imóveis prontos, lançamentos e oportunidades de leilão em Palmas TO com atendimento consultivo."
+      "Casas, apartamentos, lotes e lançamentos em Palmas TO para morar, investir ou encontrar seu próximo endereço."
   }
 };
 
@@ -373,7 +373,7 @@ export default async function HomePage({
             <p className="wp-hero-eyebrow">Pedro Soares <span>•</span> Especialista em imóveis em Palmas</p>
             <h1>Corretor de imóveis em Palmas TO.</h1>
             <p className="wp-hero-lede">
-              O lugar certo muda tudo. Encontre imóveis, lançamentos e oportunidades com uma curadoria mais clara para morar, investir ou começar um novo capítulo.
+              Encontre imóveis em Palmas TO para comprar, investir ou alugar, com opções por bairro, tipo de imóvel e momento de compra. O lugar certo muda tudo — e uma boa curadoria ajuda a decidir com mais clareza.
             </p>
             <div className="wp-hero-proof" aria-label="Diferenciais do atendimento">
               <span>Curadoria local</span>
@@ -681,6 +681,13 @@ export default async function HomePage({
             </p>
           </div>
           <div className="wp-type-switches" style={{ marginTop: 18 }}>
+            <Link href="/imobiliaria-palmas-to" className="wp-type-chip">Imobiliária em Palmas TO</Link>
+            <Link href="/imoveis" className="wp-type-chip">Imóveis em Palmas TO</Link>
+            <Link href="/imoveis/prontos?city=Palmas&purpose=VENDA&type=CASA" className="wp-type-chip">Casas à venda em Palmas</Link>
+            <Link href="/imoveis/prontos?city=Palmas&purpose=VENDA&type=APARTAMENTO" className="wp-type-chip">Apartamentos à venda em Palmas</Link>
+            <Link href="/imoveis/prontos?city=Palmas&purpose=LOCACAO" className="wp-type-chip">Imóveis para alugar em Palmas</Link>
+            <Link href="/imoveis/na-planta" className="wp-type-chip">Imóveis na planta em Palmas</Link>
+            <Link href="/loteamentos-palmas-to" className="wp-type-chip">Loteamentos em Palmas</Link>
             <Link href="/palmas-to/imoveis-leilao" className="wp-type-chip">Imóveis de Leilão em Palmas</Link>
             <Link href="/palmas-to/plano-diretor-sul/imoveis" className="wp-type-chip">Plano Diretor Sul</Link>
             <Link href="/palmas-to/plano-diretor-norte/imoveis" className="wp-type-chip">Plano Diretor Norte</Link>
