@@ -14,8 +14,8 @@ const siteUrl = getSiteUrl();
 const lakeVillageMapsUrl = "https://maps.app.goo.gl/ELa5XH6aoP4qwpRWA";
 const capimDouradoRouteUrl = "https://www.google.com/maps/dir/Lake+Village+Residences,+Luzimangues,+Porto+Nacional+-+TO/Capim+Dourado+Shopping,+Palmas+-+TO";
 const lakeVillageEmbedUrl = "https://www.google.com/maps?q=Lake+Village+Residences,+77.006,+046+-+Luzimangues,+Porto+Nacional+-+TO,+77500-000&t=k&output=embed";
-const lakeVillageVideoSourceUrl = "https://www.instagram.com/reel/DdXieUOuMKN/?stkn=bzVyMXVteDI3d3cy";
-const lakeVillageVideoEmbedUrl = "https://www.instagram.com/reel/DdXieUOuMKN/embed";
+const lakeVillageVideoSourceUrl = "https://youtu.be/8gwwS1uAXtQ";
+const lakeVillageVideoEmbedUrl = "https://www.youtube.com/embed/8gwwS1uAXtQ?rel=0&modestbranding=1&playsinline=1";
 
 export const metadata: Metadata = {
   title: "Lake Village Residences | Beira-lago é seu novo endereço",
