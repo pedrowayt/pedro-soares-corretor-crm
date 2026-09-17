@@ -4,6 +4,7 @@ import { ArrowDown, ArrowRight, BadgeCheck, Building2, CalendarDays, Clock3, Cre
 import { LakeVillageLeadForm } from "@/components/public/lake-village-lead-form";
 import { LakeVillageAudio } from "@/components/public/lake-village-audio";
 import { LakeVillagePhotoLightbox } from "@/components/public/lake-village-photo-lightbox";
+import { LakeVillageVideoEmbed, LakeVillageVideoPopup } from "@/components/public/lake-village-video";
 import { LandingPageTracker } from "@/components/public/landing-page-tracker";
 import { getSiteUrl } from "@/lib/site-url";
 
@@ -12,6 +13,8 @@ const siteUrl = getSiteUrl();
 const lakeVillageMapsUrl = "https://maps.app.goo.gl/ELa5XH6aoP4qwpRWA";
 const capimDouradoRouteUrl = "https://www.google.com/maps/dir/Lake+Village+Residences,+Luzimangues,+Porto+Nacional+-+TO/Capim+Dourado+Shopping,+Palmas+-+TO";
 const lakeVillageEmbedUrl = "https://www.google.com/maps?q=Lake+Village+Residences,+77.006,+046+-+Luzimangues,+Porto+Nacional+-+TO,+77500-000&t=k&output=embed";
+const lakeVillageVideoDriveUrl = "https://drive.google.com/file/d/1YgD8lbVmmZGWJFT2JefPFcoM5I_0w2-L/view?usp=drivesdk";
+const lakeVillageVideoEmbedUrl = "https://drive.google.com/file/d/1YgD8lbVmmZGWJFT2JefPFcoM5I_0w2-L/preview";
 
 export const metadata: Metadata = {
   title: "Lake Village Residences | Beira-lago é seu novo endereço",
@@ -98,6 +101,7 @@ export default function LakeVillagePage() {
   return (
     <div className="lake-landing">
       <LandingPageTracker landingPageSlug="lake-village" />
+      <LakeVillageVideoPopup embedUrl={lakeVillageVideoEmbedUrl} driveUrl={lakeVillageVideoDriveUrl} />
       <section className="lake-hero">
         <Image
           src="/brand/lake-village/clube.jpg"
@@ -137,6 +141,19 @@ export default function LakeVillagePage() {
           <span>Conheça o projeto</span>
           <ArrowDown size={18} />
         </a>
+      </section>
+
+      <section className="lake-video-section" aria-labelledby="lake-video-heading">
+        <div className="container">
+          <div className="lake-video-section-heading">
+            <div>
+              <p className="lake-kicker">Vídeo de apresentação</p>
+              <h2 id="lake-video-heading">Veja o Lake Village antes de dar o próximo passo.</h2>
+            </div>
+            <p>Assista ao vídeo e conheça melhor a proposta do projeto. Depois, se quiser, fale comigo para receber as informações disponíveis.</p>
+          </div>
+          <LakeVillageVideoEmbed embedUrl={lakeVillageVideoEmbedUrl} />
+        </div>
       </section>
 
       <section className="lake-facts-strip" aria-label="Números do Lake Village">

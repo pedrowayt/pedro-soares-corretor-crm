@@ -7847,6 +7847,201 @@ body:has(.crm-shell) > main {
   color: #fff;
 }
 
+.lake-video-section {
+  padding: 96px 0;
+  background: var(--lake-deep);
+  color: #fff;
+}
+
+.lake-video-section-heading {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(260px, 0.65fr);
+  gap: 48px;
+  align-items: end;
+  margin-bottom: 36px;
+}
+
+.lake-video-section-heading h2 {
+  max-width: 720px;
+  margin-bottom: 0;
+  color: var(--lake-sand);
+  font-family: var(--font-title), Georgia, serif;
+  font-size: clamp(2.45rem, 5vw, 4.8rem);
+  font-weight: 500;
+  line-height: 0.99;
+  letter-spacing: -0.065em;
+}
+
+.lake-video-section-heading > p {
+  max-width: 380px;
+  margin: 0 0 4px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9rem;
+  line-height: 1.75;
+}
+
+.lake-video-frame,
+.lake-video-modal-frame {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 16 / 9;
+  background: #061521;
+}
+
+.lake-video-frame {
+  border: 1px solid rgba(207, 227, 251, 0.28);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.24);
+}
+
+.lake-video-frame iframe,
+.lake-video-modal-frame iframe {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.lake-video-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  display: grid;
+  place-items: center;
+  padding: 5vh 4vw;
+  background: rgba(4, 12, 18, 0.92);
+  backdrop-filter: blur(9px);
+  animation: lake-video-modal-fade 0.2s ease both;
+}
+
+.lake-video-modal-close {
+  position: absolute;
+  top: 18px;
+  right: 22px;
+  z-index: 2;
+  display: grid;
+  width: 44px;
+  height: 44px;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  border-radius: 50%;
+  background: rgba(10, 35, 51, 0.75);
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.lake-video-modal-close:hover {
+  background: var(--lake-sand);
+  color: var(--lake-deep);
+  transform: scale(1.05);
+}
+
+.lake-video-modal-close:focus-visible {
+  outline: 2px solid var(--lake-sand);
+  outline-offset: 3px;
+}
+
+.lake-video-modal-panel {
+  width: min(1120px, 92vw);
+  max-height: 92vh;
+  overflow: auto;
+  background: var(--lake-mist);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.5);
+  animation: lake-video-modal-up 0.25s ease both;
+}
+
+.lake-video-modal-copy {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 20px 24px 22px;
+}
+
+.lake-video-modal-kicker {
+  margin-bottom: 7px !important;
+  color: var(--lake-blue);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.lake-video-modal-copy h2 {
+  margin: 0;
+  color: var(--lake-deep);
+  font-family: var(--font-title), Georgia, serif;
+  font-size: clamp(1.5rem, 3vw, 2.3rem);
+  font-weight: 500;
+  line-height: 1.05;
+}
+
+.lake-video-modal-drive-link {
+  flex: 0 0 auto;
+  color: var(--lake-blue);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+@keyframes lake-video-modal-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes lake-video-modal-up {
+  from { opacity: 0; transform: translateY(14px) scale(0.985); }
+  to { opacity: 1; transform: none; }
+}
+
+@media (max-width: 620px) {
+  .lake-video-section {
+    padding: 74px 0;
+  }
+
+  .lake-video-section-heading {
+    grid-template-columns: 1fr;
+    gap: 18px;
+    margin-bottom: 27px;
+  }
+
+  .lake-video-section-heading h2 {
+    font-size: 2.45rem;
+  }
+
+  .lake-video-modal {
+    padding: 16px;
+  }
+
+  .lake-video-modal-close {
+    top: 10px;
+    right: 10px;
+  }
+
+  .lake-video-modal-panel {
+    width: 100%;
+    max-height: calc(100vh - 32px);
+  }
+
+  .lake-video-modal-copy {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 15px;
+    padding: 15px 16px 17px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lake-video-modal,
+  .lake-video-modal-panel,
+  .lake-video-modal-close {
+    animation: none;
+    transition: none;
+  }
+}
+
 .lake-hero-image {
   object-fit: cover;
   object-position: center 46%;
