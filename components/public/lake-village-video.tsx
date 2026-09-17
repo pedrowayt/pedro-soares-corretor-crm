@@ -5,10 +5,10 @@ import { useEffect, useState } from "react";
 
 type LakeVillageVideoProps = {
   embedUrl: string;
-  driveUrl: string;
+  sourceUrl: string;
 };
 
-export function LakeVillageVideoPopup({ embedUrl, driveUrl }: LakeVillageVideoProps) {
+export function LakeVillageVideoPopup({ embedUrl, sourceUrl }: LakeVillageVideoProps) {
   const [isOpen, setIsOpen] = useState(true);
 
   useEffect(() => {
@@ -62,8 +62,8 @@ export function LakeVillageVideoPopup({ embedUrl, driveUrl }: LakeVillageVideoPr
             <p className="lake-video-modal-kicker">Lake Village Residences</p>
             <h2 id="lake-video-modal-title">Conheça o projeto em vídeo.</h2>
           </div>
-          <a href={driveUrl} target="_blank" rel="noreferrer" className="lake-video-modal-drive-link">
-            Abrir no Google Drive
+          <a href={sourceUrl} target="_blank" rel="noreferrer" className="lake-video-modal-drive-link">
+            Abrir Reel completo
           </a>
         </div>
       </div>

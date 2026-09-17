@@ -48,6 +48,7 @@ const PRIMARY_NAV: ReadonlyArray<TopbarLink> = [
 
 const SECONDARY_NAV: ReadonlyArray<TopbarLink> = [
   { href: "/crm/inbox", label: "Inbox", Icon: Bell },
+  { href: "/crm/pre-cadastros", label: "Pré-cadastros", Icon: Users },
   { href: "/crm/captacao", label: "Captação ativa", Icon: Target },
   { href: "/crm/visitas", label: "Visitas", Icon: UserCheck },
   { href: "/crm/tarefas", label: "Tarefas", Icon: Workflow },

@@ -456,6 +456,27 @@ async function main() {
     }
   });
 
+  await prisma.landingPage.upsert({
+    where: { slug: "lake-village" },
+    update: {
+      name: "Lake Village · Pré-cadastro",
+      publicPath: "/lake-village",
+      type: LandingPageType.CAPTURE,
+      status: LandingPageStatus.PUBLISHED,
+      formKey: "development-interest",
+      publishedAt: new Date()
+    },
+    create: {
+      name: "Lake Village · Pré-cadastro",
+      slug: "lake-village",
+      publicPath: "/lake-village",
+      type: LandingPageType.CAPTURE,
+      status: LandingPageStatus.PUBLISHED,
+      formKey: "development-interest",
+      publishedAt: new Date()
+    }
+  });
+
   console.log("Seed concluído com sucesso.");
 }
 

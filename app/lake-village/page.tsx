@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import Link from "next/link";
 import { ArrowDown, ArrowRight, BadgeCheck, Building2, CalendarDays, Clock3, CreditCard, Dumbbell, ExternalLink, Heart, Landmark, MapPin, Route, Ruler, ShieldCheck, TreePine, Users, Waves } from "lucide-react";
 import { LakeVillageLeadForm } from "@/components/public/lake-village-lead-form";
 import { LakeVillageAudio } from "@/components/public/lake-village-audio";
@@ -13,8 +14,8 @@ const siteUrl = getSiteUrl();
 const lakeVillageMapsUrl = "https://maps.app.goo.gl/ELa5XH6aoP4qwpRWA";
 const capimDouradoRouteUrl = "https://www.google.com/maps/dir/Lake+Village+Residences,+Luzimangues,+Porto+Nacional+-+TO/Capim+Dourado+Shopping,+Palmas+-+TO";
 const lakeVillageEmbedUrl = "https://www.google.com/maps?q=Lake+Village+Residences,+77.006,+046+-+Luzimangues,+Porto+Nacional+-+TO,+77500-000&t=k&output=embed";
-const lakeVillageVideoDriveUrl = "https://drive.google.com/file/d/1YgD8lbVmmZGWJFT2JefPFcoM5I_0w2-L/view?usp=drivesdk";
-const lakeVillageVideoEmbedUrl = "https://drive.google.com/file/d/1YgD8lbVmmZGWJFT2JefPFcoM5I_0w2-L/preview";
+const lakeVillageVideoSourceUrl = "https://www.instagram.com/reel/DdXieUOuMKN/?stkn=bzVyMXVteDI3d3cy";
+const lakeVillageVideoEmbedUrl = "https://www.instagram.com/reel/DdXieUOuMKN/embed";
 
 export const metadata: Metadata = {
   title: "Lake Village Residences | Beira-lago é seu novo endereço",
@@ -101,7 +102,7 @@ export default function LakeVillagePage() {
   return (
     <div className="lake-landing">
       <LandingPageTracker landingPageSlug="lake-village" />
-      <LakeVillageVideoPopup embedUrl={lakeVillageVideoEmbedUrl} driveUrl={lakeVillageVideoDriveUrl} />
+      <LakeVillageVideoPopup embedUrl={lakeVillageVideoEmbedUrl} sourceUrl={lakeVillageVideoSourceUrl} />
       <section className="lake-hero">
         <Image
           src="/brand/lake-village/clube.jpg"
@@ -497,6 +498,7 @@ export default function LakeVillagePage() {
               <span><Building2 size={17} /> Plantas e condições atualizadas</span>
               <span><Heart size={17} /> Orientação para morar ou investir</span>
             </div>
+            <Link href="/lake-village/pre-cadastro" className="lake-lead-secondary-link">Prefere fazer um pré-cadastro completo? <ArrowRight size={15} /></Link>
           </div>
           <LakeVillageLeadForm />
         </div>

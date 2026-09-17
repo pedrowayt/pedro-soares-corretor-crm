@@ -27,6 +27,11 @@ export async function POST(request: Request) {
     email,
     message,
     interest,
+    residenceCity,
+    purchaseTimeline,
+    budgetRange,
+    contactPreference,
+    marketingConsent,
     groupConsent,
     developmentSlug,
     developmentId,
@@ -75,6 +80,12 @@ export async function POST(request: Request) {
   const note = [
     existingLead?.notes,
     message,
+    interest ? `Perfil de interesse: ${interest}` : undefined,
+    residenceCity ? `Cidade de residência: ${residenceCity}` : undefined,
+    purchaseTimeline ? `Momento de compra: ${purchaseTimeline}` : undefined,
+    budgetRange ? `Faixa de investimento: ${budgetRange}` : undefined,
+    contactPreference ? `Preferência de contato: ${contactPreference}` : undefined,
+    marketingConsent ? "Autorizou novidades e comunicações comerciais." : undefined,
     requestTable ? "Solicitou tabela do empreendimento." : undefined
   ]
     .filter(Boolean)
@@ -92,6 +103,7 @@ export async function POST(request: Request) {
           linkedDevelopmentId: development?.id ?? existingLead.linkedDevelopmentId,
           linkedDevelopmentUnitTypeId: unitType?.id ?? existingLead.linkedDevelopmentUnitTypeId,
           linkedDevelopmentUnitId: unit?.id ?? existingLead.linkedDevelopmentUnitId,
+          desiredCity: residenceCity || existingLead.desiredCity,
           landingPageId: existingLead.landingPageId ?? landingPage?.id,
           sourcePage: existingLead.sourcePage ?? sourcePage,
           attribution,
@@ -113,6 +125,7 @@ export async function POST(request: Request) {
           linkedDevelopmentId: development?.id,
           linkedDevelopmentUnitTypeId: unitType?.id ?? undefined,
           linkedDevelopmentUnitId: unit?.id ?? undefined,
+          desiredCity: residenceCity || undefined,
           landingPageId: landingPage?.id ?? undefined,
           sourcePage: sourcePage || undefined,
           attribution,

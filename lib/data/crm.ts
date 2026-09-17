@@ -8,8 +8,39 @@ export async function listLeads(filters: { landingPageSlug?: string } = {}) {
   try {
     return await prisma.lead.findMany({
       where: filters.landingPageSlug
-        ? { landingPage: { slug: filters.landingPageSlug } }
+        ? {
+            OR: [
+              { landingPage: { slug: filters.landingPageSlug } },
+              { sourcePage: { startsWith: `/${filters.landingPageSlug}` } }
+            ]
+          }
         : undefined,
+      orderBy: { createdAt: "desc" },
+      include: {
+        linkedProperty: true,
+        linkedDevelopment: true,
+        linkedDevelopmentUnitType: true,
+        landingPage: true,
+        ownerUser: true
+      }
+    });
+  } catch {
+    return [];
+  }
+}
+
+export async function listLakeVillagePreRegistrations() {
+  if (!hasDatabase) return [];
+
+  try {
+    return await prisma.lead.findMany({
+      where: {
+        OR: [
+          { sourcePage: { startsWith: "/lake-village" } },
+          { landingPage: { slug: "lake-village" } },
+          { linkedDevelopment: { slug: "lake-village-residences" } }
+        ]
+      },
       orderBy: { createdAt: "desc" },
       include: {
         linkedProperty: true,

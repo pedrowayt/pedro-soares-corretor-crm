@@ -11,6 +11,7 @@ const SIDEBAR_SECTIONS: ReadonlyArray<SidebarSection> = [
       { href: "/crm/dashboard", label: "Dashboard" },
       { href: "/crm/inbox", label: "Inbox" },
       { href: "/crm/leads", label: "Leads" },
+      { href: "/crm/pre-cadastros", label: "Pré-cadastros" },
       { href: "/crm/funil", label: "Funil de vendas" },
       { href: "/crm/visitas", label: "Visitas" },
       { href: "/crm/tarefas", label: "Tarefas" }

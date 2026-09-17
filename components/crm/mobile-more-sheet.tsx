@@ -15,6 +15,7 @@ import {
   LogOut,
   Newspaper,
   Plug,
+  ClipboardList,
   Search,
   Settings,
   Target,
@@ -32,6 +33,7 @@ const GROUPS: ReadonlyArray<Group> = [
     title: "Operação",
     items: [
       { href: "/crm/inbox", label: "Inbox", Icon: Inbox },
+      { href: "/crm/pre-cadastros", label: "Pré-cadastros", Icon: ClipboardList },
       { href: "/crm/captacao", label: "Captação ativa", Icon: Target },
       { href: "/crm/leiloes", label: "Leilões", Icon: Hammer },
       { href: "/crm/proprietarios", label: "Proprietários", Icon: UserCheck },
