@@ -21,7 +21,8 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
   const isPalmasLakeLanding = pathname.startsWith("/palmas-lake");
   const isComodoroLanding = pathname === "/comodoro";
   const isUrbanHauteLanding = pathname === "/urban-haute";
-  const isStandaloneLanding = isLakeVillageLanding || isQuintaDoLagoLanding || isAcordesLanding || isLike210Landing || isMaestriaLanding || isHeritageLanding || isYachtLanding || isYouLanding || isTerracoUrbanLanding || isPalmasLakeLanding || isComodoroLanding || isUrbanHauteLanding;
+  const isCinnamonLanding = pathname === "/cinnamon-studio";
+  const isStandaloneLanding = isLakeVillageLanding || isQuintaDoLagoLanding || isAcordesLanding || isLike210Landing || isMaestriaLanding || isHeritageLanding || isYachtLanding || isYouLanding || isTerracoUrbanLanding || isPalmasLakeLanding || isComodoroLanding || isUrbanHauteLanding || isCinnamonLanding;
   const isInternalArea = pathname.startsWith("/admin") || pathname.startsWith("/crm");
 
   return (

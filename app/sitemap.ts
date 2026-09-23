@@ -130,7 +130,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/maestria",
     "/yacht-fama",
     "/terraco-urban",
-    "/urban-haute"
+    "/urban-haute",
+    "/cinnamon-studio"
   ].map((path) => ({
     url: `${baseUrl}${path}`,
     lastModified: catalogueFreshness,

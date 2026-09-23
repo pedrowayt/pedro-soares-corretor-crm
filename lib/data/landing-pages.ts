@@ -117,6 +117,16 @@ export const publicLandingPages: PublicLandingPage[] = [
     status: "Lançamento"
   },
   {
+    slug: "cinnamon-studio",
+    href: "/cinnamon-studio",
+    title: "Cinnamon Studio",
+    category: "Studios inteligentes",
+    location: "Orla da Graciosa · Palmas/TO",
+    summary: "Studios de 29,92 m² com sacada, estrutura de serviços e proposta para quem vive em movimento.",
+    image: "/brand/cinnamon/hero.webp",
+    status: "Pré-cadastro"
+  },
+  {
     slug: "lake-sky",
     href: "/palmas-lake/lake-sky",
     title: "Lake Sky",
