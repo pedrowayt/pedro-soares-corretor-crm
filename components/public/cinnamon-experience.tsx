@@ -9,12 +9,19 @@ import {
   CircleAlert,
   Coffee,
   Dumbbell,
+  GraduationCap,
+  Hospital,
   KeyRound,
+  Landmark,
   MapPin,
   Menu,
   Monitor,
+  ShoppingBag,
   ShieldCheck,
   Sparkles,
+  Store,
+  Sunset,
+  TreePine,
   X
 } from "lucide-react";
 import { LandingPageTracker } from "@/components/public/landing-page-tracker";
@@ -53,6 +60,79 @@ const serviceGroups = [
     items: ["Mercado autônomo 24h", "Lavanderia", "Storage", "Pet place"]
   }
 ] as const;
+
+const mapsOrigin = "-10.1852940,-48.3604371";
+
+const nearbyPlaces = [
+  {
+    icon: Store,
+    category: "Mercado e conveniência",
+    name: "Empório Orla Beach",
+    distance: "450 m",
+    time: "6 min a pé",
+    destination: "Empório Orla Beach, Av. Orla 14, Palmas, TO"
+  },
+  {
+    icon: GraduationCap,
+    category: "Faculdade e universidade",
+    name: "Unitins — Campus Palmas",
+    distance: "1,2 km",
+    time: "5 min de carro",
+    destination: "UNITINS - Campus Palmas, Quadra 109 Norte, Avenida NS 15, Lote 09, Palmas, TO"
+  },
+  {
+    icon: ShoppingBag,
+    category: "Compras e serviços",
+    name: "Capim Dourado Shopping",
+    distance: "3,2 km",
+    time: "6 min de carro",
+    destination: "Capim Dourado Shopping, Q. 107 Norte Avenida NS 5, Palmas, TO"
+  },
+  {
+    icon: Store,
+    category: "Supermercado",
+    name: "Supermercado BIG",
+    distance: "3,3 km",
+    time: "6 min de carro",
+    destination: "Supermercado BIG, Q. 107 Norte Avenida NS 5, Palmas, TO"
+  },
+  {
+    icon: Hospital,
+    category: "Saúde",
+    name: "Hospital Geral de Palmas",
+    distance: "4,9 km",
+    time: "9 min de carro",
+    destination: "Hospital Geral de Palmas, 201 Sul, Av. NS 1, Palmas, TO"
+  },
+  {
+    icon: Sunset,
+    category: "Ponto turístico",
+    name: "Praia da Graciosa",
+    distance: "700 m",
+    time: "9 min a pé",
+    destination: "Praia da Graciosa, Palmas, TO"
+  },
+  {
+    icon: Landmark,
+    category: "Ponto turístico",
+    name: "Praça dos Girassóis",
+    distance: "5,0 km",
+    time: "11 min de carro",
+    destination: "Praça dos Girassóis, Palmas, TO"
+  },
+  {
+    icon: TreePine,
+    category: "Ponto turístico",
+    name: "Parque dos Povos Indígenas",
+    distance: "5,5 km",
+    time: "10 min de carro",
+    destination: "Parque dos Povos Indígenas, Palmas, TO"
+  }
+] as const;
+
+function routeTo(destination: string) {
+  return `https://www.google.com/maps/dir/?api=1&origin=${mapsOrigin}&destination=${encodeURIComponent(destination)}`;
+}
 
 function CinnamonWordmark({ className = "" }: { className?: string }) {
   return (
@@ -157,6 +237,7 @@ export function CinnamonExperience() {
         <nav className={`cinnamon-nav ${menuOpen ? "is-open" : ""}`} aria-label="Navegação do Cinnamon Studio">
           <a href="#projeto" onClick={closeMenu}>O projeto</a>
           <a href="#studio" onClick={closeMenu}>O studio</a>
+          <a href="#proximidades" onClick={closeMenu}>Proximidades</a>
           <a href="#estrutura" onClick={closeMenu}>Estrutura</a>
           <a href="#contato" onClick={closeMenu}>Contato</a>
         </nav>
@@ -221,9 +302,25 @@ export function CinnamonExperience() {
 
         <section className="cinnamon-location"><div className="cinnamon-location-image"><Image src="/brand/cinnamon/acesso.webp" alt="Acesso principal do Cinnamon Studio" fill sizes="(max-width: 900px) 100vw, 50vw" /></div><div className="cinnamon-location-copy"><div className="cinnamon-kicker"><span>04</span><i /> O endereço</div><p className="cinnamon-eyebrow">A cidade perto. A pressa longe.</p><h2>Orla de<br /><em>Palmas.</em></h2><p>Um projeto na região da Orla da Graciosa, com o lago, a cidade e a rotina de trabalho no mesmo horizonte.</p><div className="cinnamon-location-tag"><MapPin size={17} strokeWidth={1.4} /><span>Q Orla 14 · Graciosa · Palmas/TO</span></div></div></section>
 
-        <section className="cinnamon-truth cinnamon-section-pad"><div className="cinnamon-kicker cinnamon-kicker-light"><span>05</span><i /> Transparência do projeto</div><div className="cinnamon-truth-grid"><div><p className="cinnamon-eyebrow cinnamon-eyebrow-light">Informação clara antes da decisão</p><h2>O que este material<br /><em>não vai te dizer.</em></h2></div><div className="cinnamon-truth-copy"><p>O estudo de operação ainda está sendo contratado. Por isso, não anunciamos rendimento, valorização futura, recompra ou rentabilidade garantida.</p><div className="cinnamon-truth-list"><span><ShieldCheck size={17} /> Memorial de incorporação ainda não registrado.</span><span><ShieldCheck size={17} /> Vagas de garagem disponibilizadas por locação, não incluídas na unidade.</span><span><ShieldCheck size={17} /> Imagens e plantas meramente ilustrativas.</span></div></div></div></section>
+        <section className="cinnamon-nearby cinnamon-section-pad" id="proximidades">
+          <div className="cinnamon-kicker"><span>05</span><i /> Proximidades</div>
+          <div className="cinnamon-section-heading cinnamon-nearby-heading"><div><p className="cinnamon-eyebrow">O melhor da cidade ao redor</p><h2>Viver bem é ter<br /><em>tudo por perto.</em></h2></div><p>A partir do endereço indicado no mapa, você está perto da orla, de serviços essenciais, centros de compras, instituições de ensino e dos principais cartões-postais de Palmas.</p></div>
+          <div className="cinnamon-nearby-grid">
+            {nearbyPlaces.map(({ icon: Icon, category, name, distance, time, destination }) => (
+              <a className="cinnamon-nearby-card" href={routeTo(destination)} target="_blank" rel="noreferrer" key={name}>
+                <div className="cinnamon-nearby-card-top"><Icon size={20} strokeWidth={1.35} /><span>{category}</span></div>
+                <strong>{name}</strong>
+                <div className="cinnamon-nearby-distance"><b>{distance}</b><span>{time}</span></div>
+                <span className="cinnamon-nearby-route">Ver rota <ArrowRight size={14} /></span>
+              </a>
+            ))}
+          </div>
+          <div className="cinnamon-nearby-footer"><MapPin size={17} /><p>As distâncias são aproximadas e podem variar conforme o ponto de saída, o trânsito e a rota escolhida.</p><a href="https://maps.app.goo.gl/R29tjCWHGUM2mSgC7?g_st=ic" target="_blank" rel="noreferrer">Abrir localização <ArrowRight size={14} /></a></div>
+        </section>
 
-        <section className="cinnamon-contact cinnamon-section-pad" id="contato"><div className="cinnamon-kicker cinnamon-kicker-light"><span>06</span><i /> Primeiro contato</div><div className="cinnamon-contact-grid"><div className="cinnamon-contact-copy"><p className="cinnamon-eyebrow cinnamon-eyebrow-light">Receba uma apresentação personalizada</p><h2>Seu espaço<br /><em>começa aqui.</em></h2><p>Deixe seus dados e receba o material do Cinnamon Studio para conhecer o projeto com calma.</p><div className="cinnamon-trust"><ShieldCheck size={18} /> Atendimento direto com Pedro Soares · CRECI 5861-TO</div></div><div className="cinnamon-contact-form-wrap"><InterestForm /></div></div></section>
+        <section className="cinnamon-truth cinnamon-section-pad"><div className="cinnamon-kicker cinnamon-kicker-light"><span>06</span><i /> Transparência do projeto</div><div className="cinnamon-truth-grid"><div><p className="cinnamon-eyebrow cinnamon-eyebrow-light">Informação clara antes da decisão</p><h2>O que este material<br /><em>não vai te dizer.</em></h2></div><div className="cinnamon-truth-copy"><p>O estudo de operação ainda está sendo contratado. Por isso, não anunciamos rendimento, valorização futura, recompra ou rentabilidade garantida.</p><div className="cinnamon-truth-list"><span><ShieldCheck size={17} /> Memorial de incorporação ainda não registrado.</span><span><ShieldCheck size={17} /> Vagas de garagem disponibilizadas por locação, não incluídas na unidade.</span><span><ShieldCheck size={17} /> Imagens e plantas meramente ilustrativas.</span></div></div></div></section>
+
+        <section className="cinnamon-contact cinnamon-section-pad" id="contato"><div className="cinnamon-kicker cinnamon-kicker-light"><span>07</span><i /> Primeiro contato</div><div className="cinnamon-contact-grid"><div className="cinnamon-contact-copy"><p className="cinnamon-eyebrow cinnamon-eyebrow-light">Receba uma apresentação personalizada</p><h2>Seu espaço<br /><em>começa aqui.</em></h2><p>Deixe seus dados e receba o material do Cinnamon Studio para conhecer o projeto com calma.</p><div className="cinnamon-trust"><ShieldCheck size={18} /> Atendimento direto com Pedro Soares · CRECI 5861-TO</div></div><div className="cinnamon-contact-form-wrap"><InterestForm /></div></div></section>
       </main>
 
       <footer className="cinnamon-footer"><CinnamonWordmark /><div>Studios inteligentes para quem vive em movimento.</div><a href="#inicio" aria-label="Voltar ao início">Voltar ao início <ArrowRight size={14} /></a><p>Incorporação: Smart Studios SPE Ltda · CNPJ 68.632.814/0001-82 · Imagens meramente ilustrativas. Memorial de incorporação não registrado — não há oferta, reserva ou venda de unidades.</p></footer>
