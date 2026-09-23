@@ -122,7 +122,7 @@ export const publicLandingPages: PublicLandingPage[] = [
     title: "Cinnamon Studio",
     category: "Studios inteligentes",
     location: "Orla da Graciosa · Palmas/TO",
-    summary: "Studios de 29,92 m² com sacada, estrutura de serviços e proposta para quem vive em movimento.",
+    summary: "Studios de padrão hoteleiro na Orla 14, com estrutura de serviços, tecnologia e proposta para quem vive em movimento.",
     image: "/brand/cinnamon/hero.webp",
     status: "Pré-cadastro"
   },

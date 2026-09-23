@@ -7,7 +7,7 @@ const baseUrl = getSiteUrl();
 export const metadata: Metadata = {
   title: "Cinnamon Studio | Studios na Orla de Palmas",
   description:
-    "Cinnamon Studio: studios inteligentes de 29,92 m² para quem vive em movimento, na Orla de Palmas. Receba o material do projeto.",
+    "Cinnamon Studio: studios de padrão hoteleiro na Orla 14 de Palmas, com estrutura de serviços, tecnologia e operação pensada para locação por temporada. Receba o material do projeto.",
   alternates: { canonical: `${baseUrl}/cinnamon-studio` },
   openGraph: {
     type: "website",
@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     url: `${baseUrl}/cinnamon-studio`,
     title: "Cinnamon Studio | Studios na Orla de Palmas",
     description:
-      "Seu espaço. Seu ritmo. Conheça o projeto de studios inteligentes na Orla de Palmas.",
+      "Studios de padrão hoteleiro na beira do lago, na Orla 14 de Palmas. Conheça o projeto e receba as condições sob consulta.",
     images: [
       {
         url: "/brand/cinnamon/hero.webp",

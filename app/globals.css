@@ -7820,11 +7820,11 @@ body:has(.crm-shell) > main {
 
 /* Lake Village Residences landing */
 .lake-landing {
-  --lake-deep: #0a2333;
-  --lake-blue: #00505e;
-  --lake-sand: #d1b475;
-  --lake-mist: #ebe0d7;
-  --lake-ink: #123348;
+  --lake-deep: #0b2346;
+  --lake-blue: #1768c5;
+  --lake-sand: #cfe3fb;
+  --lake-mist: #f1f6fc;
+  --lake-ink: #172b45;
   background: var(--lake-mist);
   color: var(--lake-ink);
   overflow: hidden;
@@ -8258,12 +8258,12 @@ body:has(.crm-shell) > main {
 }
 
 .lake-button--gold {
-  background: var(--lake-sand);
-  color: var(--lake-deep);
+  background: var(--lake-blue);
+  color: #fff;
 }
 
 .lake-button--gold:hover {
-  background: #e1c687;
+  background: #0e55aa;
 }
 
 .lake-button--outline {
@@ -8273,7 +8273,8 @@ body:has(.crm-shell) > main {
 
 .lake-button--outline:hover {
   border-color: var(--lake-sand);
-  color: var(--lake-sand);
+  background: rgba(207, 227, 251, 0.12);
+  color: #fff;
 }
 
 .lake-button--whatsapp {
@@ -9147,6 +9148,139 @@ body:has(.crm-shell) > main {
 .lake-facts-strip {
   background: var(--lake-sand);
   color: var(--lake-deep);
+}
+
+.lake-landing--broker .lake-hero-overlay {
+  background: linear-gradient(90deg, rgba(11, 35, 70, 0.96) 0%, rgba(11, 35, 70, 0.76) 38%, rgba(11, 35, 70, 0.12) 78%), linear-gradient(0deg, rgba(11, 35, 70, 0.92), transparent 52%);
+}
+
+.lake-personal-brand {
+  width: fit-content;
+  margin-bottom: 28px;
+  padding: 8px 12px;
+  border: 1px solid rgba(207, 227, 251, 0.48);
+  border-radius: 999px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.lake-broker-notice {
+  padding: 23px 0;
+  background: #e6f0fc;
+  color: var(--lake-deep);
+}
+
+.lake-broker-notice .container {
+  display: grid;
+  grid-template-columns: minmax(160px, 0.28fr) minmax(0, 1fr);
+  gap: 30px;
+  align-items: baseline;
+}
+
+.lake-broker-notice strong {
+  color: var(--lake-blue);
+  font-size: 0.74rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.lake-broker-notice p {
+  max-width: 820px;
+  margin: 0;
+  color: rgba(23, 43, 69, 0.76);
+  font-size: 0.86rem;
+  line-height: 1.55;
+}
+
+.lake-facts-grid--broker {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.lake-facts-grid--broker > div:last-child {
+  border-right: 0;
+}
+
+.lake-safe-card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px;
+  margin: 30px 0 18px;
+  background: rgba(11, 35, 70, 0.15);
+  border: 1px solid rgba(11, 35, 70, 0.15);
+}
+
+.lake-safe-card {
+  display: grid;
+  align-content: start;
+  gap: 9px;
+  min-height: 148px;
+  padding: 17px;
+  background: var(--lake-mist);
+}
+
+.lake-safe-card svg {
+  color: var(--lake-blue);
+}
+
+.lake-safe-card strong {
+  color: var(--lake-deep);
+  font-family: var(--font-title), Georgia, serif;
+  font-size: 1.12rem;
+  font-weight: 500;
+}
+
+.lake-safe-card span {
+  color: rgba(23, 43, 69, 0.68);
+  font-size: 0.75rem;
+  line-height: 1.45;
+}
+
+.lake-feature-split--broker {
+  border: 1px solid rgba(207, 227, 251, 0.2);
+}
+
+.lake-amenities-cta--broker {
+  border-top-color: rgba(207, 227, 251, 0.28);
+}
+
+@media (max-width: 860px) {
+  .lake-broker-notice .container {
+    grid-template-columns: 1fr;
+    gap: 9px;
+  }
+}
+
+@media (max-width: 620px) {
+  .lake-personal-brand {
+    margin-bottom: 21px;
+    font-size: 0.62rem;
+  }
+
+  .lake-facts-grid--broker {
+    grid-template-columns: 1fr;
+  }
+
+  .lake-facts-grid--broker > div,
+  .lake-facts-grid--broker > div:first-child {
+    padding: 13px 0;
+    border-right: 0;
+    border-bottom: 1px solid rgba(11, 35, 70, 0.18);
+  }
+
+  .lake-facts-grid--broker > div:last-child {
+    border-bottom: 0;
+  }
+
+  .lake-safe-card-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .lake-safe-card {
+    min-height: 0;
+  }
 }
 
 .lake-facts-grid {
@@ -21950,6 +22084,7 @@ body:has(.wp-hero) { background: #fff; }
   .site-whatsapp-bubble,
   .site-whatsapp-bubble__action { transition: none; }
 }
+
 /* Lake Village pre-registration capture page */
 .lake-pre-cadastro-page {
   min-height: 100vh;
@@ -22279,8 +22414,29 @@ body:has(.wp-hero) { background: #fff; }
 .cinnamon-nearby-footer p { margin: 0; font-size: 10px; line-height: 1.5; }
 .cinnamon-nearby-footer a { display: inline-flex; align-items: center; gap: 9px; border-bottom: 1px solid var(--cinnamon-line); padding-bottom: 7px; color: var(--cinnamon-soft-ink); font-size: 8px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; }
 
+.cinnamon-extra-amenities { margin-top: 50px; border-top: 1px solid var(--cinnamon-line); padding-top: 18px; }
+.cinnamon-extra-amenities > span { color: var(--cinnamon-muted); font-size: 9px; letter-spacing: .15em; text-transform: uppercase; }
+.cinnamon-extra-amenities > div { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 17px; }
+.cinnamon-extra-amenities b { border: 1px solid var(--cinnamon-line); padding: 9px 11px; color: #5c5d55; font-size: 10px; font-weight: 400; }
+
+.cinnamon-technology { background: #e4e0d6; }
+.cinnamon-technology-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; margin-top: 70px; background: var(--cinnamon-line); border: 1px solid var(--cinnamon-line); }
+.cinnamon-technology-grid article { min-height: 210px; padding: 22px; background: #e4e0d6; }
+.cinnamon-technology-grid article > svg { color: var(--cinnamon-accent); }
+.cinnamon-technology-grid h3 { margin: 37px 0 12px; font-size: 17px; font-weight: 400; letter-spacing: -.02em; }
+.cinnamon-technology-grid p { max-width: 230px; margin: 0; color: #77786f; font-size: 11px; line-height: 1.55; }
+.cinnamon-builder-strip { display: grid; grid-template-columns: .9fr 1.2fr auto; gap: 30px; align-items: end; margin-top: 62px; border-top: 1px solid var(--cinnamon-line); padding-top: 20px; }
+.cinnamon-builder-strip .cinnamon-eyebrow { margin-bottom: 10px; }
+.cinnamon-builder-strip strong { font-size: 21px; font-weight: 400; letter-spacing: -.03em; }
+.cinnamon-builder-strip > p { max-width: 480px; margin: 0; color: #77786f; font-size: 11px; line-height: 1.55; }
+.cinnamon-builder-strip > span { color: #77786f; font-size: 9px; letter-spacing: .08em; text-align: right; text-transform: uppercase; }
+.cinnamon-consultation-note { max-width: 350px; margin-top: 25px !important; color: var(--cinnamon-accent) !important; font-size: 11px !important; letter-spacing: .04em; line-height: 1.55 !important; }
+
 @media (max-width: 980px) {
   .cinnamon-nearby-grid { grid-template-columns: repeat(2, 1fr); }
+  .cinnamon-technology-grid { grid-template-columns: repeat(2, 1fr); }
+  .cinnamon-builder-strip { grid-template-columns: 1fr 1fr; }
+  .cinnamon-builder-strip > span { text-align: left; }
 }
 
 @media (max-width: 560px) {
@@ -22289,4 +22445,9 @@ body:has(.wp-hero) { background: #fff; }
   .cinnamon-nearby-card strong { margin-top: 28px; }
   .cinnamon-nearby-footer { grid-template-columns: auto 1fr; }
   .cinnamon-nearby-footer a { grid-column: 2; width: fit-content; }
+  .cinnamon-extra-amenities { margin-top: 42px; }
+  .cinnamon-technology-grid { grid-template-columns: 1fr; margin-top: 48px; }
+  .cinnamon-technology-grid article { min-height: 0; }
+  .cinnamon-builder-strip { grid-template-columns: 1fr; gap: 18px; margin-top: 45px; }
+  .cinnamon-builder-strip > span { text-align: left; }
 }
