@@ -18,6 +18,8 @@ export type PublicPropertyFilters = {
   purpose?: PropertyPurpose;
   bedrooms?: number;
   minAreaM2?: number;
+  /** When true, returns properties explicitly curated for investors. */
+  investmentOnly?: boolean;
   /** When false (default), VENDIDO and ALUGADO are excluded from results. */
   includeInactive?: boolean;
 };
@@ -60,6 +62,8 @@ function matchPublicFilters(
     price: number;
     bedrooms: number | null;
     areaM2: number | null;
+    isInvestorHighlight?: boolean;
+    investorOpportunity?: unknown | null;
   },
   filters: PublicPropertyFilters
 ) {
@@ -77,6 +81,7 @@ function matchPublicFilters(
   if (filters.maxPrice && property.price > filters.maxPrice) return false;
   if (filters.bedrooms !== undefined && (property.bedrooms ?? 0) < filters.bedrooms) return false;
   if (filters.minAreaM2 && (!property.areaM2 || property.areaM2 < filters.minAreaM2)) return false;
+  if (filters.investmentOnly && !property.isInvestorHighlight && !property.investorOpportunity) return false;
   return true;
 }
 
@@ -116,7 +121,9 @@ async function fallbackPublicProperties(filters: PublicPropertyFilters = {}) {
           purpose: property.purpose,
           price: property.priceValue,
           bedrooms: property.bedrooms ?? null,
-          areaM2: property.areaM2Value
+          areaM2: property.areaM2Value,
+          isInvestorHighlight: property.isInvestorHighlight,
+          investorOpportunity: property.investorOpportunity
         },
         filters
       )
@@ -150,7 +157,9 @@ async function fallbackPublicProperties(filters: PublicPropertyFilters = {}) {
           purpose: property.purpose,
           price: property.priceValue,
           bedrooms: property.bedrooms ?? null,
-          areaM2: property.areaM2Value
+          areaM2: property.areaM2Value,
+          isInvestorHighlight: property.isInvestorHighlight,
+          investorOpportunity: property.investorOpportunity
         },
         filters
       )
@@ -193,6 +202,18 @@ export async function listPublicProperties(filters: PublicPropertyFilters = {}) 
           : {}),
         ...(typeof filters.minAreaM2 === "number"
           ? { areaM2: { gte: filters.minAreaM2 } }
+          : {}),
+        ...(filters.investmentOnly
+          ? {
+              AND: [
+                {
+                  OR: [
+                    { isInvestorHighlight: true },
+                    { investorOpportunity: { isNot: null } }
+                  ]
+                }
+              ]
+            }
           : {})
       },
       include: {

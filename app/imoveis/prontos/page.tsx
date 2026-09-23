@@ -20,6 +20,15 @@ const purposeTabs: Array<{ value: PropertyPurpose; label: string; cta: string }>
   { value: "INVESTIMENTO", label: "Investir", cta: "para investimento" }
 ];
 
+const investmentSources = [
+  { value: "", label: "Todas as oportunidades" },
+  { value: "launches", label: "Lançamentos" },
+  { value: "ready", label: "Imóveis prontos" },
+  { value: "land", label: "Terrenos e lotes" }
+] as const;
+
+type InvestmentSource = (typeof investmentSources)[number]["value"];
+
 const typeOptions = PROPERTY_TYPE_OPTIONS;
 
 const sortOptions = [
@@ -91,6 +100,17 @@ function parsePurpose(value: string | string[] | undefined): PropertyPurpose | u
 function parseSort(value: string | string[] | undefined): SortValue {
   if (typeof value !== "string") return "";
   return (sortOptions.find((item) => item.value === value)?.value ?? "") as SortValue;
+}
+
+function parseInvestmentSource(value: string | string[] | undefined): InvestmentSource {
+  if (typeof value !== "string") return "";
+  return investmentSources.some((option) => option.value === value)
+    ? (value as InvestmentSource)
+    : "";
+}
+
+function countLabel(count: number, singular: string, plural: string) {
+  return `${count} ${count === 1 ? singular : plural}`;
 }
 
 type CardProperty = {
@@ -166,24 +186,35 @@ export default async function ImoveisProntosPage({
   const type = parseType(filters.type);
   const purpose = parsePurpose(filters.purpose);
   const sort = parseSort(filters.sort);
+  const investmentSource = parseInvestmentSource(filters.investmentSource);
 
   const activePurpose = purpose ?? "VENDA";
+  const isInvestmentPage = activePurpose === "INVESTIMENTO";
+  const showInvestmentProperties = !isInvestmentPage || investmentSource !== "launches";
+  const showInvestmentLandings =
+    !isInvestmentPage || investmentSource === "" || investmentSource === "launches";
+  const investmentType =
+    isInvestmentPage && investmentSource === "land" && !type ? undefined : type;
 
-  const properties = (await listPublicProperties({
-    city: city || undefined,
-    district: district || undefined,
-    minPrice,
-    maxPrice,
-    bedrooms,
-    minAreaM2,
-    type,
-    purpose: activePurpose
-  })) as CardProperty[];
+  const properties = showInvestmentProperties
+    ? ((await listPublicProperties({
+        city: city || undefined,
+        district: district || undefined,
+        minPrice,
+        maxPrice,
+        bedrooms,
+        minAreaM2,
+        type: investmentType,
+        purpose: isInvestmentPage ? undefined : activePurpose,
+        investmentOnly: isInvestmentPage
+      })) as CardProperty[])
+    : [];
 
   const filtered = properties.filter(
     (property) =>
       !(property as unknown as { isAuctionOpportunity?: boolean }).isAuctionOpportunity &&
-      !(property as unknown as { auctionCase?: unknown }).auctionCase
+      !(property as unknown as { auctionCase?: unknown }).auctionCase &&
+      (investmentSource !== "land" || ["LOTE", "LOTE_EM_CONDOMINIO"].includes(property.type))
   );
 
   const sorted = sortProperties(filtered, sort);
@@ -192,6 +223,22 @@ export default async function ImoveisProntosPage({
   const purposeTab = activePurpose;
   const headingLocation = city ? city : "Palmas e região";
 
+  const launchCount = isInvestmentPage && showInvestmentLandings ? publicLandingPages.length : 0;
+  const investmentEmptyLabel = investmentSource === "land" ? "terreno ou lote" : "imóvel pronto";
+  const launchSummary = countLabel(launchCount, "lançamento selecionado", "lançamentos selecionados");
+  const propertySummary = countLabel(
+    totalCount,
+    investmentSource === "land" ? "terreno ou lote" : "imóvel pronto",
+    investmentSource === "land" ? "terrenos e lotes" : "imóveis prontos"
+  );
+  const investmentSummary =
+    investmentSource === "launches"
+      ? launchSummary
+      : investmentSource === "ready"
+        ? `${propertySummary} para avaliar`
+        : investmentSource === "land"
+          ? `${propertySummary} para avaliar`
+          : `${launchSummary} e ${propertySummary} para avaliar`;
   const collectionSchema = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
@@ -212,7 +259,8 @@ export default async function ImoveisProntosPage({
       maxPrice: typeof maxPrice === "number" ? String(maxPrice) : undefined,
       bedrooms: typeof bedrooms === "number" ? String(bedrooms) : undefined,
       minAreaM2: typeof minAreaM2 === "number" ? String(minAreaM2) : undefined,
-      sort: sort || undefined
+      sort: sort || undefined,
+      investmentSource: investmentSource || undefined
     };
     const merged = { ...current, ...overrides };
     for (const [k, v] of Object.entries(merged)) {
@@ -239,10 +287,15 @@ export default async function ImoveisProntosPage({
           <div className="listing-page-head">
             <div>
               <h1 className="listing-page-title">
-                {totalCount.toLocaleString("pt-BR")} {totalCount === 1 ? "imóvel" : "imóveis"}{" "}
-                {purposeTabs.find((t) => t.value === purposeTab)?.cta ?? "à venda"}
+                {isInvestmentPage
+                  ? "Oportunidades para investir"
+                  : `${totalCount.toLocaleString("pt-BR")} ${totalCount === 1 ? "imóvel" : "imóveis"} ${purposeTabs.find((t) => t.value === purposeTab)?.cta ?? "à venda"}`}
               </h1>
-              <p className="listing-page-subtitle">em {headingLocation}</p>
+              <p className="listing-page-subtitle">
+                {isInvestmentPage
+                  ? `${investmentSummary}${city || district ? ` em ${headingLocation}` : ""}`
+                  : `em ${headingLocation}`}
+              </p>
             </div>
             <AutoSubmitForm method="GET" className="listing-sort">
               <label htmlFor="sort">Ordenar por</label>
@@ -262,23 +315,26 @@ export default async function ImoveisProntosPage({
               {typeof maxPrice === "number" ? <input type="hidden" name="maxPrice" value={String(maxPrice)} /> : null}
               {typeof bedrooms === "number" ? <input type="hidden" name="bedrooms" value={String(bedrooms)} /> : null}
               {typeof minAreaM2 === "number" ? <input type="hidden" name="minAreaM2" value={String(minAreaM2)} /> : null}
+              {investmentSource ? <input type="hidden" name="investmentSource" value={investmentSource} /> : null}
               <button type="submit" className="visually-hidden">Aplicar</button>
             </AutoSubmitForm>
           </div>
 
-          {(purposeTab === "VENDA" || purposeTab === "INVESTIMENTO") && publicLandingPages.length ? (
+          {(purposeTab === "VENDA" || purposeTab === "INVESTIMENTO") &&
+          showInvestmentLandings &&
+          publicLandingPages.length ? (
             <section className="listing-related-landings" aria-labelledby="listing-related-landings-title">
               <div className="listing-related-landings-head">
                 <p className="wp-section-eyebrow">Empreendimentos em destaque</p>
                 <h2 id="listing-related-landings-title">
                   {purposeTab === "VENDA"
                     ? "Encontre também um lançamento para morar ou investir"
-                    : "Conheça as landing pages para investir"}
+                    : "Lançamentos para investir"}
                 </h2>
                 <p>
                   {purposeTab === "VENDA"
                     ? "Explore projetos selecionados em detalhe e fale diretamente comigo sobre plantas, localização e condições."
-                    : "Explore os projetos em detalhe e fale diretamente comigo para avaliar localização, potencial e condições."}
+                    : "Compare localização, estágio, perfil do projeto e condições antes de decidir onde investir."}
                 </p>
               </div>
               <LandingPagesSlider
@@ -317,7 +373,29 @@ export default async function ImoveisProntosPage({
                   {/* keep this submit happy with purpose */}
                   <input type="hidden" name="purpose" value={purposeTab} />
                   <input type="hidden" name="sort" value={sort} />
+                  {investmentSource ? <input type="hidden" name="investmentSource" value={investmentSource} /> : null}
                 </div>
+
+                {isInvestmentPage ? (
+                  <div className="listing-filter-block">
+                    <h3>O que você quer comparar?</h3>
+                    <div className="listing-chip-group">
+                      {investmentSources.map((option) => {
+                        const isActive = investmentSource === option.value;
+                        return (
+                          <Link
+                            key={option.value || "all"}
+                            href={hrefWith({ investmentSource: option.value || undefined })}
+                            className={`listing-chip${isActive ? " is-active" : ""}`}
+                            aria-pressed={isActive ? "true" : "false"}
+                          >
+                            {option.label}
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ) : null}
 
                 <div className="listing-filter-block">
                   <h3>Localização</h3>
@@ -410,6 +488,20 @@ export default async function ImoveisProntosPage({
             </aside>
 
             <section className="listing-results" aria-label="Resultados">
+              {showInvestmentProperties && isInvestmentPage ? (
+                <div className="listing-results-head">
+                  <p className="wp-section-eyebrow">
+                    {investmentSource === "land" ? "Terrenos e lotes" : "Imóveis prontos"}
+                  </p>
+                  <h2>{investmentSource === "land" ? "Terrenos e lotes para investir" : "Imóveis prontos para investir"}</h2>
+                  <p>
+                    {investmentSource === "land"
+                      ? "Opções de terreno e lote em condomínio para avaliar localização, entrada e potencial de valorização."
+                      : "Opções cadastradas com destaque para renda, liquidez ou potencial de valorização."}
+                  </p>
+                </div>
+              ) : null}
+
               {sorted.length ? (
                 <ul className="listing-results-list">
                   {sorted.map((property) => (
@@ -438,19 +530,19 @@ export default async function ImoveisProntosPage({
                         unitCount={property.unitCount}
                         imageUrl={property.media?.[0]?.url}
                         status={property.status}
-                        purposeLabel={purposeLabelFor(property.purpose)}
+                        purposeLabel={isInvestmentPage ? "Investir" : purposeLabelFor(property.purpose)}
                         typeLabel={typeLabelFor(property.type)}
                       />
                     </li>
                   ))}
                 </ul>
-              ) : (
+              ) : showInvestmentProperties ? (
                 <article className="card" style={{ padding: 16 }}>
                   <p style={{ margin: 0, color: "var(--text-muted)" }}>
-                    Nenhum imóvel encontrado com os filtros atuais. Ajuste os critérios e tente novamente.
+                    Nenhum {investmentEmptyLabel} encontrado com esses critérios. Você ainda pode explorar os lançamentos acima.
                   </p>
                 </article>
-              )}
+              ) : null}
             </section>
           </div>
         </div>

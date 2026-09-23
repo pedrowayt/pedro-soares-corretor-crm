@@ -16489,6 +16489,32 @@ body:has(.crm-shell) > main {
   font-size: 0.9375rem;
 }
 
+.listing-results-head {
+  margin: 0 0 14px;
+}
+
+.listing-results-head .wp-section-eyebrow {
+  margin: 0 0 6px;
+}
+
+.listing-results-head h2,
+.listing-results-head p:last-child {
+  margin: 0;
+}
+
+.listing-results-head h2 {
+  color: #0b1220;
+  font-family: var(--font-title), Georgia, serif;
+  font-size: clamp(1.3rem, 2.3vw, 1.7rem);
+  line-height: 1.15;
+}
+
+.listing-results-head p:last-child {
+  margin-top: 6px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
 .listing-sort {
   display: inline-flex;
   align-items: center;
