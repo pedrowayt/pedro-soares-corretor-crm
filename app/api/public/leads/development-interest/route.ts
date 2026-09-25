@@ -27,6 +27,7 @@ export async function POST(request: Request) {
     email,
     message,
     interest,
+    lotReference,
     residenceCity,
     purchaseTimeline,
     budgetRange,
@@ -81,6 +82,7 @@ export async function POST(request: Request) {
     existingLead?.notes,
     message,
     interest ? `Perfil de interesse: ${interest}` : undefined,
+    lotReference ? `Quadra/lote de interesse: ${lotReference}` : undefined,
     residenceCity ? `Cidade de residência: ${residenceCity}` : undefined,
     purchaseTimeline ? `Momento de compra: ${purchaseTimeline}` : undefined,
     budgetRange ? `Faixa de investimento: ${budgetRange}` : undefined,
@@ -153,6 +155,7 @@ export async function POST(request: Request) {
         unitTypeName: unitType?.name,
         unitId,
         unitLabel: unit?.label,
+        lotReference,
         requestTable,
         ...attributionEventMetadata(attribution)
       }

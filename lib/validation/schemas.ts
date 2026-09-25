@@ -80,6 +80,7 @@ export const publicDevelopmentInterestSchema = z.object({
   email: z.string().email().optional().or(z.literal("")),
   message: z.string().optional(),
   interest: z.string().max(120).optional(),
+  lotReference: z.string().trim().max(120).optional(),
   residenceCity: z.string().trim().max(120).optional(),
   purchaseTimeline: z.string().trim().max(80).optional(),
   budgetRange: z.string().trim().max(80).optional(),

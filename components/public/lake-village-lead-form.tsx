@@ -1,12 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowRight, CheckCircle2, MessageCircle, Send, UsersRound } from "lucide-react";
+import { ArrowRight, CheckCircle2, MessageCircle, Send } from "lucide-react";
 import { getPublicAttribution } from "@/lib/attribution";
 import { buildWhatsAppUrl } from "@/lib/integrations/whatsapp-links";
 
 type FormStatus = "idle" | "success" | "error";
-const lakeVillageCommunityUrl = "https://chat.whatsapp.com/DttOxzfeB5SAEp0iZQSg5g";
 type Props = {
   variant?: "landing" | "capture";
 };
@@ -15,7 +14,6 @@ export function LakeVillageLeadForm({ variant = "landing" }: Props) {
   const [status, setStatus] = useState<FormStatus>("idle");
   const [message, setMessage] = useState("");
   const [whatsappUrl, setWhatsappUrl] = useState("");
-  const [communityUrl, setCommunityUrl] = useState("");
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -24,17 +22,16 @@ export function LakeVillageLeadForm({ variant = "landing" }: Props) {
     const name = String(data.get("name") ?? "").trim();
     const whatsapp = String(data.get("whatsapp") ?? "").trim();
     const interest = String(data.get("interest") ?? "").trim();
+    const lotReference = String(data.get("lotReference") ?? "").trim();
     const email = String(data.get("email") ?? "").trim();
     const residenceCity = String(data.get("residenceCity") ?? "").trim();
     const purchaseTimeline = String(data.get("purchaseTimeline") ?? "").trim();
     const budgetRange = String(data.get("budgetRange") ?? "").trim();
     const contactPreference = String(data.get("contactPreference") ?? "").trim();
-    const groupConsent = data.get("groupConsent") === "on";
-    const leadMessage = `Pré-cadastro de interesse no Lake Village Residences. Perfil: ${interest || "Ainda vou decidir"}.`;
+    const leadMessage = `Cadastro de interesse no Lake Village Residences. Perfil: ${interest || "Ainda vou decidir"}.${lotReference ? ` Referência de quadra/lote: ${lotReference}.` : ""}`;
 
     setStatus("idle");
     setMessage("");
-    setCommunityUrl("");
 
     try {
       const response = await fetch("/api/public/leads/development-interest", {
@@ -46,12 +43,12 @@ export function LakeVillageLeadForm({ variant = "landing" }: Props) {
           email,
           message: leadMessage,
           interest,
+          lotReference,
           residenceCity,
           purchaseTimeline,
           budgetRange,
           contactPreference,
           marketingConsent: data.get("marketingConsent") === "on",
-          groupConsent: variant === "landing" && groupConsent,
           developmentSlug: "lake-village-residences",
           landingPageSlug: "lake-village",
           sourcePage: window.location.pathname,
@@ -77,10 +74,11 @@ export function LakeVillageLeadForm({ variant = "landing" }: Props) {
       }
 
       setStatus("success");
-      setMessage("Pré-cadastro concluído. Envie a confirmação pelo WhatsApp para eu identificar seu atendimento mais rápido.");
+      setMessage("Cadastro concluído. Envie a confirmação pelo WhatsApp para eu identificar seu atendimento mais rápido.");
       const whatsappMessage = [
-        "Olá, Pedro! Concluí meu pré-cadastro do Lake Village Residences.",
+        "Olá, Pedro! Fiz meu cadastro de interesse no Lake Village Residences.",
         `Meu perfil: ${interest || "a definir"}.`,
+        lotReference ? `Quadra/lote de interesse: ${lotReference}.` : undefined,
         residenceCity ? `Cidade: ${residenceCity}.` : undefined,
         purchaseTimeline ? `Pretendo comprar: ${purchaseTimeline}.` : undefined,
         "Pode me enviar as informações disponíveis?"
@@ -88,7 +86,6 @@ export function LakeVillageLeadForm({ variant = "landing" }: Props) {
         .filter(Boolean)
         .join("\n");
       setWhatsappUrl(buildWhatsAppUrl(whatsappMessage));
-      setCommunityUrl(variant === "landing" && groupConsent ? lakeVillageCommunityUrl : "");
       form.reset();
     } catch (error) {
       setStatus("error");
@@ -121,6 +118,10 @@ export function LakeVillageLeadForm({ variant = "landing" }: Props) {
               <option value="Segunda residência">Segunda residência</option>
               <option value="Ainda estou avaliando">Ainda estou avaliando</option>
             </select>
+          </label>
+          <label>
+            Quadra ou lote de interesse <span>(opcional)</span>
+            <input name="lotReference" placeholder="Ex.: Quadra 08, lote 24" />
           </label>
           {variant === "capture" ? (
             <>
@@ -165,13 +166,6 @@ export function LakeVillageLeadForm({ variant = "landing" }: Props) {
           <span>Autorizo o contato de Pedro Soares sobre o Lake Village Residences e concordo com a política de privacidade.</span>
         </label>
 
-        {variant === "landing" ? (
-          <label className="lake-consent lake-group-consent">
-            <input type="checkbox" name="groupConsent" />
-            <span>Quero receber, por WhatsApp, um convite para a Comunidade Lake Village e acompanhar os materiais do empreendimento.</span>
-          </label>
-        ) : null}
-
         {variant === "capture" ? (
           <label className="lake-consent">
             <input type="checkbox" name="marketingConsent" />
@@ -180,7 +174,7 @@ export function LakeVillageLeadForm({ variant = "landing" }: Props) {
         ) : null}
 
         <button type="submit" className="lake-button lake-button--gold">
-          <Send size={17} /> {variant === "capture" ? "Concluir meu pré-cadastro" : "Quero receber a apresentação"} <ArrowRight size={17} />
+          <Send size={17} /> {variant === "capture" ? "Concluir meu cadastro" : "Quero consultar lotes"} <ArrowRight size={17} />
         </button>
 
         {status !== "idle" ? (
@@ -190,12 +184,6 @@ export function LakeVillageLeadForm({ variant = "landing" }: Props) {
           </p>
         ) : null}
       </form>
-
-      {status === "success" && communityUrl ? (
-        <a className="lake-button lake-button--deep lake-lead-whatsapp" href={communityUrl} target="_blank" rel="noreferrer">
-          <UsersRound size={18} /> Entrar na Comunidade Lake Village
-        </a>
-      ) : null}
 
       {status === "success" && whatsappUrl ? (
         <a className="lake-button lake-button--whatsapp lake-lead-whatsapp" href={whatsappUrl} target="_blank" rel="noreferrer">

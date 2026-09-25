@@ -9695,6 +9695,305 @@ body:has(.crm-shell) > main {
   .lake-photo-lightbox-close { transition: none; animation: none; }
 }
 
+/* Lake Village supplied-photo update */
+.lake-gallery-grid--updated {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.lake-gallery-grid--updated .lake-photo-trigger {
+  height: 100%;
+}
+
+.lake-gallery-grid--updated .lake-gallery-card {
+  height: 100%;
+}
+
+.lake-gallery-grid--updated .lake-gallery-image {
+  min-height: 0;
+  aspect-ratio: 16 / 9;
+}
+
+.lake-gallery-grid--updated .lake-gallery-card figcaption {
+  right: 20px;
+  bottom: 19px;
+  left: 20px;
+}
+
+.lake-gallery-grid--updated .lake-gallery-card figcaption strong {
+  font-size: clamp(1.05rem, 1.6vw, 1.45rem);
+}
+
+@media (max-width: 860px) {
+  .lake-gallery-grid--updated {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 620px) {
+  .lake-gallery-grid--updated {
+    grid-template-columns: 1fr;
+  }
+
+  .lake-gallery-grid--updated .lake-gallery-image {
+    aspect-ratio: 16 / 10;
+  }
+}
+
+.lake-lot-map-section {
+  background: #e6f0fc;
+}
+
+.lake-lot-map-block {
+  display: grid;
+  grid-template-columns: minmax(0, 1.22fr) minmax(300px, 0.78fr);
+  gap: 30px;
+  align-items: stretch;
+}
+
+.lake-lot-map-panel {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid rgba(11, 35, 70, 0.2);
+  background: #071923;
+  box-shadow: 0 22px 60px rgba(11, 35, 70, 0.16);
+}
+
+.lake-lot-map-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 14px 16px;
+  background: var(--lake-deep);
+  color: #fff;
+}
+
+.lake-lot-map-toolbar > div:first-child {
+  display: grid;
+  gap: 4px;
+}
+
+.lake-lot-map-toolbar-label {
+  color: var(--lake-sand);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+}
+
+.lake-lot-map-toolbar small {
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 0.68rem;
+}
+
+.lake-lot-map-controls {
+  display: flex;
+  gap: 6px;
+}
+
+.lake-lot-map-controls button {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border: 1px solid rgba(207, 227, 251, 0.34);
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.lake-lot-map-controls button:hover:not(:disabled),
+.lake-lot-map-controls button:focus-visible {
+  border-color: var(--lake-sand);
+  background: var(--lake-sand);
+  color: var(--lake-deep);
+}
+
+.lake-lot-map-controls button:disabled {
+  cursor: not-allowed;
+  opacity: 0.35;
+}
+
+.lake-lot-map-viewport {
+  position: relative;
+  height: min(53vw, 650px);
+  min-height: 440px;
+  overflow: hidden;
+  background: #071923;
+  cursor: grab;
+  touch-action: none;
+}
+
+.lake-lot-map-viewport:active {
+  cursor: grabbing;
+}
+
+.lake-lot-map-canvas {
+  width: 100%;
+  transform-origin: center center;
+  transition: transform 0.25s ease;
+  will-change: transform;
+}
+
+.lake-lot-map-viewport:active .lake-lot-map-canvas {
+  transition: none;
+}
+
+.lake-lot-map-canvas img {
+  display: block;
+  width: 100%;
+  height: auto;
+  user-select: none;
+  pointer-events: none;
+}
+
+.lake-lot-map-hint {
+  margin: 0;
+  padding: 11px 16px 13px;
+  background: #071923;
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 0.68rem;
+  line-height: 1.45;
+}
+
+.lake-lot-map-copy {
+  align-self: center;
+  padding: clamp(26px, 4vw, 54px) clamp(22px, 4vw, 48px);
+  background: var(--lake-deep);
+  color: #fff;
+}
+
+.lake-lot-map-copy .lake-kicker {
+  margin-bottom: 17px;
+}
+
+.lake-lot-map-copy h3 {
+  margin-bottom: 17px;
+  color: var(--lake-sand);
+  font-family: var(--font-title), Georgia, serif;
+  font-size: clamp(2rem, 3.5vw, 3.4rem);
+  font-weight: 500;
+  line-height: 1.02;
+  letter-spacing: -0.035em;
+}
+
+.lake-lot-map-copy > p:not(.lake-kicker) {
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 0.84rem;
+  line-height: 1.75;
+}
+
+.lake-lot-map-facts {
+  display: grid;
+  gap: 11px;
+  margin: 25px 0 28px;
+  padding-top: 19px;
+  border-top: 1px solid rgba(207, 227, 251, 0.24);
+}
+
+.lake-lot-map-facts span {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 15px;
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 0.68rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.lake-lot-map-facts strong {
+  color: var(--lake-sand);
+  font-family: var(--font-title), Georgia, serif;
+  font-size: 1.2rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.lake-lot-map-copy .lake-button {
+  width: 100%;
+}
+
+.lake-lot-map-block--expanded {
+  position: fixed;
+  inset: 0;
+  z-index: 130;
+  display: block;
+  overflow: auto;
+  padding: 18px;
+  background: rgba(4, 12, 18, 0.96);
+}
+
+.lake-lot-map-block--expanded .lake-lot-map-panel {
+  width: min(1500px, 100%);
+  margin: 0 auto;
+}
+
+.lake-lot-map-block--expanded .lake-lot-map-viewport {
+  height: calc(100vh - 116px);
+  min-height: 420px;
+}
+
+.lake-lot-map-block--expanded .lake-lot-map-copy {
+  display: none;
+}
+
+@media (max-width: 860px) {
+  .lake-lot-map-block {
+    grid-template-columns: 1fr;
+  }
+
+  .lake-lot-map-viewport {
+    height: min(70vw, 570px);
+  }
+
+  .lake-lot-map-copy {
+    padding: 34px 28px;
+  }
+}
+
+@media (max-width: 620px) {
+  .lake-lot-map-toolbar {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .lake-lot-map-controls {
+    width: 100%;
+  }
+
+  .lake-lot-map-controls button {
+    flex: 1;
+  }
+
+  .lake-lot-map-viewport {
+    height: 360px;
+    min-height: 0;
+  }
+
+  .lake-lot-map-copy {
+    padding: 29px 22px;
+  }
+
+  .lake-lot-map-facts span {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .lake-lot-map-block--expanded {
+    padding: 8px;
+  }
+
+  .lake-lot-map-block--expanded .lake-lot-map-viewport {
+    height: calc(100vh - 164px);
+    min-height: 280px;
+  }
+}
+
 .qdl-location {
   display: grid;
   grid-template-columns: minmax(0, 0.9fr) minmax(420px, 1.1fr);

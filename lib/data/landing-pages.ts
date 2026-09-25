@@ -92,9 +92,9 @@ export const publicLandingPages: PublicLandingPage[] = [
     title: "Lake Village Residences",
     category: "Lote em condomínio",
     location: "Luzimangues · Porto Nacional/TO",
-    summary: "Condomínio fechado à beira do lago de Palmas, para morar, investir ou ter uma segunda residência.",
-    image: "/brand/lake-village-cover.png",
-    status: "Pré-cadastro aberto"
+    summary: "Condomínio fechado à beira do lago em Luzimangues, com lazer, convivência e proposta para morar, investir ou ter uma segunda residência.",
+    image: "/brand/lake-village/atualizacao-2026-09/foto-01-masterplan.jpg",
+    status: "Vendas abertas"
   },
   {
     slug: "quinta-do-lago",
