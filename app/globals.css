@@ -9788,7 +9788,18 @@ body:has(.crm-shell) > main {
 
 .lake-lot-map-controls {
   display: flex;
+  align-items: center;
   gap: 6px;
+}
+
+.lake-lot-map-pdf-link {
+  color: var(--lake-sand);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  white-space: nowrap;
 }
 
 .lake-lot-map-controls button {
@@ -9821,31 +9832,14 @@ body:has(.crm-shell) > main {
   min-height: 440px;
   overflow: hidden;
   background: #071923;
-  cursor: grab;
-  touch-action: none;
 }
 
-.lake-lot-map-viewport:active {
-  cursor: grabbing;
-}
-
-.lake-lot-map-canvas {
-  width: 100%;
-  transform-origin: center center;
-  transition: transform 0.25s ease;
-  will-change: transform;
-}
-
-.lake-lot-map-viewport:active .lake-lot-map-canvas {
-  transition: none;
-}
-
-.lake-lot-map-canvas img {
+.lake-lot-map-pdf {
   display: block;
   width: 100%;
-  height: auto;
-  user-select: none;
-  pointer-events: none;
+  height: 100%;
+  border: 0;
+  background: #fff;
 }
 
 .lake-lot-map-hint {
@@ -9963,6 +9957,12 @@ body:has(.crm-shell) > main {
 
   .lake-lot-map-controls {
     width: 100%;
+  }
+
+  .lake-lot-map-pdf-link {
+    flex: 1;
+    align-self: center;
+    text-align: center;
   }
 
   .lake-lot-map-controls button {

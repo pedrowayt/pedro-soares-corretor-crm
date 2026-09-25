@@ -290,7 +290,7 @@ export default function LakeVillagePage() {
           <div className="lake-section-heading lake-section-heading--dark">
             <p className="lake-kicker lake-kicker--dark">Mapa do empreendimento</p>
             <h2 id="lake-lot-map-heading">Escolha seu lote olhando o projeto inteiro.</h2>
-            <p>Veja a implantação completa do Lake Village com todos os lotes visíveis e amplie para conferir quadras, referências e áreas de lazer.</p>
+            <p>Abra o PDF original do Lake Village com todos os lotes visíveis e use o zoom do próprio documento para conferir quadras, referências e áreas de lazer com mais precisão.</p>
           </div>
           <LakeVillageLotMap />
         </div>
