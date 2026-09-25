@@ -3,8 +3,8 @@
 import { Maximize2, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
-const mapPdf = "/brand/lake-village/atualizacao-2026-09/mapa-lotes-empreendimento.pdf";
-const mapPdfPage = `${mapPdf}#page=2&zoom=page-width`;
+const mapPdf = "/brand/lake-village/atualizacao-2026-09/mapa-lotes-pagina-2.pdf";
+const completeMapPdf = "/brand/lake-village/atualizacao-2026-09/mapa-lotes-empreendimento.pdf";
 
 export function LakeVillageLotMap() {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -32,10 +32,10 @@ export function LakeVillageLotMap() {
         <div className="lake-lot-map-toolbar">
           <div>
             <span className="lake-lot-map-toolbar-label">Mapa em PDF original</span>
-            <small>Página 2 · implantação completa e detalhes dos lotes</small>
+            <small>Segunda página · implantação completa e detalhes dos lotes</small>
           </div>
           <div className="lake-lot-map-controls" aria-label="Controles do mapa">
-            <a className="lake-lot-map-pdf-link" href={mapPdf} target="_blank" rel="noreferrer">
+            <a className="lake-lot-map-pdf-link" href={completeMapPdf} target="_blank" rel="noreferrer">
               Abrir PDF completo
             </a>
             <button type="button" onClick={() => setIsExpanded((current) => !current)} aria-label={isExpanded ? "Fechar mapa ampliado" : "Ampliar mapa"}>
@@ -47,7 +47,7 @@ export function LakeVillageLotMap() {
         <div className="lake-lot-map-viewport" role="region" aria-label="Mapa em PDF dos lotes do Lake Village">
           <iframe
             className="lake-lot-map-pdf"
-            src={mapPdfPage}
+            src={mapPdf}
             title="PDF original do mapa de lotes do Lake Village Residences"
             loading="lazy"
           />

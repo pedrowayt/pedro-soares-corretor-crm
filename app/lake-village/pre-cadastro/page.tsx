@@ -9,12 +9,12 @@ import { getSiteUrl } from "@/lib/site-url";
 const siteUrl = getSiteUrl();
 
 export const metadata: Metadata = {
-  title: "Lake Village Residences | Vendas abertas | Pedro Soares",
-  description: "Consulte lotes e condições do Lake Village Residences, com vendas abertas e atendimento de Pedro Soares.",
+  title: "Lake Village Residences | Lançamento em breve | Pedro Soares",
+  description: "Registre seu interesse no Lake Village Residences, escolha sua preferência de lote e reserve no dia do lançamento.",
   alternates: { canonical: `${siteUrl}/lake-village/pre-cadastro` },
   openGraph: {
-    title: "Lake Village Residences | Vendas abertas | Pedro Soares",
-    description: "Registre seu interesse e consulte lotes disponíveis no Lake Village Residences.",
+    title: "Lake Village Residences | Lançamento em breve | Pedro Soares",
+    description: "Escolha sua preferência de lote e acompanhe as informações do lançamento do Lake Village Residences.",
     type: "website",
     url: `${siteUrl}/lake-village/pre-cadastro`,
     images: [{ url: `${siteUrl}/brand/lake-village/atualizacao-2026-09/foto-01-masterplan.jpg` }]
@@ -30,7 +30,7 @@ export default function LakeVillagePreCadastroPage() {
           <Link href="/lake-village" className="lake-pre-cadastro-back">
             <ArrowLeft size={16} aria-hidden="true" /> Voltar para a apresentação
           </Link>
-          <span>Lake Village Residences · Vendas abertas</span>
+          <span>Lake Village Residences · Lançamento em breve</span>
         </div>
       </header>
 
@@ -47,9 +47,9 @@ export default function LakeVillagePreCadastroPage() {
           <div className="lake-pre-cadastro-hero__overlay" />
           <div className="container lake-pre-cadastro-hero__content">
             <p className="lake-personal-brand">Atendimento Pedro Soares · CRECI 5861-TO</p>
-            <p className="lake-kicker">Vendas abertas · Cadastro de interesse</p>
-            <h1>Encontre o lote certo para você.</h1>
-            <p>Conte um pouco sobre o que você procura no Lake Village Residences. Assim, consigo consultar a disponibilidade e conduzir a conversa de forma mais objetiva.</p>
+            <p className="lake-kicker">Lançamento em breve · Cadastro de interesse</p>
+            <h1>Escolha seu lote para o lançamento.</h1>
+            <p>Conte um pouco sobre o que você procura no Lake Village Residences. Assim, registro sua preferência e acompanho você para reservar no dia do lançamento.</p>
             <div className="lake-pre-cadastro-points">
               <span><CheckCircle2 size={17} aria-hidden="true" /> Atendimento individual</span>
               <span><ShieldCheck size={17} aria-hidden="true" /> Seus dados tratados com cuidado</span>
@@ -63,7 +63,7 @@ export default function LakeVillagePreCadastroPage() {
             <div className="lake-pre-cadastro-form-copy">
               <p className="lake-kicker lake-kicker--dark">Cadastro de interesse</p>
               <h2>Vamos começar pela sua realidade.</h2>
-              <p>Este cadastro não é reserva nem proposta de compra. Ele me ajuda a entender seu momento, consultar a disponibilidade e apresentar as condições comerciais vigentes.</p>
+              <p>Este cadastro não é reserva nem proposta de compra. Ele registra sua preferência de lote para que eu possa acompanhar você e apresentar os preços e as condições quando forem divulgados no lançamento.</p>
               <Link href="/politica-de-privacidade" className="lake-text-link">Conhecer a política de privacidade</Link>
             </div>
             <LakeVillageLeadForm variant="capture" />

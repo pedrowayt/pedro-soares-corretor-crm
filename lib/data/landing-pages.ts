@@ -94,7 +94,7 @@ export const publicLandingPages: PublicLandingPage[] = [
     location: "Luzimangues · Porto Nacional/TO",
     summary: "Condomínio fechado à beira do lago em Luzimangues, com lazer, convivência e proposta para morar, investir ou ter uma segunda residência.",
     image: "/brand/lake-village/atualizacao-2026-09/foto-01-masterplan.jpg",
-    status: "Vendas abertas"
+    status: "Lançamento em breve"
   },
   {
     slug: "quinta-do-lago",
