@@ -128,6 +128,14 @@ export default function LakeVillagePage() {
         <div className="lake-hero-overlay" />
         <LakeVillageAudio />
         <div className="container lake-hero-content">
+          <Image
+            className="lake-brand-lockup"
+            src="/brand/lake-village-logo.png"
+            alt="Lake Village Residences"
+            width={460}
+            height={230}
+            priority
+          />
           <p className="lake-personal-brand">Pedro Soares · Atendimento imobiliário</p>
           <p className="lake-kicker">Vendas abertas · Lake Village Residences · Luzimangues/TO</p>
           <h1>Um endereço para viver o lago todos os dias.</h1>

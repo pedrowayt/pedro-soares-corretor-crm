@@ -101,7 +101,9 @@ export function LakeVillageLotMap() {
               alt="Mapa detalhado do empreendimento Lake Village Residences com todos os lotes, vias, áreas de lazer e etapas"
               width={7654}
               height={5788}
-              sizes="(max-width: 860px) 100vw, 72vw"
+              sizes="100vw"
+              quality={100}
+              unoptimized
               priority={false}
             />
           </div>
