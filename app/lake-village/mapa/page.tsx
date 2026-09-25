@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, ExternalLink, MapPinned, MessageCircle } from "lucide-react";
+import { ArrowRight, MapPinned, MessageCircle } from "lucide-react";
 import { LakeVillageLeadForm } from "@/components/public/lake-village-lead-form";
 import { LakeVillageLotMap } from "@/components/public/lake-village-lot-map";
 import { LandingPageTracker } from "@/components/public/landing-page-tracker";
@@ -79,7 +79,7 @@ export default function LakeVillageMapPage() {
               </div>
               <div>
                 <p>O mapa original preserva os detalhes da implantação. Use o zoom do visualizador, navegue pelas áreas e anote a quadra e o lote que mais combinam com você.</p>
-                <a className="lake-map-experience-pdf-link" href="/brand/lake-village/atualizacao-2026-09/mapa-lotes-empreendimento.pdf" target="_blank" rel="noreferrer">Abrir PDF completo <ExternalLink size={15} /></a>
+                <a className="lake-map-experience-pdf-link" href="/brand/lake-village/atualizacao-2026-09/mapa-lotes-pagina-2.pdf" target="_blank" rel="noreferrer">Abrir somente o mapa <ArrowRight size={15} /></a>
               </div>
             </div>
             <LakeVillageLotMap />

@@ -4,7 +4,6 @@ import { Maximize2, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
 const mapPdf = "/brand/lake-village/atualizacao-2026-09/mapa-lotes-pagina-2.pdf";
-const completeMapPdf = "/brand/lake-village/atualizacao-2026-09/mapa-lotes-empreendimento.pdf";
 
 export function LakeVillageLotMap() {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -35,8 +34,8 @@ export function LakeVillageLotMap() {
             <small>Segunda página · implantação completa e detalhes dos lotes</small>
           </div>
           <div className="lake-lot-map-controls" aria-label="Controles do mapa">
-            <a className="lake-lot-map-pdf-link" href={completeMapPdf} target="_blank" rel="noreferrer">
-              Abrir PDF completo
+            <a className="lake-lot-map-pdf-link" href={mapPdf} target="_blank" rel="noreferrer">
+              Abrir mapa em nova aba
             </a>
             <button type="button" onClick={() => setIsExpanded((current) => !current)} aria-label={isExpanded ? "Fechar mapa ampliado" : "Ampliar mapa"}>
               {isExpanded ? <X size={17} /> : <Maximize2 size={16} />}
@@ -53,7 +52,7 @@ export function LakeVillageLotMap() {
           />
         </div>
 
-        <p className="lake-lot-map-hint">O PDF original mantém os detalhes do mapa. Use os controles de zoom do visualizador, navegue entre as páginas e abra o documento em uma nova aba quando quiser conferir uma área com mais precisão.</p>
+        <p className="lake-lot-map-hint">Este bloco mostra somente a segunda página do PDF, com o mapa de lotes. Use os controles de zoom do visualizador ou abra o mapa em uma nova aba para conferir uma área com mais precisão.</p>
       </div>
 
       <div className="lake-lot-map-copy">
