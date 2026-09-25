@@ -19,7 +19,7 @@ function getWhatsappMessage(pathname: string) {
   if (pathname.startsWith("/palmas-lake")) {
     return "Olá, Pedro. Quero conhecer o Palmas Lake e receber mais informações.";
   }
-  if (pathname === "/lake-village") {
+  if (pathname.startsWith("/lake-village")) {
     return "Olá, Pedro. Tenho interesse no Lake Village Residences e gostaria de receber mais informações.";
   }
   if (pathname === "/acordes") {

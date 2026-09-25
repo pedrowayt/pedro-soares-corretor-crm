@@ -9022,6 +9022,10 @@ body:has(.crm-shell) > main {
   }
 }
 
+@media (max-width: 1050px) {
+  .lake-map-experience-back { display: none; }
+}
+
 @media (max-width: 620px) {
   .lake-hero h1 {
     max-width: 440px;
@@ -9932,6 +9936,122 @@ body:has(.crm-shell) > main {
 
 .lake-lot-map-block--expanded .lake-lot-map-copy {
   display: none;
+}
+
+/* Lake Village dedicated lot-selection page */
+.lake-map-experience {
+  --lake-deep: #0b2346;
+  --lake-blue: #1768c5;
+  --lake-sand: #cfe3fb;
+  --lake-mist: #f1f6fc;
+  --lake-ink: #172b45;
+  min-height: 100vh;
+  overflow: hidden;
+  background: var(--lake-mist);
+  color: var(--lake-ink);
+}
+
+.lake-map-experience h1,
+.lake-map-experience h2,
+.lake-map-experience h3,
+.lake-map-experience p { margin-top: 0; }
+
+.lake-map-experience-header {
+  position: absolute;
+  z-index: 5;
+  top: 0;
+  right: 0;
+  left: 0;
+  color: #fff;
+}
+
+.lake-map-experience-header__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 92px;
+  gap: 22px;
+}
+
+.lake-map-experience-brand { display: block; width: 150px; }
+.lake-map-experience-brand img { display: block; width: 100%; height: auto; }
+.lake-map-experience-header__actions { display: flex; align-items: center; gap: 22px; }
+.lake-map-experience-back { color: rgba(255,255,255,.82); font-size: .72rem; font-weight: 700; }
+.lake-map-experience-back:hover { color: var(--lake-sand); }
+.lake-map-experience-header .lake-button { min-height: 40px; padding: 0 15px; font-size: .68rem; }
+
+.lake-map-experience-hero {
+  position: relative;
+  min-height: min(760px, 90vh);
+  display: flex;
+  align-items: center;
+  isolation: isolate;
+  background: var(--lake-deep);
+  color: #fff;
+}
+
+.lake-map-experience-hero__image { z-index: -2; object-fit: cover; object-position: center 44%; }
+.lake-map-experience-hero__overlay { position: absolute; inset: 0; z-index: -1; background: linear-gradient(90deg, rgba(5,19,38,.94), rgba(5,19,38,.43) 54%, rgba(5,19,38,.15)), linear-gradient(0deg, rgba(5,19,38,.7), transparent 55%); }
+.lake-map-experience-hero__content { position: relative; z-index: 1; padding-top: 122px; padding-bottom: 82px; }
+.lake-map-experience-hero__content h1 { max-width: 750px; margin-bottom: 22px; color: var(--lake-sand); font-family: var(--font-title), Georgia, serif; font-size: clamp(3rem, 7vw, 6.7rem); font-weight: 500; line-height: .94; letter-spacing: -.065em; }
+.lake-map-experience-hero__content > p:not(.lake-kicker) { max-width: 570px; margin-bottom: 30px; color: rgba(255,255,255,.78); font-size: 1rem; line-height: 1.75; }
+.lake-map-experience-hero__actions { display: flex; flex-wrap: wrap; gap: 11px; }
+.lake-map-experience-stats { display: flex; flex-wrap: wrap; gap: 28px; margin-top: 48px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,.25); }
+.lake-map-experience-stats div { display: grid; gap: 4px; }
+.lake-map-experience-stats strong { color: var(--lake-sand); font-family: var(--font-title), Georgia, serif; font-size: 1.6rem; font-weight: 500; line-height: 1; }
+.lake-map-experience-stats span { color: rgba(255,255,255,.64); font-size: .67rem; letter-spacing: .09em; text-transform: uppercase; }
+
+.lake-map-experience-map-section { padding: 100px 0 112px; background: #e6f0fc; }
+.lake-map-experience-section-heading { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(280px, .65fr); gap: 48px; align-items: end; margin-bottom: 34px; }
+.lake-map-experience-section-heading h2 { max-width: 760px; margin-bottom: 0; color: var(--lake-deep); font-family: var(--font-title), Georgia, serif; font-size: clamp(2.5rem, 5vw, 5.2rem); font-weight: 500; line-height: .98; letter-spacing: -.06em; }
+.lake-map-experience-section-heading > div:last-child > p { max-width: 400px; margin-bottom: 18px; color: rgba(23,43,69,.72); font-size: .9rem; line-height: 1.75; }
+.lake-map-experience-pdf-link { display: inline-flex; align-items: center; gap: 7px; color: var(--lake-deep); font-size: .72rem; font-weight: 800; text-decoration: underline; text-underline-offset: 4px; }
+.lake-map-experience-pdf-link:hover { color: var(--lake-blue); }
+.lake-map-experience-map-section .lake-lot-map-block { grid-template-columns: minmax(0, 1.55fr) minmax(290px, .65fr); }
+
+.lake-map-experience-help { padding: 92px 0; background: #fff; }
+.lake-map-experience-help__grid { display: grid; grid-template-columns: minmax(0, .85fr) minmax(320px, 1fr); gap: clamp(44px, 9vw, 130px); align-items: start; }
+.lake-map-experience-help h2 { max-width: 560px; color: var(--lake-deep); font-family: var(--font-title), Georgia, serif; font-size: clamp(2.4rem, 5vw, 5rem); font-weight: 500; line-height: .98; letter-spacing: -.06em; }
+.lake-map-experience-help ol { display: grid; gap: 0; margin: 0; padding: 0; list-style: none; }
+.lake-map-experience-help li { display: grid; grid-template-columns: 58px 1fr; gap: 18px; align-items: start; padding: 20px 0; border-top: 1px solid rgba(23,43,69,.17); color: rgba(23,43,69,.72); font-size: .88rem; line-height: 1.65; }
+.lake-map-experience-help li:last-child { border-bottom: 1px solid rgba(23,43,69,.17); }
+.lake-map-experience-help li strong { color: var(--lake-blue); font-family: var(--font-title), Georgia, serif; font-size: 1.55rem; font-weight: 500; line-height: 1; }
+
+.lake-map-experience-form-section { padding: 100px 0; background: var(--lake-deep); color: #fff; }
+.lake-map-experience-form-grid { display: grid; grid-template-columns: minmax(0, .82fr) minmax(420px, 1fr); gap: clamp(42px, 8vw, 112px); align-items: start; }
+.lake-map-experience-form-copy { padding-top: 15px; }
+.lake-map-experience-form-copy h2 { max-width: 580px; margin-bottom: 20px; color: var(--lake-sand); font-family: var(--font-title), Georgia, serif; font-size: clamp(2.6rem, 5vw, 5rem); font-weight: 500; line-height: .98; letter-spacing: -.06em; }
+.lake-map-experience-form-copy > p:not(.lake-kicker) { max-width: 470px; color: rgba(255,255,255,.72); line-height: 1.75; }
+.lake-map-experience-form-copy .lake-lead-secondary-link { color: var(--lake-sand); }
+.lake-map-experience-form-copy .lake-lead-secondary-link:hover { color: #fff; }
+
+.lake-map-experience .lake-lead-form-wrap { margin: 0; }
+.lake-map-exclusive-link { display: inline-flex; align-items: center; gap: 7px; margin-top: 20px; color: var(--lake-deep); font-size: .74rem; font-weight: 800; text-decoration: underline; text-underline-offset: 4px; }
+.lake-map-exclusive-link:hover { color: var(--lake-blue); }
+
+@media (max-width: 860px) {
+  .lake-map-experience-section-heading,
+  .lake-map-experience-help__grid,
+  .lake-map-experience-form-grid { grid-template-columns: 1fr; gap: 36px; }
+  .lake-map-experience-section-heading { align-items: start; }
+  .lake-map-experience-map-section .lake-lot-map-block { grid-template-columns: 1fr; }
+  .lake-map-experience-form-copy { padding-top: 0; }
+}
+
+@media (max-width: 620px) {
+  .lake-map-experience-header__inner { align-items: flex-start; min-height: 102px; padding-top: 18px; }
+  .lake-map-experience-header__actions { align-items: flex-end; flex-direction: column; gap: 12px; }
+  .lake-map-experience-back { font-size: .64rem; }
+  .lake-map-experience-header .lake-button { min-height: 36px; }
+  .lake-map-experience-hero { min-height: 720px; align-items: flex-end; }
+  .lake-map-experience-hero__overlay { background: linear-gradient(0deg, rgba(5,19,38,.97), rgba(5,19,38,.47) 70%, rgba(5,19,38,.25)); }
+  .lake-map-experience-hero__content { padding-top: 132px; padding-bottom: 56px; }
+  .lake-map-experience-hero__content h1 { font-size: clamp(3rem, 14vw, 4.7rem); }
+  .lake-map-experience-hero__actions .lake-button { width: 100%; }
+  .lake-map-experience-stats { gap: 18px; margin-top: 34px; }
+  .lake-map-experience-map-section,
+  .lake-map-experience-form-section { padding: 74px 0; }
+  .lake-map-experience-help { padding: 72px 0; }
 }
 
 @media (max-width: 860px) {

@@ -121,6 +121,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/termos-de-uso",
     "/palmas-lake",
     "/lake-village",
+    "/lake-village/mapa",
     "/quinta-do-lago",
     "/acordes",
     "/like-210",

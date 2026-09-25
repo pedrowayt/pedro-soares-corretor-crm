@@ -9,7 +9,7 @@ import { SiteHeader } from "@/components/layout/site-header";
 
 export function SiteChrome({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const isLakeVillageLanding = pathname === "/lake-village";
+  const isLakeVillageLanding = pathname === "/lake-village" || pathname === "/lake-village/mapa";
   const isQuintaDoLagoLanding = pathname === "/quinta-do-lago";
   const isAcordesLanding = pathname === "/acordes";
   const isLike210Landing = pathname === "/like-210";
