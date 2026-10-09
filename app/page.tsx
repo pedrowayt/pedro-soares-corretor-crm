@@ -439,7 +439,7 @@ export default async function HomePage() {
               <Link href="/imoveis/prontos">Ver catálogo completo <span aria-hidden="true">↗</span></Link>
             </div>
 
-            <form className="wp-search-panel" action="/imoveis/prontos" method="GET">
+            <form className="wp-search-panel wp-search-panel--clean" action="/imoveis/prontos" method="GET">
                 <div>
                   <label htmlFor="purpose">Finalidade</label>
                   <select id="purpose" name="purpose" defaultValue="VENDA">

@@ -431,8 +431,13 @@ export default async function ImoveisProntosPage({
 
           <div className="listing-layout">
             <aside className="listing-filters" aria-label="Filtros">
-              <MobileFilterToggle activeFilterCount={activeFilterCount} resultCount={totalCount}>
-              <AutoSubmitForm method="GET" className="listing-filters-form" manualOnMobile>
+              <MobileFilterToggle
+                activeFilterCount={activeFilterCount}
+                resultCount={totalCount}
+                formId="listing-filters-form"
+                clearHref="/imoveis/prontos"
+              >
+              <AutoSubmitForm id="listing-filters-form" method="GET" className="listing-filters-form" manualOnMobile>
                 <div className="listing-filters-head">
                   <h2 className="listing-filters-title">Filtros</h2>
                   <Link href="/imoveis/prontos" className="listing-filters-clear">
