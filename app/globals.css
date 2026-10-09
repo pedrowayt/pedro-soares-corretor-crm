@@ -23061,7 +23061,7 @@ body:has(.wp-hero) { background: #fff; }
   .mobile-filter-action-bar {
     position: fixed;
     right: 12px;
-    bottom: calc(88px + env(safe-area-inset-bottom));
+    bottom: calc(12px + env(safe-area-inset-bottom));
     left: 12px;
     z-index: 102;
     display: grid;
@@ -23145,7 +23145,7 @@ body:has(.wp-hero) { background: #fff; }
 
   .mobile-filter-toggle.is-open .mobile-filter-toggle-panel {
     right: 12px;
-    bottom: 80px;
+    bottom: calc(78px + env(safe-area-inset-bottom));
     left: 12px;
     max-height: calc(100dvh - 150px);
     border-radius: 14px;
@@ -23165,7 +23165,7 @@ body:has(.wp-hero) { background: #fff; }
   }
 
   .listing-results {
-    padding-bottom: 92px;
+    padding-bottom: calc(92px + env(safe-area-inset-bottom));
   }
 
   .wp-search-panel--clean {
