@@ -17,6 +17,8 @@ import { formatCurrencyBRL } from "@/lib/utils";
 
 const baseUrl = getSiteUrl();
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Imóveis em Palmas TO | Casas, apartamentos e lançamentos",
   description:
