@@ -23144,16 +23144,22 @@ body:has(.wp-hero) { background: #fff; }
   }
 
   .mobile-filter-toggle.is-open .mobile-filter-toggle-panel {
+    position: fixed;
     right: 12px;
-    bottom: calc(78px + env(safe-area-inset-bottom));
+    bottom: calc(86px + env(safe-area-inset-bottom));
     left: 12px;
-    max-height: calc(100dvh - 150px);
+    max-height: calc(100dvh - 160px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scroll-padding-bottom: 24px;
+    padding-bottom: 12px;
     border-radius: 14px;
   }
 
   .mobile-filter-toggle.is-open .mobile-filter-toggle-panel .listing-filters-form {
     border: 0;
     border-radius: 0 0 14px 14px;
+    padding-bottom: 28px;
   }
 
   .mobile-filter-toggle.is-open .listing-filters-apply {
