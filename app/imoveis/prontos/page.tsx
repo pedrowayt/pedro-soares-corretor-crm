@@ -295,6 +295,18 @@ export default async function ImoveisProntosPage({
   const headingLocation = city ? city : "Palmas e região";
 
   const launchCount = launches.length;
+  const activeFilterCount = [
+    purpose && purpose !== "VENDA" ? purpose : "",
+    city,
+    district,
+    type,
+    minPrice,
+    maxPrice,
+    bedrooms,
+    minAreaM2,
+    investmentSource,
+    catalogSource
+  ].filter((value) => value !== undefined && value !== null && value !== "").length;
   const investmentEmptyLabel = investmentSource === "land" ? "terreno ou lote" : "imóvel pronto";
   const launchSummary = countLabel(launchCount, "lançamento selecionado", "lançamentos selecionados");
   const propertySummary = countLabel(
@@ -419,8 +431,8 @@ export default async function ImoveisProntosPage({
 
           <div className="listing-layout">
             <aside className="listing-filters" aria-label="Filtros">
-              <MobileFilterToggle>
-              <AutoSubmitForm method="GET" className="listing-filters-form">
+              <MobileFilterToggle activeFilterCount={activeFilterCount} resultCount={totalCount}>
+              <AutoSubmitForm method="GET" className="listing-filters-form" manualOnMobile>
                 <div className="listing-filters-head">
                   <h2 className="listing-filters-title">Filtros</h2>
                   <Link href="/imoveis/prontos" className="listing-filters-clear">
@@ -576,13 +588,14 @@ export default async function ImoveisProntosPage({
                 </div>
 
                 <button type="submit" className="button button-primary listing-filters-apply">
-                  Aplicar filtros
+                  <span className="listing-filters-apply-desktop">Aplicar filtros</span>
+                  <span className="listing-filters-apply-mobile">Ver resultados</span>
                 </button>
               </AutoSubmitForm>
               </MobileFilterToggle>
             </aside>
 
-            <section className="listing-results" aria-label="Resultados">
+            <section id="listing-results" className="listing-results" aria-label="Resultados">
               {showInvestmentProperties && isInvestmentPage ? (
                 <div className="listing-results-head">
                   <p className="wp-section-eyebrow">

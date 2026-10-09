@@ -16986,6 +16986,31 @@ body:has(.crm-shell) > main {
   display: none;
 }
 
+.mobile-filter-toggle-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mobile-filter-toggle-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: #0b1220;
+  color: #fff;
+  font-size: 0.75rem;
+  line-height: 1;
+}
+
+.mobile-filter-results-link,
+.listing-filters-apply-mobile {
+  display: none;
+}
+
 .mobile-filter-toggle-panel {
   display: block;
 }
@@ -17309,9 +17334,19 @@ body:has(.crm-shell) > main {
 }
 
 @media (max-width: 640px) {
+  .mobile-filter-toggle {
+    position: relative;
+    z-index: 30;
+  }
+
   .mobile-filter-toggle-button {
+    position: fixed;
+    right: 12px;
+    bottom: 12px;
+    left: 12px;
+    z-index: 102;
     display: flex;
-    width: 100%;
+    width: auto;
     align-items: center;
     justify-content: space-between;
     gap: 8px;
@@ -17323,15 +17358,93 @@ body:has(.crm-shell) > main {
     font-size: 0.9375rem;
     color: #0b1220;
     cursor: pointer;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.16);
   }
+
+  .mobile-filter-toggle-button:focus-visible,
+  .mobile-filter-results-link:focus-visible {
+    outline: 3px solid #1d4ed8;
+    outline-offset: 3px;
+  }
+
+  .mobile-filter-results-link {
+    position: fixed;
+    right: 12px;
+    bottom: 72px;
+    left: 12px;
+    z-index: 101;
+    display: block;
+    padding: 11px 16px;
+    border: 1px solid #dbe3ee;
+    border-radius: 12px;
+    background: #0b1220;
+    color: #fff;
+    font-size: 0.875rem;
+    font-weight: 700;
+    text-align: center;
+    text-decoration: none;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.14);
+  }
+
+  .mobile-filter-toggle.is-open::before {
+    position: fixed;
+    inset: 0;
+    z-index: 99;
+    display: block;
+    background: rgba(11, 18, 32, 0.44);
+    content: "";
+  }
+
+  .mobile-filter-toggle.is-open .mobile-filter-results-link {
+    display: none;
+  }
+
+  .mobile-filter-toggle.is-open .mobile-filter-toggle-panel {
+    position: fixed;
+    right: 12px;
+    bottom: 72px;
+    left: 12px;
+    z-index: 101;
+    display: block;
+    max-height: calc(100dvh - 140px);
+    overflow-y: auto;
+    border-radius: 14px;
+    background: #fff;
+    box-shadow: 0 16px 44px rgba(15, 23, 42, 0.22);
+  }
+
+  .mobile-filter-toggle.is-open .listing-filters-form {
+    max-height: none;
+    overflow: visible;
+  }
+
+  .mobile-filter-toggle.is-open .mobile-filter-toggle-button {
+    background: #f8fafc;
+  }
+
+  .listing-filters-apply-desktop {
+    display: none;
+  }
+
+  .listing-filters-apply-mobile {
+    display: inline;
+  }
+
+  .listing-filters-apply {
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
+    margin-top: 2px;
+    box-shadow: 0 -8px 18px rgba(255, 255, 255, 0.94);
+  }
+
   .mobile-filter-toggle-chevron {
     transition: transform 0.15s ease;
     font-size: 0.875rem;
     color: var(--text-muted);
   }
   .mobile-filter-toggle.is-open .mobile-filter-toggle-button {
-    border-radius: 12px 12px 0 0;
-    border-bottom: none;
+    border-color: #cbd5e1;
   }
   .mobile-filter-toggle.is-open .mobile-filter-toggle-chevron {
     transform: rotate(180deg);
@@ -17339,13 +17452,14 @@ body:has(.crm-shell) > main {
   .mobile-filter-toggle:not(.is-open) .mobile-filter-toggle-panel {
     display: none;
   }
-  .mobile-filter-toggle.is-open .listing-filters-form {
-    border-top-left-radius: 0;
-    border-top-right-radius: 0;
-  }
   .mobile-filter-toggle > .listing-filters-form > .listing-filters-head,
   .mobile-filter-toggle-panel > .listing-filters-form > .listing-filters-head {
     display: none;
+  }
+
+  .listing-results {
+    scroll-margin-top: 24px;
+    padding-bottom: 72px;
   }
 }
 
