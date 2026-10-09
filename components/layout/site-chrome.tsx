@@ -24,6 +24,7 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
   const isCinnamonLanding = pathname === "/cinnamon-studio";
   const isStandaloneLanding = isLakeVillageLanding || isQuintaDoLagoLanding || isAcordesLanding || isLike210Landing || isMaestriaLanding || isHeritageLanding || isYachtLanding || isYouLanding || isTerracoUrbanLanding || isPalmasLakeLanding || isComodoroLanding || isUrbanHauteLanding || isCinnamonLanding;
   const isInternalArea = pathname.startsWith("/admin") || pathname.startsWith("/crm");
+  const isPropertyCatalog = pathname.startsWith("/imoveis/prontos");
 
   return (
     <>
@@ -32,7 +33,7 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
       {isStandaloneLanding ? null : <SiteHeader />}
       <main className={isStandaloneLanding ? "site-main--landing" : undefined}>{children}</main>
       {isStandaloneLanding ? null : <SiteFooter />}
-      {isInternalArea ? null : <SiteWhatsAppBubble />}
+      {isInternalArea || isPropertyCatalog ? null : <SiteWhatsAppBubble />}
     </>
   );
 }
