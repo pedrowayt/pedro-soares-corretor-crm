@@ -3,7 +3,8 @@ import { DevelopmentPropertyType } from "@prisma/client";
 export const DEVELOPMENT_PROPERTY_TYPE_LABELS: Record<DevelopmentPropertyType, string> = {
   COMPLEXO: "Complexo",
   APARTAMENTO: "Apartamento",
-  CASA: "Casa",
+  CASA: "Casa de rua",
+  CASA_EM_CONDOMINIO: "Casa em condomínio",
   LOTE: "Lote",
   LOTE_EM_CONDOMINIO: "Lote em condomínio",
   SALA_COMERCIAL: "Sala comercial",

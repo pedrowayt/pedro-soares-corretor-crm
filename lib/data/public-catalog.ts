@@ -67,7 +67,10 @@ function inferPropertyTypes(landing: PublicLandingPage): PropertyType[] {
   const types = new Set<PropertyType>();
 
   if (text.includes("lote")) types.add(text.includes("condominio") ? PropertyType.LOTE_EM_CONDOMINIO : PropertyType.LOTE);
-  if (text.includes("chacara")) types.add(PropertyType.CHACARA_EM_CONDOMINIO);
+  if (text.includes("chacara")) types.add(text.includes("condominio") ? PropertyType.CHACARA_EM_CONDOMINIO : PropertyType.CHACARA);
+  if (text.includes("casa") || text.includes("sobrado")) {
+    types.add(text.includes("condominio") || text.includes("residencial fechado") ? PropertyType.CASA_EM_CONDOMINIO : PropertyType.CASA);
+  }
   if (text.includes("comercial") || text.includes("office") || text.includes("mall") || text.includes("mixed-use")) {
     types.add(PropertyType.COMERCIAL);
   }
@@ -126,6 +129,7 @@ function developmentPropertyTypes(propertyType: DevelopmentPropertyType | null |
     COMPLEXO: [PropertyType.APARTAMENTO, PropertyType.COMERCIAL],
     APARTAMENTO: [PropertyType.APARTAMENTO],
     CASA: [PropertyType.CASA],
+    CASA_EM_CONDOMINIO: [PropertyType.CASA_EM_CONDOMINIO],
     LOTE: [PropertyType.LOTE],
     LOTE_EM_CONDOMINIO: [PropertyType.LOTE_EM_CONDOMINIO],
     SALA_COMERCIAL: [PropertyType.SALA, PropertyType.COMERCIAL],
@@ -134,6 +138,23 @@ function developmentPropertyTypes(propertyType: DevelopmentPropertyType | null |
   };
 
   return propertyType ? mapping[propertyType] ?? [] : [];
+}
+
+function developmentCatalogPropertyTypes(
+  development: Awaited<ReturnType<typeof listPublicDevelopments>>[number]
+) {
+  const propertyType = typeof development.propertyType === "string"
+    ? (development.propertyType as DevelopmentPropertyType)
+    : development.propertyType;
+
+  if (propertyType === DevelopmentPropertyType.CASA) {
+    const text = normalize(`${development.title} ${development.summary} ${development.description}`);
+    if (text.includes("condominio") || text.includes("residencial fechado")) {
+      return [PropertyType.CASA_EM_CONDOMINIO];
+    }
+  }
+
+  return developmentPropertyTypes(propertyType);
 }
 
 function fromDevelopment(development: Awaited<ReturnType<typeof listPublicDevelopments>>[number]): PublicCatalogLaunch {
@@ -156,11 +177,7 @@ function fromDevelopment(development: Awaited<ReturnType<typeof listPublicDevelo
     summary: development.summary,
     imageUrl: primaryImage ?? editorial?.image,
     status: editorial?.status ?? development.stageLabel,
-    propertyTypes: developmentPropertyTypes(
-      typeof development.propertyType === "string"
-        ? (development.propertyType as DevelopmentPropertyType)
-        : development.propertyType
-    ),
+    propertyTypes: developmentCatalogPropertyTypes(development),
     startingPrice: development.startingPriceNumber,
     bedroomsFrom: development.bedroomsFrom ?? null,
     areaFromM2: development.areaFromM2Number,

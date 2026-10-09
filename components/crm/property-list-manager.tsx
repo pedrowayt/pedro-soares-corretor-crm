@@ -47,7 +47,7 @@ const PURPOSE_LABELS: Record<string, string> = {
 };
 
 const TYPE_LABELS: Record<string, string> = {
-  CASA: "Casa",
+  CASA: "Casa de rua",
   APARTAMENTO: "Apartamento",
   LOTE: "Lote",
   COMERCIAL: "Comercial",

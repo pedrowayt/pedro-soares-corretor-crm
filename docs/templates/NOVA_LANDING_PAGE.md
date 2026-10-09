@@ -13,6 +13,8 @@ publicPath: /rota-publica-da-landing
 type: DEVELOPMENT
 status: DRAFT
 propertyType: APARTAMENTO
+# Para casa de rua, use CASA. Para casa em condomínio, use CASA_EM_CONDOMINIO.
+catalogPropertyTypes: [APARTAMENTO]
 category: Apartamentos na planta
 city: Palmas
 district: Orla 14
@@ -27,6 +29,7 @@ bedroomsFrom: null
 - [ ] A rota pública é única e está coberta pelo `SiteChrome`.
 - [ ] O empreendimento foi cadastrado em `Development`.
 - [ ] `propertyType`, cidade, bairro e resumo foram preenchidos.
+- [ ] A categoria pública foi definida; para casas em condomínio, usar `CASA_EM_CONDOMINIO`.
 - [ ] A imagem principal está em `public/` ou em uma URL pública validada.
 - [ ] O registro `LandingPage` usa o mesmo conceito de slug e `publicPath`.
 - [ ] `LandingPage.linkedDevelopmentId` aponta para o empreendimento correto.
@@ -35,6 +38,12 @@ bedroomsFrom: null
 - [ ] A página só foi marcada como `PUBLISHED` depois da revisão comercial.
 - [ ] O card aparece em `/lancamentos` e na busca de `/imoveis/prontos`.
 - [ ] Os filtros por cidade, tipo, quartos, área e preço foram conferidos.
+
+## Categoria de casas em condomínio
+
+Quando a landing page representar uma casa ou sobrado dentro de condomínio fechado, classifique o empreendimento como `CASA_EM_CONDOMINIO` no cadastro do CRM. Para casa ou sobrado de rua, use `CASA`. Se a página ainda estiver no catálogo editorial legado, informe `propertyTypes: ["CASA_EM_CONDOMINIO"]` ou `propertyTypes: ["CASA"]` no objeto de `lib/data/landing-pages.ts`.
+
+Depois de publicada, ela aparecerá automaticamente ao selecionar **Casa em condomínio** ou **Casa de rua** no filtro de tipo de imóvel.
 
 ## Regra de publicação
 

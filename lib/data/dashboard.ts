@@ -46,7 +46,7 @@ const MONTH_LABELS = [
 ];
 
 const PROPERTY_TYPE_LABELS: Record<PropertyType, string> = {
-  CASA: "Casa",
+  CASA: "Casa de rua",
   APARTAMENTO: "Apartamento",
   LOTE: "Lote",
   COMERCIAL: "Comercial",

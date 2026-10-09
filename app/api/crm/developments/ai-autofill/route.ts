@@ -22,7 +22,7 @@ const MIN_PDF_TEXT_CHARS = 80;
 const SCRAPE_TIMEOUT_MS = 12_000;
 const OPENAI_MODEL = process.env.OPENAI_AUTOFILL_MODEL || process.env.OPENAI_MODEL || "gpt-5.4-mini";
 
-const propertyTypeValues = ["COMPLEXO", "APARTAMENTO", "CASA", "LOTE", "SALA_COMERCIAL", "STUDIO", "COBERTURA"] as const;
+const propertyTypeValues = ["COMPLEXO", "APARTAMENTO", "CASA", "CASA_EM_CONDOMINIO", "LOTE", "LOTE_EM_CONDOMINIO", "SALA_COMERCIAL", "STUDIO", "COBERTURA"] as const;
 const stageValues = [
   "PRE_LAUNCH",
   "LAUNCH",
@@ -659,7 +659,7 @@ Regras:
 - amenitiesText e differentialsText devem ser strings com um item por linha.
 - status deve ser "DRAFT" e isPublished deve ser false, salvo se o texto pedir publicacao imediata de forma explicita.
 - builderId deve ser null; a interface tentara vincular pelo nome da construtora.
-- Use propertyType "COMPLEXO" quando o material indicar um projeto composto por multiplas torres, blocos, usos mistos ou varias tipologias independentes. Use APARTAMENTO, CASA, LOTE, SALA_COMERCIAL, STUDIO ou COBERTURA apenas quando o empreendimento tiver um tipo predominante simples.
+- Use propertyType "COMPLEXO" quando o material indicar um projeto composto por multiplas torres, blocos, usos mistos ou varias tipologias independentes. Use APARTAMENTO, CASA, CASA_EM_CONDOMINIO, LOTE, LOTE_EM_CONDOMINIO, SALA_COMERCIAL, STUDIO ou COBERTURA apenas quando o empreendimento tiver um tipo predominante simples. Use CASA_EM_CONDOMINIO quando a casa fizer parte de um condomínio fechado ou residencial com áreas e regras comuns.
 - Em unitTypes, inclua plantas, tipologias e faixas de preco detectadas. Se nao houver planta clara, retorne array vazio.
 - Em mediaCandidates, quando houver paginas renderizadas do PDF, indique paginas que valem anexar como imagem do empreendimento.
 - Para mediaCandidates, use kind HERO para capa/fachada forte, GALLERY para imagens gerais, FLOORPLAN para plantas, e category conforme o conteudo visual.

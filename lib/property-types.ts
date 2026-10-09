@@ -3,7 +3,7 @@ import { PropertyType } from "@prisma/client";
 export const PROPERTY_TYPE_LABELS: Record<PropertyType, string> = {
   APARTAMENTO: "Apartamento",
   AREA_PRIVATIVA: "Área privativa",
-  CASA: "Casa",
+  CASA: "Casa de rua",
   CASA_EM_CONDOMINIO: "Casa em condomínio",
   CASA_GEMINADA: "Casa geminada",
   CHACARA: "Chácara",
