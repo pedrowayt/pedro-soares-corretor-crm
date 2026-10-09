@@ -17,7 +17,7 @@ export function SiteFooter() {
             width={813}
             height={182}
           />
-          <p className="site-footer-impact">Especialista em imóveis prontos, lançamentos e leilões em Palmas.</p>
+          <p className="site-footer-impact">Especialista em imóveis prontos, lançamentos e investimentos em Palmas.</p>
           <p className="site-footer-location">Palmas · Tocantins<br />CRECI 5861-TO</p>
         </div>
 
@@ -29,7 +29,6 @@ export function SiteFooter() {
               <Link href="/lancamentos">Lançamentos</Link>
               <Link href="/imoveis/na-planta">Imóveis na planta</Link>
               <Link href="/imoveis/prontos?purpose=INVESTIMENTO">Investir</Link>
-              <Link href="/imoveis/leilao">Leilões</Link>
             </nav>
           </section>
 

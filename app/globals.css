@@ -15366,7 +15366,7 @@ body:has(.crm-shell) > main {
     display: none;
   }
 
-  .wp-search-advanced[open] .wp-search-advanced-content {
+.wp-search-advanced[open] .wp-search-advanced-content {
     display: grid;
   }
 
@@ -15557,6 +15557,101 @@ body:has(.crm-shell) > main {
     width: 100%;
     min-height: 50px;
     font-weight: 700;
+  }
+}
+
+/* Home search: one clear path for ready properties and launches. */
+.wp-search-kicker {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 30px;
+  color: #f0d3ad;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.wp-search-kicker a {
+  color: #fff;
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-transform: none;
+}
+
+.wp-search-kicker a:hover {
+  color: #f0d3ad;
+}
+
+.wp-search-shortcuts {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.75rem;
+}
+
+.wp-search-shortcuts > span {
+  margin-right: 2px;
+  font-weight: 700;
+}
+
+.wp-search-shortcuts a {
+  padding: 7px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 999px;
+  color: rgba(255, 255, 255, 0.9);
+  text-decoration: none;
+  transition: border-color 0.18s ease, background 0.18s ease;
+}
+
+.wp-search-shortcuts a:hover,
+.wp-search-shortcuts a:focus-visible {
+  border-color: #f0d3ad;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.wp-home-featured-properties {
+  padding-top: 38px;
+  padding-bottom: 38px;
+  background: #fff;
+}
+
+.wp-home-featured-properties .wp-property-grid {
+  margin-top: 20px;
+}
+
+@media (max-width: 640px) {
+  .wp-search-kicker {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 7px;
+    margin-top: 24px;
+  }
+
+  .wp-search-shortcuts {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    margin-right: -16px;
+    padding-right: 16px;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+    white-space: nowrap;
+  }
+
+  .wp-search-shortcuts::-webkit-scrollbar {
+    display: none;
+  }
+
+  .wp-home-featured-properties {
+    padding-top: 36px;
+    padding-bottom: 36px;
   }
 }
 

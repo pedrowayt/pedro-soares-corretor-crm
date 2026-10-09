@@ -45,11 +45,9 @@ const realEstateAgentSchema = {
     name: "Palmas",
     containedInPlace: { "@type": "State", name: "Tocantins" }
   },
-  knowsAbout: ["Imóveis em Palmas", "Lançamentos imobiliários", "Investimento imobiliário", "Leilões imobiliários"],
+  knowsAbout: ["Imóveis em Palmas", "Lançamentos imobiliários", "Investimento imobiliário"],
   sameAs: ["https://www.instagram.com/pedrosoarespmw/"]
 };
-
-type SearchMode = "geral" | "leilao";
 
 type HomePropertyCard = {
   id: string;
@@ -298,6 +296,10 @@ function isAuctionCard(property: HomePropertyCard) {
   return property.purpose === "LEILAO" || property.isAuctionOpportunity || property.hasAuctionCase;
 }
 
+function hasUnavailableTitle(property: HomePropertyCard) {
+  return /\b(alugad[oa]|vendid[oa]|indispon[ií]vel)\b/i.test(property.title);
+}
+
 function buildAreaCards(properties: HomePropertyCard[]) {
   const groups = new Map<string, AreaCard & { rank: number }>();
 
@@ -335,19 +337,66 @@ function formatCountLabel(count: number, singular: string, plural: string) {
   return `${count} ${count === 1 ? singular : plural}`;
 }
 
-function getSearchMode(modeInput: string | string[] | undefined): SearchMode {
-  if (modeInput === "leilao") return "leilao";
-  return "geral";
+function HomeFeaturedProperties({ properties }: { properties: HomePropertyCard[] }) {
+  return (
+    <section className="section wp-home-featured-properties" aria-labelledby="wp-home-featured-properties-title">
+      <div className="container">
+        <div className="wp-featured-properties-head">
+          <div className="wp-section-head">
+            <p className="wp-section-eyebrow">Seleção atual</p>
+            <h2 id="wp-home-featured-properties-title" className="section-title">Imóveis em destaque</h2>
+            <p className="section-subtitle text-card">Oportunidades disponíveis, selecionadas para morar ou investir.</p>
+          </div>
+          <Link href="/imoveis/prontos" className="button button-ghost">Ver todos os imóveis</Link>
+        </div>
+
+        {properties.length ? (
+          <div className="wp-property-grid" style={{ marginTop: 20 }}>
+            {properties.map((property) => (
+              <article key={property.id} className="wp-property-card">
+                <div className="wp-property-media">
+                  <HomeImage
+                    src={property.imageUrl}
+                    alt={property.title}
+                    sizes="(max-width: 640px) 100vw, (max-width: 960px) 50vw, 33vw"
+                    className="wp-cover-image"
+                  />
+                  <span className="wp-image-shade" aria-hidden="true" />
+                  <div className="wp-media-badges">
+                    <span className="badge">{property.purposeLabel}</span>
+                    <span className="badge">{property.typeLabel}</span>
+                  </div>
+                  <p>{property.city} • {property.district}</p>
+                </div>
+                <div className="wp-property-body">
+                  <h3>{property.title}</h3>
+                  <p className="wp-price">{formatCurrencyBRL(property.price)}</p>
+                  <PropertySpecs
+                    bedrooms={property.bedrooms}
+                    bathrooms={property.bathrooms}
+                    parkingSpaces={property.parkingSpaces}
+                    areaM2={property.areaM2}
+                  />
+                  <Link href={property.href} className="button button-primary" style={{ width: "100%" }}>
+                    Ver imóvel
+                  </Link>
+                </div>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <article className="card" style={{ padding: 16, marginTop: 20 }}>
+            <p className="text-card" style={{ margin: 0, color: "var(--text-muted)" }}>
+              Nenhum imóvel disponível no backend.
+            </p>
+          </article>
+        )}
+      </div>
+    </section>
+  );
 }
 
-export default async function HomePage({
-  searchParams
-}: {
-  searchParams: Promise<Record<string, string | string[] | undefined>>;
-}) {
-  const filters = await searchParams;
-  const searchMode = getSearchMode(filters.mode);
-
+export default async function HomePage() {
   const [propertiesRaw, blogPosts, launches] = await Promise.all([
     listPublicProperties(),
     listPublishedBlogPosts(3),
@@ -356,10 +405,14 @@ export default async function HomePage({
 
   const allCards = propertiesRaw.map(normalizePropertyCard);
   const readySaleCards = allCards.filter(
-    (card) => card.purpose === "VENDA" && !isAuctionCard(card) && card.status === "DISPONIVEL"
+    (card) =>
+      card.purpose === "VENDA" &&
+      !isAuctionCard(card) &&
+      !hasUnavailableTitle(card) &&
+      card.status === "DISPONIVEL"
   );
 
-  const featuredProperties = readySaleCards.slice(0, 6);
+  const featuredProperties = readySaleCards.slice(0, 3);
 
   const areaCards = buildAreaCards(readySaleCards);
   const featuredLandings = launches.map(toPublicLandingPage);
@@ -381,64 +434,12 @@ export default async function HomePage({
               <span>Atendimento direto</span>
             </div>
 
-            <div className="wp-search-tabs" role="tablist" aria-label="Tipos de busca">
-              {(
-                [
-                  { key: "geral", label: "Busca Geral" },
-                  { key: "leilao", label: "Imóveis Leilão" }
-                ] as Array<{ key: SearchMode; label: string }>
-              ).map((tab) => (
-                <Link
-                  key={tab.key}
-                  href={`/?mode=${tab.key}`}
-                  className={`wp-search-tab ${searchMode === tab.key ? "active" : ""}`}
-                >
-                  {tab.label}
-                </Link>
-              ))}
+            <div className="wp-search-kicker">
+              <span>Encontre seu próximo imóvel</span>
+              <Link href="/imoveis/prontos">Ver catálogo completo <span aria-hidden="true">↗</span></Link>
             </div>
 
-            {searchMode === "leilao" ? (
-              <form className="wp-search-panel" action="/imoveis/leilao" method="GET">
-                <div>
-                  <label htmlFor="district-auction">Região</label>
-                  <input id="district-auction" name="district" placeholder="Bairro ou região" />
-                </div>
-                <div>
-                  <label htmlFor="type-auction">Tipo</label>
-                  <select id="type-auction" name="type" defaultValue="">
-                    <option value="">Todos</option>
-                    {PROPERTY_TYPE_OPTIONS.map((option) => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <button type="submit" className="button button-primary">
-                  Ver oportunidades
-                </button>
-
-                <details className="wp-search-advanced">
-                  <summary>Mais filtros</summary>
-                  <div className="wp-search-advanced-content">
-                    <div>
-                      <label htmlFor="maxPrice-auction">Preço até</label>
-                      <input id="maxPrice-auction" name="maxPrice" type="number" placeholder="800000" />
-                    </div>
-                    <div>
-                      <label htmlFor="bedrooms-auction">Quartos</label>
-                      <input id="bedrooms-auction" name="bedrooms" type="number" min={0} placeholder="2" />
-                    </div>
-                    <div>
-                      <label htmlFor="area-auction">Metragem mínima</label>
-                      <input id="area-auction" name="minAreaM2" type="number" min={0} placeholder="60" />
-                    </div>
-                  </div>
-                </details>
-              </form>
-            ) : (
-              <form className="wp-search-panel" action="/imoveis/prontos" method="GET">
+            <form className="wp-search-panel" action="/imoveis/prontos" method="GET">
                 <div>
                   <label htmlFor="purpose">Finalidade</label>
                   <select id="purpose" name="purpose" defaultValue="VENDA">
@@ -483,8 +484,15 @@ export default async function HomePage({
                     </div>
                   </div>
                 </details>
-              </form>
-            )}
+            </form>
+
+            <div className="wp-search-shortcuts" aria-label="Buscas rápidas">
+              <span>Buscas rápidas</span>
+              <Link href="/imoveis/prontos?city=Palmas&purpose=VENDA&type=CASA">Casa de rua</Link>
+              <Link href="/imoveis/prontos?city=Palmas&purpose=VENDA&type=CASA_EM_CONDOMINIO">Casa em condomínio</Link>
+              <Link href="/imoveis/prontos?city=Palmas&purpose=VENDA&type=APARTAMENTO">Apartamento</Link>
+              <Link href="/lancamentos">Lançamentos</Link>
+            </div>
           </div>
 
           <div className="wp-hero-media-group">
@@ -512,6 +520,8 @@ export default async function HomePage({
           </div>
         </div>
       </section>
+
+      <HomeFeaturedProperties properties={featuredProperties} />
 
       <section className="section wp-objectives-section">
         <div className="container">
@@ -636,9 +646,9 @@ export default async function HomePage({
       <section className="section wp-soft-section">
         <div className="container">
           <div className="wp-section-head">
-            <h2 className="section-title">Bairros em destaque</h2>
+            <h2 className="section-title">Regiões em destaque</h2>
             <p className="section-subtitle text-card">
-              Bairros com maior oferta e oportunidades de negociação em Palmas.
+              Regiões com oferta e oportunidades de negociação para comparar.
             </p>
           </div>
           {areaCards.length ? (
@@ -688,7 +698,6 @@ export default async function HomePage({
             <Link href="/imoveis/prontos?city=Palmas&purpose=LOCACAO" className="wp-type-chip">Imóveis para alugar em Palmas</Link>
             <Link href="/imoveis/na-planta" className="wp-type-chip">Imóveis na planta em Palmas</Link>
             <Link href="/loteamentos-palmas-to" className="wp-type-chip">Loteamentos em Palmas</Link>
-            <Link href="/palmas-to/imoveis-leilao" className="wp-type-chip">Imóveis de Leilão em Palmas</Link>
             <Link href="/palmas-to/plano-diretor-sul/imoveis" className="wp-type-chip">Plano Diretor Sul</Link>
             <Link href="/palmas-to/plano-diretor-norte/imoveis" className="wp-type-chip">Plano Diretor Norte</Link>
             <Link href="/palmas-to/orla-da-graciosa/imoveis" className="wp-type-chip">Orla da Graciosa</Link>
@@ -696,63 +705,6 @@ export default async function HomePage({
             <Link href="/palmas-to/aureny/imoveis" className="wp-type-chip">Aureny</Link>
             <Link href="/palmas-to/centro/imoveis" className="wp-type-chip">Centro de Palmas</Link>
           </div>
-        </div>
-      </section>
-
-      <section className="section" style={{ paddingTop: 24 }}>
-        <div className="container">
-          <div className="wp-featured-properties-head">
-            <div className="wp-section-head">
-              <p className="wp-section-eyebrow">Seleção atual</p>
-              <h2 className="section-title">Imóveis em destaque</h2>
-              <p className="section-subtitle text-card">Oportunidades disponíveis, selecionadas para morar ou investir.</p>
-            </div>
-            <Link href="/imoveis/prontos" className="button button-ghost">Ver todos os imóveis</Link>
-          </div>
-
-          {featuredProperties.length ? (
-            <div className="wp-property-grid" style={{ marginTop: 20 }}>
-              {featuredProperties.map((property) => {
-                return (
-                  <article key={property.id} className="wp-property-card">
-                    <div className="wp-property-media">
-                      <HomeImage
-                        src={property.imageUrl}
-                        alt={property.title}
-                        sizes="(max-width: 640px) 100vw, (max-width: 960px) 50vw, 33vw"
-                        className="wp-cover-image"
-                      />
-                      <span className="wp-image-shade" aria-hidden="true" />
-                      <div className="wp-media-badges">
-                        <span className="badge">{property.purposeLabel}</span>
-                        <span className="badge">{property.typeLabel}</span>
-                      </div>
-                      <p>{property.city} • {property.district}</p>
-                    </div>
-                    <div className="wp-property-body">
-                      <h3>{property.title}</h3>
-                      <p className="wp-price">{formatCurrencyBRL(property.price)}</p>
-                      <PropertySpecs
-                        bedrooms={property.bedrooms}
-                        bathrooms={property.bathrooms}
-                        parkingSpaces={property.parkingSpaces}
-                        areaM2={property.areaM2}
-                      />
-                      <Link href={property.href} className="button button-primary" style={{ width: "100%" }}>
-                        Ver imóvel
-                      </Link>
-                    </div>
-                  </article>
-                );
-              })}
-            </div>
-          ) : (
-            <article className="card" style={{ padding: 16, marginTop: 20 }}>
-              <p className="text-card" style={{ margin: 0, color: "var(--text-muted)" }}>
-                Nenhum imóvel disponível no backend.
-              </p>
-            </article>
-          )}
         </div>
       </section>
 
