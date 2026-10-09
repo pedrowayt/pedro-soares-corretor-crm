@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { publicLandingPages } from "@/lib/data/landing-pages";
+import { listPublicCatalogLaunches } from "@/lib/data/public-catalog";
 import { getSiteUrl } from "@/lib/site-url";
 
 const baseUrl = getSiteUrl();
@@ -13,7 +13,9 @@ export const metadata: Metadata = {
   alternates: { canonical: `${baseUrl}/lancamentos` }
 };
 
-export default function LancamentosPage() {
+export default async function LancamentosPage() {
+  const launches = await listPublicCatalogLaunches();
+
   return (
     <main className="section listing-page">
       <div className="container">
@@ -33,13 +35,13 @@ export default function LancamentosPage() {
           </div>
         </div>
 
-        {publicLandingPages.length ? (
+        {launches.length ? (
           <div className="wp-property-grid wp-property-grid-3">
-            {publicLandingPages.map((landing) => (
+            {launches.map((landing) => (
               <article key={landing.slug} className="wp-property-card">
                 <div className="wp-property-media" style={{ position: "relative", minHeight: 220 }}>
                   <Image
-                    src={landing.image}
+                    src={landing.imageUrl ?? "/brand/logo-light-bg.png"}
                     alt={landing.title}
                     fill
                     priority
@@ -53,7 +55,7 @@ export default function LancamentosPage() {
                   </div>
                 </div>
                 <div className="wp-property-body">
-                  <p className="text-card" style={{ margin: 0, color: "var(--text-muted)" }}>{landing.location}</p>
+                  <p className="text-card" style={{ margin: 0, color: "var(--text-muted)" }}>{landing.district} · {landing.city}</p>
                   <h2 style={{ margin: 0 }}>{landing.title}</h2>
                   <p className="section-subtitle text-card">{landing.summary}</p>
                   <Link href={landing.href} className="button button-primary" style={{ width: "100%" }}>

@@ -3,9 +3,10 @@ import { PropertyPurpose, PropertyStatus, PropertyType } from "@prisma/client";
 import Image from "next/image";
 import Link from "next/link";
 import { listPublishedBlogPosts } from "@/lib/data/blog";
-import { exclusiveManagementLanding, publicLandingPages } from "@/lib/data/landing-pages";
+import { exclusiveManagementLanding } from "@/lib/data/landing-pages";
 import { LandingPagesSlider } from "@/components/public/landing-pages-slider";
 import { PropertySpecs } from "@/components/public/property-specs";
+import { listPublicCatalogLaunches, toPublicLandingPage } from "@/lib/data/public-catalog";
 import { listPublicProperties } from "@/lib/data/properties";
 import {
   PROPERTY_TYPE_LABELS,
@@ -347,9 +348,10 @@ export default async function HomePage({
   const filters = await searchParams;
   const searchMode = getSearchMode(filters.mode);
 
-  const [propertiesRaw, blogPosts] = await Promise.all([
+  const [propertiesRaw, blogPosts, launches] = await Promise.all([
     listPublicProperties(),
-    listPublishedBlogPosts(3)
+    listPublishedBlogPosts(3),
+    listPublicCatalogLaunches()
   ]);
 
   const allCards = propertiesRaw.map(normalizePropertyCard);
@@ -360,9 +362,7 @@ export default async function HomePage({
   const featuredProperties = readySaleCards.slice(0, 6);
 
   const areaCards = buildAreaCards(readySaleCards);
-  // The editorial landing-page registry is the single source for these home
-  // cards. New entries appear here automatically without another home edit.
-  const featuredLandings = publicLandingPages;
+  const featuredLandings = launches.map(toPublicLandingPage);
 
   return (
     <>

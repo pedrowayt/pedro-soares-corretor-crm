@@ -1,3 +1,5 @@
+import type { PropertyType } from "@prisma/client";
+
 export type PublicLandingPage = {
   slug: string;
   href: string;
@@ -7,6 +9,8 @@ export type PublicLandingPage = {
   summary: string;
   image: string;
   status: string;
+  /** Optional catalog classification used by the unified public search. */
+  propertyTypes?: PropertyType[];
 };
 
 // Atalho editorial para proprietários. Ele aparece em uma faixa própria na
@@ -34,7 +38,8 @@ export const publicLandingPages: PublicLandingPage[] = [
     location: "ACSU NO13 · Palmas/TO",
     summary: "Residências, penthouses, offices e boulevard gastronômico ao lado do Capim Dourado Shopping.",
     image: "/brand/urban-haute/social-23.png",
-    status: "Lançamento"
+    status: "Lançamento",
+    propertyTypes: ["APARTAMENTO", "COMERCIAL"]
   },
   {
     slug: "comodoro-by-fama",
@@ -44,7 +49,8 @@ export const publicLandingPages: PublicLandingPage[] = [
     location: "Orla 14 · Palmas/TO",
     summary: "Uma honraria na Orla 14, com arquitetura autoral, lazer completo e a paisagem do Lago de Palmas como horizonte.",
     image: "/brand/comodoro/site/fachada.webp",
-    status: "Lançamento"
+    status: "Lançamento",
+    propertyTypes: ["APARTAMENTO"]
   },
   {
     slug: "you-by-fama",
@@ -54,7 +60,8 @@ export const publicLandingPages: PublicLandingPage[] = [
     location: "Região da Orla · Palmas/TO",
     summary: "Arquitetura contemporânea, vista para o lago, lazer, bem-estar e conveniência para viver a Orla do seu jeito.",
     image: "/brand/you/optimized/render-exterior.jpg",
-    status: "Lançamento"
+    status: "Lançamento",
+    propertyTypes: ["APARTAMENTO"]
   },
   {
     slug: "heritage-fama",
@@ -64,7 +71,8 @@ export const publicLandingPages: PublicLandingPage[] = [
     location: "Orla de Palmas · Palmas/TO",
     summary: "Um legado projetado para transformar a orla de Palmas, com qualidade, sofisticação e propósito.",
     image: "/heritage/hero-project.png",
-    status: "Lançamento"
+    status: "Lançamento",
+    propertyTypes: ["APARTAMENTO"]
   },
   {
     slug: "maestria",
@@ -74,7 +82,8 @@ export const publicLandingPages: PublicLandingPage[] = [
     location: "Orla 14 · Palmas/TO",
     summary: "Arquitetura autoral, lazer completo e vista definitiva para o Lago de Palmas em todas as unidades.",
     image: "/brand/maestria/projeto-arquitetonico.png",
-    status: "Lançamento"
+    status: "Lançamento",
+    propertyTypes: ["APARTAMENTO"]
   },
   {
     slug: "like-210",
@@ -84,7 +93,8 @@ export const publicLandingPages: PublicLandingPage[] = [
     location: "210 Sul · Palmas/TO",
     summary: "Studios e apartamentos em frente ao IFTO, com rooftop, lazer completo e localização estratégica.",
     image: "/like-210/facade.jpg",
-    status: "Lançamento"
+    status: "Lançamento",
+    propertyTypes: ["APARTAMENTO", "FLAT"]
   },
   {
     slug: "lake-village",
@@ -94,7 +104,8 @@ export const publicLandingPages: PublicLandingPage[] = [
     location: "Luzimangues · Porto Nacional/TO",
     summary: "Condomínio fechado à beira do lago em Luzimangues, com lazer, convivência e proposta para morar, investir ou ter uma segunda residência.",
     image: "/brand/lake-village/atualizacao-2026-09/foto-01-masterplan.jpg",
-    status: "Lançamento em breve"
+    status: "Lançamento em breve",
+    propertyTypes: ["LOTE_EM_CONDOMINIO"]
   },
   {
     slug: "quinta-do-lago",
@@ -104,7 +115,8 @@ export const publicLandingPages: PublicLandingPage[] = [
     location: "Recanto Santa Luzia · Miracema do Tocantins/TO",
     summary: "Condomínio de chácaras com lago, lazer, esporte, família e infraestrutura completa.",
     image: "/brand/quinta-do-lago/fotos/quiosques.jpeg",
-    status: "Atendimento personalizado"
+    status: "Atendimento personalizado",
+    propertyTypes: ["CHACARA_EM_CONDOMINIO"]
   },
   {
     slug: "acordes",
@@ -114,7 +126,8 @@ export const publicLandingPages: PublicLandingPage[] = [
     location: "Orla 14 · Palmas/TO",
     summary: "Um empreendimento contemporâneo com studios, apartamentos de 2 suítes, lazer elevado e vocação para morar ou investir.",
     image: "/brand/acordes/fachada-3.webp",
-    status: "Lançamento"
+    status: "Lançamento",
+    propertyTypes: ["APARTAMENTO", "FLAT"]
   },
   {
     slug: "cinnamon-studio",
@@ -124,7 +137,8 @@ export const publicLandingPages: PublicLandingPage[] = [
     location: "Orla da Graciosa · Palmas/TO",
     summary: "Studios de padrão hoteleiro na Orla 14, com estrutura de serviços, tecnologia e proposta para quem vive em movimento.",
     image: "/brand/cinnamon/hero.webp",
-    status: "Pré-cadastro"
+    status: "Pré-cadastro",
+    propertyTypes: ["APARTAMENTO", "FLAT"]
   },
   {
     slug: "lake-sky",
@@ -134,7 +148,8 @@ export const publicLandingPages: PublicLandingPage[] = [
     location: "Palmas Lake · Palmas/TO",
     summary: "Coberturas duplex e mansões suspensas com vista permanente para o lago de Palmas.",
     image: "/brand/palmas-lake/sky.jpg",
-    status: "Lançamento Palmas Lake"
+    status: "Lançamento Palmas Lake",
+    propertyTypes: ["COBERTURA"]
   },
   {
     slug: "lake-garden",
@@ -144,7 +159,8 @@ export const publicLandingPages: PublicLandingPage[] = [
     location: "Palmas Lake · Palmas/TO",
     summary: "Residências amplas, paisagismo exuberante e a tranquilidade de morar de frente para o lago.",
     image: "/brand/palmas-lake/garden.jpg",
-    status: "Lançamento Palmas Lake"
+    status: "Lançamento Palmas Lake",
+    propertyTypes: ["APARTAMENTO"]
   },
   {
     slug: "lake-park",
@@ -154,7 +170,8 @@ export const publicLandingPages: PublicLandingPage[] = [
     location: "Palmas Lake · Palmas/TO",
     summary: "Plantas amplas, living integrado e um ponto de entrada especial entre as torres residenciais do complexo.",
     image: "/brand/palmas-lake/park.jpg",
-    status: "Lançamento Palmas Lake"
+    status: "Lançamento Palmas Lake",
+    propertyTypes: ["APARTAMENTO"]
   },
   {
     slug: "lake-loft",
@@ -164,7 +181,8 @@ export const publicLandingPages: PublicLandingPage[] = [
     location: "Palmas Lake · Palmas/TO",
     summary: "Lofts compactos e inteligentes preparados para morar, hospedar ou investir.",
     image: "/brand/palmas-lake/loft.jpg",
-    status: "Lançamento Palmas Lake"
+    status: "Lançamento Palmas Lake",
+    propertyTypes: ["APARTAMENTO", "FLAT"]
   },
   {
     slug: "lake-office",
@@ -174,7 +192,8 @@ export const publicLandingPages: PublicLandingPage[] = [
     location: "Palmas Lake · Palmas/TO",
     summary: "Salas e lajes corporativas conectadas ao Lake Mall, à marina e ao ritmo da orla.",
     image: "/brand/palmas-lake/office.jpg",
-    status: "Lançamento Palmas Lake"
+    status: "Lançamento Palmas Lake",
+    propertyTypes: ["SALA", "COMERCIAL"]
   },
   {
     slug: "lake-mall",
@@ -184,7 +203,8 @@ export const publicLandingPages: PublicLandingPage[] = [
     location: "Palmas Lake · Palmas/TO",
     summary: "Gastronomia, serviços e encontros com a água como paisagem, integrados à Marina e às torres do complexo.",
     image: "/brand/palmas-lake/mall.jpg",
-    status: "Lançamento Palmas Lake"
+    status: "Lançamento Palmas Lake",
+    propertyTypes: ["LOJA", "COMERCIAL"]
   },
   {
     slug: "yacht-by-fama",
@@ -194,7 +214,8 @@ export const publicLandingPages: PublicLandingPage[] = [
     location: "Orla 14 · Palmas/TO",
     summary: "Studios e apartamentos de 1 e 2 quartos para morar ou investir, com lazer no rooftop e vocação para hospedagem.",
     image: "/yacht/facade.jpg",
-    status: "Lançamento"
+    status: "Lançamento",
+    propertyTypes: ["APARTAMENTO", "FLAT"]
   },
   {
     slug: "terraco-urban",
@@ -204,6 +225,7 @@ export const publicLandingPages: PublicLandingPage[] = [
     location: "Orla 14 · Palmas/TO",
     summary: "Apartamentos amplos, lazer resort e vista para o Lago de Palmas em um endereço pronto para morar.",
     image: "/terraco-urban/comercial-2.png",
-    status: "Pronto para morar"
+    status: "Pronto para morar",
+    propertyTypes: ["APARTAMENTO"]
   }
 ];

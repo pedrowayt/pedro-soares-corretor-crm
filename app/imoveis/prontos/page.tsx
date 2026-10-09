@@ -2,10 +2,11 @@ import type { Metadata } from "next";
 import { PropertyPurpose } from "@prisma/client";
 import Link from "next/link";
 import { AutoSubmitForm } from "@/components/public/auto-submit-form";
+import { LaunchCardHorizontal } from "@/components/public/launch-card-horizontal";
 import { LandingPagesSlider } from "@/components/public/landing-pages-slider";
 import { MobileFilterToggle } from "@/components/public/mobile-filter-toggle";
 import { PropertyCardHorizontal } from "@/components/public/property-card-horizontal";
-import { publicLandingPages } from "@/lib/data/landing-pages";
+import { listPublicCatalogLaunches, toPublicLandingPage, type PublicCatalogLaunch } from "@/lib/data/public-catalog";
 import { listPublicProperties } from "@/lib/data/properties";
 import { PROPERTY_TYPE_OPTIONS } from "@/lib/property-types";
 import { getSiteUrl } from "@/lib/site-url";
@@ -29,6 +30,14 @@ const investmentSources = [
 
 type InvestmentSource = (typeof investmentSources)[number]["value"];
 
+const catalogSources = [
+  { value: "", label: "Todos" },
+  { value: "ready", label: "Imóveis prontos" },
+  { value: "launches", label: "Lançamentos" }
+] as const;
+
+type CatalogSource = (typeof catalogSources)[number]["value"];
+
 const typeOptions = PROPERTY_TYPE_OPTIONS;
 
 const sortOptions = [
@@ -42,9 +51,9 @@ const sortOptions = [
 type SortValue = (typeof sortOptions)[number]["value"];
 
 const baseMetadata: Metadata = {
-  title: "Imóveis prontos em Palmas TO | Casas e apartamentos",
+  title: "Imóveis e lançamentos em Palmas TO | Casas e apartamentos",
   description:
-    "Veja imóveis prontos em Palmas TO com filtros por bairro, valor, quartos e metragem. Atendimento direto com Pedro Soares.",
+    "Veja imóveis prontos e lançamentos em Palmas TO com filtros por bairro, valor, quartos e metragem. Atendimento direto com Pedro Soares.",
   keywords: [
     "imóveis prontos em Palmas TO",
     "casas prontas em Palmas",
@@ -107,6 +116,11 @@ function parseInvestmentSource(value: string | string[] | undefined): Investment
   return investmentSources.some((option) => option.value === value)
     ? (value as InvestmentSource)
     : "";
+}
+
+function parseCatalogSource(value: string | string[] | undefined): CatalogSource {
+  if (typeof value !== "string") return "";
+  return catalogSources.some((option) => option.value === value) ? (value as CatalogSource) : "";
 }
 
 function countLabel(count: number, singular: string, plural: string) {
@@ -187,12 +201,14 @@ export default async function ImoveisProntosPage({
   const purpose = parsePurpose(filters.purpose);
   const sort = parseSort(filters.sort);
   const investmentSource = parseInvestmentSource(filters.investmentSource);
+  const catalogSource = parseCatalogSource(filters.catalogSource);
 
   const activePurpose = purpose ?? "VENDA";
   const isInvestmentPage = activePurpose === "INVESTIMENTO";
-  const showInvestmentProperties = !isInvestmentPage || investmentSource !== "launches";
+  const effectiveSource = isInvestmentPage && investmentSource ? investmentSource : catalogSource;
+  const showInvestmentProperties = effectiveSource !== "launches";
   const showInvestmentLandings =
-    !isInvestmentPage || investmentSource === "" || investmentSource === "launches";
+    activePurpose !== "LOCACAO" && effectiveSource !== "ready" && effectiveSource !== "land";
   const investmentType =
     isInvestmentPage && investmentSource === "land" && !type ? undefined : type;
 
@@ -219,15 +235,70 @@ export default async function ImoveisProntosPage({
 
   const sorted = sortProperties(filtered, sort);
 
-  const totalCount = sorted.length;
+  const launches = showInvestmentLandings
+    ? await listPublicCatalogLaunches({
+        city: city || undefined,
+        district: district || undefined,
+        minPrice,
+        maxPrice,
+        bedrooms,
+        minAreaM2,
+        type
+      })
+    : [];
+
+  type CatalogResult =
+    | { source: "PROPERTY"; item: CardProperty }
+    | { source: "LAUNCH"; item: PublicCatalogLaunch };
+
+  const combinedResults: CatalogResult[] = [
+    ...(showInvestmentProperties ? sorted.map((item) => ({ source: "PROPERTY" as const, item })) : []),
+    ...launches.map((item) => ({ source: "LAUNCH" as const, item }))
+  ];
+
+  const sortedCatalogResults = [...combinedResults].sort((a, b) => {
+    if (!sort) return a.source === b.source ? 0 : a.source === "PROPERTY" ? -1 : 1;
+
+    if (sort === "newest") {
+      const dateFor = (result: CatalogResult) => {
+        const value = result.item.updatedAt ?? result.item.createdAt;
+        return value ? new Date(value).getTime() : 0;
+      };
+      return dateFor(b) - dateFor(a);
+    }
+
+    if (sort === "price-asc" || sort === "price-desc") {
+      const priceFor = (result: CatalogResult) =>
+        result.source === "PROPERTY" ? result.item.priceValue : result.item.startingPrice;
+      const aPrice = priceFor(a);
+      const bPrice = priceFor(b);
+      if (aPrice === null && bPrice === null) return 0;
+      if (aPrice === null) return 1;
+      if (bPrice === null) return -1;
+      return sort === "price-asc" ? aPrice - bPrice : bPrice - aPrice;
+    }
+
+    if (sort === "area-desc") {
+      const areaFor = (result: CatalogResult) =>
+        result.source === "PROPERTY"
+          ? result.item.areaM2Value ?? result.item.landAreaM2Value ?? 0
+          : result.item.areaFromM2 ?? 0;
+      return areaFor(b) - areaFor(a);
+    }
+
+    return 0;
+  });
+
+  const propertyCount = sorted.length;
+  const totalCount = combinedResults.length;
   const purposeTab = activePurpose;
   const headingLocation = city ? city : "Palmas e região";
 
-  const launchCount = isInvestmentPage && showInvestmentLandings ? publicLandingPages.length : 0;
+  const launchCount = launches.length;
   const investmentEmptyLabel = investmentSource === "land" ? "terreno ou lote" : "imóvel pronto";
   const launchSummary = countLabel(launchCount, "lançamento selecionado", "lançamentos selecionados");
   const propertySummary = countLabel(
-    totalCount,
+    propertyCount,
     investmentSource === "land" ? "terreno ou lote" : "imóvel pronto",
     investmentSource === "land" ? "terrenos e lotes" : "imóveis prontos"
   );
@@ -242,9 +313,9 @@ export default async function ImoveisProntosPage({
   const collectionSchema = {
     "@context": "https://schema.org",
     "@type": "CollectionPage",
-    name: "Imóveis prontos em Palmas TO",
+    name: "Imóveis e lançamentos em Palmas TO",
     description:
-      "Listagem de imóveis prontos com filtros por região, tipologia e faixa de valor.",
+      "Listagem de imóveis prontos e lançamentos com filtros por região, tipologia e faixa de valor.",
     url: `${baseUrl}/imoveis/prontos`
   };
 
@@ -260,7 +331,8 @@ export default async function ImoveisProntosPage({
       bedrooms: typeof bedrooms === "number" ? String(bedrooms) : undefined,
       minAreaM2: typeof minAreaM2 === "number" ? String(minAreaM2) : undefined,
       sort: sort || undefined,
-      investmentSource: investmentSource || undefined
+      investmentSource: investmentSource || undefined,
+      catalogSource: catalogSource || undefined
     };
     const merged = { ...current, ...overrides };
     for (const [k, v] of Object.entries(merged)) {
@@ -289,7 +361,7 @@ export default async function ImoveisProntosPage({
               <h1 className="listing-page-title">
                 {isInvestmentPage
                   ? "Oportunidades para investir"
-                  : `${totalCount.toLocaleString("pt-BR")} ${totalCount === 1 ? "imóvel" : "imóveis"} ${purposeTabs.find((t) => t.value === purposeTab)?.cta ?? "à venda"}`}
+                  : `${totalCount.toLocaleString("pt-BR")} ${totalCount === 1 ? "resultado" : "resultados"} ${purposeTabs.find((t) => t.value === purposeTab)?.cta ?? "à venda"}`}
               </h1>
               <p className="listing-page-subtitle">
                 {isInvestmentPage
@@ -316,13 +388,14 @@ export default async function ImoveisProntosPage({
               {typeof bedrooms === "number" ? <input type="hidden" name="bedrooms" value={String(bedrooms)} /> : null}
               {typeof minAreaM2 === "number" ? <input type="hidden" name="minAreaM2" value={String(minAreaM2)} /> : null}
               {investmentSource ? <input type="hidden" name="investmentSource" value={investmentSource} /> : null}
+              {catalogSource ? <input type="hidden" name="catalogSource" value={catalogSource} /> : null}
               <button type="submit" className="visually-hidden">Aplicar</button>
             </AutoSubmitForm>
           </div>
 
           {(purposeTab === "VENDA" || purposeTab === "INVESTIMENTO") &&
           showInvestmentLandings &&
-          publicLandingPages.length ? (
+          launches.length ? (
             <section className="listing-related-landings" aria-labelledby="listing-related-landings-title">
               <div className="listing-related-landings-head">
                 <p className="wp-section-eyebrow">Empreendimentos em destaque</p>
@@ -338,7 +411,7 @@ export default async function ImoveisProntosPage({
                 </p>
               </div>
               <LandingPagesSlider
-                landings={publicLandingPages}
+                landings={launches.map(toPublicLandingPage)}
                 entryPoint={purposeTab === "VENDA" ? "imoveis-prontos-venda" : "imoveis-prontos-investimento"}
               />
             </section>
@@ -374,7 +447,29 @@ export default async function ImoveisProntosPage({
                   <input type="hidden" name="purpose" value={purposeTab} />
                   <input type="hidden" name="sort" value={sort} />
                   {investmentSource ? <input type="hidden" name="investmentSource" value={investmentSource} /> : null}
+                  {catalogSource ? <input type="hidden" name="catalogSource" value={catalogSource} /> : null}
                 </div>
+
+                {!isInvestmentPage && purposeTab === "VENDA" ? (
+                  <div className="listing-filter-block">
+                    <h3>Mostrar</h3>
+                    <div className="listing-chip-group">
+                      {catalogSources.map((option) => {
+                        const isActive = catalogSource === option.value;
+                        return (
+                          <Link
+                            key={option.value || "all"}
+                            href={hrefWith({ catalogSource: option.value || undefined })}
+                            className={`listing-chip${isActive ? " is-active" : ""}`}
+                            aria-pressed={isActive ? "true" : "false"}
+                          >
+                            {option.label}
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ) : null}
 
                 {isInvestmentPage ? (
                   <div className="listing-filter-block">
@@ -502,39 +597,62 @@ export default async function ImoveisProntosPage({
                 </div>
               ) : null}
 
-              {sorted.length ? (
+              {sortedCatalogResults.length ? (
                 <ul className="listing-results-list">
-                  {sorted.map((property) => (
-                    <li key={property.id}>
-                      <PropertyCardHorizontal
-                        slug={property.slug}
-                        title={property.title}
-                        city={property.city}
-                        district={property.district}
-                        price={property.priceValue}
-                        type={property.type}
-                        bedrooms={property.bedrooms}
-                        bathrooms={property.bathrooms}
-                        suites={property.suites}
-                        livingRooms={property.livingRooms}
-                        parkingSpaces={property.parkingSpaces}
-                        areaM2={property.areaM2Value}
-                        landAreaM2={property.landAreaM2Value}
-                        frontMeters={property.frontMeters}
-                        backMeters={property.backMeters}
-                        sideLeftMeters={property.sideLeftMeters}
-                        sideRightMeters={property.sideRightMeters}
-                        ceilingHeightM={property.ceilingHeightM}
-                        floorNumber={property.floorNumber}
-                        floorCount={property.floorCount}
-                        unitCount={property.unitCount}
-                        imageUrl={property.media?.[0]?.url}
-                        status={property.status}
-                        purposeLabel={isInvestmentPage ? "Investir" : purposeLabelFor(property.purpose)}
-                        typeLabel={typeLabelFor(property.type)}
-                      />
-                    </li>
-                  ))}
+                  {sortedCatalogResults.map((result) => {
+                    if (result.source === "LAUNCH") {
+                      return (
+                        <li key={result.item.id}>
+                          <LaunchCardHorizontal
+                            href={result.item.href}
+                            title={result.item.title}
+                            city={result.item.city}
+                            district={result.item.district}
+                            category={result.item.category}
+                            status={result.item.status}
+                            summary={result.item.summary}
+                            imageUrl={result.item.imageUrl}
+                            startingPrice={result.item.startingPrice}
+                            bedroomsFrom={result.item.bedroomsFrom}
+                            areaFromM2={result.item.areaFromM2}
+                          />
+                        </li>
+                      );
+                    }
+
+                    const property = result.item;
+                    return (
+                      <li key={property.id}>
+                        <PropertyCardHorizontal
+                          slug={property.slug}
+                          title={property.title}
+                          city={property.city}
+                          district={property.district}
+                          price={property.priceValue}
+                          type={property.type}
+                          bedrooms={property.bedrooms}
+                          bathrooms={property.bathrooms}
+                          suites={property.suites}
+                          livingRooms={property.livingRooms}
+                          parkingSpaces={property.parkingSpaces}
+                          areaM2={property.areaM2Value}
+                          landAreaM2={property.landAreaM2Value}
+                          frontMeters={property.frontMeters}
+                          backMeters={property.backMeters}
+                          sideLeftMeters={property.sideLeftMeters}
+                          sideRightMeters={property.sideRightMeters}
+                          ceilingHeightM={property.ceilingHeightM}
+                          floorNumber={property.floorNumber}
+                          floorCount={property.floorCount}
+                          unitCount={property.unitCount}
+                          imageUrl={property.media?.[0]?.url}
+                          status={property.status}
+                          purposeLabel={isInvestmentPage ? "Investir" : purposeLabelFor(property.purpose)}
+                          typeLabel={typeLabelFor(property.type)}
+                        />
+                      </li>
+                    );
+                  })}
                 </ul>
               ) : showInvestmentProperties ? (
                 <article className="card" style={{ padding: 16 }}>

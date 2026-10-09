@@ -2,6 +2,7 @@ import {
   DevelopmentPropertyType,
   DevelopmentPublicationStatus,
   DevelopmentStage,
+  LandingPageStatus,
   Prisma,
   type Builder
 } from "@prisma/client";
@@ -39,6 +40,10 @@ const developmentInclude = {
   },
   milestones: { orderBy: { position: "asc" } },
   faqs: { orderBy: { position: "asc" } }
+  ,landingPages: {
+    where: { status: LandingPageStatus.PUBLISHED },
+    orderBy: { updatedAt: "desc" }
+  }
 } satisfies Prisma.DevelopmentInclude;
 
 export type { PublicDevelopmentStage };

@@ -5,7 +5,7 @@ import { ArrowRight, Building2, Compass, MapPin, MessageCircle, ShieldCheck } fr
 import { LandingPageTracker } from "@/components/public/landing-page-tracker";
 import { PlantInterestForm } from "@/components/public/plant-interest-form";
 import { TrackedWhatsAppLink } from "@/components/public/tracked-whatsapp-link";
-import { publicLandingPages } from "@/lib/data/landing-pages";
+import { listPublicCatalogLaunches, toPublicLandingPage } from "@/lib/data/public-catalog";
 import { buildWhatsAppUrl } from "@/lib/integrations/whatsapp-links";
 import { getSiteUrl } from "@/lib/site-url";
 import styles from "./na-planta.module.css";
@@ -37,9 +37,6 @@ const faqs = [
   }
 ];
 
-const featuredDevelopments = publicLandingPages.slice(0, 9);
-const otherDevelopments = publicLandingPages.slice(9);
-
 export const metadata: Metadata = {
   title: "Imóveis na Planta em Palmas | Lançamentos em Palmas/TO",
   description:
@@ -68,7 +65,12 @@ export const metadata: Metadata = {
   }
 };
 
-export default function ImoveisNaPlantaPage() {
+export default async function ImoveisNaPlantaPage() {
+  const catalogLaunches = await listPublicCatalogLaunches();
+  const landingPages = catalogLaunches.map(toPublicLandingPage);
+  const featuredDevelopments = landingPages.slice(0, 9);
+  const otherDevelopments = landingPages.slice(9);
+
   const itemList = featuredDevelopments.map((development, index) => ({
     "@type": "ListItem",
     position: index + 1,

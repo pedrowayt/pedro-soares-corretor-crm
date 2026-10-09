@@ -44,15 +44,21 @@ Toda landing page nova deve ter:
 
 O layout, textos, imagens e animações ficam no código da landing page. O status comercial, os leads e o acompanhamento ficam no CRM.
 
-## Card automático na home
+## Card automático no catálogo público
 
-Toda landing page pública também deve ser registrada no catálogo editorial:
+Toda landing page pública de empreendimento deve ser registrada no cadastro estruturado do empreendimento. Depois que `Development` estiver publicado e vinculado ao registro `LandingPage`, o site passa a usar esse registro automaticamente na home, em `/lancamentos` e na busca pública de `/imoveis/prontos`.
+
+Durante a migração, `lib/data/landing-pages.ts` continua como fallback editorial para páginas antigas que ainda não possuem `Development` vinculado. Novas páginas não devem depender apenas desse fallback.
+
+Para iniciar uma nova página, copie [`docs/templates/NOVA_LANDING_PAGE.md`](./templates/NOVA_LANDING_PAGE.md) e preencha os dados antes da implementação.
+
+O catálogo editorial legado fica em:
 
 ```text
 lib/data/landing-pages.ts
 ```
 
-Esse arquivo é a fonte única dos cards da home. A home consome todos os itens de `publicLandingPages`, então não é necessário editar `app/page.tsx` para cada novo empreendimento.
+Esse arquivo não deve receber uma segunda lista dentro de `app/page.tsx` ou `app/imoveis/prontos/page.tsx`. Ele só deve ser usado como fallback temporário ou para páginas que ainda não foram migradas para `Development`.
 
 Ao criar uma landing nova, adicionar um objeto com:
 
