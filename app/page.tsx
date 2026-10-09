@@ -409,7 +409,7 @@ export default async function HomePage() {
       card.purpose === "VENDA" &&
       !isAuctionCard(card) &&
       !hasUnavailableTitle(card) &&
-      card.status === "DISPONIVEL"
+      (card.status === PropertyStatus.DISPONIVEL || card.status === PropertyStatus.RESERVADO)
   );
 
   const featuredProperties = readySaleCards.slice(0, 3);
