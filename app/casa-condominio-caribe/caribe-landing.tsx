@@ -159,7 +159,7 @@ export function CaribeLanding() {
 
       <main>
         <section className="caribe-hero" id="inicio">
-          <Image src="/brand/caribe-resort/casa-fachada-hero.jpg" alt="Fachada da casa no Condomínio Caribe Resort" fill priority sizes="100vw" className="caribe-hero-image" />
+          <Image src="/brand/caribe-resort/casa-fachada-hero.jpg" alt="Fachada da casa no Condomínio Caribe Resort" fill priority sizes="100vw" unoptimized className="caribe-hero-image" />
           <div className="caribe-hero-overlay" />
           <div className="caribe-container caribe-hero-content">
             <div className="caribe-hero-copy">
