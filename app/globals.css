@@ -23766,7 +23766,7 @@ body:has(.wp-hero) { background: #fff; }
 .residence-gallery figure { position: relative; min-height: 0; margin: 0; overflow: hidden; background: #141e29; }
 .residence-gallery figure img { object-fit: cover; transition: transform .5s ease; }
 .residence-gallery figure:hover img { transform: scale(1.04); }
-.residence-gallery-trigger { position: absolute; inset: 0; display: block; width: 100%; height: 100%; padding: 0; border: 0; cursor: zoom-in; background: transparent; }
+.residence-gallery-trigger { position: absolute; inset: 0; display: block; width: 100%; height: 100%; padding: 0; border: 0; cursor: zoom-in; background: transparent; color: inherit; text-decoration: none; }
 .residence-gallery-trigger:focus-visible { outline: 3px solid var(--residence-gold); outline-offset: -3px; }
 .residence-gallery figcaption { position: absolute; right: 13px; bottom: 12px; left: 13px; z-index: 1; color: rgba(255,255,255,.92); font-size: 10px; font-weight: 700; text-shadow: 0 1px 12px rgba(0,0,0,.7); }
 .residence-gallery-hero { grid-column: span 5; grid-row: span 2; }
