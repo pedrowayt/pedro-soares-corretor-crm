@@ -553,7 +553,7 @@ export default async function HomePage() {
             <div className="wp-search-shortcuts" aria-label="Buscas rápidas">
               <span>Buscas rápidas</span>
               <Link href="/imoveis/prontos?city=Palmas&purpose=VENDA&type=CASA">Casa de rua</Link>
-              <Link href="/imoveis/prontos?city=Palmas&purpose=VENDA&type=CASA_EM_CONDOMINIO">Casa em condomínio</Link>
+              <Link href="/casas-em-condominio">Casa em condomínio</Link>
               <Link href="/imoveis/prontos?city=Palmas&purpose=VENDA&type=APARTAMENTO">Apartamento</Link>
               <Link href="/lancamentos">Lançamentos</Link>
             </div>

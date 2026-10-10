@@ -10,6 +10,8 @@ const baseUrl = getSiteUrl();
 const whatsappUrl =
   "https://wa.me/5563984845101?text=Ol%C3%A1%20Pedro%2C%20quero%20conhecer%20casas%20em%20condom%C3%ADnio%20em%20Palmas.";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Casas em condomínio à venda em Palmas TO | Pedro Soares",
   description:
@@ -51,19 +53,58 @@ type HouseCard = {
   suitesFrom: number | null;
 };
 
+const featuredCondominiumHouses: HouseCard[] = [
+  {
+    id: "landing:casa-condominio-caribe-resort",
+    slug: "casa-condominio-caribe-resort",
+    href: "/casa-condominio-caribe",
+    title: "Casa no Condomínio Caribe Resort",
+    city: "Palmas/TO",
+    district: "Condomínio Caribe Resort",
+    category: "Casa em condomínio de alto padrão",
+    summary:
+      "Casa contemporânea com 600 m² de terreno, 240 m² construídos, 4 suítes, piscina e energia solar no Condomínio Caribe Resort.",
+    imageUrl: "/brand/caribe-resort/casa-fachada-hero.jpg",
+    status: "À venda",
+    areaFromM2: 240,
+    bedroomsFrom: null,
+    suitesFrom: 4
+  },
+  {
+    id: "landing:casa-caribe-residence-resort",
+    slug: "casa-caribe-residence-resort",
+    href: "/casa-caribe-residence",
+    title: "Casa no Caribe Residence & Resort",
+    city: "Palmas/TO",
+    district: "Caribe Residence & Resort",
+    category: "Casa em condomínio de alto padrão",
+    summary:
+      "Casa contemporânea com 4 suítes plenas, pé-direito duplo, espaço gourmet completo e piscina com cascata no Caribe Residence & Resort.",
+    imageUrl: "/brand/caribe-residence/6-Foto-6.jpg",
+    status: "À venda",
+    areaFromM2: null,
+    bedroomsFrom: null,
+    suitesFrom: 4
+  }
+];
+
 export default async function CasasEmCondominioPage() {
   const [landingHouses, publicProperties] = await Promise.all([
     listPublicCatalogLaunches({ type: PropertyType.CASA_EM_CONDOMINIO }),
     listPublicProperties({ type: PropertyType.CASA_EM_CONDOMINIO, purpose: PropertyPurpose.VENDA })
   ]);
-  const landingSlugs = new Set(landingHouses.map((house) => house.slug));
+  const editorialHouses: HouseCard[] = [
+    ...landingHouses.map((house) => ({ ...house, suitesFrom: null })),
+    ...featuredCondominiumHouses
+  ].filter((house, index, all) => all.findIndex((candidate) => candidate.slug === house.slug) === index);
+  const editorialSlugs = new Set(editorialHouses.map((house) => house.slug));
   const propertyLandingHrefs: Record<string, string> = {
     "casa-nova-caribe-residence-resort": "/casa-nova-caribe-residence",
     "casa-caribe-residence-resort": "/casa-caribe-residence",
     "casa-condominio-caribe-resort": "/casa-condominio-caribe"
   };
   const propertyHouses: HouseCard[] = publicProperties
-    .filter((property) => !landingSlugs.has(property.slug))
+    .filter((property) => !editorialSlugs.has(property.slug))
     .map((property) => ({
       id: `property:${property.id}`,
       slug: property.slug,
@@ -80,7 +121,7 @@ export default async function CasasEmCondominioPage() {
       suitesFrom: property.suites
     }));
   const houses: HouseCard[] = [
-    ...landingHouses.map((house) => ({ ...house, suitesFrom: null })),
+    ...editorialHouses,
     ...propertyHouses
   ];
   const itemList = houses.map((house, index) => ({
@@ -155,7 +196,11 @@ export default async function CasasEmCondominioPage() {
             <div className="wp-property-grid wp-property-grid-3">
               {houses.map((house) => {
                 const area = formatArea(house.areaFromM2);
-                const details = [area, house.bedroomsFrom ? `${house.bedroomsFrom} quartos` : null].filter(Boolean);
+                const details = [
+                  area,
+                  house.bedroomsFrom ? `${house.bedroomsFrom} quartos` : null,
+                  house.suitesFrom ? `${house.suitesFrom} suítes` : null
+                ].filter(Boolean);
 
                 return (
                   <article key={house.id} className="wp-property-card">
