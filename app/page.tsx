@@ -59,9 +59,20 @@ type HomePropertyCard = {
   district: string;
   price: number;
   bedrooms: number | null;
+  livingRooms: number | null;
+  suites: number | null;
   bathrooms: number | null;
   parkingSpaces: number | null;
   areaM2: number | null;
+  landAreaM2: number | null;
+  frontMeters: number | null;
+  backMeters: number | null;
+  sideLeftMeters: number | null;
+  sideRightMeters: number | null;
+  ceilingHeightM: number | null;
+  floorNumber: number | null;
+  floorCount: number | null;
+  unitCount: number | null;
   purpose: PropertyPurpose;
   type: PropertyType;
   status: PropertyStatus;
@@ -241,9 +252,20 @@ function normalizePropertyCard(property: {
   district: string;
   priceValue: number;
   bedrooms: number | null;
+  livingRooms: number | null;
+  suites: number | null;
   bathrooms: number | null;
   parkingSpaces: number | null;
   areaM2Value: number | null;
+  landAreaM2Value: number | null;
+  frontMeters: number | null;
+  backMeters: number | null;
+  sideLeftMeters: number | null;
+  sideRightMeters: number | null;
+  ceilingHeightM: number | null;
+  floorNumber: number | null;
+  floorCount: number | null;
+  unitCount: number | null;
   purpose: PropertyPurpose;
   type: PropertyType;
   status: PropertyStatus;
@@ -259,9 +281,20 @@ function normalizePropertyCard(property: {
     district: property.district,
     price: property.priceValue,
     bedrooms: property.bedrooms,
+    livingRooms: property.livingRooms,
+    suites: property.suites,
     bathrooms: property.bathrooms,
     parkingSpaces: property.parkingSpaces,
     areaM2: property.areaM2Value,
+    landAreaM2: property.landAreaM2Value,
+    frontMeters: property.frontMeters,
+    backMeters: property.backMeters,
+    sideLeftMeters: property.sideLeftMeters,
+    sideRightMeters: property.sideRightMeters,
+    ceilingHeightM: property.ceilingHeightM,
+    floorNumber: property.floorNumber,
+    floorCount: property.floorCount,
+    unitCount: property.unitCount,
     purpose: property.purpose,
     type: property.type,
     status: property.status,
@@ -380,10 +413,22 @@ function HomeFeaturedProperties({ properties }: { properties: HomePropertyCard[]
                   <h3>{property.title}</h3>
                   <p className="wp-price">{formatCurrencyBRL(property.price)}</p>
                   <PropertySpecs
+                    type={property.type}
                     bedrooms={property.bedrooms}
+                    livingRooms={property.livingRooms}
+                    suites={property.suites}
                     bathrooms={property.bathrooms}
                     parkingSpaces={property.parkingSpaces}
                     areaM2={property.areaM2}
+                    landAreaM2={property.landAreaM2}
+                    frontMeters={property.frontMeters}
+                    backMeters={property.backMeters}
+                    sideLeftMeters={property.sideLeftMeters}
+                    sideRightMeters={property.sideRightMeters}
+                    ceilingHeightM={property.ceilingHeightM}
+                    floorNumber={property.floorNumber}
+                    floorCount={property.floorCount}
+                    unitCount={property.unitCount}
                   />
                   <Link href={property.href} className="button button-primary" style={{ width: "100%" }}>
                     Ver imóvel
