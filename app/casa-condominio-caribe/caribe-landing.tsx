@@ -212,7 +212,7 @@ export function CaribeLanding() {
         </section>
 
         <section className="caribe-gallery-section" id="galeria">
-          <div className="caribe-container"><div className="caribe-section-heading"><div><p className="caribe-kicker">Por todos os ângulos</p><h2>Conheça cada detalhe.</h2></div><p>Uma seleção de imagens para você sentir a atmosfera da casa antes de fazer a visita.</p></div><div className="caribe-gallery">{gallery.map(([src, alt, size]) => <figure className={`caribe-gallery-${size}`} key={src}><Image src={src} alt={alt} fill sizes="(max-width: 700px) 100vw, 33vw" /><figcaption>{alt}</figcaption></figure>)}</div></div>
+          <div className="caribe-container"><div className="caribe-section-heading"><div><p className="caribe-kicker">Por todos os ângulos</p><h2>Conheça cada detalhe.</h2></div><p>Uma seleção de imagens para você sentir a atmosfera da casa antes de fazer a visita.</p></div><div className="caribe-gallery">{gallery.map(([src, alt, size]) => <figure className={`caribe-gallery-trigger caribe-gallery-${size}`} key={src}><Image src={src} alt={alt} fill sizes="(max-width: 700px) 100vw, 33vw" /><figcaption>{alt}</figcaption></figure>)}</div></div>
         </section>
 
         <section className="caribe-contact" id="visita">
