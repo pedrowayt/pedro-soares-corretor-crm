@@ -23527,14 +23527,13 @@ body:has(.wp-hero) { background: #fff; }
 .caribe-condo-note span { color: var(--caribe-sand); font-size: 10px; font-weight: 800; letter-spacing: .17em; text-transform: uppercase; }
 .caribe-condo-note strong { display: block; max-width: 300px; margin-top: 17px; font-family: Georgia, serif; font-size: 31px; font-weight: 400; letter-spacing: -.035em; line-height: 1.08; }
 .caribe-condo-note p { max-width: 300px; margin-top: 18px; color: rgba(255,255,255,.68); font-size: 12px; line-height: 1.7; }
-.caribe-condo-gallery { display: grid; grid-template-columns: repeat(12, 1fr); grid-template-rows: 230px 230px 230px; gap: 12px; margin-top: 76px; }
+.caribe-condo-gallery { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: 380px 300px 300px; gap: 16px; margin-top: 76px; }
 .caribe-condo-image { position: relative; display: block; width: 100%; height: 100%; min-height: 0; margin: 0; overflow: hidden; border: 0; padding: 0; background: #d7d2c9; color: inherit; cursor: zoom-in; text-align: left; }
 .caribe-condo-image img { object-fit: cover; transition: transform .5s ease; }
 .caribe-condo-image:hover img { transform: scale(1.04); }
-.caribe-condo-image-caption { position: absolute; right: 14px; bottom: 13px; left: 14px; z-index: 1; color: #fff; font-size: 10px; font-weight: 700; text-shadow: 0 1px 12px rgba(0,0,0,.75); }
-.caribe-condo-image--large { grid-column: span 7; grid-row: span 2; }
-.caribe-condo-image--small { grid-column: span 5; }
-.caribe-condo-image--wide { grid-column: span 6; }
+.caribe-condo-image-caption { position: absolute; right: 18px; bottom: 17px; left: 18px; z-index: 1; color: #fff; font-size: 12px; font-weight: 700; text-shadow: 0 1px 12px rgba(0,0,0,.75); }
+.caribe-condo-image--large { grid-column: 1 / -1; grid-row: span 1; }
+.caribe-condo-image--small, .caribe-condo-image--wide { grid-column: span 1; }
 .caribe-condo-source { margin-top: 24px; color: #687067; font-size: 11px; }
 .caribe-condo-source a { color: var(--caribe-forest); text-decoration: underline; text-underline-offset: 3px; }
 .caribe-gallery-section { padding: 105px 0 118px; background: #252e28; color: #fff; }
@@ -23636,9 +23635,8 @@ body:has(.wp-hero) { background: #fff; }
   .caribe-condo { padding: 78px 0 82px; }
   .caribe-condo-heading h2 { font-size: 39px; }
   .caribe-condo-copy { grid-template-columns: 1fr; }
-  .caribe-condo-gallery { grid-template-rows: 250px 160px 160px 160px 160px; gap: 8px; margin-top: 48px; }
-  .caribe-condo-image--large { grid-column: span 12; grid-row: span 1; }
-  .caribe-condo-image--small, .caribe-condo-image--wide { grid-column: span 6; }
+  .caribe-condo-gallery { grid-template-columns: 1fr; grid-template-rows: 330px repeat(4, 245px); gap: 10px; margin-top: 48px; }
+  .caribe-condo-image--large, .caribe-condo-image--small, .caribe-condo-image--wide { grid-column: 1 / -1; grid-row: span 1; }
   .caribe-section-heading { display: block; }
   .caribe-section-heading > p { margin-top: 20px; }
   .caribe-gallery-section { padding: 78px 0 82px; }
