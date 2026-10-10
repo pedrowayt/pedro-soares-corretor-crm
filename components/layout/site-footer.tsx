@@ -27,6 +27,7 @@ export function SiteFooter() {
             <nav className="site-footer-link-list">
               <Link href="/imoveis/prontos">Imóveis prontos</Link>
               <Link href="/lancamentos">Lançamentos</Link>
+              <Link href="/casas-em-condominio">Casas em condomínio</Link>
               <Link href="/imoveis/na-planta">Imóveis na planta</Link>
               <Link href="/imoveis/prontos?purpose=INVESTIMENTO">Investir</Link>
             </nav>

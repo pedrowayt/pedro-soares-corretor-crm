@@ -15,7 +15,8 @@ const seoFooterLinkGroups: SeoFooterLinkGroup[] = [
       { href: "/imoveis", label: "Imóveis em Palmas TO" },
       { href: "/palmas-to/imoveis-prontos", label: "Imóveis prontos em Palmas" },
       { href: "/imoveis/na-planta", label: "Imóveis na planta em Palmas" },
-      { href: "/lancamentos", label: "Lançamentos em destaque em Palmas" }
+      { href: "/lancamentos", label: "Lançamentos em destaque em Palmas" },
+      { href: "/casas-em-condominio", label: "Casas em condomínio em Palmas" }
     ]
   },
   {
@@ -23,6 +24,7 @@ const seoFooterLinkGroups: SeoFooterLinkGroup[] = [
     links: [
       { href: "/imoveis/prontos?city=Palmas&purpose=VENDA&type=APARTAMENTO", label: "Comprar apartamento em Palmas" },
       { href: "/imoveis/prontos?city=Palmas&purpose=VENDA&type=CASA", label: "Casa à venda em Palmas" },
+      { href: "/casas-em-condominio", label: "Casas em condomínio em Palmas" },
       { href: "/imoveis/prontos?city=Palmas&purpose=VENDA&type=LOTE", label: "Lote à venda em Palmas" },
       { href: "/imoveis/prontos?city=Palmas&purpose=VENDA&type=COMERCIAL", label: "Imóvel comercial à venda em Palmas" },
       { href: "/imoveis/prontos?city=Palmas&purpose=INVESTIMENTO", label: "Imóveis para investir em Palmas" }
