@@ -23451,6 +23451,8 @@ body:has(.wp-hero) { background: #fff; }
   .about-grid {
     grid-template-columns: 1fr;
   }
+}
+
 /* Casa no Condomínio Caribe Resort — standalone sales landing. */
 .caribe-page { --caribe-ink: #20221e; --caribe-forest: #26352d; --caribe-sand: #e5d2b5; --caribe-cream: #f6f2ea; --caribe-gold: #c89855; --caribe-line: rgba(32,34,30,.16); background: var(--caribe-cream); color: var(--caribe-ink); overflow: hidden; }
 .caribe-page *, .caribe-page *::before, .caribe-page *::after { box-sizing: border-box; }
