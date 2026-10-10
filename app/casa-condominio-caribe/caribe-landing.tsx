@@ -1,13 +1,16 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import Image from "next/image";
 import {
   ArrowDown,
   ArrowUpRight,
   Bath,
   Check,
+  ChevronLeft,
+  ChevronRight,
   House,
+  Maximize2,
   MessageCircle,
   MoveRight,
   Ruler,
@@ -44,6 +47,14 @@ const features = [
   [Sun, "Energia solar", "Mais eficiência para a rotina da sua casa."],
   [House, "Condomínio Caribe Resort", "Um endereço exclusivo em Palmas/TO."]
 ] as const;
+
+type GalleryItem = readonly [string, string, string];
+
+const detailsPhoto: GalleryItem = [
+  "/brand/caribe-resort/7-Foto-7.jpg",
+  "Piscina e deck da casa",
+  "details"
+];
 
 function VisitForm() {
   const [status, setStatus] = useState<"idle" | "sending" | "error">("idle");
@@ -134,7 +145,34 @@ function VisitForm() {
 }
 export function CaribeLanding() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const closeMenu = () => setMenuOpen(false);
+  const lightboxItems: readonly GalleryItem[] = [...gallery, ...condominiumGallery, detailsPhoto];
+
+  useEffect(() => {
+    if (lightboxIndex === null) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setLightboxIndex(null);
+      if (event.key === "ArrowLeft") {
+        setLightboxIndex((current) => (current === null ? 0 : (current - 1 + lightboxItems.length) % lightboxItems.length));
+      }
+      if (event.key === "ArrowRight") {
+        setLightboxIndex((current) => (current === null ? 0 : (current + 1) % lightboxItems.length));
+      }
+    };
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [lightboxIndex, lightboxItems.length]);
+
+  const activeLightboxItem = lightboxIndex === null ? null : lightboxItems[lightboxIndex];
 
   return (
     <div className="caribe-page">
@@ -188,7 +226,17 @@ export function CaribeLanding() {
 
         <section className="caribe-details">
           <div className="caribe-container caribe-details-grid">
-            <div className="caribe-details-photo"><Image src="/brand/caribe-resort/7-Foto-7.jpg" alt="Piscina e deck da casa" fill sizes="(max-width: 900px) 100vw, 50vw" /></div>
+            <div className="caribe-details-photo">
+              <button
+                type="button"
+                className="caribe-details-trigger"
+                onClick={() => setLightboxIndex(lightboxItems.length - 1)}
+                aria-label="Ampliar foto: Piscina e deck da casa"
+              >
+                <Image src={detailsPhoto[0]} alt={detailsPhoto[1]} fill sizes="(max-width: 900px) 100vw, 50vw" />
+                <span className="caribe-gallery-zoom" aria-hidden="true"><Maximize2 size={17} /></span>
+              </button>
+            </div>
             <div className="caribe-details-copy"><p className="caribe-kicker">Arquitetura que acolhe</p><h2>Espaços que acompanham o seu jeito de viver.</h2><ul>{["Sala de estar e sala home", "Varanda gourmet integrada", "Cozinha com planejados sob bancadas", "Área de serviço e depósito", "Garagem espaçosa", "Piscina com banheiro de apoio"].map((item) => <li key={item}><span><Check size={14} /></span>{item}</li>)}</ul><a href="#visita" className="caribe-button caribe-button--dark">Quero visitar este imóvel <MoveRight size={18} /></a></div>
           </div>
         </section>
@@ -207,18 +255,74 @@ export function CaribeLanding() {
             <div className="caribe-condo-note"><span>Caribe Residence & Resort</span><strong>Seu endereço com mais possibilidades.</strong><p>Uma casa especial dentro de um cenário que convida a viver ao ar livre.</p></div>
           </div>
           <div className="caribe-container caribe-condo-gallery">
-            {condominiumGallery.map(([src, alt, size]) => <figure className={`caribe-condo-image caribe-condo-image--${size}`} key={src}><Image src={src} alt={alt} fill sizes="(max-width: 700px) 100vw, 50vw" /><figcaption>{alt}</figcaption></figure>)}
+            {condominiumGallery.map(([src, alt, size], index) => (
+              <button
+                className={`caribe-condo-image caribe-condo-image--${size}`}
+                key={src}
+                type="button"
+                onClick={() => setLightboxIndex(gallery.length + index)}
+                aria-label={`Ampliar foto: ${alt}`}
+              >
+                <Image src={src} alt={alt} fill sizes="(max-width: 700px) 100vw, 50vw" />
+                <span className="caribe-gallery-zoom" aria-hidden="true"><Maximize2 size={17} /></span>
+                <span className="caribe-condo-image-caption">{alt}</span>
+              </button>
+            ))}
           </div>
         </section>
 
         <section className="caribe-gallery-section" id="galeria">
-          <div className="caribe-container"><div className="caribe-section-heading"><div><p className="caribe-kicker">Por todos os ângulos</p><h2>Conheça cada detalhe.</h2></div><p>Uma seleção de imagens para você sentir a atmosfera da casa antes de fazer a visita.</p></div><div className="caribe-gallery">{gallery.map(([src, alt, size]) => <figure className={`caribe-gallery-trigger caribe-gallery-${size}`} key={src}><Image src={src} alt={alt} fill sizes="(max-width: 700px) 100vw, 33vw" /><figcaption>{alt}</figcaption></figure>)}</div></div>
+          <div className="caribe-container"><div className="caribe-section-heading"><div><p className="caribe-kicker">Por todos os ângulos</p><h2>Conheça cada detalhe.</h2></div><p>Toque ou clique em qualquer imagem para abrir a foto ampliada.</p></div><div className="caribe-gallery">{gallery.map(([src, alt, size], index) => <button className={`caribe-gallery-trigger caribe-gallery-${size}`} key={src} type="button" onClick={() => setLightboxIndex(index)} aria-label={`Ampliar foto: ${alt}`}><Image src={src} alt={alt} fill sizes="(max-width: 700px) 100vw, 33vw" /><span className="caribe-gallery-zoom" aria-hidden="true"><Maximize2 size={17} /></span><span className="caribe-gallery-caption">{alt}</span></button>)}</div></div>
         </section>
 
         <section className="caribe-contact" id="visita">
           <div className="caribe-container caribe-contact-grid"><div className="caribe-contact-copy"><p className="caribe-kicker caribe-kicker--gold">Próximo passo</p><h2>Seu novo capítulo pode começar com uma visita.</h2><p>Fale diretamente com Pedro Soares para conhecer a casa, tirar dúvidas e encontrar o melhor horário para você.</p><div className="caribe-broker"><Image src="/brand/pedro-portrait-5.png" alt="Pedro Soares" width={64} height={64} /><div><strong>Pedro Soares</strong><span>Corretor de imóveis · CRECI 5861-TO</span></div></div><p className="caribe-contact-note"><Ruler size={18} /> 600 m² de terreno · 240 m² de área construída</p></div><VisitForm /></div>
         </section>
       </main>
+
+      {activeLightboxItem ? (
+        <div
+          className="caribe-lightbox"
+          role="dialog"
+          aria-modal="true"
+          aria-label={`Visualização ampliada: ${activeLightboxItem[1]}`}
+          onMouseDown={(event) => {
+            if (event.currentTarget === event.target) setLightboxIndex(null);
+          }}
+        >
+          <div className="caribe-lightbox-panel">
+            <div className="caribe-lightbox-toolbar">
+              <span>Casa no Condomínio Caribe Resort</span>
+              <button type="button" onClick={() => setLightboxIndex(null)} aria-label="Fechar visualização ampliada">
+                <X size={22} />
+              </button>
+            </div>
+            <div className="caribe-lightbox-image-wrap">
+              <Image src={activeLightboxItem[0]} alt={activeLightboxItem[1]} fill sizes="100vw" className="caribe-lightbox-image" priority />
+              <button
+                type="button"
+                className="caribe-lightbox-arrow caribe-lightbox-arrow--left"
+                onClick={() => setLightboxIndex((current) => (current === null ? 0 : (current - 1 + lightboxItems.length) % lightboxItems.length))}
+                aria-label="Foto anterior"
+              >
+                <ChevronLeft size={28} />
+              </button>
+              <button
+                type="button"
+                className="caribe-lightbox-arrow caribe-lightbox-arrow--right"
+                onClick={() => setLightboxIndex((current) => (current === null ? 0 : (current + 1) % lightboxItems.length))}
+                aria-label="Próxima foto"
+              >
+                <ChevronRight size={28} />
+              </button>
+            </div>
+            <div className="caribe-lightbox-caption">
+              <p>{activeLightboxItem[1]}</p>
+              <small>{(lightboxIndex ?? 0) + 1} / {lightboxItems.length}</small>
+            </div>
+          </div>
+        </div>
+      ) : null}
 
       <footer className="caribe-footer"><div className="caribe-container"><span>Pedro Soares Imóveis</span><small>Atendimento personalizado em Palmas/TO · CRECI 5861-TO</small></div></footer>
     </div>
