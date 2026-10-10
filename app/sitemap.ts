@@ -134,7 +134,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/terraco-urban",
     "/urban-haute",
     "/cinnamon-studio",
-    "/casa-condominio-caribe"
+    "/casa-condominio-caribe",
+    "/casa-caribe-residence"
   ].map((path) => ({
     url: `${baseUrl}${path}`,
     lastModified: catalogueFreshness,

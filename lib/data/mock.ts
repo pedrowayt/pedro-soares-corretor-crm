@@ -10,6 +10,54 @@ import {
 
 export const mockProperties = [
   {
+    id: "mock-caribe-residence",
+    slug: "casa-caribe-residence-resort",
+    title: "Casa no Caribe Residence & Resort",
+    type: PropertyType.CASA_EM_CONDOMINIO,
+    purpose: PropertyPurpose.VENDA,
+    status: PropertyStatus.DISPONIVEL,
+    price: 2600000,
+    address: null,
+    city: "Palmas",
+    district: "Caribe Residence & Resort",
+    postalCode: null,
+    googleMapsUrl: "https://www.google.com/maps/search/?api=1&query=Caribe+Residence+Resort%2C+Palmas%2C+TO",
+    latitude: null,
+    longitude: null,
+    bedrooms: null,
+    livingRooms: null,
+    bathrooms: null,
+    suites: 4,
+    parkingSpaces: 3,
+    areaM2: null,
+    landAreaM2: null,
+    isInvestorHighlight: false,
+    isAuctionOpportunity: false,
+    description:
+      "Casa contemporânea no Caribe Residence & Resort, em Palmas/TO, com 4 suítes plenas, sendo 2 com closet, pé-direito duplo, espaço gourmet completo e piscina com cascata.",
+    features: [
+      "4 suítes plenas, sendo 2 com closet",
+      "Pé-direito duplo",
+      "Espaço gourmet completo",
+      "Piscina com cascata",
+      "Lavabo e banheiro social de apoio",
+      "2 despensas",
+      "3 vagas cobertas",
+      "Esquadrias em alumínio de alta qualidade",
+      "Acabamentos com pedra portuguesa e iluminação em LED",
+      "Poço semi artesiano"
+    ],
+    media: Array.from({ length: 12 }, (_, index) => {
+      const number = index + 1;
+      return {
+        id: `mock-caribe-residence-media-${number}`,
+        kind: "IMAGE",
+        url: `/brand/caribe-residence/${number}-Foto-${number}.jpg`,
+        position: index
+      };
+    })
+  },
+  {
     id: "mock-caribe-resort",
     slug: "casa-condominio-caribe-resort",
     title: "Casa no Condomínio Caribe Resort",

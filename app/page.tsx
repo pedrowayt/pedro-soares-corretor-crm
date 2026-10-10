@@ -416,8 +416,12 @@ export default async function HomePage() {
 
   const featuredProperties = [...readySaleCards]
     .sort((a, b) => {
-      const aRank = a.href === "/imoveis/casa-condominio-caribe-resort" ? 0 : 1;
-      const bRank = b.href === "/imoveis/casa-condominio-caribe-resort" ? 0 : 1;
+      const featuredHrefs = new Set([
+        "/imoveis/casa-condominio-caribe-resort",
+        "/imoveis/casa-caribe-residence-resort"
+      ]);
+      const aRank = featuredHrefs.has(a.href) ? 0 : 1;
+      const bRank = featuredHrefs.has(b.href) ? 0 : 1;
       return aRank - bRank;
     })
     .slice(0, 3);

@@ -23,7 +23,8 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
   const isUrbanHauteLanding = pathname === "/urban-haute";
   const isCinnamonLanding = pathname === "/cinnamon-studio";
   const isCaribeLanding = pathname.startsWith("/casa-condominio-caribe");
-  const isStandaloneLanding = isLakeVillageLanding || isQuintaDoLagoLanding || isAcordesLanding || isLike210Landing || isMaestriaLanding || isHeritageLanding || isYachtLanding || isYouLanding || isTerracoUrbanLanding || isPalmasLakeLanding || isComodoroLanding || isUrbanHauteLanding || isCinnamonLanding || isCaribeLanding;
+  const isCaribeResidenceLanding = pathname.startsWith("/casa-caribe-residence");
+  const isStandaloneLanding = isLakeVillageLanding || isQuintaDoLagoLanding || isAcordesLanding || isLike210Landing || isMaestriaLanding || isHeritageLanding || isYachtLanding || isYouLanding || isTerracoUrbanLanding || isPalmasLakeLanding || isComodoroLanding || isUrbanHauteLanding || isCinnamonLanding || isCaribeLanding || isCaribeResidenceLanding;
   const isInternalArea = pathname.startsWith("/admin") || pathname.startsWith("/crm");
   const isPropertyCatalog = pathname.startsWith("/imoveis/prontos");
 
