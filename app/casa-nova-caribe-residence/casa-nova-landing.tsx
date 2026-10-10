@@ -36,15 +36,17 @@ const gallery = [
 
 const interiorGallery = [
   ["/brand/casa-nova-caribe/interiores/1-Foto-1.jpg", "Banheiro com bancada, iluminação e nichos", "hero"],
-  ["/brand/casa-nova-caribe/interiores/10-Foto-10.jpg", "Banheiro com cuba esculpida e parede em pedra natural", "wide"],
-  ["/brand/casa-nova-caribe/interiores/7-Foto-7.jpg", "Banheiro com bancada dupla e iluminação indireta", "wide"],
   ["/brand/casa-nova-caribe/interiores/2-Foto-2.jpg", "Banheiro com bancada dupla", "small"],
   ["/brand/casa-nova-caribe/interiores/3-Foto-3.jpg", "Banheiro com iluminação indireta", "small"],
   ["/brand/casa-nova-caribe/interiores/4-Foto-4.jpg", "Escritório com trilho de iluminação", "small"],
   ["/brand/casa-nova-caribe/interiores/5-Foto-5.jpg", "Banheiro com cuba esculpida e parede em pedra natural", "small"],
   ["/brand/casa-nova-caribe/interiores/6-Foto-6.jpg", "Cozinha integrada à área externa", "small"],
-  ["/brand/casa-nova-caribe/interiores/8-Foto-8.jpg", "Banheiro com bancada e iluminação", "small"],
-  ["/brand/casa-nova-caribe/interiores/9-Foto-9.jpg", "Escritório com trilho de iluminação", "small"]
+  ["/brand/casa-nova-caribe/interiores/11-Foto-11.jpg", "Cozinha planejada com ilha central", "wide"],
+  ["/brand/casa-nova-caribe/interiores/12-Foto-12.jpg", "Bancada da varanda gourmet", "wide"],
+  ["/brand/casa-nova-caribe/interiores/13-Foto-13.jpg", "Varanda gourmet integrada ao jardim", "small"],
+  ["/brand/casa-nova-caribe/interiores/14-Foto-14.jpg", "Varanda gourmet com iluminação cênica", "small"],
+  ["/brand/casa-nova-caribe/interiores/15-Foto-15.jpg", "Área gourmet ao entardecer", "small"],
+  ["/brand/casa-nova-caribe/interiores/16-Foto-16.jpg", "Varanda gourmet com churrasqueira e TV", "small"]
 ] as const;
 
 const condominiumGallery = [
