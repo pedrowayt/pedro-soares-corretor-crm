@@ -23535,6 +23535,8 @@ body:has(.wp-hero) { background: #fff; }
 .caribe-condo-image--large { grid-column: span 7; grid-row: span 2; }
 .caribe-condo-image--small { grid-column: span 5; }
 .caribe-condo-image--wide { grid-column: span 6; }
+.caribe-condo-source { margin-top: 24px; color: #687067; font-size: 11px; }
+.caribe-condo-source a { color: var(--caribe-forest); text-decoration: underline; text-underline-offset: 3px; }
 .caribe-gallery-section { padding: 105px 0 118px; background: #252e28; color: #fff; }
 .caribe-section-heading { display: flex; align-items: end; justify-content: space-between; gap: 40px; }
 .caribe-section-heading h2 { color: #fff; }

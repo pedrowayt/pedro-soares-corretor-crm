@@ -10,6 +10,63 @@ import {
 
 export const mockProperties = [
   {
+    id: "mock-casa-nova-caribe-residence",
+    slug: "casa-nova-caribe-residence-resort",
+    title: "Casa Nova - Caribe Residence Condomínio Resort",
+    type: PropertyType.CASA_EM_CONDOMINIO,
+    purpose: PropertyPurpose.VENDA,
+    status: PropertyStatus.DISPONIVEL,
+    price: 2650000,
+    address: null,
+    city: "Palmas",
+    district: "Caribe Residence Condomínio Resort",
+    postalCode: null,
+    googleMapsUrl: "https://www.google.com/maps/search/?api=1&query=Caribe+Residence+%26+Resort%2C+Palmas%2C+TO",
+    latitude: null,
+    longitude: null,
+    bedrooms: null,
+    livingRooms: 2,
+    bathrooms: null,
+    suites: 3,
+    parkingSpaces: null,
+    areaM2: 243,
+    landAreaM2: 609.76,
+    isInvestorHighlight: false,
+    isAuctionOpportunity: false,
+    description:
+      "Casa nova no Caribe Residence Condomínio Resort, em Palmas/TO, com projeto QUBUS Arquitetura, 609,76 m² de lote, 243 m² construídos, 3 suítes plenas, piscina e varanda gourmet.",
+    features: [
+      "3 suítes plenas",
+      "Projeto QUBUS Arquitetura",
+      "Varanda gourmet e churrasqueira",
+      "Piscina com cascata e ducha externa",
+      "Deck em porcelanato e paisagismo",
+      "Ponto para energia solar",
+      "Ponto para energia de carro elétrico",
+      "Preparação para poço semiartesiano"
+    ],
+    media: [
+      ...Array.from({ length: 10 }, (_, index) => {
+        const number = index + 1;
+        return {
+          id: `mock-casa-nova-caribe-media-${number}`,
+          kind: "IMAGE",
+          url: `/brand/casa-nova-caribe/${number}-Foto-${number}.jpg`,
+          position: index
+        };
+      }),
+      ...Array.from({ length: 10 }, (_, index) => {
+        const number = index + 1;
+        return {
+          id: `mock-casa-nova-caribe-interior-media-${number}`,
+          kind: "IMAGE",
+          url: `/brand/casa-nova-caribe/interiores/${number}-Foto-${number}.jpg`,
+          position: index + 10
+        };
+      })
+    ]
+  },
+  {
     id: "mock-caribe-residence",
     slug: "casa-caribe-residence-resort",
     title: "Casa no Caribe Residence & Resort",

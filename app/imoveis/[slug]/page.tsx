@@ -143,6 +143,10 @@ export default async function PropertyDetailsPage({ params }: { params: Promise<
     redirect("/casa-caribe-residence");
   }
 
+  if (property.slug === "casa-nova-caribe-residence-resort") {
+    redirect("/casa-nova-caribe-residence");
+  }
+
   const propertyUrl = `${baseUrl}/imoveis/${property.slug}`;
   const purposeLabel = purposeLabelMap[property.purpose] ?? "imóvel";
   const whatsappMessage = `Olá, vi o imóvel ${property.title} no site e gostaria de mais informações.`;
