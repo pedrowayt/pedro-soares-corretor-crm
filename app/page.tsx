@@ -228,6 +228,11 @@ function HomeImage({ src, alt, sizes, priority = false, className = "" }: HomeIm
     />
   );
 }
+
+const homePropertyImageOverrides: Record<string, string> = {
+  "casa-caribe-residence-resort": "/brand/caribe-residence/6-Foto-6.jpg"
+};
+
 function normalizePropertyCard(property: {
   id: string;
   slug: string;
@@ -265,6 +270,7 @@ function normalizePropertyCard(property: {
     isAuctionOpportunity: Boolean(property.isAuctionOpportunity),
     hasAuctionCase: Boolean(property.auctionCase),
     imageUrl:
+      homePropertyImageOverrides[property.slug] ??
       property.media?.[0]?.url ??
       "/brand/logo-light-bg.png"
   } satisfies HomePropertyCard;
