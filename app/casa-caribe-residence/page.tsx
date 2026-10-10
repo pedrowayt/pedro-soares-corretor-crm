@@ -18,7 +18,7 @@ export const metadata: Metadata = {
       "Uma casa elegante com pé-direito duplo, piscina com cascata e 4 suítes plenas.",
     images: [
       {
-        url: `${baseUrl}/brand/caribe-residence/6-Foto-6.jpg`,
+        url: `${baseUrl}/brand/caribe-resort/1-Foto-1.jpg`,
         width: 960,
         height: 1280,
         alt: "Fachada da casa no Caribe Residence & Resort"
