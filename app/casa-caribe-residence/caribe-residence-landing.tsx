@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import Image from "next/image";
 import {
   ArrowDown,
@@ -175,7 +175,24 @@ function VisitForm() {
 
 export function CaribeResidenceLanding() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const closeMenu = () => setMenuOpen(false);
+
+  useEffect(() => {
+    if (lightboxIndex === null) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const closeWithEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setLightboxIndex(null);
+    };
+
+    window.addEventListener("keydown", closeWithEscape);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", closeWithEscape);
+    };
+  }, [lightboxIndex]);
 
   return (
     <div className="residence-page">
@@ -264,7 +281,7 @@ export function CaribeResidenceLanding() {
         </section>
 
         <section className="residence-gallery-section" id="galeria">
-          <div className="residence-container"><div className="residence-section-heading"><div><p className="residence-kicker">Por todos os ângulos</p><h2>Veja a casa de perto.</h2></div><p>Ambientes claros, linhas contemporâneas e detalhes que fazem a diferença no dia a dia.</p></div><div className="residence-gallery">{gallery.map(([src, alt, size]) => <figure className={`residence-gallery-${size}`} key={src}><Image src={src} alt={alt} fill sizes="(max-width: 700px) 100vw, 33vw" /><figcaption>{alt}</figcaption></figure>)}</div></div>
+          <div className="residence-container"><div className="residence-section-heading"><div><p className="residence-kicker">Por todos os ângulos</p><h2>Veja a casa de perto.</h2></div><p>Ambientes claros, linhas contemporâneas e detalhes que fazem a diferença no dia a dia.</p></div><div className="residence-gallery">{gallery.map(([src, alt, size], index) => <figure className={`residence-gallery-${size}`} key={src}><button type="button" className="residence-gallery-trigger" onClick={() => setLightboxIndex(index)} aria-label={`Ampliar foto: ${alt}`}><Image src={src} alt={alt} fill sizes="(max-width: 700px) 100vw, 33vw" /></button><figcaption>{alt}</figcaption></figure>)}</div></div>
         </section>
 
         <section className="residence-contact" id="visita">
@@ -273,6 +290,17 @@ export function CaribeResidenceLanding() {
       </main>
 
       <footer className="residence-footer"><div className="residence-container"><span>Pedro Soares Imóveis</span><small>Atendimento personalizado em Palmas/TO · CRECI 5861-TO</small></div></footer>
+
+      {lightboxIndex !== null ? (() => {
+        const [src, alt] = gallery[lightboxIndex];
+        return <div className="residence-lightbox" role="dialog" aria-modal="true" aria-label={`Foto ampliada: ${alt}`} onClick={() => setLightboxIndex(null)}>
+          <div className="residence-lightbox-panel" onClick={(event) => event.stopPropagation()}>
+            <button type="button" className="residence-lightbox-close" onClick={() => setLightboxIndex(null)} aria-label="Fechar foto ampliada" autoFocus><X size={22} /></button>
+            <div className="residence-lightbox-image"><Image src={src} alt={alt} fill sizes="(max-width: 900px) 94vw, 1200px" className="residence-lightbox-image-fit" /></div>
+            <p>{alt}</p>
+          </div>
+        </div>;
+      })() : null}
     </div>
   );
 }

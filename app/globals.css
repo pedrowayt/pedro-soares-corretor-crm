@@ -23738,10 +23738,20 @@ body:has(.wp-hero) { background: #fff; }
 .residence-gallery figure { position: relative; min-height: 0; margin: 0; overflow: hidden; background: #141e29; }
 .residence-gallery figure img { object-fit: cover; transition: transform .5s ease; }
 .residence-gallery figure:hover img { transform: scale(1.04); }
+.residence-gallery-trigger { position: absolute; inset: 0; display: block; width: 100%; height: 100%; padding: 0; border: 0; cursor: zoom-in; background: transparent; }
+.residence-gallery-trigger:focus-visible { outline: 3px solid var(--residence-gold); outline-offset: -3px; }
 .residence-gallery figcaption { position: absolute; right: 13px; bottom: 12px; left: 13px; z-index: 1; color: rgba(255,255,255,.92); font-size: 10px; font-weight: 700; text-shadow: 0 1px 12px rgba(0,0,0,.7); }
 .residence-gallery-hero { grid-column: span 5; grid-row: span 2; }
 .residence-gallery-wide { grid-column: span 7; }
 .residence-gallery-small { grid-column: span 4; }
+.residence-lightbox { position: fixed; z-index: 100; inset: 0; display: grid; place-items: center; padding: 28px; background: rgba(7,13,22,.88); }
+.residence-lightbox-panel { position: relative; width: min(1220px, 94vw); }
+.residence-lightbox-image { position: relative; width: 100%; height: min(78vh, 820px); }
+.residence-lightbox-image-fit { object-fit: contain; }
+.residence-lightbox-panel p { margin-top: 13px; color: rgba(255,255,255,.8); font-size: 12px; text-align: center; }
+.residence-lightbox-close { position: absolute; z-index: 2; top: -17px; right: -17px; display: grid; place-items: center; width: 42px; height: 42px; border: 1px solid rgba(255,255,255,.5); border-radius: 50%; cursor: pointer; background: rgba(23,34,47,.92); color: #fff; }
+.residence-lightbox-close:hover { background: var(--residence-gold); color: #21170d; }
+.residence-lightbox-close:focus-visible { outline: 3px solid var(--residence-sand); outline-offset: 3px; }
 .residence-contact { padding: 110px 0; background: #e7e3dc; }
 .residence-contact-grid { display: grid; grid-template-columns: .9fr 1.1fr; gap: 100px; align-items: center; }
 .residence-contact h2 { color: var(--residence-navy); }
@@ -23835,4 +23845,7 @@ body:has(.wp-hero) { background: #fff; }
   .residence-form { padding: 27px 20px; }
   .residence-form-grid { grid-template-columns: 1fr; }
   .residence-footer .residence-container { display: grid; }
+  .residence-lightbox { padding: 18px; }
+  .residence-lightbox-image { height: min(74vh, 620px); }
+  .residence-lightbox-close { top: -12px; right: -4px; }
 }
