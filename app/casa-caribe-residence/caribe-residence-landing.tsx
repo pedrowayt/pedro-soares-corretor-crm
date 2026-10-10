@@ -50,6 +50,14 @@ const details = [
   "Poço semi artesiano"
 ];
 
+const condominiumGallery = [
+  ["/brand/caribe-residence/condominio/1-Foto-1.jpg", "Vista aérea da área de lazer", "large"],
+  ["/brand/caribe-residence/condominio/2-Foto-2.jpg", "Paisagem do lago ao entardecer", "small"],
+  ["/brand/caribe-residence/condominio/3-Foto-3.jpg", "Piscinas e áreas verdes", "small"],
+  ["/brand/caribe-residence/condominio/4-Foto-4.jpg", "Estrutura esportiva e recreativa", "wide"],
+  ["/brand/caribe-residence/condominio/5-Foto-5.jpg", "Caminhos e acesso à água", "wide"]
+] as const;
+
 function VisitForm() {
   const [status, setStatus] = useState<"idle" | "sending" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
@@ -153,6 +161,7 @@ export function CaribeResidenceLanding() {
           </a>
           <nav className={menuOpen ? "residence-nav-links is-open" : "residence-nav-links"} aria-label="Navegação da casa">
             <a href="#a-casa" onClick={closeMenu}>A casa</a>
+            <a href="#condominio" onClick={closeMenu}>O condomínio</a>
             <a href="#galeria" onClick={closeMenu}>Galeria</a>
             <a href="#visita" onClick={closeMenu} className="residence-nav-cta">Agendar visita</a>
           </nav>
@@ -195,6 +204,24 @@ export function CaribeResidenceLanding() {
           <div className="residence-container residence-details-grid">
             <div className="residence-details-photo"><Image src="/brand/caribe-residence/1-Foto-1.jpg" alt="Piscina com cascata da casa" fill sizes="(max-width: 900px) 100vw, 50vw" /></div>
             <div className="residence-details-copy"><p className="residence-kicker">Acabamento e funcionalidade</p><h2>Uma casa pensada para receber e permanecer.</h2><ul>{details.map((item) => <li key={item}><span><Check size={14} /></span>{item}</li>)}</ul><a href="#visita" className="residence-button residence-button--dark">Quero visitar este imóvel <MoveRight size={18} /></a></div>
+          </div>
+        </section>
+
+        <section className="residence-condo" id="condominio">
+          <div className="residence-container residence-condo-heading">
+            <div><p className="residence-kicker">Além da casa</p><h2>Um residencial que amplia a experiência de morar.</h2></div>
+            <p>O Caribe Residence & Resort combina natureza, água e espaços de convivência para que os momentos de descanso, lazer e bem-estar façam parte da rotina.</p>
+          </div>
+          <div className="residence-container residence-condo-content">
+            <div className="residence-condo-copy">
+              <div><strong>Natureza ao redor</strong><p>Paisagismo, áreas verdes e caminhos tranquilos criam uma atmosfera acolhedora para viver com mais contato com o entorno.</p></div>
+              <div><strong>Lazer para aproveitar</strong><p>As imagens mostram piscinas, áreas de convivência e uma estrutura esportiva e recreativa pensada para diferentes momentos da família.</p></div>
+              <div><strong>Água e contemplação</strong><p>O residencial também valoriza a paisagem da água, com decks e pontos de contemplação para aproveitar o nascer e o pôr do sol.</p></div>
+            </div>
+            <div className="residence-condo-note"><span>Caribe Residence & Resort</span><strong>Seu endereço com mais possibilidades.</strong><p>Uma casa especial dentro de um cenário que convida a viver ao ar livre.</p></div>
+          </div>
+          <div className="residence-container residence-condo-gallery">
+            {condominiumGallery.map(([src, alt, size]) => <figure className={`residence-condo-image residence-condo-image--${size}`} key={src}><Image src={src} alt={alt} fill sizes="(max-width: 700px) 100vw, 50vw" /><figcaption>{alt}</figcaption></figure>)}
           </div>
         </section>
 
