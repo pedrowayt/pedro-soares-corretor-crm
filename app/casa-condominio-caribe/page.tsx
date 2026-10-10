@@ -18,9 +18,9 @@ export const metadata: Metadata = {
       "Um lar completo com 600 m² de terreno, 240 m² construídos, piscina e 4 suítes.",
     images: [
       {
-        url: `${baseUrl}/brand/caribe-resort/1-Foto-1.jpg`,
-        width: 960,
-        height: 1280,
+        url: `${baseUrl}/brand/caribe-resort/casa-fachada-hero.jpg`,
+        width: 1200,
+        height: 1600,
         alt: "Fachada da casa no Condomínio Caribe Resort"
       }
     ]

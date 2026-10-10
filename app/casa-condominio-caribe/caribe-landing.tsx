@@ -19,7 +19,7 @@ import { buildWhatsAppUrl } from "@/lib/integrations/whatsapp-links";
 import { LandingPageTracker } from "@/components/public/landing-page-tracker";
 
 const gallery = [
-  ["/brand/caribe-resort/1-Foto-1.jpg", "Fachada contemporânea", "hero"],
+  ["/brand/caribe-resort/casa-fachada-hero.jpg", "Fachada contemporânea", "hero"],
   ["/brand/caribe-resort/4-Foto-4.jpg", "Piscina e jardim privativo", "wide"],
   ["/brand/caribe-resort/7-Foto-7.jpg", "Deck e área externa", "wide"],
   ["/brand/caribe-resort/2-Foto-2.jpg", "Cozinha planejada", "small"],
@@ -159,7 +159,7 @@ export function CaribeLanding() {
 
       <main>
         <section className="caribe-hero" id="inicio">
-          <Image src="/brand/caribe-resort/1-Foto-1.jpg" alt="Fachada da casa no Condomínio Caribe Resort" fill priority sizes="100vw" className="caribe-hero-image" />
+          <Image src="/brand/caribe-resort/casa-fachada-hero.jpg" alt="Fachada da casa no Condomínio Caribe Resort" fill priority sizes="100vw" className="caribe-hero-image" />
           <div className="caribe-hero-overlay" />
           <div className="caribe-container caribe-hero-content">
             <div className="caribe-hero-copy">
