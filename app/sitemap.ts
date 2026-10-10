@@ -119,6 +119,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/politica-de-privacidade",
     "/termos-de-servico",
     "/termos-de-uso",
+    "/condominios-beira-lago-palmas",
     "/palmas-lake",
     "/lake-village",
     "/lake-village/mapa",

@@ -55,6 +55,15 @@ const seoFooterLinkGroups: SeoFooterLinkGroup[] = [
       { href: "/loteamentos-palmas-to", label: "Loteamentos em Palmas" },
       { href: "/imoveis/prontos?city=Palmas&purpose=INVESTIMENTO", label: "Oportunidades para investir" }
     ]
+  },
+  {
+    title: "Guias e estudos",
+    links: [
+      { href: "/condominios-beira-lago-palmas", label: "Condomínios beira-lago em Palmas" },
+      { href: "/palmas-lake", label: "Palmas Lake" },
+      { href: "/imoveis/na-planta", label: "Imóveis na planta em Palmas" },
+      { href: "/investimentos-em-palmas", label: "Investimentos imobiliários em Palmas" }
+    ]
   }
 ];
 

@@ -98,6 +98,19 @@ export const publicDevelopmentInterestSchema = z.object({
   lgpdConsent: z.boolean().optional().default(true)
 });
 
+export const publicLakeCondominiumsSchema = z.object({
+  name: z.string().min(3),
+  whatsapp: z.string().min(10),
+  email: z.string().email().optional().or(z.literal("")),
+  profile: z.string().trim().max(80),
+  objective: z.string().trim().max(80),
+  assetType: z.string().trim().max(120),
+  message: z.string().optional(),
+  sourcePage: z.string().trim().max(500).optional(),
+  landingPageSlug: z.string().trim().max(160).optional(),
+  lgpdConsent: z.boolean().optional().default(false)
+});
+
 export const publicLandingPageEventSchema = z.object({
   landingPageSlug: z.string().trim().min(1).max(160),
   sourcePage: z.string().trim().max(500).optional(),
