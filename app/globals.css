@@ -23528,10 +23528,10 @@ body:has(.wp-hero) { background: #fff; }
 .caribe-condo-note strong { display: block; max-width: 300px; margin-top: 17px; font-family: Georgia, serif; font-size: 31px; font-weight: 400; letter-spacing: -.035em; line-height: 1.08; }
 .caribe-condo-note p { max-width: 300px; margin-top: 18px; color: rgba(255,255,255,.68); font-size: 12px; line-height: 1.7; }
 .caribe-condo-gallery { display: grid; grid-template-columns: repeat(12, 1fr); grid-template-rows: 230px 230px 230px; gap: 12px; margin-top: 76px; }
-.caribe-condo-image { position: relative; min-height: 0; margin: 0; overflow: hidden; background: #d7d2c9; }
+.caribe-condo-image { position: relative; min-height: 0; margin: 0; overflow: hidden; border: 0; padding: 0; background: #d7d2c9; color: inherit; cursor: zoom-in; text-align: left; }
 .caribe-condo-image img { object-fit: cover; transition: transform .5s ease; }
 .caribe-condo-image:hover img { transform: scale(1.04); }
-.caribe-condo-image figcaption { position: absolute; right: 14px; bottom: 13px; left: 14px; z-index: 1; color: #fff; font-size: 10px; font-weight: 700; text-shadow: 0 1px 12px rgba(0,0,0,.75); }
+.caribe-condo-image-caption { position: absolute; right: 14px; bottom: 13px; left: 14px; z-index: 1; color: #fff; font-size: 10px; font-weight: 700; text-shadow: 0 1px 12px rgba(0,0,0,.75); }
 .caribe-condo-image--large { grid-column: span 7; grid-row: span 2; }
 .caribe-condo-image--small { grid-column: span 5; }
 .caribe-condo-image--wide { grid-column: span 6; }
@@ -23542,14 +23542,30 @@ body:has(.wp-hero) { background: #fff; }
 .caribe-section-heading h2 { color: #fff; }
 .caribe-section-heading > p { max-width: 320px; padding-bottom: 5px; color: rgba(255,255,255,.6); font-size: 13px; line-height: 1.7; }
 .caribe-gallery { display: grid; grid-template-columns: repeat(12, 1fr); grid-template-rows: 240px 240px 240px; gap: 12px; margin-top: 55px; }
-.caribe-gallery figure { position: relative; min-height: 0; margin: 0; overflow: hidden; background: #151c18; }
-.caribe-gallery figure img { object-fit: cover; transition: transform .5s ease; }
-.caribe-gallery figure:hover img { transform: scale(1.04); }
-.caribe-gallery figcaption { position: absolute; right: 13px; bottom: 12px; left: 13px; z-index: 1; color: rgba(255,255,255,.92); font-size: 10px; font-weight: 700; text-shadow: 0 1px 12px rgba(0,0,0,.7); }
+.caribe-gallery-trigger { position: relative; min-height: 0; margin: 0; overflow: hidden; border: 0; padding: 0; background: #151c18; color: inherit; cursor: zoom-in; text-align: left; }
+.caribe-gallery-trigger img { object-fit: cover; transition: transform .5s ease; }
+.caribe-gallery-trigger:hover img { transform: scale(1.04); }
+.caribe-gallery-caption { position: absolute; right: 13px; bottom: 12px; left: 13px; z-index: 1; color: rgba(255,255,255,.92); font-size: 10px; font-weight: 700; text-shadow: 0 1px 12px rgba(0,0,0,.7); }
+.caribe-gallery-zoom { position: absolute; top: 13px; right: 13px; z-index: 2; display: grid; width: 34px; height: 34px; place-items: center; border: 1px solid rgba(255,255,255,.45); border-radius: 50%; background: rgba(16,24,20,.48); color: #fff; opacity: .9; transition: transform .25s ease, background .25s ease; }
+.caribe-gallery-trigger:hover .caribe-gallery-zoom, .caribe-condo-image:hover .caribe-gallery-zoom { transform: scale(1.08); background: rgba(16,24,20,.78); }
 .caribe-gallery-hero { grid-column: span 5; grid-row: span 2; }
 .caribe-gallery-wide { grid-column: span 7; }
 .caribe-gallery-small { grid-column: span 4; }
 .caribe-gallery-small:nth-of-type(4), .caribe-gallery-small:nth-of-type(5), .caribe-gallery-small:nth-of-type(6), .caribe-gallery-small:nth-of-type(7) { grid-column: span 4; }
+.caribe-lightbox { position: fixed; z-index: 100; inset: 0; display: grid; place-items: center; padding: 24px; background: rgba(10,15,12,.9); backdrop-filter: blur(12px); }
+.caribe-lightbox-panel { width: min(1180px, 100%); max-height: calc(100vh - 48px); overflow: hidden; border: 1px solid rgba(255,255,255,.18); border-radius: 10px; background: #111713; box-shadow: 0 24px 80px rgba(0,0,0,.45); }
+.caribe-lightbox-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 20px; min-height: 58px; padding: 0 18px 0 22px; color: rgba(255,255,255,.72); font-size: 11px; font-weight: 800; letter-spacing: .13em; text-transform: uppercase; }
+.caribe-lightbox-toolbar button { display: grid; width: 38px; height: 38px; place-items: center; border: 1px solid rgba(255,255,255,.2); border-radius: 50%; background: transparent; color: #fff; cursor: pointer; }
+.caribe-lightbox-toolbar button:hover { background: rgba(255,255,255,.12); }
+.caribe-lightbox-image-wrap { position: relative; height: min(72vh, 760px); background: #080b09; }
+.caribe-lightbox-image { object-fit: contain; }
+.caribe-lightbox-arrow { position: absolute; top: 50%; display: grid; width: 48px; height: 48px; place-items: center; transform: translateY(-50%); border: 1px solid rgba(255,255,255,.28); border-radius: 50%; background: rgba(10,15,12,.58); color: #fff; cursor: pointer; }
+.caribe-lightbox-arrow:hover { background: rgba(10,15,12,.9); }
+.caribe-lightbox-arrow--left { left: 18px; }
+.caribe-lightbox-arrow--right { right: 18px; }
+.caribe-lightbox-caption { display: flex; align-items: center; justify-content: space-between; gap: 20px; min-height: 62px; padding: 0 22px; color: rgba(255,255,255,.88); }
+.caribe-lightbox-caption p { font-size: 13px; }
+.caribe-lightbox-caption small { color: rgba(255,255,255,.52); font-size: 11px; font-variant-numeric: tabular-nums; }
 .caribe-contact { padding: 110px 0; background: #e9e2d7; }
 .caribe-contact-grid { display: grid; grid-template-columns: .9fr 1.1fr; gap: 100px; align-items: center; }
 .caribe-contact h2 { color: var(--caribe-forest); }
@@ -23630,6 +23646,14 @@ body:has(.wp-hero) { background: #fff; }
   .caribe-gallery-hero { grid-column: span 12; grid-row: span 2; }
   .caribe-gallery-wide { grid-column: span 6; }
   .caribe-gallery-small, .caribe-gallery-small:nth-of-type(4), .caribe-gallery-small:nth-of-type(5), .caribe-gallery-small:nth-of-type(6), .caribe-gallery-small:nth-of-type(7) { grid-column: span 6; }
+  .caribe-lightbox { padding: 8px; }
+  .caribe-lightbox-panel { max-height: calc(100vh - 16px); }
+  .caribe-lightbox-toolbar { min-height: 52px; padding-left: 15px; font-size: 9px; }
+  .caribe-lightbox-image-wrap { height: calc(100vh - 142px); }
+  .caribe-lightbox-arrow { width: 40px; height: 40px; }
+  .caribe-lightbox-arrow--left { left: 10px; }
+  .caribe-lightbox-arrow--right { right: 10px; }
+  .caribe-lightbox-caption { min-height: 62px; padding: 0 15px; }
   .caribe-contact { padding: 78px 0; }
   .caribe-form { padding: 27px 20px; }
   .caribe-form-grid { grid-template-columns: 1fr; }

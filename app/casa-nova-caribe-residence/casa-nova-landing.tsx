@@ -1,12 +1,15 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import Image from "next/image";
 import {
   ArrowDown,
   ArrowUpRight,
   Bath,
   Check,
+  ChevronLeft,
+  ChevronRight,
+  Maximize2,
   MapPin,
   MessageCircle,
   MoveRight,
@@ -33,15 +36,15 @@ const gallery = [
 
 const interiorGallery = [
   ["/brand/casa-nova-caribe/interiores/1-Foto-1.jpg", "Banheiro com bancada, iluminação e nichos", "hero"],
-  ["/brand/casa-nova-caribe/interiores/10-Foto-10.jpg", "Cozinha com ilha e vista para o jardim", "wide"],
-  ["/brand/casa-nova-caribe/interiores/7-Foto-7.jpg", "Cozinha integrada à área externa", "wide"],
+  ["/brand/casa-nova-caribe/interiores/10-Foto-10.jpg", "Banheiro com cuba esculpida e parede em pedra natural", "wide"],
+  ["/brand/casa-nova-caribe/interiores/7-Foto-7.jpg", "Banheiro com bancada dupla e iluminação indireta", "wide"],
   ["/brand/casa-nova-caribe/interiores/2-Foto-2.jpg", "Banheiro com bancada dupla", "small"],
   ["/brand/casa-nova-caribe/interiores/3-Foto-3.jpg", "Banheiro com iluminação indireta", "small"],
-  ["/brand/casa-nova-caribe/interiores/4-Foto-4.jpg", "Banheiro com cuba esculpida", "small"],
-  ["/brand/casa-nova-caribe/interiores/5-Foto-5.jpg", "Escritório com trilho de iluminação", "small"],
-  ["/brand/casa-nova-caribe/interiores/6-Foto-6.jpg", "Banheiro com parede de pedra natural", "small"],
+  ["/brand/casa-nova-caribe/interiores/4-Foto-4.jpg", "Escritório com trilho de iluminação", "small"],
+  ["/brand/casa-nova-caribe/interiores/5-Foto-5.jpg", "Banheiro com cuba esculpida e parede em pedra natural", "small"],
+  ["/brand/casa-nova-caribe/interiores/6-Foto-6.jpg", "Cozinha integrada à área externa", "small"],
   ["/brand/casa-nova-caribe/interiores/8-Foto-8.jpg", "Banheiro com bancada e iluminação", "small"],
-  ["/brand/casa-nova-caribe/interiores/9-Foto-9.jpg", "Banheiro com acabamento em pedra", "small"]
+  ["/brand/casa-nova-caribe/interiores/9-Foto-9.jpg", "Escritório com trilho de iluminação", "small"]
 ] as const;
 
 const condominiumGallery = [
@@ -84,6 +87,109 @@ const condominiumFacts = [
 const condominiumMapUrl =
   "https://www.google.com/maps/search/?api=1&query=Caribe+Residence+%26+Resort%2C+Palmas%2C+TO";
 const condominiumSourceUrl = "https://www.lnurbanismo.com.br/empreendimentos/caribe-residence-and-resort";
+
+type GalleryItem = readonly [string, string, string];
+
+function LightboxGallery({
+  items,
+  variant = "gallery"
+}: {
+  items: readonly GalleryItem[];
+  variant?: "gallery" | "condo";
+}) {
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const isCondo = variant === "condo";
+  const gridClass = isCondo ? "caribe-condo-gallery" : "caribe-gallery";
+
+  useEffect(() => {
+    if (activeIndex === null) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setActiveIndex(null);
+      if (event.key === "ArrowLeft") {
+        setActiveIndex((current) => (current === null ? 0 : (current - 1 + items.length) % items.length));
+      }
+      if (event.key === "ArrowRight") {
+        setActiveIndex((current) => (current === null ? 0 : (current + 1) % items.length));
+      }
+    };
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [activeIndex, items.length]);
+
+  const activeItem = activeIndex === null ? null : items[activeIndex];
+
+  return (
+    <>
+      <div className={gridClass}>
+        {items.map(([src, alt, size], index) => (
+          <button
+            className={`${isCondo ? "caribe-condo-image" : "caribe-gallery"}-${size} ${isCondo ? "caribe-condo-image" : "caribe-gallery-trigger"}`}
+            key={src}
+            type="button"
+            onClick={() => setActiveIndex(index)}
+            aria-label={`Ampliar foto: ${alt}`}
+          >
+            <Image src={src} alt={alt} fill sizes="(max-width: 700px) 100vw, 50vw" />
+            <span className="caribe-gallery-zoom" aria-hidden="true"><Maximize2 size={17} /></span>
+            <span className={isCondo ? "caribe-condo-image-caption" : "caribe-gallery-caption"}>{alt}</span>
+          </button>
+        ))}
+      </div>
+
+      {activeItem ? (
+        <div
+          className="caribe-lightbox"
+          role="dialog"
+          aria-modal="true"
+          aria-label={`Visualização ampliada: ${activeItem[1]}`}
+          onMouseDown={(event) => {
+            if (event.currentTarget === event.target) setActiveIndex(null);
+          }}
+        >
+          <div className="caribe-lightbox-panel">
+            <div className="caribe-lightbox-toolbar">
+              <span>Casa Nova · Caribe Residence</span>
+              <button type="button" onClick={() => setActiveIndex(null)} aria-label="Fechar visualização ampliada">
+                <X size={22} />
+              </button>
+            </div>
+            <div className="caribe-lightbox-image-wrap">
+              <Image src={activeItem[0]} alt={activeItem[1]} fill sizes="100vw" className="caribe-lightbox-image" priority />
+              <button
+                type="button"
+                className="caribe-lightbox-arrow caribe-lightbox-arrow--left"
+                onClick={() => setActiveIndex((current) => (current === null ? 0 : (current - 1 + items.length) % items.length))}
+                aria-label="Foto anterior"
+              >
+                <ChevronLeft size={28} />
+              </button>
+              <button
+                type="button"
+                className="caribe-lightbox-arrow caribe-lightbox-arrow--right"
+                onClick={() => setActiveIndex((current) => (current === null ? 0 : (current + 1) % items.length))}
+                aria-label="Próxima foto"
+              >
+                <ChevronRight size={28} />
+              </button>
+            </div>
+            <div className="caribe-lightbox-caption">
+              <p>{activeItem[1]}</p>
+              <small>{(activeIndex ?? 0) + 1} / {items.length}</small>
+            </div>
+          </div>
+        </div>
+      ) : null}
+    </>
+  );
+}
 
 function VisitForm() {
   const [status, setStatus] = useState<"idle" | "sending" | "error">("idle");
@@ -250,18 +356,18 @@ export function CasaNovaCaribeLanding() {
             </div>
             <div className="caribe-condo-note"><span>Caribe Residence Condomínio Resort</span><strong>Um endereço para viver ao ar livre.</strong><p>Av. Ilhas Virgens, Quadra 01 · Costa Dourada · Palmas/TO</p><a href={condominiumMapUrl} target="_blank" rel="noreferrer" className="caribe-button caribe-button--gold"><MapPin size={16} /> Abrir no Google Maps</a></div>
           </div>
-          <div className="caribe-container caribe-condo-gallery">
-            {condominiumGallery.map(([src, alt, size]) => <figure className={`caribe-condo-image caribe-condo-image--${size}`} key={src}><Image src={src} alt={alt} fill sizes="(max-width: 700px) 100vw, 50vw" /><figcaption>{alt}</figcaption></figure>)}
+          <div className="caribe-container">
+            <LightboxGallery items={condominiumGallery} variant="condo" />
           </div>
           <div className="caribe-container caribe-condo-source"><small>Informações institucionais: <a href={condominiumSourceUrl} target="_blank" rel="noreferrer">LN Urbanismo — Caribe Residence & Resort</a>.</small></div>
         </section>
 
         <section className="caribe-gallery-section" id="galeria">
-          <div className="caribe-container"><div className="caribe-section-heading"><div><p className="caribe-kicker">Por todos os ângulos</p><h2>Conheça a Casa Nova.</h2></div><p>Fotos enviadas para apresentar a fachada, os ambientes sociais e a área externa desta residência.</p></div><div className="caribe-gallery">{gallery.map(([src, alt, size]) => <figure className={`caribe-gallery-${size}`} key={src}><Image src={src} alt={alt} fill sizes="(max-width: 700px) 100vw, 33vw" /><figcaption>{alt}</figcaption></figure>)}</div></div>
+          <div className="caribe-container"><div className="caribe-section-heading"><div><p className="caribe-kicker">Por todos os ângulos</p><h2>Conheça a Casa Nova.</h2></div><p>Toque ou clique em qualquer foto para abrir a visualização ampliada.</p></div><LightboxGallery items={gallery} /></div>
         </section>
 
         <section className="caribe-gallery-section" aria-labelledby="interiores-title">
-          <div className="caribe-container"><div className="caribe-section-heading"><div><p className="caribe-kicker">Por dentro</p><h2 id="interiores-title">Interiores e acabamentos.</h2></div><p>Mais detalhes dos banheiros, escritório e cozinha, com iluminação, bancadas e materiais escolhidos para o projeto.</p></div><div className="caribe-gallery">{interiorGallery.map(([src, alt, size]) => <figure className={`caribe-gallery-${size}`} key={src}><Image src={src} alt={alt} fill sizes="(max-width: 700px) 100vw, 33vw" /><figcaption>{alt}</figcaption></figure>)}</div></div>
+          <div className="caribe-container"><div className="caribe-section-heading"><div><p className="caribe-kicker">Por dentro</p><h2 id="interiores-title">Interiores e acabamentos.</h2></div><p>Banheiros, escritório e cozinha identificados corretamente. Toque ou clique para ampliar.</p></div><LightboxGallery items={interiorGallery} /></div>
         </section>
 
         <section className="caribe-contact" id="visita">
