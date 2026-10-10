@@ -137,7 +137,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/casa-condominio-caribe",
     "/casa-caribe-residence",
     "/casa-nova-caribe-residence",
-    "/casa-mirante-do-lago"
+    "/casa-mirante-do-lago",
+    "/casa-terrea-mirante-do-lago"
   ].map((path) => ({
     url: `${baseUrl}${path}`,
     lastModified: catalogueFreshness,

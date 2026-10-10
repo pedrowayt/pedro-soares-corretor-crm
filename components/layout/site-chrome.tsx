@@ -26,7 +26,8 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
   const isCaribeResidenceLanding = pathname.startsWith("/casa-caribe-residence");
   const isCasaNovaCaribeLanding = pathname.startsWith("/casa-nova-caribe-residence");
   const isMiranteLanding = pathname.startsWith("/casa-mirante-do-lago");
-  const isStandaloneLanding = isLakeVillageLanding || isQuintaDoLagoLanding || isAcordesLanding || isLike210Landing || isMaestriaLanding || isHeritageLanding || isYachtLanding || isYouLanding || isTerracoUrbanLanding || isPalmasLakeLanding || isComodoroLanding || isUrbanHauteLanding || isCinnamonLanding || isCaribeLanding || isCaribeResidenceLanding || isCasaNovaCaribeLanding || isMiranteLanding;
+  const isCasaTerreaMiranteLanding = pathname.startsWith("/casa-terrea-mirante-do-lago");
+  const isStandaloneLanding = isLakeVillageLanding || isQuintaDoLagoLanding || isAcordesLanding || isLike210Landing || isMaestriaLanding || isHeritageLanding || isYachtLanding || isYouLanding || isTerracoUrbanLanding || isPalmasLakeLanding || isComodoroLanding || isUrbanHauteLanding || isCinnamonLanding || isCaribeLanding || isCaribeResidenceLanding || isCasaNovaCaribeLanding || isMiranteLanding || isCasaTerreaMiranteLanding;
   const isInternalArea = pathname.startsWith("/admin") || pathname.startsWith("/crm");
   const isPropertyCatalog = pathname.startsWith("/imoveis/prontos");
 

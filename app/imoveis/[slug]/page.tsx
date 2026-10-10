@@ -151,6 +151,10 @@ export default async function PropertyDetailsPage({ params }: { params: Promise<
     redirect("/casa-mirante-do-lago");
   }
 
+  if (property.slug === "casa-terrea-mirante-do-lago") {
+    redirect("/casa-terrea-mirante-do-lago");
+  }
+
   const propertyUrl = `${baseUrl}/imoveis/${property.slug}`;
   const purposeLabel = purposeLabelMap[property.purpose] ?? "imóvel";
   const whatsappMessage = `Olá, vi o imóvel ${property.title} no site e gostaria de mais informações.`;
