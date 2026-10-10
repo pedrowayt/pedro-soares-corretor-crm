@@ -83,7 +83,7 @@ function inferPropertyTypes(landing: PublicLandingPage): PropertyType[] {
 
 function matchesLaunchFilters(item: PublicCatalogLaunch, filters: PublicCatalogFilters) {
   if (!includes(item.city, filters.city) || !includes(item.district, filters.district)) return false;
-  if (filters.type && item.propertyTypes.length && !item.propertyTypes.includes(filters.type)) return false;
+  if (filters.type && !item.propertyTypes.includes(filters.type)) return false;
 
   if (typeof filters.minPrice === "number") {
     if (item.startingPrice === null || item.startingPrice < filters.minPrice) return false;
