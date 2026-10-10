@@ -249,5 +249,16 @@ export const publicLandingPages: PublicLandingPage[] = [
     image: "/brand/casa-terrea-mirante-do-lago/fotos/18-fachada.jpg",
     status: "À venda",
     propertyTypes: ["CASA_EM_CONDOMINIO"]
+  },
+  {
+    slug: "casa-mirante-do-lago-235m2",
+    href: "/casa-mirante-do-lago-235m2",
+    title: "Casa Térrea Mirante do Lago · 235 m²",
+    category: "Casa térrea em condomínio de alto padrão",
+    location: "Condomínio Mirante do Lago · Palmas/TO",
+    summary: "Casa térrea com 235 m² construídos, terreno de 420 m², 3 suítes, piscina aquecida, energia solar e móveis planejados.",
+    image: "/brand/casa-mirante-do-lago-235m2/16-entrada.jpg",
+    status: "À venda",
+    propertyTypes: ["CASA_EM_CONDOMINIO"]
   }
 ];
