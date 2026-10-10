@@ -147,6 +147,10 @@ export default async function PropertyDetailsPage({ params }: { params: Promise<
     redirect("/casa-nova-caribe-residence");
   }
 
+  if (property.slug === "casa-mirante-do-lago") {
+    redirect("/casa-mirante-do-lago");
+  }
+
   const propertyUrl = `${baseUrl}/imoveis/${property.slug}`;
   const purposeLabel = purposeLabelMap[property.purpose] ?? "imóvel";
   const whatsappMessage = `Olá, vi o imóvel ${property.title} no site e gostaria de mais informações.`;

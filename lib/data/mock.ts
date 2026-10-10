@@ -159,6 +159,63 @@ export const mockProperties = [
     }))
   },
   {
+    id: "mock-casa-mirante-do-lago",
+    slug: "casa-mirante-do-lago",
+    title: "Casa Mirante do Lago",
+    type: PropertyType.CASA_EM_CONDOMINIO,
+    purpose: PropertyPurpose.VENDA,
+    status: PropertyStatus.DISPONIVEL,
+    price: 2800000,
+    address: null,
+    city: "Palmas",
+    district: "Condomínio Mirante do Lago",
+    postalCode: null,
+    googleMapsUrl: "https://www.google.com/maps/search/?api=1&query=Condominio+Mirante+do+Lago%2C+Palmas%2C+TO",
+    latitude: null,
+    longitude: null,
+    bedrooms: 4,
+    livingRooms: 2,
+    bathrooms: 5,
+    suites: 4,
+    parkingSpaces: 4,
+    areaM2: 237,
+    landAreaM2: 420,
+    isInvestorHighlight: false,
+    isAuctionOpportunity: false,
+    description:
+      "Casa Mirante do Lago no Plano Diretor Sul, em Palmas/TO, com 237 m² construídos, 420 m² de terreno, 1 suíte master com closet, 3 suítes plenas, piscina, área gourmet integrada e poço artesiano.",
+    features: [
+      "1 suíte master com closet",
+      "3 suítes plenas",
+      "5 banheiros",
+      "4 vagas na garagem",
+      "Cozinha integrada com área gourmet e piscina",
+      "Poço artesiano",
+      "Bancadas em Quartzo Montblanc",
+      "Condomínio Mirante do Lago"
+    ],
+    media: [
+      "01-fachada.jpg",
+      "02-sala.jpg",
+      "03-corredor.jpg",
+      "04-lavabo.jpg",
+      "05-quarto.jpg",
+      "06-cozinha.jpg",
+      "07-piscina.jpg",
+      "08-banheiro.jpg",
+      "09-piscina-angulo.jpg",
+      "10-area-gourmet.jpg",
+      "11-area-externa.jpg",
+      "12-banheiro-pedra.jpg",
+      "13-cozinha.jpg"
+    ].map((fileName, index) => ({
+      id: `mock-casa-mirante-do-lago-media-${index + 1}`,
+      kind: "IMAGE",
+      url: `/brand/casa-mirante-do-lago/${fileName}`,
+      position: index
+    }))
+  },
+  {
     id: "mock-1",
     slug: "casa-condominio-alto-padrao-plano-diretor-sul",
     title: "Casa em condomínio de alto padrão",

@@ -23806,6 +23806,29 @@ body:has(.wp-hero) { background: #fff; }
 .residence-footer .residence-container { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
 .residence-footer span { font-family: Georgia, serif; font-size: 18px; }
 .residence-footer small { color: rgba(255,255,255,.55); font-size: 10px; }
+.residence-location { padding: 108px 0 118px; background: var(--residence-cream); }
+.residence-location-heading { display: grid; grid-template-columns: 1.05fr .95fr; gap: 90px; align-items: end; }
+.residence-location-heading h2 { max-width: 650px; margin-top: 17px; font-family: Georgia, serif; font-size: clamp(37px, 4.6vw, 62px); font-weight: 400; letter-spacing: -.045em; line-height: 1.04; }
+.residence-location-heading > p { max-width: 470px; padding-bottom: 4px; color: #6c737d; font-size: 15px; line-height: 1.8; }
+.residence-location-grid { display: grid; grid-template-columns: 1.08fr .92fr; gap: 42px; margin-top: 58px; }
+.residence-location-map-wrap { min-width: 0; }
+.residence-location-map { position: relative; min-height: 480px; overflow: hidden; background: #d7d2c9; }
+.residence-location-map img { object-fit: cover; }
+.residence-location-map::after { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(17,25,35,.02), rgba(17,25,35,.18)); content: ""; pointer-events: none; }
+.residence-location-map-badge { position: absolute; z-index: 1; top: 17px; left: 17px; display: inline-flex; align-items: center; gap: 7px; padding: 10px 13px; background: rgba(23,34,47,.9); color: #fff; font-size: 11px; font-weight: 800; }
+.residence-location-map-actions { display: flex; align-items: center; gap: 17px; margin-top: 15px; }
+.residence-location-map-actions .residence-button { flex-shrink: 0; padding: 12px 16px; font-size: 11px; }
+.residence-location-map-actions span { color: #7a7f84; font-size: 10px; line-height: 1.5; }
+.residence-location-points { display: grid; gap: 13px; align-content: start; }
+.residence-location-points article { display: grid; grid-template-columns: 36px 1fr; gap: 13px; padding: 17px 0; border-top: 1px solid var(--residence-line); }
+.residence-location-point-icon { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; background: var(--residence-navy); color: var(--residence-sand); }
+.residence-location-points h3 { color: var(--residence-navy); font-family: Georgia, serif; font-size: 20px; font-weight: 400; }
+.residence-location-points p { margin-top: 7px; color: #6c737d; font-size: 12px; line-height: 1.6; }
+.residence-location-links { display: flex; flex-wrap: wrap; gap: 9px 15px; margin-top: 9px; }
+.residence-location-links a { display: inline-flex; align-items: center; gap: 4px; color: #637b92; font-size: 10px; font-weight: 800; }
+.residence-location-links a:hover { color: var(--residence-gold); }
+.residence-location-embed { margin-top: 42px; }
+.residence-location-embed iframe { display: block; width: 100%; height: 300px; border: 0; filter: saturate(.8); }
 
 @media (max-width: 850px) {
   .residence-nav-links { display: none; position: absolute; top: 78px; right: 24px; left: 24px; padding: 20px; background: rgba(23,34,47,.96); }
@@ -23824,6 +23847,7 @@ body:has(.wp-hero) { background: #fff; }
   .residence-condo-content { margin-top: 54px; }
   .residence-condo-copy { gap: 22px; }
   .residence-condo-amenities, .residence-condo-nature { grid-template-columns: 1fr; gap: 35px; }
+  .residence-location-heading, .residence-location-grid { grid-template-columns: 1fr; gap: 35px; }
   .residence-contact-grid { gap: 55px; }
   .residence-gallery { grid-template-rows: repeat(6, 210px); }
   .residence-gallery-hero { grid-column: span 7; grid-row: span 2; }
@@ -23848,6 +23872,12 @@ body:has(.wp-hero) { background: #fff; }
   .residence-details-photo { min-height: 350px; }
   .residence-details-copy { padding: 54px 28px 60px; }
   .residence-condo { padding: 78px 0 82px; }
+  .residence-location { padding: 78px 0 82px; }
+  .residence-location-heading h2 { font-size: 39px; }
+  .residence-location-map { min-height: 300px; }
+  .residence-location-map-actions { align-items: flex-start; flex-direction: column; }
+  .residence-location-embed { margin-top: 30px; }
+  .residence-location-embed iframe { height: 240px; }
   .residence-condo-heading h2 { font-size: 39px; }
   .residence-condo-facts { margin-top: 45px; }
   .residence-condo-fact { padding: 20px 12px 20px 0; }

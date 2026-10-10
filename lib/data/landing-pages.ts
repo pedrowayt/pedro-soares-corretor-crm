@@ -227,5 +227,16 @@ export const publicLandingPages: PublicLandingPage[] = [
     image: "/terraco-urban/comercial-2.png",
     status: "Pronto para morar",
     propertyTypes: ["APARTAMENTO"]
+  },
+  {
+    slug: "casa-mirante-do-lago",
+    href: "/casa-mirante-do-lago",
+    title: "Casa Mirante do Lago",
+    category: "Casa em condomínio de alto padrão",
+    location: "Plano Diretor Sul · Palmas/TO",
+    summary: "Casa contemporânea com 237 m² construídos, 4 suítes, piscina e área gourmet integrada no Condomínio Mirante do Lago.",
+    image: "/brand/casa-mirante-do-lago/01-fachada.jpg",
+    status: "À venda",
+    propertyTypes: ["CASA_EM_CONDOMINIO"]
   }
 ];
