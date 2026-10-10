@@ -10,6 +10,50 @@ import {
 
 export const mockProperties = [
   {
+    id: "mock-caribe-resort",
+    slug: "casa-condominio-caribe-resort",
+    title: "Casa no Condomínio Caribe Resort",
+    type: PropertyType.CASA_EM_CONDOMINIO,
+    purpose: PropertyPurpose.VENDA,
+    status: PropertyStatus.DISPONIVEL,
+    price: 2400000,
+    address: null,
+    city: "Palmas",
+    district: "Condomínio Caribe Resort",
+    postalCode: null,
+    googleMapsUrl: "https://www.google.com/maps/search/?api=1&query=Condominio+Caribe+Resort%2C+Palmas%2C+TO",
+    latitude: null,
+    longitude: null,
+    bedrooms: null,
+    livingRooms: 2,
+    bathrooms: null,
+    suites: 4,
+    parkingSpaces: null,
+    areaM2: 240,
+    landAreaM2: 600,
+    isInvestorHighlight: false,
+    isAuctionOpportunity: false,
+    description:
+      "Casa contemporânea no Condomínio Caribe Resort, em Palmas/TO, com 600 m² de terreno, 240 m² de área construída, 4 suítes, ambientes integrados, piscina e energia solar.",
+    features: [
+      "4 suítes",
+      "Lavabo",
+      "Sala de estar e sala home",
+      "Varanda gourmet integrada",
+      "Cozinha com planejados sob bancadas",
+      "Área de serviço e depósito",
+      "Piscina com banheiro de apoio",
+      "Garagem espaçosa",
+      "Energia solar"
+    ],
+    media: [1, 2, 4, 7, 5, 8, 6, 9, 3].map((number, index) => ({
+      id: `mock-caribe-media-${number}`,
+      kind: "IMAGE",
+      url: `/brand/caribe-resort/${number}-Foto-${number}.jpg`,
+      position: index
+    }))
+  },
+  {
     id: "mock-1",
     slug: "casa-condominio-alto-padrao-plano-diretor-sul",
     title: "Casa em condomínio de alto padrão",

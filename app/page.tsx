@@ -414,7 +414,13 @@ export default async function HomePage() {
       (card.status === PropertyStatus.DISPONIVEL || card.status === PropertyStatus.RESERVADO)
   );
 
-  const featuredProperties = readySaleCards.slice(0, 3);
+  const featuredProperties = [...readySaleCards]
+    .sort((a, b) => {
+      const aRank = a.href === "/imoveis/casa-condominio-caribe-resort" ? 0 : 1;
+      const bRank = b.href === "/imoveis/casa-condominio-caribe-resort" ? 0 : 1;
+      return aRank - bRank;
+    })
+    .slice(0, 3);
 
   const areaCards = buildAreaCards(readySaleCards);
   const featuredLandings = launches.map(toPublicLandingPage);

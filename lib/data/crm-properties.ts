@@ -374,7 +374,18 @@ function fromMockProperty(property: (typeof mockProperties)[number], index: numb
     owner: null,
     investorOpportunity: null,
     auctionCase: null,
-    media: [],
+    media: property.media.map((media, mediaIndex) => ({
+      id: media.id,
+      propertyId: property.id,
+      kind: media.kind as PropertyMedia["kind"],
+      status: "PRONTO" as PropertyMedia["status"],
+      cloudflareMediaId: null,
+      url: media.url,
+      variant: "variant" in media && typeof media.variant === "string" ? media.variant : null,
+      position: "position" in media && typeof media.position === "number" ? media.position : mediaIndex,
+      metadata: null,
+      createdAt: new Date(now.getTime() - mediaIndex * 1000)
+    })),
     publishedAt: null,
     createdAt: new Date(now.getTime() - index * 60_000),
     updatedAt: now

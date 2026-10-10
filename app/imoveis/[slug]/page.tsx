@@ -13,7 +13,7 @@ import {
   Sofa
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { PropertyGallery } from "@/components/public/property-gallery";
 import { WhatsAppPropertyButton } from "@/components/public/whatsapp-property-button";
 import { getSiteUrl } from "@/lib/site-url";
@@ -133,6 +133,10 @@ export default async function PropertyDetailsPage({ params }: { params: Promise<
 
   if (!property) {
     notFound();
+  }
+
+  if (property.slug === "casa-condominio-caribe-resort") {
+    redirect("/casa-condominio-caribe");
   }
 
   const propertyUrl = `${baseUrl}/imoveis/${property.slug}`;

@@ -16,6 +16,7 @@ import {
   X
 } from "lucide-react";
 import { buildWhatsAppUrl } from "@/lib/integrations/whatsapp-links";
+import { LandingPageTracker } from "@/components/public/landing-page-tracker";
 
 const gallery = [
   ["/brand/caribe-resort/1-Foto-1.jpg", "Fachada contemporânea", "hero"],
@@ -55,6 +56,9 @@ function VisitForm() {
           name: data.get("name"),
           whatsapp: data.get("whatsapp"),
           email: data.get("email"),
+          propertySlug: "casa-condominio-caribe-resort",
+          landingPageSlug: "casa-condominio-caribe",
+          sourcePage: window.location.pathname,
           message: `Interesse na casa do Condomínio Caribe Resort. Quero marcar uma visita. Melhor período: ${data.get("visitPeriod") ?? "A combinar"}.`,
           lgpdConsent: data.get("lgpdConsent") === "on"
         })
@@ -126,6 +130,7 @@ export function CaribeLanding() {
 
   return (
     <div className="caribe-page">
+      <LandingPageTracker landingPageSlug="casa-condominio-caribe" />
       <header className="caribe-header">
         <div className="caribe-container caribe-nav">
           <a className="caribe-wordmark" href="#inicio" onClick={closeMenu}>
