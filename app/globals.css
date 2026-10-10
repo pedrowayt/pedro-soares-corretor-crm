@@ -23528,7 +23528,7 @@ body:has(.wp-hero) { background: #fff; }
 .caribe-condo-note strong { display: block; max-width: 300px; margin-top: 17px; font-family: Georgia, serif; font-size: 31px; font-weight: 400; letter-spacing: -.035em; line-height: 1.08; }
 .caribe-condo-note p { max-width: 300px; margin-top: 18px; color: rgba(255,255,255,.68); font-size: 12px; line-height: 1.7; }
 .caribe-condo-gallery { display: grid; grid-template-columns: repeat(12, 1fr); grid-template-rows: 230px 230px 230px; gap: 12px; margin-top: 76px; }
-.caribe-condo-image { position: relative; min-height: 0; margin: 0; overflow: hidden; border: 0; padding: 0; background: #d7d2c9; color: inherit; cursor: zoom-in; text-align: left; }
+.caribe-condo-image { position: relative; display: block; width: 100%; height: 100%; min-height: 0; margin: 0; overflow: hidden; border: 0; padding: 0; background: #d7d2c9; color: inherit; cursor: zoom-in; text-align: left; }
 .caribe-condo-image img { object-fit: cover; transition: transform .5s ease; }
 .caribe-condo-image:hover img { transform: scale(1.04); }
 .caribe-condo-image-caption { position: absolute; right: 14px; bottom: 13px; left: 14px; z-index: 1; color: #fff; font-size: 10px; font-weight: 700; text-shadow: 0 1px 12px rgba(0,0,0,.75); }
@@ -23542,7 +23542,7 @@ body:has(.wp-hero) { background: #fff; }
 .caribe-section-heading h2 { color: #fff; }
 .caribe-section-heading > p { max-width: 320px; padding-bottom: 5px; color: rgba(255,255,255,.6); font-size: 13px; line-height: 1.7; }
 .caribe-gallery { display: grid; grid-template-columns: repeat(12, 1fr); grid-template-rows: 240px 240px 240px; gap: 12px; margin-top: 55px; }
-.caribe-gallery-trigger { position: relative; min-height: 0; margin: 0; overflow: hidden; border: 0; padding: 0; background: #151c18; color: inherit; cursor: zoom-in; text-align: left; }
+.caribe-gallery-trigger { position: relative; display: block; width: 100%; height: 100%; min-height: 0; margin: 0; overflow: hidden; border: 0; padding: 0; background: #151c18; color: inherit; cursor: zoom-in; text-align: left; }
 .caribe-gallery-trigger img { object-fit: cover; transition: transform .5s ease; }
 .caribe-gallery-trigger:hover img { transform: scale(1.04); }
 .caribe-gallery-caption { position: absolute; right: 13px; bottom: 12px; left: 13px; z-index: 1; color: rgba(255,255,255,.92); font-size: 10px; font-weight: 700; text-shadow: 0 1px 12px rgba(0,0,0,.7); }
