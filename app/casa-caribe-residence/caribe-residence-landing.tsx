@@ -52,11 +52,38 @@ const details = [
 
 const condominiumGallery = [
   ["/brand/caribe-residence/condominio/1-Foto-1.jpg", "Vista aérea da área de lazer", "large"],
-  ["/brand/caribe-residence/condominio/2-Foto-2.jpg", "Paisagem do lago ao entardecer", "small"],
-  ["/brand/caribe-residence/condominio/3-Foto-3.jpg", "Piscinas e áreas verdes", "small"],
+  ["/brand/caribe-residence/condominio/2-Foto-2.jpg", "Orla e paisagem do lago ao entardecer", "small"],
+  ["/brand/caribe-residence/condominio/3-Foto-3.jpg", "Clube com piscinas e áreas verdes", "small"],
   ["/brand/caribe-residence/condominio/4-Foto-4.jpg", "Estrutura esportiva e recreativa", "wide"],
   ["/brand/caribe-residence/condominio/5-Foto-5.jpg", "Caminhos e acesso à água", "wide"]
 ] as const;
+
+const condominiumFacts = [
+  ["600 m", "aproximadamente de orla"],
+  ["40 mil m²+", "de bosque nativo"],
+  ["600 m²", "terrenos a partir desta área"]
+] as const;
+
+const condominiumAmenities = [
+  "Portaria e segurança 24 horas",
+  "Controle de acesso e monitoramento eletrônico",
+  "Clube com piscina e raia de 25 metros",
+  "Deck molhado e hidromassagem",
+  "Piscina infantil",
+  "Academia equipada",
+  "Sauna úmida",
+  "Salão de festas e espaço gourmet",
+  "Salão de jogos",
+  "Terraço com vista para o lago",
+  "Playground infantil",
+  "Campo de futebol",
+  "Quadras de tênis",
+  "Praia privativa",
+  "Marina e píer náutico",
+  "Garagem para embarcações",
+  "Pista para caminhada, corrida e ciclismo",
+  "Praças, jardins e áreas de convivência"
+];
 
 function VisitForm() {
   const [status, setStatus] = useState<"idle" | "sending" | "error">("idle");
@@ -210,15 +237,26 @@ export function CaribeResidenceLanding() {
         <section className="residence-condo" id="condominio">
           <div className="residence-container residence-condo-heading">
             <div><p className="residence-kicker">Além da casa</p><h2>Um residencial que amplia a experiência de morar.</h2></div>
-            <p>O Caribe Residence & Resort combina natureza, água e espaços de convivência para que os momentos de descanso, lazer e bem-estar façam parte da rotina.</p>
+            <p>O Caribe Residence & Resort é um condomínio residencial fechado de alto padrão em uma região privilegiada de Palmas/TO, com acesso direto ao Lago de Palmas, infraestrutura de lazer, segurança e contato com a natureza.</p>
+          </div>
+          <div className="residence-container residence-condo-facts">
+            {condominiumFacts.map(([value, label]) => <div className="residence-condo-fact" key={value}><strong>{value}</strong><span>{label}</span></div>)}
           </div>
           <div className="residence-container residence-condo-content">
             <div className="residence-condo-copy">
-              <div><strong>Natureza ao redor</strong><p>Paisagismo, áreas verdes e caminhos tranquilos criam uma atmosfera acolhedora para viver com mais contato com o entorno.</p></div>
-              <div><strong>Lazer para aproveitar</strong><p>As imagens mostram piscinas, áreas de convivência e uma estrutura esportiva e recreativa pensada para diferentes momentos da família.</p></div>
-              <div><strong>Água e contemplação</strong><p>O residencial também valoriza a paisagem da água, com decks e pontos de contemplação para aproveitar o nascer e o pôr do sol.</p></div>
+              <div><strong>Orla e vida ao ar livre</strong><p>Praia privativa, marina, píer náutico, garagem para embarcações e espaços arborizados aproximam a rotina da água e da natureza.</p></div>
+              <div><strong>Conforto e segurança</strong><p>Portaria, controle de acesso e monitoramento eletrônico completam a experiência de morar com tranquilidade e exclusividade.</p></div>
+              <div><strong>Estrutura de resort</strong><p>Clube, piscinas, academia, sauna, espaços para eventos, esporte e convivência oferecem opções para toda a família.</p></div>
             </div>
             <div className="residence-condo-note"><span>Caribe Residence & Resort</span><strong>Seu endereço com mais possibilidades.</strong><p>Uma casa especial dentro de um cenário que convida a viver ao ar livre.</p></div>
+          </div>
+          <div className="residence-container residence-condo-amenities">
+            <div className="residence-condo-amenities-heading"><p className="residence-kicker">Infraestrutura e lazer</p><h3>Um condomínio pensado para morar, descansar e aproveitar.</h3></div>
+            <ul>{condominiumAmenities.map((item) => <li key={item}>{item}</li>)}</ul>
+          </div>
+          <div className="residence-container residence-condo-nature">
+            <div><p className="residence-kicker residence-kicker--gold">Natureza e exclusividade</p><h3>Mais de 40 mil m² de bosque nativo.</h3></div>
+            <p>O empreendimento integra paisagismo, tranquilidade e espaços de lazer ao ar livre. Seus terrenos a partir de 600 m² permitem projetos arquitetônicos de alto padrão, com privacidade e conforto.</p>
           </div>
           <div className="residence-container residence-condo-gallery">
             {condominiumGallery.map(([src, alt, size]) => <figure className={`residence-condo-image residence-condo-image--${size}`} key={src}><Image src={src} alt={alt} fill sizes="(max-width: 700px) 100vw, 50vw" /><figcaption>{alt}</figcaption></figure>)}

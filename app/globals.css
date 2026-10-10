@@ -23697,6 +23697,12 @@ body:has(.wp-hero) { background: #fff; }
 .residence-condo-heading { display: grid; grid-template-columns: 1.05fr .95fr; gap: 90px; align-items: end; }
 .residence-condo-heading h2 { max-width: 650px; margin-top: 17px; font-family: Georgia, serif; font-size: clamp(37px, 4.6vw, 62px); font-weight: 400; letter-spacing: -.045em; line-height: 1.04; }
 .residence-condo-heading > p { max-width: 470px; padding-bottom: 4px; color: #6c737d; font-size: 15px; line-height: 1.8; }
+.residence-condo-facts { display: grid; grid-template-columns: repeat(3, 1fr); margin-top: 58px; border-top: 1px solid var(--residence-line); border-bottom: 1px solid var(--residence-line); }
+.residence-condo-fact { display: grid; gap: 7px; padding: 24px 25px 24px 0; border-right: 1px solid var(--residence-line); }
+.residence-condo-fact + .residence-condo-fact { padding-left: 25px; }
+.residence-condo-fact:last-child { border-right: 0; }
+.residence-condo-fact strong { color: var(--residence-navy); font-family: Georgia, serif; font-size: 34px; font-weight: 400; letter-spacing: -.04em; }
+.residence-condo-fact span { color: #6c737d; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
 .residence-condo-content { display: grid; grid-template-columns: 1.05fr .95fr; gap: 90px; margin-top: 68px; }
 .residence-condo-copy { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
 .residence-condo-copy > div { padding-top: 20px; border-top: 1px solid var(--residence-line); }
@@ -23706,6 +23712,14 @@ body:has(.wp-hero) { background: #fff; }
 .residence-condo-note span { color: var(--residence-sand); font-size: 10px; font-weight: 800; letter-spacing: .17em; text-transform: uppercase; }
 .residence-condo-note strong { display: block; max-width: 300px; margin-top: 17px; font-family: Georgia, serif; font-size: 31px; font-weight: 400; letter-spacing: -.035em; line-height: 1.08; }
 .residence-condo-note p { max-width: 300px; margin-top: 18px; color: rgba(255,255,255,.68); font-size: 12px; line-height: 1.7; }
+.residence-condo-amenities { display: grid; grid-template-columns: .82fr 1.18fr; gap: 90px; margin-top: 80px; padding-top: 54px; border-top: 1px solid var(--residence-line); }
+.residence-condo-amenities-heading h3 { max-width: 430px; margin-top: 15px; color: var(--residence-navy); font-family: Georgia, serif; font-size: 36px; font-weight: 400; letter-spacing: -.04em; line-height: 1.08; }
+.residence-condo-amenities ul { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 28px; margin: 0; padding: 3px 0 0; list-style: none; color: #5e6975; font-size: 12px; line-height: 1.45; }
+.residence-condo-amenities li { position: relative; padding-left: 18px; }
+.residence-condo-amenities li::before { position: absolute; top: .48em; left: 0; width: 6px; height: 6px; border-radius: 50%; background: var(--residence-gold); content: ""; }
+.residence-condo-nature { display: grid; grid-template-columns: .9fr 1.1fr; gap: 70px; align-items: center; margin-top: 60px; padding: 38px 45px; background: var(--residence-navy); color: #fff; }
+.residence-condo-nature h3 { max-width: 430px; margin-top: 14px; font-family: Georgia, serif; font-size: 36px; font-weight: 400; letter-spacing: -.04em; line-height: 1.08; }
+.residence-condo-nature > p { max-width: 510px; color: rgba(255,255,255,.7); font-size: 13px; line-height: 1.8; }
 .residence-condo-gallery { display: grid; grid-template-columns: repeat(12, 1fr); grid-template-rows: 230px 230px 230px; gap: 12px; margin-top: 76px; }
 .residence-condo-image { position: relative; min-height: 0; margin: 0; overflow: hidden; background: #d7d2c9; }
 .residence-condo-image img { object-fit: cover; transition: transform .5s ease; }
@@ -23769,6 +23783,7 @@ body:has(.wp-hero) { background: #fff; }
   .residence-condo-heading, .residence-condo-content { grid-template-columns: 1fr; gap: 35px; }
   .residence-condo-content { margin-top: 54px; }
   .residence-condo-copy { gap: 22px; }
+  .residence-condo-amenities, .residence-condo-nature { grid-template-columns: 1fr; gap: 35px; }
   .residence-contact-grid { gap: 55px; }
   .residence-gallery { grid-template-rows: repeat(6, 210px); }
   .residence-gallery-hero { grid-column: span 7; grid-row: span 2; }
@@ -23794,7 +23809,16 @@ body:has(.wp-hero) { background: #fff; }
   .residence-details-copy { padding: 54px 28px 60px; }
   .residence-condo { padding: 78px 0 82px; }
   .residence-condo-heading h2 { font-size: 39px; }
+  .residence-condo-facts { margin-top: 45px; }
+  .residence-condo-fact { padding: 20px 12px 20px 0; }
+  .residence-condo-fact + .residence-condo-fact { padding-left: 12px; }
+  .residence-condo-fact strong { font-size: 28px; }
+  .residence-condo-fact span { font-size: 9px; letter-spacing: .04em; }
   .residence-condo-copy { grid-template-columns: 1fr; }
+  .residence-condo-amenities { margin-top: 58px; padding-top: 42px; }
+  .residence-condo-amenities-heading h3, .residence-condo-nature h3 { font-size: 32px; }
+  .residence-condo-amenities ul { grid-template-columns: 1fr; }
+  .residence-condo-nature { margin-top: 45px; padding: 29px 25px; }
   .residence-condo-gallery { grid-template-rows: 250px 160px 160px 160px 160px; gap: 8px; margin-top: 48px; }
   .residence-condo-image--large { grid-column: span 12; grid-row: span 1; }
   .residence-condo-image--small, .residence-condo-image--wide { grid-column: span 6; }
