@@ -104,8 +104,7 @@ export const mockProperties = [
       "Acabamentos com pedra portuguesa e iluminação em LED",
       "Poço semi artesiano"
     ],
-    media: Array.from({ length: 12 }, (_, index) => {
-      const number = index + 1;
+    media: [6, 1, 4, 5, 2, 3, 12, 8, 7, 9, 11, 10].map((number, index) => {
       return {
         id: `mock-caribe-residence-media-${number}`,
         kind: "IMAGE",
