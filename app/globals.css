@@ -21654,6 +21654,17 @@ body:has(.crm-shell) > main {
 .palmas-lake-gallery-card figcaption span { color: var(--pl-gold-light); font-size: .61rem; letter-spacing: .13em; }
 .palmas-lake-gallery-card figcaption strong { font-family: var(--font-title), Georgia, serif; font-size: 1.25rem; font-weight: 500; }
 .palmas-lake-gallery-card figcaption small { color: rgba(255,255,255,.72); font-size: .66rem; }
+.palmas-lake-gallery .palmas-lake-gallery-heading { max-width: 760px; margin-bottom: 46px; }
+.palmas-lake-gallery .palmas-lake-gallery-heading > p:last-child { max-width: 520px; color: var(--pl-muted); font-size: .9rem; line-height: 1.8; }
+.palmas-lake-gallery .palmas-loft-photo-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 13px; }
+.palmas-lake-gallery .palmas-loft-photo-card { min-width: 0; }
+.palmas-lake-gallery .palmas-loft-photo-card:first-child { grid-column: span 2; }
+.palmas-lake-gallery .palmas-loft-photo-card:first-child .palmas-loft-photo-button { aspect-ratio: 1.95; }
+.palmas-lake-gallery .palmas-loft-photo-card figcaption { padding: 14px 4px 3px; }
+.palmas-lake-gallery .palmas-loft-photo-card figcaption strong { font-size: 1.1rem; }
+.palmas-lake-gallery .palmas-loft-photo-card figcaption span { font-size: .69rem; }
+.palmas-lake-gallery .palmas-loft-photo-button { border-radius: 2px; }
+.palmas-lake-gallery .palmas-loft-photo-zoom { opacity: 1; transform: none; }
 .palmas-lake-amenities { padding: 110px 0 118px; background: var(--pl-paper); }
 .palmas-lake-amenities .palmas-lake-section-heading { max-width: 700px; }
 .palmas-lake-amenities .palmas-lake-section-heading > p:last-child { max-width: 470px; color: var(--pl-muted); font-size: .9rem; line-height: 1.8; }
@@ -21782,6 +21793,7 @@ body:has(.crm-shell) > main {
   .palmas-lake-developments-grid { grid-template-columns: 1fr; }
   .palmas-lake-gallery-grid { grid-template-columns: 1fr 1fr; grid-auto-rows: 270px; }
   .palmas-lake-gallery-card--wide { grid-column: 1 / -1; grid-row: auto; }
+  .palmas-lake-gallery .palmas-loft-photo-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .palmas-lake-amenities-grid { grid-template-columns: 1fr 1fr; }
 }
 
@@ -21838,6 +21850,9 @@ body:has(.crm-shell) > main {
   .palmas-lake-gallery { padding: 78px 0; }
   .palmas-lake-gallery-grid { grid-template-columns: 1fr; grid-auto-rows: 260px; gap: 8px; }
   .palmas-lake-gallery-card--wide { grid-column: auto; }
+  .palmas-lake-gallery .palmas-loft-photo-grid { grid-template-columns: 1fr; gap: 28px; }
+  .palmas-lake-gallery .palmas-loft-photo-card:first-child { grid-column: auto; }
+  .palmas-lake-gallery .palmas-loft-photo-card:first-child .palmas-loft-photo-button { aspect-ratio: 16 / 9; }
   .palmas-lake-amenities { padding: 78px 0; }
   .palmas-lake-amenities-grid { grid-template-columns: 1fr; gap: 8px; }
   .palmas-lake-amenity-card { min-height: 260px; }

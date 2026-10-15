@@ -44,10 +44,15 @@ export function PalmasLakePhotoGallery({ items }: PalmasLakePhotoGalleryProps) {
       <div className="palmas-loft-photo-grid">
         {items.map((item, index) => (
           <figure className="palmas-loft-photo-card" key={item.src}>
-            <button
-              type="button"
+            <a
+              href={item.src}
+              target="_blank"
+              rel="noreferrer"
               className="palmas-loft-photo-button"
-              onClick={() => setSelectedIndex(index)}
+              onClick={(event) => {
+                event.preventDefault();
+                setSelectedIndex(index);
+              }}
               aria-label={`Ampliar foto ${index + 1}: ${item.title}`}
             >
               <Image
@@ -62,7 +67,7 @@ export function PalmasLakePhotoGallery({ items }: PalmasLakePhotoGalleryProps) {
                 <Maximize2 size={15} />
                 Ampliar
               </span>
-            </button>
+            </a>
             <figcaption>
               <strong>{item.title}</strong>
               <span>{item.caption}</span>
