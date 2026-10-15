@@ -24611,11 +24611,13 @@ body:has(.wp-hero) { background: #fff; }
 .polinesia-condominium-copy p + p { margin-top: 17px; }
 .polinesia-condominium-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 28px; }
 .polinesia-condominium-tags span { padding: 9px 11px; border: 1px solid rgba(109,73,59,.25); border-radius: 99px; color: #6d493b; font-size: 10px; font-weight: 800; letter-spacing: .04em; }
-.polinesia-condominium-grid { display: grid; grid-template-columns: repeat(6, 1fr); grid-template-rows: 205px 205px; gap: 10px; }
+.polinesia-condominium-grid { display: grid; grid-template-columns: repeat(12, 1fr); grid-template-rows: 205px 205px 205px; gap: 10px; }
 .polinesia-condominium-photo { position: relative; display: block; min-height: 0; overflow: hidden; background: #d4c5b3; }
-.polinesia-condominium-photo:first-child { grid-column: span 4; grid-row: span 2; }
-.polinesia-condominium-photo:nth-child(2), .polinesia-condominium-photo:nth-child(3) { grid-column: span 2; }
-.polinesia-condominium-photo:nth-child(4), .polinesia-condominium-photo:nth-child(5) { grid-column: span 3; }
+.polinesia-condominium-photo:first-child { grid-column: span 7; grid-row: span 2; }
+.polinesia-condominium-photo:nth-child(2) { grid-column: span 5; grid-row: 1; }
+.polinesia-condominium-photo:nth-child(3) { grid-column: span 5; grid-row: 2; }
+.polinesia-condominium-photo:nth-child(4) { grid-column: span 6; grid-row: 3; }
+.polinesia-condominium-photo:nth-child(5) { grid-column: span 6; grid-row: 3; }
 .polinesia-condominium-photo img { object-fit: cover; transition: transform .5s ease; }
 .polinesia-condominium-photo:hover img { transform: scale(1.04); }
 .polinesia-condominium-photo::after { position: absolute; inset: 45% 0 0; background: linear-gradient(transparent, rgba(22,27,24,.68)); content: ""; pointer-events: none; }
