@@ -159,6 +159,10 @@ export default async function PropertyDetailsPage({ params }: { params: Promise<
     redirect("/casa-mirante-do-lago-235m2");
   }
 
+  if (property.slug === "casa-nova-condominio-polineisia-palmas") {
+    redirect("/casa-condominio-polineisia");
+  }
+
   const propertyUrl = `${baseUrl}/imoveis/${property.slug}`;
   const purposeLabel = purposeLabelMap[property.purpose] ?? "imóvel";
   const whatsappMessage = `Olá, vi o imóvel ${property.title} no site e gostaria de mais informações.`;
