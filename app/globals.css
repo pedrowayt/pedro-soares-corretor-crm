@@ -24599,3 +24599,51 @@ body:has(.wp-hero) { background: #fff; }
   .polinesia-form-grid { grid-template-columns: 1fr; }
   .polinesia-footer .polinesia-container { display: grid; }
 }
+
+/* Condomínio, área comum e localização da Casa Polinésia. */
+.polinesia-section-heading--ink h2 { color: var(--polinesia-ink); }
+.polinesia-text-link--ink { color: #6d493b; margin-top: 27px; }
+.polinesia-text-link--ink:hover { color: var(--polinesia-clay); }
+.polinesia-condominium { padding: 110px 0 116px; background: #efe6da; }
+.polinesia-condominium .polinesia-section-heading > p { color: #687067; }
+.polinesia-condominium-intro { display: grid; grid-template-columns: .82fr 1.18fr; gap: 75px; margin-top: 62px; }
+.polinesia-condominium-copy { color: #687067; font-size: 14px; line-height: 1.8; }
+.polinesia-condominium-copy p + p { margin-top: 17px; }
+.polinesia-condominium-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 28px; }
+.polinesia-condominium-tags span { padding: 9px 11px; border: 1px solid rgba(109,73,59,.25); border-radius: 99px; color: #6d493b; font-size: 10px; font-weight: 800; letter-spacing: .04em; }
+.polinesia-condominium-grid { display: grid; grid-template-columns: repeat(6, 1fr); grid-template-rows: 205px 205px; gap: 10px; }
+.polinesia-condominium-photo { position: relative; display: block; min-height: 0; overflow: hidden; background: #d4c5b3; }
+.polinesia-condominium-photo:first-child { grid-column: span 4; grid-row: span 2; }
+.polinesia-condominium-photo:nth-child(2), .polinesia-condominium-photo:nth-child(3) { grid-column: span 2; }
+.polinesia-condominium-photo:nth-child(4), .polinesia-condominium-photo:nth-child(5) { grid-column: span 3; }
+.polinesia-condominium-photo img { object-fit: cover; transition: transform .5s ease; }
+.polinesia-condominium-photo:hover img { transform: scale(1.04); }
+.polinesia-condominium-photo::after { position: absolute; inset: 45% 0 0; background: linear-gradient(transparent, rgba(22,27,24,.68)); content: ""; pointer-events: none; }
+.polinesia-condominium-photo span { position: absolute; z-index: 1; right: 12px; bottom: 11px; left: 12px; color: #fff; font-size: 10px; font-weight: 800; text-shadow: 0 1px 9px rgba(0,0,0,.7); }
+.polinesia-source-note { margin-top: 17px !important; color: #7f766c; font-size: 10px; line-height: 1.6; }
+.polinesia-location { padding: 110px 0 116px; background: var(--polinesia-cream); }
+.polinesia-location-grid { display: grid; grid-template-columns: 1.06fr .94fr; gap: 68px; align-items: stretch; }
+.polinesia-location-map { min-height: 500px; overflow: hidden; background: #d7d2c9; }
+.polinesia-location-map iframe { display: block; width: 100%; height: 100%; min-height: 500px; border: 0; filter: saturate(.82); }
+.polinesia-location-copy { display: flex; flex-direction: column; justify-content: center; }
+.polinesia-location-copy h2 { max-width: 570px; margin-top: 17px; font-family: Georgia, serif; font-size: clamp(37px, 4.6vw, 60px); font-weight: 400; letter-spacing: -.05em; line-height: 1.04; }
+.polinesia-location-copy > p:not(.polinesia-kicker) { max-width: 485px; margin-top: 23px; color: #687067; font-size: 14px; line-height: 1.8; }
+.polinesia-location-list { display: grid; gap: 0; margin-top: 27px; border-top: 1px solid var(--polinesia-line); }
+.polinesia-location-list a { display: grid; grid-template-columns: 1fr auto 16px; align-items: center; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--polinesia-line); color: #3f5145; font-size: 12px; font-weight: 700; }
+.polinesia-location-list a:hover { color: var(--polinesia-clay); }
+.polinesia-location-list strong { color: #8d4f38; font-family: Georgia, serif; font-size: 17px; font-weight: 400; }
+.polinesia-location-copy small { display: block; max-width: 480px; margin-top: 15px; color: #8a877f; font-size: 10px; line-height: 1.6; }
+@media (max-width: 850px) {
+  .polinesia-condominium-intro, .polinesia-location-grid { grid-template-columns: 1fr; gap: 40px; }
+  .polinesia-location-map, .polinesia-location-map iframe { min-height: 420px; }
+}
+@media (max-width: 560px) {
+  .polinesia-condominium, .polinesia-location { padding: 78px 0 82px; }
+  .polinesia-condominium-intro { margin-top: 44px; }
+  .polinesia-condominium-grid { grid-template-rows: 220px 135px 135px; gap: 8px; }
+  .polinesia-condominium-photo:first-child { grid-column: span 6; grid-row: span 1; }
+  .polinesia-condominium-photo:nth-child(2), .polinesia-condominium-photo:nth-child(3), .polinesia-condominium-photo:nth-child(4), .polinesia-condominium-photo:nth-child(5) { grid-column: span 3; }
+  .polinesia-location-grid { gap: 34px; }
+  .polinesia-location-map, .polinesia-location-map iframe { min-height: 300px; }
+  .polinesia-location-copy h2 { font-size: 39px; }
+}

@@ -37,6 +37,48 @@ const gallery = [
   ["/brand/casa-polineisia/14-Foto-14.jpg", "Área de lazer vista ao entardecer", "small"]
 ] as const;
 
+const condominiumGallery = [
+  {
+    src: "/brand/casa-polineisia/condominio-piscina.jpg",
+    alt: "Piscina e deck da área comum do Residencial Polinésia",
+    label: "Clube e piscinas",
+    source: "https://to.olx.com.br/tocantins/terrenos/vende-se-no-condominio-polinesia-com-acesso-ao-lago-de-palmas-to-1494636853"
+  },
+  {
+    src: "/brand/casa-polineisia/condominio-areas-verdes.jpg",
+    alt: "Áreas verdes e caminhos arborizados do Residencial Polinésia",
+    label: "Áreas verdes",
+    source: "https://to.olx.com.br/tocantins/terrenos/lote-em-condominio-no-bairro-polinesia-residence-e-resort-palmas-1408326068"
+  },
+  {
+    src: "/brand/casa-polineisia/condominio-placa.jpg",
+    alt: "Identificação do Residencial Polinésia em área ajardinada",
+    label: "Identidade do residencial",
+    source: "https://to.olx.com.br/tocantins/terrenos/vende-se-no-condominio-polinesia-com-acesso-ao-lago-de-palmas-to-1494636853"
+  },
+  {
+    src: "/brand/casa-polineisia/condominio-portaria.jpg",
+    alt: "Portaria do Residencial Polinésia",
+    label: "Portaria e acesso",
+    source: "https://to.olx.com.br/tocantins/terrenos/lote-em-condominio-no-bairro-polinesia-residence-e-resort-palmas-1408326068"
+  },
+  {
+    src: "/brand/casa-polineisia/condominio-pier.jpg",
+    alt: "Píer e acesso ao Lago de Palmas",
+    label: "Orla e lazer náutico",
+    source: "https://to.olx.com.br/tocantins/terrenos/lote-em-condominio-no-bairro-polinesia-residence-e-resort-palmas-1408326068"
+  }
+] as const;
+
+const locationPoints = [
+  ["Capim Dourado Shopping", "≈ 7 km", "https://www.google.com/maps/dir/?api=1&origin=Condominio+Polinesia+Palmas+TO&destination=Capim+Dourado+Shopping+Palmas+TO"],
+  ["Palmas Shopping", "≈ 10 km", "https://www.google.com/maps/dir/?api=1&origin=Condominio+Polinesia+Palmas+TO&destination=Palmas+Shopping+Palmas+TO"],
+  ["Av. Teotônio Segurado", "≈ 5 km", "https://www.google.com/maps/dir/?api=1&origin=Condominio+Polinesia+Palmas+TO&destination=Avenida+Teotonio+Segurado+Palmas+TO"],
+  ["Av. JK / Praça dos Girassóis", "≈ 10 km", "https://www.google.com/maps/dir/?api=1&origin=Condominio+Polinesia+Palmas+TO&destination=Praca+dos+Girassois+Palmas+TO"],
+  ["UFT — Campus Palmas", "≈ 9 km", "https://www.google.com/maps/dir/?api=1&origin=Condominio+Polinesia+Palmas+TO&destination=UFT+Campus+Palmas+TO"],
+  ["Aeroporto de Palmas", "≈ 24 km", "https://www.google.com/maps/dir/?api=1&origin=Condominio+Polinesia+Palmas+TO&destination=Aeroporto+Brigadeiro+Lysias+Rodrigues+Palmas+TO"]
+] as const;
+
 const features = [
   [Ruler, "972 m² de terreno", "Amplo espaço para viver com privacidade."],
   [House, "290,76 m² construídos", "Projeto contemporâneo e ambientes generosos."],
@@ -151,7 +193,9 @@ export function PolinesiaLanding() {
           </a>
           <nav className={menuOpen ? "polinesia-nav-links is-open" : "polinesia-nav-links"} aria-label="Navegação da casa">
             <a href="#a-casa" onClick={closeMenu}>A casa</a>
+            <a href="#condominio" onClick={closeMenu}>O condomínio</a>
             <a href="#galeria" onClick={closeMenu}>Galeria</a>
+            <a href="#localizacao" onClick={closeMenu}>Localização</a>
             <a href="#visita" onClick={closeMenu} className="polinesia-nav-cta">Agendar visita</a>
           </nav>
           <button className="polinesia-menu-toggle" type="button" onClick={() => setMenuOpen((open) => !open)} aria-expanded={menuOpen} aria-label={menuOpen ? "Fechar menu" : "Abrir menu"}>
@@ -189,6 +233,27 @@ export function PolinesiaLanding() {
           </div>
         </section>
 
+        <section className="polinesia-condominium" id="condominio">
+          <div className="polinesia-container">
+            <div className="polinesia-section-heading polinesia-section-heading--ink">
+              <div><p className="polinesia-kicker">O condomínio</p><h2>Polinésia Residence &amp; Resort.</h2></div>
+              <p>Um endereço residencial na Região Dourada de Palmas, com natureza, acesso ao Lago de Palmas e estrutura para transformar o cotidiano em experiência.</p>
+            </div>
+            <div className="polinesia-condominium-intro">
+              <div className="polinesia-condominium-copy">
+                <p>A Prefeitura de Palmas identifica o Residencial Polinésia no Plano Diretor Norte, com lotes a partir de 450 m² e vocação para moradia de alto padrão. Entre os diferenciais públicos associados ao empreendimento estão clube, garagem náutica, praia particular e segurança 24 horas.</p>
+                <p>Referências imobiliárias públicas também descrevem áreas de lazer com piscinas, sauna, academia, quadras esportivas, campo, espaço kids, trilhas e áreas verdes. A disponibilidade e as regras de uso devem ser confirmadas com a administração do condomínio.</p>
+                <div className="polinesia-condominium-tags"><span>Clube residencial</span><span>Lago de Palmas</span><span>Marina e píer</span><span>Segurança 24h</span></div>
+                <a className="polinesia-text-link polinesia-text-link--ink" href="https://www.palmas.to.gov.br/wp-content/uploads/2024/01/Produto-2-Diagnostico-estrategico-a-area-e-das-atividades-turisticas-volume-1.pdf" target="_blank" rel="noreferrer">Consultar referência pública da Prefeitura <ArrowUpRight size={16} /></a>
+              </div>
+              <div className="polinesia-condominium-grid">
+                {condominiumGallery.map((item) => <a key={item.src} href={item.source} target="_blank" rel="noreferrer" className="polinesia-condominium-photo"><Image src={item.src} alt={item.alt} fill sizes="(max-width: 800px) 50vw, 25vw" /><span>{item.label}</span></a>)}
+              </div>
+            </div>
+            <p className="polinesia-source-note">Imagens públicas de referência da infraestrutura do residencial. Fonte das imagens: anúncios públicos consultados no OLX; confirme autorização de uso, atualizações e regras diretamente com a administração.</p>
+          </div>
+        </section>
+
         <section className="polinesia-details">
           <div className="polinesia-container polinesia-details-grid">
             <div className="polinesia-details-photo"><Image src="/brand/casa-polineisia/10-Foto-10.jpg" alt="Piscina com hidromassagem integrada à área social" fill sizes="(max-width: 900px) 100vw, 50vw" /></div>
@@ -198,6 +263,13 @@ export function PolinesiaLanding() {
 
         <section className="polinesia-lifestyle">
           <div className="polinesia-container polinesia-lifestyle-grid"><div><p className="polinesia-kicker">Lazer privativo</p><h2>Seu quintal, seu ritmo.</h2></div><div><p>Uma área externa generosa para desacelerar, receber amigos e aproveitar o clima de Palmas.</p><div className="polinesia-lifestyle-points"><span><Waves size={18} /> Piscina com hidromassagem</span><span><Leaf size={18} /> Quintal gramado e irrigação automatizada</span><span><Sun size={18} /> Energia solar e poço semiartesiano</span></div></div></div>
+        </section>
+
+        <section className="polinesia-location" id="localizacao">
+          <div className="polinesia-container polinesia-location-grid">
+            <div className="polinesia-location-map"><iframe title="Mapa da localização do Condomínio Polinésia em Palmas" src="https://www.openstreetmap.org/export/embed.html?bbox=-48.38%2C-10.16%2C-48.34%2C-10.12&layer=mapnik&marker=-10.14093%2C-48.35711" loading="lazy" /></div>
+            <div className="polinesia-location-copy"><p className="polinesia-kicker">Localização e entorno</p><h2>Entre o lago, a cidade e os principais eixos de Palmas.</h2><p>O Residencial Polinésia fica no Plano Diretor Norte, na Região Dourada, com acesso pela área do Lago de Palmas. Use os links abaixo para abrir a rota atualizada no Google Maps.</p><div className="polinesia-location-list">{locationPoints.map(([name, distance, url]) => <a key={name} href={url} target="_blank" rel="noreferrer"><span>{name}</span><strong>{distance}</strong><ArrowUpRight size={16} /></a>)}</div><small>Distâncias aproximadas de referência, arredondadas para orientação editorial. O acesso utilizado, a portaria e a rota escolhida podem alterar os números.</small></div>
+          </div>
         </section>
 
         <section className="polinesia-gallery-section" id="galeria">
