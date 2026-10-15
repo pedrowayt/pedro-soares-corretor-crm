@@ -24445,3 +24445,157 @@ body:has(.wp-hero) { background: #fff; }
   .residence-lightbox-image { height: min(74vh, 620px); }
   .residence-lightbox-close { top: -12px; right: -4px; }
 }
+
+/* Casa nova no Condomínio Polinésia — standalone sales landing. */
+.polinesia-page { --polinesia-ink: #24231f; --polinesia-night: #202723; --polinesia-clay: #b86645; --polinesia-sand: #e7d8c7; --polinesia-cream: #f7f3ec; --polinesia-line: rgba(36,35,31,.16); background: var(--polinesia-cream); color: var(--polinesia-ink); overflow: hidden; }
+.polinesia-page *, .polinesia-page *::before, .polinesia-page *::after { box-sizing: border-box; }
+.polinesia-page h1, .polinesia-page h2, .polinesia-page h3, .polinesia-page p { margin: 0; }
+.polinesia-container { width: min(1240px, calc(100% - 48px)); margin: 0 auto; }
+.polinesia-header { position: absolute; z-index: 20; inset: 0 0 auto; color: #fff; border-bottom: 1px solid rgba(255,255,255,.22); background: rgba(25,30,27,.33); backdrop-filter: blur(14px); }
+.polinesia-nav { min-height: 78px; display: flex; align-items: center; justify-content: space-between; gap: 30px; }
+.polinesia-wordmark { display: grid; gap: 1px; line-height: 1.05; }
+.polinesia-wordmark span { font-family: Georgia, serif; font-size: 23px; letter-spacing: .02em; }
+.polinesia-wordmark small { color: rgba(255,255,255,.72); font-size: 9px; font-weight: 700; letter-spacing: .18em; text-transform: uppercase; }
+.polinesia-nav-links { display: flex; align-items: center; gap: 30px; font-size: 12px; font-weight: 700; }
+.polinesia-nav-links a { transition: color .2s ease; }
+.polinesia-nav-links a:hover { color: var(--polinesia-sand); }
+.polinesia-nav-cta { padding: 12px 18px; border: 1px solid rgba(255,255,255,.45); border-radius: 99px; }
+.polinesia-menu-toggle { display: none; padding: 6px; border: 0; background: transparent; color: #fff; }
+.polinesia-hero { position: relative; min-height: 790px; display: flex; align-items: flex-end; overflow: hidden; color: #fff; }
+.polinesia-hero-image { z-index: 0; object-fit: cover; object-position: center 47%; }
+.polinesia-hero-overlay { position: absolute; inset: 0; z-index: 1; background: linear-gradient(90deg, rgba(22,27,24,.88), rgba(24,29,26,.38) 57%, rgba(20,23,21,.08)), linear-gradient(0deg, rgba(17,22,19,.64), transparent 44%); }
+.polinesia-hero-content { position: relative; z-index: 2; display: flex; align-items: end; justify-content: space-between; gap: 40px; padding-bottom: 84px; }
+.polinesia-hero-copy { max-width: 670px; }
+.polinesia-kicker { color: #9c6b50; font-size: 10px; font-weight: 800; letter-spacing: .2em; text-transform: uppercase; }
+.polinesia-kicker--light { color: var(--polinesia-sand); }
+.polinesia-kicker--terracotta { color: var(--polinesia-clay); }
+.polinesia-kicker span { display: inline-block; width: 35px; height: 1px; margin: 0 9px 3px 0; background: currentColor; }
+.polinesia-hero h1 { max-width: 670px; margin-top: 20px; font-family: Georgia, serif; font-size: clamp(52px, 7.4vw, 100px); font-weight: 400; letter-spacing: -.06em; line-height: .96; }
+.polinesia-hero-lede { max-width: 540px; margin-top: 25px !important; color: rgba(255,255,255,.8); font-size: 16px; line-height: 1.7; }
+.polinesia-hero-actions { display: flex; align-items: center; gap: 25px; margin-top: 32px; }
+.polinesia-button { display: inline-flex; align-items: center; justify-content: center; gap: 11px; width: fit-content; border: 0; border-radius: 99px; padding: 15px 22px; font-size: 12px; font-weight: 800; transition: transform .2s ease, background .2s ease; }
+.polinesia-button:hover { transform: translateY(-2px); }
+.polinesia-button:disabled { cursor: wait; opacity: .7; transform: none; }
+.polinesia-button--terracotta { background: var(--polinesia-clay); color: #fff; }
+.polinesia-button--terracotta:hover { background: #ce7956; }
+.polinesia-button--ink { background: var(--polinesia-night); color: #fff; }
+.polinesia-button--ink:hover { background: #344139; }
+.polinesia-text-link { display: inline-flex; align-items: center; gap: 8px; color: #fff; font-size: 12px; font-weight: 800; }
+.polinesia-text-link:hover { color: var(--polinesia-sand); }
+.polinesia-hero-meta { display: grid; gap: 6px; min-width: 255px; padding: 18px 0 0 23px; border-left: 1px solid rgba(255,255,255,.44); }
+.polinesia-hero-meta span { color: var(--polinesia-sand); font-size: 10px; font-weight: 800; letter-spacing: .18em; text-transform: uppercase; }
+.polinesia-hero-meta strong { font-family: Georgia, serif; font-size: 28px; font-weight: 400; }
+.polinesia-hero-meta small { color: rgba(255,255,255,.74); font-size: 11px; }
+.polinesia-scroll-cue { position: absolute; z-index: 3; right: 5vw; bottom: 32px; display: flex; align-items: center; gap: 9px; color: rgba(255,255,255,.72); font-size: 10px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; }
+.polinesia-intro { padding: 105px 0 88px; background: var(--polinesia-cream); }
+.polinesia-intro-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 90px; align-items: start; }
+.polinesia-intro h2, .polinesia-details h2, .polinesia-lifestyle h2, .polinesia-section-heading h2, .polinesia-contact h2 { max-width: 590px; margin-top: 17px; font-family: Georgia, serif; font-size: clamp(37px, 4.7vw, 63px); font-weight: 400; letter-spacing: -.05em; line-height: 1.03; }
+.polinesia-intro-grid > div:last-child { max-width: 490px; padding-top: 31px; color: #6c716a; font-size: 15px; line-height: 1.8; }
+.polinesia-intro-grid > div:last-child p + p { margin-top: 15px; }
+.polinesia-feature-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 82px; padding-top: 27px; border-top: 1px solid var(--polinesia-line); }
+.polinesia-feature-grid article { display: grid; align-content: start; gap: 12px; min-height: 145px; padding-right: 22px; border-right: 1px solid var(--polinesia-line); }
+.polinesia-feature-grid article:nth-child(3n) { border-right: 0; }
+.polinesia-feature-grid svg { color: var(--polinesia-clay); }
+.polinesia-feature-grid strong { font-family: Georgia, serif; font-size: 21px; font-weight: 400; }
+.polinesia-feature-grid p { color: #6c716a; font-size: 12px; line-height: 1.6; }
+.polinesia-details { padding: 0 0 105px; background: var(--polinesia-cream); }
+.polinesia-details-grid { display: grid; grid-template-columns: minmax(0, 1.02fr) minmax(0, .98fr); min-height: 620px; background: #eadfd1; }
+.polinesia-details-photo { position: relative; min-height: 520px; }
+.polinesia-details-photo img { object-fit: cover; object-position: center; }
+.polinesia-details-copy { display: flex; flex-direction: column; justify-content: center; padding: 75px clamp(35px, 6vw, 90px); }
+.polinesia-details-copy h2 { font-size: clamp(35px, 4vw, 54px); }
+.polinesia-details-copy ul { display: grid; gap: 13px; margin: 30px 0 34px; padding: 0; list-style: none; color: #526056; font-size: 13px; }
+.polinesia-details-copy li { display: flex; align-items: center; gap: 11px; }
+.polinesia-details-copy li span { display: inline-flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; background: var(--polinesia-clay); color: #fff; }
+.polinesia-lifestyle { padding: 110px 0; background: #d9c7b4; }
+.polinesia-lifestyle-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 90px; }
+.polinesia-lifestyle h2 { color: #273129; }
+.polinesia-lifestyle-grid > div:last-child { padding-top: 31px; color: #4f5d53; font-size: 15px; line-height: 1.8; }
+.polinesia-lifestyle-points { display: grid; gap: 15px; margin-top: 30px; color: #26342a; font-size: 13px; font-weight: 700; }
+.polinesia-lifestyle-points span { display: flex; align-items: center; gap: 10px; }
+.polinesia-lifestyle-points svg { color: #8d4f38; }
+.polinesia-gallery-section { padding: 105px 0 118px; background: var(--polinesia-night); color: #fff; }
+.polinesia-section-heading { display: flex; align-items: end; justify-content: space-between; gap: 40px; }
+.polinesia-section-heading h2 { color: #fff; }
+.polinesia-section-heading > p { max-width: 340px; padding-bottom: 5px; color: rgba(255,255,255,.62); font-size: 13px; line-height: 1.7; }
+.polinesia-gallery { display: grid; grid-template-columns: repeat(12, 1fr); grid-template-rows: 240px 240px 240px 240px; grid-auto-rows: 240px; gap: 12px; margin-top: 55px; }
+.polinesia-gallery > a { display: block; min-height: 0; }
+.polinesia-gallery figure { position: relative; height: 100%; margin: 0; overflow: hidden; background: #151b17; }
+.polinesia-gallery figure img { object-fit: cover; transition: transform .5s ease; }
+.polinesia-gallery > a:hover img { transform: scale(1.04); }
+.polinesia-gallery figcaption { position: absolute; right: 13px; bottom: 12px; left: 13px; z-index: 1; color: rgba(255,255,255,.92); font-size: 10px; font-weight: 700; text-shadow: 0 1px 12px rgba(0,0,0,.7); }
+.polinesia-gallery-hero { grid-column: span 5; grid-row: span 2; }
+.polinesia-gallery-wide { grid-column: span 7; }
+.polinesia-gallery-small { grid-column: span 4; }
+.polinesia-contact { padding: 110px 0; background: #eadfd1; }
+.polinesia-contact-grid { display: grid; grid-template-columns: .9fr 1.1fr; gap: 100px; align-items: center; }
+.polinesia-contact h2 { color: #2b3a30; }
+.polinesia-contact-copy > p:not(.polinesia-kicker):not(.polinesia-contact-note) { max-width: 470px; margin-top: 25px; color: #687067; font-size: 15px; line-height: 1.8; }
+.polinesia-broker { display: flex; align-items: center; gap: 13px; margin-top: 34px; }
+.polinesia-broker img { border-radius: 50%; object-fit: cover; }
+.polinesia-broker div { display: grid; gap: 2px; }
+.polinesia-broker strong { font-family: Georgia, serif; font-size: 20px; font-weight: 400; }
+.polinesia-broker span { color: #687067; font-size: 11px; }
+.polinesia-contact-note { display: flex; align-items: center; gap: 8px; margin-top: 27px !important; color: #526457; font-size: 11px; font-weight: 700; }
+.polinesia-form { padding: 42px; background: #f9f6f0; box-shadow: 0 22px 55px rgba(54,49,39,.1); }
+.polinesia-form-heading h3 { margin-top: 10px; color: #2b3a30; font-family: Georgia, serif; font-size: 34px; font-weight: 400; letter-spacing: -.04em; }
+.polinesia-form-heading p { max-width: 480px; margin-top: 10px !important; color: #687067; font-size: 12px; line-height: 1.65; }
+.polinesia-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 29px; }
+.polinesia-form label { display: grid; gap: 7px; color: #4d5a4f; font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.polinesia-form label span { color: #9c9e98; font-size: 9px; font-weight: 500; letter-spacing: 0; text-transform: none; }
+.polinesia-form input:not([type="checkbox"]), .polinesia-form select { width: 100%; border: 1px solid #d7d3c9; border-radius: 0; padding: 13px 12px; outline: none; background: transparent; color: var(--polinesia-ink); font-size: 13px; letter-spacing: 0; text-transform: none; }
+.polinesia-form input:focus, .polinesia-form select:focus { border-color: var(--polinesia-clay); box-shadow: 0 0 0 2px rgba(184,102,69,.16); }
+.polinesia-consent { display: flex !important; align-items: start; gap: 9px !important; margin-top: 21px; color: #687067 !important; font-size: 10px !important; font-weight: 500 !important; letter-spacing: 0 !important; line-height: 1.5; text-transform: none !important; }
+.polinesia-consent input { width: 15px; height: 15px; margin: 1px 0 0; accent-color: #2b3a30; }
+.polinesia-form .polinesia-button { margin-top: 25px; cursor: pointer; }
+.polinesia-form-status { margin-top: 14px !important; font-size: 12px; line-height: 1.6; }
+.polinesia-form-status a { color: #8d4f38; font-weight: 800; text-decoration: underline; }
+.polinesia-form-status--success { color: #27704e; }
+.polinesia-form-status--error { color: #ad3d32; }
+.polinesia-footer { padding: 24px 0; background: #1c251f; color: #fff; }
+.polinesia-footer .polinesia-container { display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+.polinesia-footer span { font-family: Georgia, serif; font-size: 18px; }
+.polinesia-footer small { color: rgba(255,255,255,.55); font-size: 10px; }
+@media (max-width: 850px) {
+  .polinesia-nav-links { display: none; position: absolute; top: 78px; right: 24px; left: 24px; padding: 20px; background: rgba(25,30,27,.97); }
+  .polinesia-nav-links.is-open { display: grid; gap: 16px; }
+  .polinesia-menu-toggle { display: block; }
+  .polinesia-hero { min-height: 735px; }
+  .polinesia-hero-content { display: block; padding-bottom: 75px; }
+  .polinesia-hero-meta { width: fit-content; margin-top: 38px; }
+  .polinesia-intro-grid, .polinesia-lifestyle-grid, .polinesia-contact-grid { grid-template-columns: 1fr; gap: 35px; }
+  .polinesia-intro-grid > div:last-child, .polinesia-lifestyle-grid > div:last-child { padding-top: 0; }
+  .polinesia-feature-grid { gap: 15px; margin-top: 55px; }
+  .polinesia-feature-grid article { min-height: 150px; padding-right: 12px; }
+  .polinesia-details-grid { grid-template-columns: 1fr; }
+  .polinesia-details-photo { min-height: 470px; }
+  .polinesia-contact-grid { gap: 55px; }
+}
+@media (max-width: 560px) {
+  .polinesia-container { width: min(100% - 36px, 1240px); }
+  .polinesia-wordmark span { font-size: 20px; }
+  .polinesia-hero { min-height: 780px; }
+  .polinesia-hero-image { object-position: 62% center; }
+  .polinesia-hero-content { padding-bottom: 83px; }
+  .polinesia-hero h1 { font-size: 52px; }
+  .polinesia-hero-actions { align-items: start; flex-direction: column; gap: 17px; }
+  .polinesia-scroll-cue { display: none; }
+  .polinesia-intro { padding: 78px 0 65px; }
+  .polinesia-intro h2, .polinesia-details h2, .polinesia-lifestyle h2, .polinesia-section-heading h2, .polinesia-contact h2 { font-size: 39px; }
+  .polinesia-feature-grid { grid-template-columns: 1fr 1fr; margin-top: 55px; }
+  .polinesia-feature-grid article { min-height: 145px; border-right: 0; }
+  .polinesia-details { padding-bottom: 78px; }
+  .polinesia-details-photo { min-height: 350px; }
+  .polinesia-details-copy { padding: 54px 28px 60px; }
+  .polinesia-lifestyle, .polinesia-contact { padding: 78px 0; }
+  .polinesia-section-heading { display: block; }
+  .polinesia-section-heading > p { margin-top: 20px; }
+  .polinesia-gallery-section { padding: 78px 0 82px; }
+  .polinesia-gallery { grid-template-rows: repeat(7, 160px); grid-auto-rows: 160px; gap: 8px; margin-top: 37px; }
+  .polinesia-gallery-hero { grid-column: span 12; grid-row: span 2; }
+  .polinesia-gallery-wide, .polinesia-gallery-small { grid-column: span 6; }
+  .polinesia-contact-grid { gap: 45px; }
+  .polinesia-form { padding: 27px 20px; }
+  .polinesia-form-grid { grid-template-columns: 1fr; }
+  .polinesia-footer .polinesia-container { display: grid; }
+}

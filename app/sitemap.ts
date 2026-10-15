@@ -140,7 +140,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/casa-nova-caribe-residence",
     "/casa-mirante-do-lago",
     "/casa-terrea-mirante-do-lago",
-    "/casa-mirante-do-lago-235m2"
+    "/casa-mirante-do-lago-235m2",
+    "/casa-condominio-polineisia"
   ].map((path) => ({
     url: `${baseUrl}${path}`,
     lastModified: catalogueFreshness,
