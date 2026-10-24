@@ -52,13 +52,13 @@ export function LakeVillageLotMap() {
           />
         </div>
 
-        <p className="lake-lot-map-hint">Este bloco mostra somente a segunda página do PDF, com o mapa de lotes. Use os controles de zoom do visualizador ou abra o mapa em uma nova aba para conferir uma área com mais precisão.</p>
+        <p className="lake-lot-map-hint">Este PDF mostra a implantação do empreendimento e não indica quais lotes estão disponíveis. A comercialização da Etapa 1 deve ser consultada no atendimento. Use os controles de zoom do visualizador ou abra o mapa em uma nova aba para conferir uma área com mais precisão.</p>
       </div>
 
       <div className="lake-lot-map-copy">
         <p className="lake-kicker lake-kicker--dark">Escolha visualmente</p>
         <h3>Encontre a região do lote que combina com você.</h3>
-        <p>O mapa apresenta 1.353 lotes, de 250 a 860 m², distribuídos em quatro etapas. Escolha uma quadra ou lote no PDF e informe essa referência no cadastro para eu confirmar a disponibilidade.</p>
+        <p>O mapa apresenta 1.353 lotes, de 250 a 860 m², distribuídos em quatro etapas. A implantação completa inclui todas as etapas e não representa o estoque à venda. Informe a quadra ou o lote de interesse para eu consultar a disponibilidade atual da Etapa 1.</p>
         <div className="lake-lot-map-facts" aria-label="Informações do mapa">
           <span><strong>1.353</strong> lotes</span>
           <span><strong>250 a 860 m²</strong> tamanhos indicados</span>

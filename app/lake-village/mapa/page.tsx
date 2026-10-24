@@ -12,12 +12,12 @@ const siteUrl = getSiteUrl();
 export const metadata: Metadata = {
   title: "Mapa do empreendimento | Lake Village Residences",
   description:
-    "Consulte o mapa completo do Lake Village Residences, escolha a quadra ou o lote de seu interesse e reserve no dia do lançamento.",
+    "Consulte a implantação do Lake Village Residences e informe a quadra ou o lote de interesse para confirmar disponibilidade e condições.",
   alternates: { canonical: `${siteUrl}/lake-village/mapa` },
   openGraph: {
     title: "Mapa do empreendimento | Lake Village Residences",
     description:
-      "Veja todos os lotes do Lake Village Residences em alta qualidade e registre sua preferência para o lançamento.",
+      "Veja a implantação do Lake Village Residences e consulte a disponibilidade atual da Etapa 1 com Pedro Soares.",
     type: "website",
     url: `${siteUrl}/lake-village/mapa`,
     images: [{ url: `${siteUrl}/brand/lake-village/atualizacao-2026-09/mapa-lotes-empreendimento.jpg` }]
@@ -56,7 +56,7 @@ export default function LakeVillageMapPage() {
             <p className="lake-kicker">Lake Village Residences · Luzimangues/TO</p>
             <h1>Escolha o seu lote olhando o empreendimento inteiro.</h1>
             <p>
-              Consulte a implantação completa, aproxime o mapa para ler quadras e lotes e registre sua preferência para receber atendimento no dia do lançamento.
+              Consulte a implantação completa, aproxime o mapa para ler quadras e lotes e informe sua preferência para consultar a disponibilidade atual com Pedro Soares.
             </p>
             <div className="lake-map-experience-hero__actions">
               <a href="#mapa-interativo" className="lake-button lake-button--gold">Abrir mapa de lotes <ArrowRight size={18} /></a>
@@ -95,7 +95,7 @@ export default function LakeVillageMapPage() {
             <ol>
               <li><strong>01</strong><span>Abra o mapa e aproxime a região que chamou sua atenção.</span></li>
               <li><strong>02</strong><span>Anote a quadra e o número do lote de preferência.</span></li>
-              <li><strong>03</strong><span>Envie seus dados para eu acompanhar sua escolha até o lançamento.</span></li>
+              <li><strong>03</strong><span>Envie seus dados para eu consultar a disponibilidade, os preços e as condições atuais.</span></li>
             </ol>
           </div>
         </section>
@@ -104,8 +104,8 @@ export default function LakeVillageMapPage() {
           <div className="container lake-map-experience-form-grid">
             <div className="lake-map-experience-form-copy">
               <p className="lake-kicker">Escolha seu lote</p>
-              <h2>Registre a sua preferência para o dia do lançamento.</h2>
-              <p>Preencha seus dados e, se já tiver escolhido, informe a quadra ou o lote. Os preços e as condições serão apresentados no lançamento.</p>
+              <h2>Consulte a disponibilidade do lote que você escolheu.</h2>
+              <p>Preencha seus dados e, se já tiver escolhido, informe a quadra ou o lote. Eu confirmo a disponibilidade, os preços e as condições atuais no atendimento.</p>
               <Link href="/lake-village" className="lake-lead-secondary-link">Voltar para a apresentação completa <ArrowRight size={15} /></Link>
             </div>
             <LakeVillageLeadForm variant="capture" />

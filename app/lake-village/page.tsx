@@ -100,12 +100,12 @@ const lakeVillageGallery = [
 ] as const;
 
 export const metadata: Metadata = {
-  title: "Lake Village Residences | Lançamento em breve em Luzimangues",
-  description: "Cadastre seu interesse no Lake Village Residences, condomínio fechado à beira do lago em Luzimangues, e escolha seu lote para o dia do lançamento.",
+  title: "Lake Village Residences | Lotes à venda em Luzimangues",
+  description: "Conheça o Lake Village Residences, condomínio fechado à beira do lago em Luzimangues. Consulte lotes disponíveis, preços e condições com Pedro Soares.",
   alternates: { canonical: `${siteUrl}/lake-village` },
   openGraph: {
-    title: "Lake Village Residences | Lançamento em breve em Luzimangues",
-    description: "Conheça os lotes, a estrutura e a localização do Lake Village Residences e cadastre sua preferência para o dia do lançamento.",
+    title: "Lake Village Residences | Lotes à venda em Luzimangues",
+    description: "Conheça os lotes, a estrutura e a localização do Lake Village Residences. Consulte a disponibilidade da Etapa 1 com Pedro Soares.",
     type: "website",
     url: `${siteUrl}/lake-village`,
     images: [{ url: `${siteUrl}${lakeVillageGallery[0].src}` }]
@@ -137,20 +137,20 @@ export default function LakeVillagePage() {
             priority
           />
           <p className="lake-personal-brand">Pedro Soares · Atendimento imobiliário</p>
-          <p className="lake-kicker">Lançamento em breve · Lake Village Residences · Luzimangues/TO</p>
+          <p className="lake-kicker">Lotes à venda · Lake Village Residences · Luzimangues/TO</p>
           <h1>Um endereço para viver o lago todos os dias.</h1>
           <p className="lake-hero-lede">
-            Conheça os lotes e a proposta de um condomínio fechado à beira-lago, com natureza, lazer e espaços pensados para toda a família. Escolha sua preferência para reservar no dia do lançamento.
+            Conheça os lotes e a proposta de um condomínio fechado à beira-lago, com natureza, lazer e espaços pensados para toda a família. O empreendimento já foi lançado. Consulte os lotes disponíveis na Etapa 1 e encontre uma opção para morar ou investir.
           </p>
           <div className="lake-hero-actions">
             <a className="lake-button lake-button--gold" href="#cadastro">
-              Quero receber informações <ArrowRight size={18} />
+              Consultar lotes disponíveis <ArrowRight size={18} />
             </a>
             <a className="lake-button lake-button--outline" href="#localizacao">
               Ver localização
             </a>
           </div>
-          <p className="lake-developer-line">Lançamento em breve · Imagens ilustrativas · Preços e condições serão apresentados no lançamento.</p>
+          <p className="lake-developer-line">Lotes à venda · Imagens ilustrativas · Preços e condições sob consulta. Disponibilidade sujeita a alteração.</p>
         </div>
         <a className="lake-scroll-cue" href="#sobre" aria-label="Conheça a página de atendimento">
           <span>Conheça o projeto</span>
@@ -160,14 +160,14 @@ export default function LakeVillagePage() {
 
       <section className="lake-broker-notice" aria-label="Aviso sobre as informações">
         <div className="container">
-          <strong>Lançamento em breve</strong>
-          <p>Esta é uma página de atendimento de Pedro Soares. Escolha a região do lote que interessa a você e cadastre sua preferência para reservar no dia do lançamento. Preços e condições serão apresentados no momento adequado.</p>
+          <strong>Lotes à venda</strong>
+          <p>Esta é uma página de atendimento de Pedro Soares. O Lake Village já foi lançado e a Etapa 1 está em comercialização. Informe a quadra ou o lote de interesse para consultar a disponibilidade, os preços e as condições atuais.</p>
         </div>
       </section>
 
       <section className="lake-facts-strip" aria-label="Destaques do Lake Village">
         <div className="container lake-facts-grid lake-facts-grid--broker">
-          <div><strong>Lançamento em breve</strong><span>Reserve no dia do lançamento</span></div>
+          <div><strong>Etapa 1</strong><span>Consulte lotes disponíveis</span></div>
           <div><strong>250 a 860 m²</strong><span>Tamanhos indicados no mapa</span></div>
           <div><strong>1.353 lotes</strong><span>Implantação do empreendimento</span></div>
         </div>
@@ -182,7 +182,7 @@ export default function LakeVillagePage() {
               O Lake Village Residences é um projeto localizado em Luzimangues, às margens do lago de Palmas. A proposta combina a tranquilidade de um condomínio fechado com áreas de lazer, convivência e contato com a natureza.
             </p>
             <p>
-              No material visual, o entorno aparece conectado à TO-080, ao Resort Five Senses, à Ponte Gov. José Wilson e à Praia da Graciosa. Como o lançamento ainda não aconteceu, eu registro sua preferência de lote e acompanho você até o momento da reserva.
+              No material visual, o entorno aparece conectado à TO-080, ao Resort Five Senses, à Ponte Gov. José Wilson e à Praia da Graciosa. Com a Etapa 1 em comercialização, eu consulto a disponibilidade do lote de seu interesse e acompanho os próximos passos da compra.
             </p>
             <a className="lake-text-link" href="#cadastro">Cadastrar meu interesse <ArrowRight size={16} /></a>
           </div>
@@ -320,8 +320,8 @@ export default function LakeVillagePage() {
         <div className="container lake-lead-grid">
           <div className="lake-lead-copy">
             <p className="lake-kicker">Cadastro de interesse</p>
-            <h2>Escolha seu lote para o lançamento.</h2>
-            <p>Deixe seus dados e eu entrarei em contato para entender sua preferência, enviar os materiais disponíveis e acompanhar você até o dia do lançamento.</p>
+            <h2>Consulte seu lote no Lake Village.</h2>
+            <p>Deixe seus dados e informe a quadra ou o lote de interesse. Eu consulto a disponibilidade atual e apresento os preços, as condições e os próximos passos da compra.</p>
             <div className="lake-lead-points">
               <span><ShieldCheck size={17} /> Atendimento direto com Pedro Soares</span>
               <span><Building2 size={17} /> Lotes conforme disponibilidade</span>
@@ -336,7 +336,7 @@ export default function LakeVillagePage() {
       <section className="lake-final-cta">
         <div className="container">
           <p className="lake-kicker">Lake Village Residences</p>
-          <h2>Escolha seu lote e já reserve no dia do lançamento.</h2>
+          <h2>O Lake Village já foi lançado. Encontre seu lote.</h2>
           <a className="lake-button lake-button--gold" href="#mapa-lotes">Ver mapa de lotes <ArrowRight size={18} /></a>
         </div>
       </section>
