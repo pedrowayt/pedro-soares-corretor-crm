@@ -1,5 +1,5 @@
 import { LeadsBoard, type LeadListItem } from "@/components/crm/leads-board";
-import { QuickLeadForm } from "@/components/crm/quick-forms";
+import { LeadsCreatePanel } from "@/components/crm/leads-create-panel";
 import { listLeads } from "@/lib/data/crm";
 import { listCrmDevelopments } from "@/lib/data/developments";
 import { listCrmProperties } from "@/lib/data/crm-properties";
@@ -35,9 +35,8 @@ export default async function CrmLeadsPage({ searchParams }: { searchParams?: Pr
 
   return (
     <>
-      <header className="crm-leads-page-head"><div><p className="crm-eyebrow">Relacionamento comercial</p><h1 className="section-title" style={{ marginTop: 0 }}>Leads</h1><p className="section-subtitle">Tenha clareza sobre quem chegou, o que procura e qual deve ser o próximo passo.</p></div><span className="crm-leads-page-head__hint">Acompanhe, vincule e avance.</span></header>
+      <header className="crm-leads-page-head"><div><p className="crm-eyebrow">Relacionamento comercial</p><h1 className="section-title" style={{ marginTop: 0 }}>Leads</h1><p className="section-subtitle">Tenha clareza sobre quem chegou, o que procura e qual deve ser o próximo passo.</p></div><div className="crm-leads-page-head__actions"><span className="crm-leads-page-head__hint">Acompanhe, vincule e avance.</span><LeadsCreatePanel properties={properties.map((property) => ({ id: property.id, title: property.title }))} developments={developments.map((development) => ({ id: development.id, title: development.title }))} /></div></header>
       {landingPageSlug ? <p className="badge" style={{ display: "inline-flex", marginTop: 10 }}>Filtro: landing page <strong style={{ marginLeft: 5 }}>{landingPageSlug}</strong></p> : null}
-      <div id="quick-create" className="crm-quick-form-target" style={{ marginTop: 18, marginBottom: 20 }}><QuickLeadForm properties={properties.map((property) => ({ id: property.id, title: property.title }))} developments={developments.map((development) => ({ id: development.id, title: development.title }))} /></div>
       <LeadsBoard leads={leads.map(serializeLead)} />
     </>
   );
