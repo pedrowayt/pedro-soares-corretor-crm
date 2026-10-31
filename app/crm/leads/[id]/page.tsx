@@ -19,6 +19,7 @@ import { LeadScorePill } from "@/components/crm/lead-score-pill";
 import { LeadActions } from "@/components/crm/lead-actions";
 import { LeadAuctionToggle } from "@/components/crm/lead-auction-toggle";
 import { LeadEditForm } from "@/components/crm/lead-edit-form";
+import { LeadFlowUpControl } from "@/components/crm/lead-flow-up-control";
 import { WhatsappTemplatePicker } from "@/components/crm/whatsapp-template-picker";
 import { computeLeadScore } from "@/lib/crm/lead-scoring";
 import { matchPropertiesForLead } from "@/lib/crm/property-matching";
@@ -157,6 +158,7 @@ export default async function CrmLeadDetailPage({
             </a>
           ) : null}
         </div>
+        <LeadFlowUpControl leadId={lead.id} isRemoved={Boolean(lead.flowUpRemovedAt)} removedReason={lead.flowUpRemovedReason} allowRemove />
       </header>
 
       <LeadEditForm
@@ -175,6 +177,8 @@ export default async function CrmLeadDetailPage({
           notes: lead.notes ?? "",
           isAuctionClient: lead.isAuctionClient
         }}
+        flowUpRemovedAt={lead.flowUpRemovedAt}
+        flowUpRemovedReason={lead.flowUpRemovedReason}
       />
 
       <div className="crm-lead-detail__grid">

@@ -470,6 +470,15 @@ export const crmUpdateLeadSchema = z.object({
   message: "Informe ao menos um campo para atualizar."
 });
 
+export const crmUpdateFlowUpSchema = z.object({
+  action: z.enum(["REMOVE", "RESTORE"]),
+  reason: z.string().trim().max(1000).optional()
+}).superRefine((payload, context) => {
+  if (payload.action === "REMOVE" && !payload.reason) {
+    context.addIssue({ code: z.ZodIssueCode.custom, path: ["reason"], message: "Informe o motivo da retirada do Flow-UP." });
+  }
+});
+
 export const crmUpdateDevelopmentLeadStatusSchema = z.object({
   developmentLeadStatus: z.nativeEnum(DevelopmentLeadStatus)
 });

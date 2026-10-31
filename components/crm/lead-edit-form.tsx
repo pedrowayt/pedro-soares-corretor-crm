@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { LeadFlowUpControl } from "@/components/crm/lead-flow-up-control";
 
 type LeadEditValues = {
   name: string;
@@ -18,9 +19,9 @@ type LeadEditValues = {
   isAuctionClient: boolean;
 };
 
-type Props = { leadId: string; initialValues: LeadEditValues };
+type Props = { leadId: string; initialValues: LeadEditValues; flowUpRemovedAt?: Date | string | null; flowUpRemovedReason?: string | null };
 
-export function LeadEditForm({ leadId, initialValues }: Props) {
+export function LeadEditForm({ leadId, initialValues, flowUpRemovedAt = null, flowUpRemovedReason = null }: Props) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [values, setValues] = useState(initialValues);
@@ -90,6 +91,7 @@ export function LeadEditForm({ leadId, initialValues }: Props) {
             <div style={{ gridColumn: "1 / -1" }}><label>Notas internas</label><textarea value={values.notes} onChange={(event) => update("notes", event.target.value)} rows={4} /></div>
           </div>
           <footer className="crm-lead-edit__footer"><button type="submit" className="button button-primary" disabled={saving}>{saving ? "Salvando…" : "Salvar alterações"}</button>{status ? <span role="status">{status}</span> : null}</footer>
+          <LeadFlowUpControl leadId={leadId} isRemoved={Boolean(flowUpRemovedAt)} removedReason={flowUpRemovedReason} />
         </form>
       ) : null}
     </section>

@@ -42,7 +42,7 @@ export async function listFlowUpLeads() {
   if (!hasDatabase) return { leads: empty, counts: { HOT: 0, WARM: 0, COLD: 0 } };
   try {
     const leads = await prisma.lead.findMany({
-      where: { stage: { notIn: ["FECHADO", "PERDIDO"] } },
+      where: { stage: { notIn: ["FECHADO", "PERDIDO"] }, flowUpRemovedAt: null },
       orderBy: [{ lastContactAt: "asc" }, { createdAt: "asc" }],
       include: {
         linkedProperty: { select: { id: true, title: true, price: true } },

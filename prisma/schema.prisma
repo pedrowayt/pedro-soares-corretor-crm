@@ -398,6 +398,8 @@ model Lead {
   attribution           Json?
   lastContactAt         DateTime?
   nextFollowUpAt        DateTime?
+  flowUpRemovedAt       DateTime?
+  flowUpRemovedReason   String?
   lgpdConsentAt         DateTime?
   developmentLeadStatus DevelopmentLeadStatus @default(NOVO)
   createdAt             DateTime              @default(now())
@@ -433,6 +435,7 @@ model Lead {
   @@index([linkedDevelopmentUnitTypeId])
   @@index([linkedDevelopmentUnitId])
   @@index([nextFollowUpAt])
+  @@index([flowUpRemovedAt])
   @@index([isAuctionClient])
   @@index([developmentLeadStatus])
   @@index([landingPageId])
