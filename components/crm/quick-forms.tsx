@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, type ChangeEvent, type ClipboardEvent, type Dispatch, type KeyboardEvent, type SetStateAction } from "react";
 
 type Status = { type: "idle" | "success" | "error"; message?: string };
 
@@ -24,9 +24,75 @@ async function postJson(url: string, payload: unknown) {
 
 type Choice = { id: string; title: string };
 
+const currencyFormatter = new Intl.NumberFormat("pt-BR", {
+  style: "currency",
+  currency: "BRL",
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2
+});
+
+function formatCurrencyDigits(digits: string) {
+  const normalizedDigits = digits.replace(/^0+(?=\d)/, "");
+  return normalizedDigits ? currencyFormatter.format(Number(normalizedDigits)) : "";
+}
+
+function getCurrencyDigits(value: string) {
+  const digits = value.replace(/\D/g, "");
+  return digits ? String(Number(digits) / 100) : "";
+}
+
+function handleCurrencyKeyDown(event: KeyboardEvent<HTMLInputElement>, setValue: Dispatch<SetStateAction<string>>) {
+  if (event.ctrlKey || event.metaKey || event.altKey) return;
+
+  const selection = event.currentTarget.selectionStart !== event.currentTarget.selectionEnd;
+  if (/^\d$/.test(event.key)) {
+    event.preventDefault();
+    setValue((previous) => formatCurrencyDigits(selection ? event.key : `${getCurrencyDigits(previous)}${event.key}`));
+    return;
+  }
+
+  if (event.key === "Backspace" || event.key === "Delete") {
+    event.preventDefault();
+    setValue((previous) => selection ? "" : formatCurrencyDigits(getCurrencyDigits(previous).slice(0, -1)));
+    return;
+  }
+
+  if (!["Tab", "Enter", "Escape", "ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End"].includes(event.key)) {
+    event.preventDefault();
+  }
+}
+
+function handleCurrencyPaste(event: ClipboardEvent<HTMLInputElement>, setValue: Dispatch<SetStateAction<string>>) {
+  event.preventDefault();
+  setValue(formatCurrencyDigits(event.clipboardData.getData("text").replace(/\D/g, "")));
+}
+
+function handleCurrencyChange(event: ChangeEvent<HTMLInputElement>, setValue: Dispatch<SetStateAction<string>>) {
+  const inputEvent = event.nativeEvent as InputEvent;
+  const insertedDigits = inputEvent.data?.replace(/\D/g, "") ?? "";
+
+  if (!event.currentTarget.value) {
+    setValue("");
+  } else if (inputEvent.inputType === "insertText" && insertedDigits) {
+    setValue((previous) => formatCurrencyDigits(`${getCurrencyDigits(previous)}${insertedDigits}`));
+  } else if (inputEvent.inputType === "deleteContentBackward" || inputEvent.inputType === "deleteContentForward") {
+    setValue((previous) => formatCurrencyDigits(getCurrencyDigits(previous).slice(0, -1)));
+  } else {
+    setValue(formatCurrencyDigits(event.currentTarget.value.replace(/\D/g, "")));
+  }
+}
+
+function parseCurrencyInput(value: string) {
+  const digits = value.replace(/\D/g, "");
+  return digits ? Number(digits) / 100 : undefined;
+}
+
 export function QuickLeadForm({ properties = [], developments = [], redirectOnSuccess = false }: { properties?: Choice[]; developments?: Choice[]; redirectOnSuccess?: boolean }) {
   const router = useRouter();
   const [status, setStatus] = useState<Status>({ type: "idle" });
+  const [budgetMin, setBudgetMin] = useState("");
+  const [budgetMax, setBudgetMax] = useState("");
+  const [targetValue, setTargetValue] = useState("");
 
   return (
     <form
@@ -43,9 +109,9 @@ export function QuickLeadForm({ properties = [], developments = [], redirectOnSu
             email: formData.get("email") || undefined,
             source: formData.get("source"),
             intent: formData.get("intent"),
-            budgetMin: formData.get("budgetMin") || undefined,
-            budgetMax: formData.get("budgetMax") || undefined,
-            targetValue: formData.get("targetValue") || undefined,
+            budgetMin: parseCurrencyInput(budgetMin),
+            budgetMax: parseCurrencyInput(budgetMax),
+            targetValue: parseCurrencyInput(targetValue),
             isAuctionClient: formData.get("isAuctionClient") === "on",
             interestDescription: formData.get("interestDescription"),
             linkedPropertyId: formData.get("linkedPropertyId") || undefined,
@@ -58,6 +124,9 @@ export function QuickLeadForm({ properties = [], developments = [], redirectOnSu
           }
           setStatus({ type: "success", message: "Lead cadastrado." });
           event.currentTarget.reset();
+          setBudgetMin("");
+          setBudgetMax("");
+          setTargetValue("");
         } catch (error) {
           setStatus({ type: "error", message: error instanceof Error ? error.message : "Falha." });
         }
@@ -69,9 +138,9 @@ export function QuickLeadForm({ properties = [], developments = [], redirectOnSu
           <label>Nome</label>
           <input name="name" required />
         </div>
-        <div><label>Orçamento mínimo</label><input name="budgetMin" type="number" min="0" /></div>
-        <div><label>Orçamento máximo</label><input name="budgetMax" type="number" min="0" /></div>
-        <div><label>Valor-alvo</label><input name="targetValue" type="number" min="0" /></div>
+        <div><label>Orçamento mínimo</label><input name="budgetMin" type="text" inputMode="numeric" value={budgetMin} onChange={(event) => handleCurrencyChange(event, setBudgetMin)} onKeyDown={(event) => handleCurrencyKeyDown(event, setBudgetMin)} onPaste={(event) => handleCurrencyPaste(event, setBudgetMin)} placeholder="R$ 0,00" /></div>
+        <div><label>Orçamento máximo</label><input name="budgetMax" type="text" inputMode="numeric" value={budgetMax} onChange={(event) => handleCurrencyChange(event, setBudgetMax)} onKeyDown={(event) => handleCurrencyKeyDown(event, setBudgetMax)} onPaste={(event) => handleCurrencyPaste(event, setBudgetMax)} placeholder="R$ 0,00" /></div>
+        <div><label>Valor-alvo</label><input name="targetValue" type="text" inputMode="numeric" value={targetValue} onChange={(event) => handleCurrencyChange(event, setTargetValue)} onKeyDown={(event) => handleCurrencyKeyDown(event, setTargetValue)} onPaste={(event) => handleCurrencyPaste(event, setTargetValue)} placeholder="R$ 0,00" /></div>
         <label className="crm-form-checkbox"><input name="isAuctionClient" type="checkbox" /><span>Cliente de leilão</span></label>
         <div><label>Imóvel cadastrado</label><select name="linkedPropertyId" defaultValue=""><option value="">Nenhum</option>{properties.map((property) => <option key={property.id} value={property.id}>{property.title}</option>)}</select></div>
         <div><label>Empreendimento</label><select name="linkedDevelopmentId" defaultValue=""><option value="">Nenhum</option>{developments.map((development) => <option key={development.id} value={development.id}>{development.title}</option>)}</select></div>
