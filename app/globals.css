@@ -18794,6 +18794,26 @@ body:has(.crm-shell) > main {
   color: var(--text-muted);
 }
 
+/* Leads mobile cards: match the Flow-UP hierarchy and preserve contrast in dark mode. */
+.crm-leads-card { gap: 14px; background: var(--surface-card); border-color: var(--border-subtle); box-shadow: 0 8px 22px rgba(15,23,42,.08); }
+.crm-leads-card__identity { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.crm-leads-card__identity > div { display: grid; gap: 3px; min-width: 0; }
+.crm-leads-avatar { display: grid; place-items: center; width: 38px; height: 38px; flex: 0 0 38px; border-radius: 50%; color: #fff; font-size: .75rem; font-weight: 800; letter-spacing: .02em; }
+.crm-leads-avatar--quente { background: #e56b42; box-shadow: 0 0 0 5px rgba(229,107,66,.13); }
+.crm-leads-avatar--morno { background: #d39b39; box-shadow: 0 0 0 5px rgba(211,155,57,.13); }
+.crm-leads-avatar--frio { background: #6f91ad; box-shadow: 0 0 0 5px rgba(111,145,173,.14); }
+.crm-leads-temperature { padding: 5px 9px; border-radius: 999px; font-size: .68rem; font-weight: 800; }
+.crm-leads-temperature--quente { color: #bd592f; background: rgba(229,107,66,.14); }
+.crm-leads-temperature--morno { color: #9a6b13; background: rgba(211,155,57,.16); }
+.crm-leads-temperature--frio { color: #527b9c; background: rgba(111,145,173,.16); }
+[data-theme="dark"] .crm-leads-card { background: #17253d; border-color: rgba(145,176,214,.18); box-shadow: 0 10px 24px rgba(0,0,0,.24); }
+[data-theme="dark"] .crm-leads-card .crm-record-card__title,
+[data-theme="dark"] .crm-leads-card .crm-record-card__fields dd,
+[data-theme="dark"] .crm-leads-table td,
+[data-theme="dark"] .crm-leads-table .crm-lead-link { color: var(--text-strong); }
+[data-theme="dark"] .crm-leads-card .crm-record-card__footer { border-top-color: rgba(145,176,214,.16); }
+[data-theme="dark"] .crm-leads-table td > strong { color: #e3ad43; }
+
 /* ============================================================
  * CRM Dashboard v2
  * ============================================================ */

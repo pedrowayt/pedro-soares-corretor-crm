@@ -56,6 +56,16 @@ function interestValue(lead: LeadListItem) {
   return lead.targetValue ? money(lead.targetValue) : lead.budgetMax ? `Até ${money(lead.budgetMax)}` : "Não informado";
 }
 
+function initials(name: string) {
+  return name.trim().split(/\s+/).slice(0, 2).map((part) => part[0]?.toUpperCase() ?? "").join("");
+}
+
+function temperature(lead: LeadListItem) {
+  if (!lead.lastContactAt) return "Frio";
+  const days = Math.max(0, Math.floor((Date.now() - new Date(lead.lastContactAt).getTime()) / 86400000));
+  return days <= 7 ? "Quente" : days <= 14 ? "Morno" : "Frio";
+}
+
 export function LeadsBoard({ leads }: { leads: LeadListItem[] }) {
   const [query, setQuery] = useState("");
   const [stage, setStage] = useState("ALL");
@@ -93,7 +103,7 @@ export function LeadsBoard({ leads }: { leads: LeadListItem[] }) {
 
       <div className="card crm-table-host crm-leads-table-wrap"><table className="crm-leads-table"><thead><tr><th>Lead</th><th>Interesse</th><th>Vínculo</th><th>Origem</th><th>Cadastro</th><th>Ações</th></tr></thead><tbody>{filtered.map((lead) => <tr key={lead.id}><td><Link href={`/crm/leads/${lead.id}`} className="crm-lead-link">{lead.name}</Link><small>{lead.phone} · {lead.stage.replaceAll("_", " ")}</small>{lead.isAuctionClient ? <span className="badge crm-badge-auction">Leilão</span> : null}</td><td><strong>{interestValue(lead)}</strong><small>{lead.intent}</small></td><td>{context(lead)}</td><td>{origin(lead)}</td><td>{dateTime(lead.createdAt)}</td><td><div className="crm-leads-actions"><Link href={`/crm/leads/${lead.id}`} className="button button-ghost"><Pencil size={14} aria-hidden="true" /> Editar</Link><LeadActions leadId={lead.id} leadName={lead.name} whatsappUrl={whatsappUrl(lead)} compact /></div></td></tr>)}</tbody></table>{filtered.length === 0 ? <p className="crm-panel__empty">Nenhum Lead encontrado com esses filtros.</p> : null}</div>
 
-      <ul className="crm-record-cards crm-leads-cards" aria-label="Leads filtrados">{filtered.map((lead) => <li className="crm-record-card" key={lead.id}><header className="crm-record-card__head"><div><Link href={`/crm/leads/${lead.id}`} className="crm-record-card__title">{lead.name}</Link><small>{lead.phone}</small></div><span className="crm-record-card__pill">{lead.stage.replaceAll("_", " ")}</span></header><dl className="crm-record-card__fields"><div><dt>Valor de interesse</dt><dd className="crm-lead-value">{interestValue(lead)}</dd></div><div><dt>Origem</dt><dd>{origin(lead)}</dd></div><div className="crm-record-card__fields-wide"><dt>Vínculo</dt><dd>{context(lead)}</dd></div><div className="crm-record-card__fields-wide"><dt>Último contato</dt><dd>{dateTime(lead.lastContactAt)}</dd></div></dl><LeadDevelopmentStatusControl leadId={lead.id} initialStatus={lead.developmentLeadStatus} disabled={!lead.linkedDevelopment} /><footer className="crm-record-card__footer"><div className="crm-leads-actions"><Link href={`/crm/leads/${lead.id}`} className="button button-ghost"><Pencil size={14} aria-hidden="true" /> Editar</Link><LeadActions leadId={lead.id} leadName={lead.name} whatsappUrl={whatsappUrl(lead)} compact /></div></footer></li>)}</ul>
+      <ul className="crm-record-cards crm-leads-cards" aria-label="Leads filtrados">{filtered.map((lead) => { const tier = temperature(lead); return <li className="crm-record-card crm-leads-card" key={lead.id}><header className="crm-record-card__head"><div className="crm-leads-card__identity"><span className={`crm-leads-avatar crm-leads-avatar--${tier.toLowerCase()}`} aria-hidden="true">{initials(lead.name)}</span><div><Link href={`/crm/leads/${lead.id}`} className="crm-record-card__title">{lead.name}</Link><small>{lead.phone} · {lead.stage.replaceAll("_", " ")}</small></div></div><span className={`crm-leads-temperature crm-leads-temperature--${tier.toLowerCase()}`}>{tier}</span></header><dl className="crm-record-card__fields"><div><dt>Valor de interesse</dt><dd className="crm-lead-value">{interestValue(lead)}</dd></div><div><dt>Origem</dt><dd>{origin(lead)}</dd></div><div className="crm-record-card__fields-wide"><dt>Vínculo</dt><dd>{context(lead)}</dd></div><div className="crm-record-card__fields-wide"><dt>Último contato</dt><dd>{dateTime(lead.lastContactAt)}</dd></div></dl><LeadDevelopmentStatusControl leadId={lead.id} initialStatus={lead.developmentLeadStatus} disabled={!lead.linkedDevelopment} /><footer className="crm-record-card__footer"><div className="crm-leads-actions"><Link href={`/crm/leads/${lead.id}`} className="button button-ghost"><Pencil size={14} aria-hidden="true" /> Editar</Link><LeadActions leadId={lead.id} leadName={lead.name} whatsappUrl={whatsappUrl(lead)} compact /></div></footer></li>; })}</ul>
     </section>
   );
 }
