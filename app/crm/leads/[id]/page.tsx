@@ -18,6 +18,7 @@ import {
 import { LeadScorePill } from "@/components/crm/lead-score-pill";
 import { LeadActions } from "@/components/crm/lead-actions";
 import { LeadAuctionToggle } from "@/components/crm/lead-auction-toggle";
+import { LeadEditForm } from "@/components/crm/lead-edit-form";
 import { WhatsappTemplatePicker } from "@/components/crm/whatsapp-template-picker";
 import { computeLeadScore } from "@/lib/crm/lead-scoring";
 import { matchPropertiesForLead } from "@/lib/crm/property-matching";
@@ -157,6 +158,24 @@ export default async function CrmLeadDetailPage({
           ) : null}
         </div>
       </header>
+
+      <LeadEditForm
+        leadId={lead.id}
+        initialValues={{
+          name: lead.name,
+          phone: lead.phone,
+          email: lead.email ?? "",
+          intent: lead.intent,
+          desiredType: lead.desiredType ?? "",
+          desiredPurpose: lead.desiredPurpose ?? "",
+          budgetMin: lead.budgetMin ? String(Number(lead.budgetMin)) : "",
+          budgetMax: lead.budgetMax ? String(Number(lead.budgetMax)) : "",
+          targetValue: lead.targetValue ? String(Number(lead.targetValue)) : "",
+          interestDescription: lead.interestDescription ?? "",
+          notes: lead.notes ?? "",
+          isAuctionClient: lead.isAuctionClient
+        }}
+      />
 
       <div className="crm-lead-detail__grid">
         <div className="crm-lead-detail__column">

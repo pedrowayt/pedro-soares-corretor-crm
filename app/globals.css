@@ -19087,6 +19087,7 @@ body:has(.crm-shell) > main {
 .crm-auction-toggle.is-active { border-color: #d39b39; background: rgba(211,155,57,.1); color: #9a6b13; }
 .crm-auction-toggle:disabled { cursor: wait; opacity: .65; }
 .crm-badge-auction { border-color: rgba(211,155,57,.55); color: #9a6b13; }
+.crm-lead-edit { display: grid; gap: 12px; }.crm-lead-edit__form { display: grid; gap: 16px; }.crm-lead-edit__form .crm-panel__head { display: grid; gap: 4px; }.crm-lead-edit__form .crm-panel__head span { color: var(--text-muted); font-size: .75rem; }.crm-lead-edit__footer { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }.crm-lead-edit__footer [role="status"] { color: var(--text-muted); font-size: .75rem; }
 
 .crm-lead-detail__links { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
 

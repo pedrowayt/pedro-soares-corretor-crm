@@ -454,7 +454,20 @@ export const crmRegisterContactSchema = z.object({
 });
 
 export const crmUpdateLeadSchema = z.object({
-  isAuctionClient: z.boolean()
+  name: z.string().min(2).optional(),
+  phone: z.string().min(8).optional(),
+  email: z.string().email().nullable().optional(),
+  intent: z.nativeEnum(LeadIntent).optional(),
+  desiredType: z.nativeEnum(PropertyType).nullable().optional(),
+  desiredPurpose: z.nativeEnum(PropertyPurpose).nullable().optional(),
+  budgetMin: z.coerce.number().nullable().optional(),
+  budgetMax: z.coerce.number().nullable().optional(),
+  targetValue: z.coerce.number().nullable().optional(),
+  interestDescription: z.string().trim().max(2000).nullable().optional(),
+  notes: z.string().trim().max(4000).nullable().optional(),
+  isAuctionClient: z.boolean().optional()
+}).refine((payload) => Object.keys(payload).length > 0, {
+  message: "Informe ao menos um campo para atualizar."
 });
 
 export const crmUpdateDevelopmentLeadStatusSchema = z.object({
