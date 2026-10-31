@@ -25,6 +25,7 @@ import { computeLeadScore } from "@/lib/crm/lead-scoring";
 import { matchPropertiesForLead } from "@/lib/crm/property-matching";
 import { listCrmProperties } from "@/lib/data/crm-properties";
 import { getLeadDetail } from "@/lib/data/dashboard";
+import { listWhatsappTemplates } from "@/lib/data/whatsapp-templates";
 import { formatCurrencyBRL } from "@/lib/utils";
 
 function initials(name: string) {
@@ -71,7 +72,7 @@ export default async function CrmLeadDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const [lead, properties] = await Promise.all([getLeadDetail(id), listCrmProperties()]);
+  const [lead, properties, templates] = await Promise.all([getLeadDetail(id), listCrmProperties(), listWhatsappTemplates()]);
 
   if (!lead) notFound();
 
@@ -308,6 +309,7 @@ export default async function CrmLeadDetailPage({
           <section className="crm-panel">
             <WhatsappTemplatePicker
               leadFirstName={firstName}
+              leadId={lead.id}
               phone={lead.phone}
               propertyTitle={lead.linkedProperty?.title ?? undefined}
               propertyUrl={
@@ -320,7 +322,12 @@ export default async function CrmLeadDetailPage({
                   ? `${lead.budgetMin ? formatCurrencyBRL(Number(lead.budgetMin)) + " – " : "até "}${formatCurrencyBRL(Number(lead.budgetMax))}`
                   : undefined
               }
+              targetValue={lead.targetValue ? formatCurrencyBRL(Number(lead.targetValue)) : undefined}
+              interest={lead.interestDescription ?? undefined}
+              stage={lead.stage}
+              visitDate={lead.visits[0]?.scheduledAt ? formatDateTime(lead.visits[0].scheduledAt) : undefined}
               isAuctionClient={lead.isAuctionClient}
+              templates={templates}
             />
           </section>
 

@@ -41,7 +41,8 @@ const SIDEBAR_SECTIONS: ReadonlyArray<SidebarSection> = [
     items: [
       { href: "/crm/integracoes", label: "Integrações" },
       { href: "/crm/relatorios", label: "Relatórios" },
-      { href: "/crm/configuracoes", label: "Configurações" }
+      { href: "/crm/configuracoes", label: "Configurações" },
+      { href: "/crm/configuracoes/templates", label: "Templates WhatsApp" }
     ]
   }
 ];

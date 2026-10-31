@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { CSSProperties } from "react";
+import { Pencil } from "lucide-react";
 import { LeadActions } from "@/components/crm/lead-actions";
 import { LeadDevelopmentStatusControl } from "@/components/crm/lead-development-status-control";
 import { QuickLeadForm } from "@/components/crm/quick-forms";
@@ -110,7 +111,10 @@ export default async function CrmLeadsPage({
                   />
                 </td>
                 <td style={tdStyle}>
-                  <LeadActions leadId={lead.id} leadName={lead.name} whatsappUrl={leadWhatsappUrl(lead)} compact />
+                  <div className="crm-leads-actions">
+                    <Link href={`/crm/leads/${lead.id}`} className="button button-ghost"><Pencil size={14} strokeWidth={1.75} aria-hidden="true" /> Editar lead</Link>
+                    <LeadActions leadId={lead.id} leadName={lead.name} whatsappUrl={leadWhatsappUrl(lead)} compact />
+                  </div>
                 </td>
               </tr>
             ))}
@@ -164,7 +168,10 @@ export default async function CrmLeadsPage({
                 initialStatus={lead.developmentLeadStatus}
                 disabled={!lead.linkedDevelopmentId}
               />
-              <LeadActions leadId={lead.id} leadName={lead.name} whatsappUrl={leadWhatsappUrl(lead)} compact />
+              <div className="crm-leads-actions">
+                <Link href={`/crm/leads/${lead.id}`} className="button button-ghost"><Pencil size={14} strokeWidth={1.75} aria-hidden="true" /> Editar lead</Link>
+                <LeadActions leadId={lead.id} leadName={lead.name} whatsappUrl={leadWhatsappUrl(lead)} compact />
+              </div>
             </footer>
           </li>
         ))}

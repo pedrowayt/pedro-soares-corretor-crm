@@ -1566,6 +1566,50 @@
   .like210-whatsapp-float span { display: none; }
 }
 
+.crm-template-manager { display: grid; gap: 18px; }
+.crm-leads-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.crm-leads-actions > .button { white-space: nowrap; }
+.crm-leads-actions > div { display: flex !important; gap: 8px !important; flex-wrap: wrap; }
+.crm-template-editor { display: grid; gap: 16px; padding: 18px; }
+.crm-template-editor__head, .crm-template-list > header { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
+.crm-template-editor__head h2, .crm-template-list h2 { margin: 0; color: var(--text-strong); font-size: 1.1rem; }
+.crm-template-editor__head p:not(.crm-eyebrow), .crm-template-list__actions + p { margin: 4px 0 0; color: var(--text-muted); font-size: .78rem; }
+.crm-eyebrow { margin: 0 0 5px; color: var(--accent, #b77a1b); font-size: .67rem; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+.crm-template-editor__grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(160px, .45fr); gap: 12px; }
+.crm-template-editor label { display: grid; gap: 6px; color: var(--text-strong); font-size: .78rem; font-weight: 700; }
+.crm-template-editor input, .crm-template-editor select, .crm-template-editor textarea { width: 100%; border: 1px solid var(--border-subtle); border-radius: 10px; background: var(--surface-card); color: var(--text-strong); font: inherit; padding: 10px 11px; }
+.crm-template-editor textarea { resize: vertical; line-height: 1.55; }
+.crm-template-editor input:focus, .crm-template-editor select:focus, .crm-template-editor textarea:focus { border-color: var(--accent, #b77a1b); outline: 2px solid rgba(183,122,27,.16); }
+.crm-template-variables { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; color: var(--text-muted); font-size: .72rem; }
+.crm-template-variable { border: 1px solid var(--border-subtle); border-radius: 999px; background: var(--surface-soft); color: var(--text-strong); cursor: pointer; font-size: .7rem; padding: 7px 9px; }
+.crm-template-variable:hover { border-color: var(--accent, #b77a1b); color: var(--accent, #b77a1b); }
+.crm-template-editor__footer { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.crm-template-editor__footer [role="status"] { color: var(--text-muted); font-size: .75rem; }
+.crm-template-lists { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.crm-template-list { display: grid; align-content: start; gap: 14px; padding: 18px; }
+.crm-template-list > header { align-items: center; }
+.crm-template-list ul { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.crm-template-list li { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; padding: 12px; border: 1px solid var(--border-subtle); border-radius: 12px; background: var(--surface-soft); }
+.crm-template-list li > div:first-child { min-width: 0; display: grid; gap: 3px; }
+.crm-template-list strong { color: var(--text-strong); font-size: .8rem; }
+.crm-template-list span, .crm-template-list small { color: var(--text-muted); font-size: .7rem; line-height: 1.4; }
+.crm-template-list small { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.crm-template-list__actions { display: flex; gap: 6px; flex-shrink: 0; }
+.crm-template-list__actions .button { min-height: 32px; padding: 7px 9px; font-size: .7rem; }
+.crm-template-list__actions .is-danger { color: var(--danger, #c65d5d); }
+.crm-whatsapp-picker__head { display: flex; align-items: center; gap: 8px; }
+.crm-whatsapp-picker__head .badge { margin-left: auto; }
+@media (max-width: 760px) {
+  .crm-template-lists { grid-template-columns: 1fr; }
+  .crm-template-editor__grid { grid-template-columns: 1fr; }
+  .crm-template-list li { display: grid; }
+  .crm-template-list__actions { justify-content: stretch; }
+  .crm-template-list__actions .button { flex: 1; justify-content: center; }
+  .crm-leads-actions { width: 100%; }
+  .crm-leads-actions > .button, .crm-leads-actions > div { flex: 1; }
+  .crm-leads-actions > div > .button { flex: 1; justify-content: center; }
+}
+
 /* Dark theme — scoped to the CRM via [data-theme="dark"] on the .crm-shell.
  * Public site keeps the brand palette untouched. */
 [data-theme="dark"] {

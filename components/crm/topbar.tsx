@@ -10,6 +10,7 @@ import {
   Hammer,
   LayoutDashboard,
   LogOut,
+  MessageCircle,
   Plug,
   Search,
   Settings,
@@ -58,7 +59,8 @@ const SECONDARY_NAV: ReadonlyArray<TopbarLink> = [
   { href: "/crm/blog", label: "Blog", Icon: LayoutDashboard },
   { href: "/crm/integracoes", label: "Integrações", Icon: Plug },
   { href: "/crm/relatorios", label: "Relatórios", Icon: LayoutDashboard },
-  { href: "/crm/configuracoes", label: "Configurações", Icon: Settings }
+  { href: "/crm/configuracoes", label: "Configurações", Icon: Settings },
+  { href: "/crm/configuracoes/templates", label: "Templates WhatsApp", Icon: MessageCircle }
 ];
 
 const ROLE_LABELS: Record<string, string> = {

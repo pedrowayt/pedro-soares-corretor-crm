@@ -453,6 +453,19 @@ export const crmRegisterContactSchema = z.object({
   message: z.string().trim().max(1000).optional()
 });
 
+const whatsappTemplateFields = {
+  name: z.string().trim().min(2).max(120),
+  hint: z.string().trim().max(240).nullable().optional(),
+  body: z.string().trim().min(3).max(4000),
+  category: z.enum(["NORMAL", "AUCTION"]),
+  sortOrder: z.coerce.number().int().min(0).max(999).optional()
+};
+
+export const crmCreateWhatsappTemplateSchema = z.object(whatsappTemplateFields);
+export const crmUpdateWhatsappTemplateSchema = z.object(whatsappTemplateFields).partial().refine((payload) => Object.keys(payload).length > 0, {
+  message: "Informe ao menos um campo para atualizar."
+});
+
 export const crmUpdateLeadSchema = z.object({
   name: z.string().min(2).optional(),
   phone: z.string().min(8).optional(),

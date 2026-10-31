@@ -13,6 +13,7 @@ import {
   LayoutDashboard,
   ListTodo,
   LogOut,
+  MessageCircle,
   Newspaper,
   Plug,
   ClipboardList,
@@ -61,7 +62,7 @@ const GROUPS: ReadonlyArray<Group> = [
   },
   {
     title: "Configurações",
-    items: [{ href: "/crm/configuracoes", label: "Preferências do CRM", Icon: Settings }]
+    items: [{ href: "/crm/configuracoes", label: "Preferências do CRM", Icon: Settings }, { href: "/crm/configuracoes/templates", label: "Templates WhatsApp", Icon: MessageCircle }]
   }
 ];
 
