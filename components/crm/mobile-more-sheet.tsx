@@ -20,6 +20,7 @@ import {
   Settings,
   Target,
   UserCheck,
+  Users,
   X,
   type LucideIcon
 } from "lucide-react";
@@ -33,6 +34,7 @@ const GROUPS: ReadonlyArray<Group> = [
     title: "Operação",
     items: [
       { href: "/crm/inbox", label: "Inbox", Icon: Inbox },
+      { href: "/crm/leads", label: "Leads", Icon: Users },
       { href: "/crm/pre-cadastros", label: "Pré-cadastros", Icon: ClipboardList },
       { href: "/crm/captacao", label: "Captação ativa", Icon: Target },
       { href: "/crm/leiloes", label: "Leilões", Icon: Hammer },

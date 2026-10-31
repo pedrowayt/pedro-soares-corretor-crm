@@ -309,6 +309,12 @@ export default async function CrmLeadDetailPage({
               <p className="crm-lead-detail__notes">{lead.interestDescription}</p>
             </section>
           ) : null}
+          {lead.stage === "PERDIDO" && lead.stageHistory.find((entry) => entry.toStage === "PERDIDO" && entry.reason) ? (
+            <section className="crm-panel">
+              <header className="crm-panel__head"><h2><StickyNote size={16} strokeWidth={1.75} aria-hidden="true" /> Motivo do descarte</h2></header>
+              <p className="crm-lead-detail__notes">{lead.stageHistory.find((entry) => entry.toStage === "PERDIDO" && entry.reason)?.reason}</p>
+            </section>
+          ) : null}
         </div>
 
         <div className="crm-lead-detail__column">
