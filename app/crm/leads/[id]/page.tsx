@@ -68,10 +68,14 @@ const INTERACTION_LABEL: Record<string, string> = {
 
 export default async function CrmLeadDetailPage({
   params
+  ,searchParams
 }: {
   params: Promise<{ id: string }>;
+  searchParams?: Promise<{ from?: string }>;
 }) {
   const { id } = await params;
+  const query = await searchParams;
+  const fromFlowUp = query?.from === "flow-up";
   const [lead, properties, templates] = await Promise.all([getLeadDetail(id), listCrmProperties(), listWhatsappTemplates()]);
 
   if (!lead) notFound();
@@ -125,8 +129,8 @@ export default async function CrmLeadDetailPage({
 
   return (
     <div className="crm-lead-detail">
-      <Link href="/crm/leads" className="crm-lead-detail__back">
-        <ArrowLeft size={16} strokeWidth={1.75} aria-hidden="true" /> Voltar para Leads
+      <Link href={fromFlowUp ? "/crm/flow-up" : "/crm/leads"} className="crm-lead-detail__back">
+        <ArrowLeft size={16} strokeWidth={1.75} aria-hidden="true" /> {fromFlowUp ? "Voltar para Flow-UP" : "Voltar para Leads"}
       </Link>
 
       <header className="crm-lead-detail__head">
