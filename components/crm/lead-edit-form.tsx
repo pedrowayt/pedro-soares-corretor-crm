@@ -17,11 +17,16 @@ type LeadEditValues = {
   interestDescription: string;
   notes: string;
   isAuctionClient: boolean;
+  linkedPropertyId: string;
+  linkedDevelopmentId: string;
+  linkedDevelopmentUnitTypeId: string;
 };
 
-type Props = { leadId: string; initialValues: LeadEditValues; flowUpRemovedAt?: Date | string | null; flowUpRemovedReason?: string | null };
+type PropertyChoice = { id: string; title: string; city?: string | null; district?: string | null; price?: number | null };
+type DevelopmentChoice = { id: string; title: string; unitTypes?: Array<{ id: string; name: string }> };
+type Props = { leadId: string; initialValues: LeadEditValues; properties?: PropertyChoice[]; developments?: DevelopmentChoice[]; origin?: { source: string; sourcePage?: string | null; landingPage?: string | null }; flowUpRemovedAt?: Date | string | null; flowUpRemovedReason?: string | null };
 
-export function LeadEditForm({ leadId, initialValues, flowUpRemovedAt = null, flowUpRemovedReason = null }: Props) {
+export function LeadEditForm({ leadId, initialValues, properties = [], developments = [], origin, flowUpRemovedAt = null, flowUpRemovedReason = null }: Props) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [values, setValues] = useState(initialValues);
@@ -48,7 +53,10 @@ export function LeadEditForm({ leadId, initialValues, flowUpRemovedAt = null, fl
       targetValue: values.targetValue ? Number(values.targetValue) : null,
       interestDescription: values.interestDescription || null,
       notes: values.notes || null,
-      isAuctionClient: values.isAuctionClient
+      isAuctionClient: values.isAuctionClient,
+      linkedPropertyId: values.linkedPropertyId || null,
+      linkedDevelopmentId: values.linkedDevelopmentId || null,
+      linkedDevelopmentUnitTypeId: values.linkedDevelopmentUnitTypeId || null
     };
     try {
       const response = await fetch(`/api/crm/leads/${leadId}`, {
@@ -87,10 +95,12 @@ export function LeadEditForm({ leadId, initialValues, flowUpRemovedAt = null, fl
             <div><label>Orçamento máximo</label><input type="number" min="0" value={values.budgetMax} onChange={(event) => update("budgetMax", event.target.value)} /></div>
             <div><label>Valor-alvo</label><input type="number" min="0" value={values.targetValue} onChange={(event) => update("targetValue", event.target.value)} /></div>
             <label className="crm-form-checkbox"><input type="checkbox" checked={values.isAuctionClient} onChange={(event) => update("isAuctionClient", event.target.checked)} /><span>Cliente de leilão</span></label>
+            <div className="crm-lead-edit__association"><div className="crm-lead-edit__association-head"><div><strong>Interesse vinculado</strong><span>Relacione este Lead ao imóvel ou lançamento que motivou o atendimento.</span></div></div><div className="crm-lead-edit__association-grid"><label>Imóvel cadastrado<select value={values.linkedPropertyId} onChange={(event) => { update("linkedPropertyId", event.target.value); if (event.target.value) { update("linkedDevelopmentId", ""); update("linkedDevelopmentUnitTypeId", ""); } }}><option value="">Nenhum imóvel</option>{properties.map((property) => <option key={property.id} value={property.id}>{property.title}{property.city ? ` · ${property.city}` : ""}</option>)}</select></label><label>Lançamento/empreendimento<select value={values.linkedDevelopmentId} onChange={(event) => { update("linkedDevelopmentId", event.target.value); update("linkedDevelopmentUnitTypeId", ""); if (event.target.value) update("linkedPropertyId", ""); }}><option value="">Nenhum lançamento</option>{developments.map((development) => <option key={development.id} value={development.id}>{development.title}</option>)}</select></label><label>Tipologia/unidade<select value={values.linkedDevelopmentUnitTypeId} disabled={!values.linkedDevelopmentId} onChange={(event) => update("linkedDevelopmentUnitTypeId", event.target.value)}><option value="">Qualquer tipologia</option>{developments.find((development) => development.id === values.linkedDevelopmentId)?.unitTypes?.map((unitType) => <option key={unitType.id} value={unitType.id}>{unitType.name}</option>)}</select></label></div><p className="crm-lead-edit__association-note">Ao escolher um imóvel, o vínculo do lançamento será limpo; ao escolher um lançamento, o imóvel será limpo.</p></div>
             <div style={{ gridColumn: "1 / -1" }}><label>O que ele procura</label><textarea value={values.interestDescription} onChange={(event) => update("interestDescription", event.target.value)} rows={4} /></div>
             <div style={{ gridColumn: "1 / -1" }}><label>Notas internas</label><textarea value={values.notes} onChange={(event) => update("notes", event.target.value)} rows={4} /></div>
           </div>
           <footer className="crm-lead-edit__footer"><button type="submit" className="button button-primary" disabled={saving}>{saving ? "Salvando…" : "Salvar alterações"}</button>{status ? <span role="status">{status}</span> : null}</footer>
+          {origin ? <div className="crm-lead-edit__origin"><strong>Origem do Lead</strong><span>{origin.source}</span>{origin.landingPage ? <span>Landing page: {origin.landingPage}</span> : null}{origin.sourcePage ? <span>Página: {origin.sourcePage}</span> : null}</div> : null}
           <LeadFlowUpControl leadId={leadId} isRemoved={Boolean(flowUpRemovedAt)} removedReason={flowUpRemovedReason} />
         </form>
       ) : null}

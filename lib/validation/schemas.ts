@@ -478,7 +478,10 @@ export const crmUpdateLeadSchema = z.object({
   targetValue: z.coerce.number().nullable().optional(),
   interestDescription: z.string().trim().max(2000).nullable().optional(),
   notes: z.string().trim().max(4000).nullable().optional(),
-  isAuctionClient: z.boolean().optional()
+  isAuctionClient: z.boolean().optional(),
+  linkedPropertyId: z.string().nullable().optional(),
+  linkedDevelopmentId: z.string().nullable().optional(),
+  linkedDevelopmentUnitTypeId: z.string().nullable().optional()
 }).refine((payload) => Object.keys(payload).length > 0, {
   message: "Informe ao menos um campo para atualizar."
 });

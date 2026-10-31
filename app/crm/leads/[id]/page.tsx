@@ -24,6 +24,7 @@ import { WhatsappTemplatePicker } from "@/components/crm/whatsapp-template-picke
 import { computeLeadScore } from "@/lib/crm/lead-scoring";
 import { matchPropertiesForLead } from "@/lib/crm/property-matching";
 import { listCrmProperties } from "@/lib/data/crm-properties";
+import { listCrmDevelopments } from "@/lib/data/developments";
 import { getLeadDetail } from "@/lib/data/dashboard";
 import { listWhatsappTemplates } from "@/lib/data/whatsapp-templates";
 import { formatCurrencyBRL } from "@/lib/utils";
@@ -76,7 +77,7 @@ export default async function CrmLeadDetailPage({
   const { id } = await params;
   const query = await searchParams;
   const fromFlowUp = query?.from === "flow-up";
-  const [lead, properties, templates] = await Promise.all([getLeadDetail(id), listCrmProperties(), listWhatsappTemplates()]);
+  const [lead, properties, developments, templates] = await Promise.all([getLeadDetail(id), listCrmProperties(), listCrmDevelopments(), listWhatsappTemplates()]);
 
   if (!lead) notFound();
 
@@ -181,7 +182,13 @@ export default async function CrmLeadDetailPage({
           interestDescription: lead.interestDescription ?? "",
           notes: lead.notes ?? "",
           isAuctionClient: lead.isAuctionClient
+          ,linkedPropertyId: lead.linkedPropertyId ?? ""
+          ,linkedDevelopmentId: lead.linkedDevelopmentId ?? ""
+          ,linkedDevelopmentUnitTypeId: lead.linkedDevelopmentUnitTypeId ?? ""
         }}
+        properties={properties.map((property) => ({ id: property.id, title: property.title, city: property.city, district: property.district, price: Number(property.price) }))}
+        developments={developments.map((development) => ({ id: development.id, title: development.title, unitTypes: development.unitTypes.map((unitType) => ({ id: unitType.id, name: unitType.name })) }))}
+        origin={{ source: lead.source, sourcePage: lead.sourcePage, landingPage: lead.landingPage?.name }}
         flowUpRemovedAt={lead.flowUpRemovedAt}
         flowUpRemovedReason={lead.flowUpRemovedReason}
       />
