@@ -19,14 +19,15 @@ type LeadEditValues = {
   isAuctionClient: boolean;
   linkedPropertyId: string;
   linkedDevelopmentId: string;
-  linkedDevelopmentUnitTypeId: string;
+  landingPageId: string;
 };
 
 type PropertyChoice = { id: string; title: string; city?: string | null; district?: string | null; price?: number | null };
-type DevelopmentChoice = { id: string; title: string; unitTypes?: Array<{ id: string; name: string }> };
-type Props = { leadId: string; initialValues: LeadEditValues; properties?: PropertyChoice[]; developments?: DevelopmentChoice[]; origin?: { source: string; sourcePage?: string | null; landingPage?: string | null }; flowUpRemovedAt?: Date | string | null; flowUpRemovedReason?: string | null };
+type DevelopmentChoice = { id: string; title: string; archivedAt?: string | null };
+type LandingPageChoice = { id: string; name: string; status: string; publicPath?: string | null };
+type Props = { leadId: string; initialValues: LeadEditValues; properties?: PropertyChoice[]; developments?: DevelopmentChoice[]; landingPages?: LandingPageChoice[]; origin?: { source: string; sourcePage?: string | null; landingPage?: string | null }; flowUpRemovedAt?: Date | string | null; flowUpRemovedReason?: string | null };
 
-export function LeadEditForm({ leadId, initialValues, properties = [], developments = [], origin, flowUpRemovedAt = null, flowUpRemovedReason = null }: Props) {
+export function LeadEditForm({ leadId, initialValues, properties = [], developments = [], landingPages = [], origin, flowUpRemovedAt = null, flowUpRemovedReason = null }: Props) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [values, setValues] = useState(initialValues);
@@ -56,7 +57,8 @@ export function LeadEditForm({ leadId, initialValues, properties = [], developme
       isAuctionClient: values.isAuctionClient,
       linkedPropertyId: values.linkedPropertyId || null,
       linkedDevelopmentId: values.linkedDevelopmentId || null,
-      linkedDevelopmentUnitTypeId: values.linkedDevelopmentUnitTypeId || null
+      linkedDevelopmentUnitTypeId: null,
+      landingPageId: values.landingPageId || null
     };
     try {
       const response = await fetch(`/api/crm/leads/${leadId}`, {
@@ -95,7 +97,7 @@ export function LeadEditForm({ leadId, initialValues, properties = [], developme
             <div><label>Orçamento máximo</label><input type="number" min="0" value={values.budgetMax} onChange={(event) => update("budgetMax", event.target.value)} /></div>
             <div><label>Valor-alvo</label><input type="number" min="0" value={values.targetValue} onChange={(event) => update("targetValue", event.target.value)} /></div>
             <label className="crm-form-checkbox"><input type="checkbox" checked={values.isAuctionClient} onChange={(event) => update("isAuctionClient", event.target.checked)} /><span>Cliente de leilão</span></label>
-            <div className="crm-lead-edit__association"><div className="crm-lead-edit__association-head"><div><strong>Interesse vinculado</strong><span>Relacione este Lead ao imóvel ou lançamento que motivou o atendimento.</span></div></div><div className="crm-lead-edit__association-grid"><label>Imóvel cadastrado<select value={values.linkedPropertyId} onChange={(event) => { update("linkedPropertyId", event.target.value); if (event.target.value) { update("linkedDevelopmentId", ""); update("linkedDevelopmentUnitTypeId", ""); } }}><option value="">Nenhum imóvel</option>{properties.map((property) => <option key={property.id} value={property.id}>{property.title}{property.city ? ` · ${property.city}` : ""}</option>)}</select></label><label>Lançamento/empreendimento<select value={values.linkedDevelopmentId} onChange={(event) => { update("linkedDevelopmentId", event.target.value); update("linkedDevelopmentUnitTypeId", ""); if (event.target.value) update("linkedPropertyId", ""); }}><option value="">Nenhum lançamento</option>{developments.map((development) => <option key={development.id} value={development.id}>{development.title}</option>)}</select></label><label>Tipologia/unidade<select value={values.linkedDevelopmentUnitTypeId} disabled={!values.linkedDevelopmentId} onChange={(event) => update("linkedDevelopmentUnitTypeId", event.target.value)}><option value="">Qualquer tipologia</option>{developments.find((development) => development.id === values.linkedDevelopmentId)?.unitTypes?.map((unitType) => <option key={unitType.id} value={unitType.id}>{unitType.name}</option>)}</select></label></div><p className="crm-lead-edit__association-note">Ao escolher um imóvel, o vínculo do lançamento será limpo; ao escolher um lançamento, o imóvel será limpo.</p></div>
+            <div className="crm-lead-edit__association"><div className="crm-lead-edit__association-head"><div><strong>Interesse vinculado</strong><span>Relacione este Lead ao imóvel, lançamento ou landing page que motivou o atendimento.</span></div></div><div className="crm-lead-edit__association-grid"><label>Imóvel cadastrado<select value={values.linkedPropertyId} onChange={(event) => { update("linkedPropertyId", event.target.value); if (event.target.value) update("linkedDevelopmentId", ""); }}><option value="">Nenhum imóvel</option>{properties.map((property) => <option key={property.id} value={property.id}>{property.title}{property.city ? ` · ${property.city}` : ""}</option>)}</select></label><label>Lançamento/empreendimento<select value={values.linkedDevelopmentId} onChange={(event) => { update("linkedDevelopmentId", event.target.value); if (event.target.value) update("linkedPropertyId", ""); }}><option value="">Nenhum lançamento</option>{developments.map((development) => <option key={development.id} value={development.id}>{development.title}{development.archivedAt ? " · Arquivado" : ""}</option>)}</select></label><label>Landing page<select value={values.landingPageId} onChange={(event) => update("landingPageId", event.target.value)}><option value="">Nenhuma landing page</option>{landingPages.map((page) => <option key={page.id} value={page.id}>{page.name}{page.status !== "PUBLISHED" ? ` · ${page.status}` : ""}</option>)}</select></label></div><p className="crm-lead-edit__association-note">O vínculo da landing page é independente do imóvel ou empreendimento e preserva a origem comercial do Lead.</p></div>
             <div style={{ gridColumn: "1 / -1" }}><label>O que ele procura</label><textarea value={values.interestDescription} onChange={(event) => update("interestDescription", event.target.value)} rows={4} /></div>
             <div style={{ gridColumn: "1 / -1" }}><label>Notas internas</label><textarea value={values.notes} onChange={(event) => update("notes", event.target.value)} rows={4} /></div>
           </div>
