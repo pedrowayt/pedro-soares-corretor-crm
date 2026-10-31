@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Building2, Filter, Pencil, Search, Users, WalletCards } from "lucide-react";
+import { Building2, Filter, Pencil, Search, SlidersHorizontal, Users, WalletCards } from "lucide-react";
 import { useMemo, useState } from "react";
 import { LeadActions } from "@/components/crm/lead-actions";
 import { LeadDevelopmentStatusControl } from "@/components/crm/lead-development-status-control";
@@ -72,6 +72,8 @@ export function LeadsBoard({ leads }: { leads: LeadListItem[] }) {
   const [source, setSource] = useState("ALL");
   const [profile, setProfile] = useState("ALL");
   const [link, setLink] = useState("ALL");
+  const [quickFilter, setQuickFilter] = useState("ALL");
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const stages = useMemo(() => Array.from(new Set(leads.map((lead) => lead.stage))).sort(), [leads]);
   const sources = useMemo(() => Array.from(new Set(leads.map((lead) => lead.source))).sort(), [leads]);
   const metrics = useMemo(() => ({ total: leads.length, noContact: leads.filter((lead) => !lead.lastContactAt).length, flowUp: leads.filter((lead) => !lead.flowUpRemovedAt && !["FECHADO", "PERDIDO"].includes(lead.stage)).length, auction: leads.filter((lead) => lead.isAuctionClient).length }), [leads]);
@@ -80,6 +82,7 @@ export function LeadsBoard({ leads }: { leads: LeadListItem[] }) {
     return leads.filter((lead) => {
       const haystack = `${lead.name} ${lead.phone} ${context(lead)} ${origin(lead)} ${lead.interestDescription ?? ""}`.toLocaleLowerCase();
       if (needle && !haystack.includes(needle)) return false;
+      if (quickFilter === "NO_CONTACT" && lead.lastContactAt) return false;
       if (stage !== "ALL" && lead.stage !== stage) return false;
       if (source !== "ALL" && lead.source !== source) return false;
       if (profile === "AUCTION" && !lead.isAuctionClient) return false;
@@ -88,7 +91,7 @@ export function LeadsBoard({ leads }: { leads: LeadListItem[] }) {
       if (link === "UNLINKED" && (lead.linkedProperty || lead.linkedDevelopment)) return false;
       return true;
     });
-  }, [leads, link, profile, query, source, stage]);
+  }, [leads, link, profile, query, quickFilter, source, stage]);
 
   return (
     <section className="crm-leads-board">
@@ -98,8 +101,8 @@ export function LeadsBoard({ leads }: { leads: LeadListItem[] }) {
         <article className="is-accent"><Building2 size={19} aria-hidden="true" /><div><strong>{metrics.flowUp}</strong><span>Em Flow-UP</span></div></article>
         <article className="is-auction"><span aria-hidden="true">⚖</span><div><strong>{metrics.auction}</strong><span>Clientes de leilão</span></div></article>
       </div>
-      <div className="crm-leads-filters"><label className="crm-leads-search"><Search size={17} aria-hidden="true" /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Buscar nome, telefone, imóvel ou origem" aria-label="Buscar Leads" /></label><label><span>Etapa</span><select value={stage} onChange={(event) => setStage(event.target.value)}><option value="ALL">Todas as etapas</option>{stages.map((item) => <option key={item} value={item}>{item.replaceAll("_", " ")}</option>)}</select></label><label><span>Origem</span><select value={source} onChange={(event) => setSource(event.target.value)}><option value="ALL">Todas as origens</option>{sources.map((item) => <option key={item} value={item}>{item}</option>)}</select></label><label><span>Perfil</span><select value={profile} onChange={(event) => setProfile(event.target.value)}><option value="ALL">Todos</option><option value="NORMAL">Normal</option><option value="AUCTION">Leilão</option></select></label><label><span>Vínculo</span><select value={link} onChange={(event) => setLink(event.target.value)}><option value="ALL">Todos</option><option value="LINKED">Com vínculo</option><option value="UNLINKED">Sem vínculo</option></select></label></div>
-      <div className="crm-leads-result-head"><div><h2>Leads cadastrados</h2><p><Filter size={14} aria-hidden="true" /> {filtered.length} de {leads.length} exibidos</p></div></div>
+      <div className="crm-leads-controls"><label className="crm-leads-search"><Search size={17} aria-hidden="true" /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Buscar nome, telefone, imóvel..." aria-label="Buscar Leads" /></label><div className="crm-leads-quick-filters"><button type="button" className={quickFilter === "ALL" ? "is-active" : ""} onClick={() => setQuickFilter("ALL")}>Todos <span>{leads.length}</span></button><button type="button" className={quickFilter === "NO_CONTACT" ? "is-active" : ""} onClick={() => setQuickFilter("NO_CONTACT")}>Sem contato <span>{metrics.noContact}</span></button><button type="button" className={filtersOpen ? "is-active" : ""} onClick={() => setFiltersOpen((current) => !current)}><SlidersHorizontal size={15} aria-hidden="true" /> Filtros</button></div>{filtersOpen ? <div className="crm-leads-filters"><label><span>Etapa</span><select value={stage} onChange={(event) => setStage(event.target.value)}><option value="ALL">Todas as etapas</option>{stages.map((item) => <option key={item} value={item}>{item.replaceAll("_", " ")}</option>)}</select></label><label><span>Origem</span><select value={source} onChange={(event) => setSource(event.target.value)}><option value="ALL">Todas as origens</option>{sources.map((item) => <option key={item} value={item}>{item}</option>)}</select></label><label><span>Perfil</span><select value={profile} onChange={(event) => setProfile(event.target.value)}><option value="ALL">Todos</option><option value="NORMAL">Normal</option><option value="AUCTION">Leilão</option></select></label><label><span>Vínculo</span><select value={link} onChange={(event) => setLink(event.target.value)}><option value="ALL">Todos</option><option value="LINKED">Com vínculo</option><option value="UNLINKED">Sem vínculo</option></select></label></div> : null}</div>
+      <div className="crm-leads-result-head"><div><h2>Leads cadastrados</h2><p><Filter size={14} aria-hidden="true" /> {filtered.length} de {leads.length} exibidos</p></div><span>Mais recentes</span></div>
 
       <div className="card crm-table-host crm-leads-table-wrap"><table className="crm-leads-table"><thead><tr><th>Lead</th><th>Interesse</th><th>Vínculo</th><th>Origem</th><th>Cadastro</th><th>Ações</th></tr></thead><tbody>{filtered.map((lead) => <tr key={lead.id}><td><Link href={`/crm/leads/${lead.id}`} className="crm-lead-link">{lead.name}</Link><small>{lead.phone} · {lead.stage.replaceAll("_", " ")}</small>{lead.isAuctionClient ? <span className="badge crm-badge-auction">Leilão</span> : null}</td><td><strong>{interestValue(lead)}</strong><small>{lead.intent}</small></td><td>{context(lead)}</td><td>{origin(lead)}</td><td>{dateTime(lead.createdAt)}</td><td><div className="crm-leads-actions"><Link href={`/crm/leads/${lead.id}`} className="button button-ghost"><Pencil size={14} aria-hidden="true" /> Editar</Link><LeadActions leadId={lead.id} leadName={lead.name} whatsappUrl={whatsappUrl(lead)} compact /></div></td></tr>)}</tbody></table>{filtered.length === 0 ? <p className="crm-panel__empty">Nenhum Lead encontrado com esses filtros.</p> : null}</div>
 

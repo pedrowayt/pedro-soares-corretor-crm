@@ -35,7 +35,7 @@ export default async function CrmLeadsPage({ searchParams }: { searchParams?: Pr
 
   return (
     <>
-      <header className="crm-leads-page-head"><div><p className="crm-eyebrow">Relacionamento comercial</p><h1 className="section-title" style={{ marginTop: 0 }}>Leads</h1><p className="section-subtitle">Tenha clareza sobre quem chegou, o que procura e qual deve ser o próximo passo.</p></div><div className="crm-leads-page-head__actions"><span className="crm-leads-page-head__hint">Acompanhe, vincule e avance.</span><LeadsCreatePanel properties={properties.map((property) => ({ id: property.id, title: property.title }))} developments={developments.map((development) => ({ id: development.id, title: development.title }))} /></div></header>
+      <header className="crm-leads-page-head"><div><h1 className="section-title" style={{ marginTop: 0 }}>Leads</h1><p className="section-subtitle">Gerencie seus contatos comerciais.</p></div><div className="crm-leads-page-head__actions"><LeadsCreatePanel properties={properties.map((property) => ({ id: property.id, title: property.title }))} developments={developments.map((development) => ({ id: development.id, title: development.title }))} /></div></header>
       {landingPageSlug ? <p className="badge" style={{ display: "inline-flex", marginTop: 10 }}>Filtro: landing page <strong style={{ marginLeft: 5 }}>{landingPageSlug}</strong></p> : null}
       <LeadsBoard leads={leads.map(serializeLead)} />
     </>

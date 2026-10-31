@@ -18814,6 +18814,24 @@ body:has(.crm-shell) > main {
 [data-theme="dark"] .crm-leads-card .crm-record-card__footer { border-top-color: rgba(145,176,214,.16); }
 [data-theme="dark"] .crm-leads-table td > strong { color: #e3ad43; }
 
+/* Leads controls: quick filters stay visible while advanced filters stay quiet. */
+.crm-leads-controls { display: grid; gap: 10px; }
+.crm-leads-controls > .crm-leads-search { min-height: 46px; padding-inline: 13px; border-radius: 12px; background: var(--surface-card); box-shadow: 0 3px 10px rgba(31,54,82,.04); }
+.crm-leads-quick-filters { display: flex; gap: 8px; overflow-x: auto; }
+.crm-leads-quick-filters button { display: inline-flex; align-items: center; gap: 5px; min-height: 38px; padding: 0 14px; border: 1px solid var(--border-subtle); border-radius: 999px; background: transparent; color: var(--text-muted); cursor: pointer; font: inherit; font-size: .76rem; white-space: nowrap; }
+.crm-leads-quick-filters button span { color: var(--text-strong); font-weight: 800; }
+.crm-leads-quick-filters button.is-active { border-color: #17253d; background: #17253d; color: #fff; }
+.crm-leads-quick-filters button.is-active span { color: #fff; }
+.crm-leads-controls .crm-leads-filters { grid-template-columns: repeat(4, minmax(0, 1fr)); margin-top: 1px; }
+.crm-leads-result-head > span { color: var(--text-muted); font-size: .72rem; }
+[data-theme="dark"] .crm-leads-quick-filters button.is-active { border-color: #263a59; background: #263a59; }
+[data-theme="dark"] .crm-leads-controls > .crm-leads-search { box-shadow: 0 4px 14px rgba(0,0,0,.14); }
+@media (max-width: 560px) {
+  .crm-leads-controls .crm-leads-filters { grid-template-columns: 1fr; }
+  .crm-leads-result-head { align-items: center; }
+  .crm-leads-result-head > span { font-size: .68rem; }
+}
+
 /* ============================================================
  * CRM Dashboard v2
  * ============================================================ */
