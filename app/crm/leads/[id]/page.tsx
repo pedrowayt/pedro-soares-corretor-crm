@@ -178,6 +178,10 @@ export default async function CrmLeadDetailPage({
                 <dd>{budgetRange ?? "Não informado"}</dd>
               </div>
               <div>
+                <dt>Valor-alvo</dt>
+                <dd>{lead.targetValue ? formatCurrencyBRL(Number(lead.targetValue)) : "Não informado"}</dd>
+              </div>
+              <div>
                 <dt>Cidade</dt>
                 <dd>{lead.desiredCity ?? "—"}</dd>
               </div>
@@ -297,6 +301,12 @@ export default async function CrmLeadDetailPage({
                 </h2>
               </header>
               <p className="crm-lead-detail__notes">{lead.notes}</p>
+            </section>
+          ) : null}
+          {lead.interestDescription ? (
+            <section className="crm-panel">
+              <header className="crm-panel__head"><h2><Compass size={16} strokeWidth={1.75} aria-hidden="true" /> O que o cliente procura</h2></header>
+              <p className="crm-lead-detail__notes">{lead.interestDescription}</p>
             </section>
           ) : null}
         </div>

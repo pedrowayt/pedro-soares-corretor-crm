@@ -388,12 +388,15 @@ model Lead {
   desiredPurpose        PropertyPurpose?
   budgetMin             Decimal?              @db.Decimal(14, 2)
   budgetMax             Decimal?              @db.Decimal(14, 2)
+  targetValue           Decimal?              @db.Decimal(14, 2)
   desiredCity           String?
   desiredDistrict       String?
+  interestDescription   String?
   notes                 String?
   sourcePage            String?
   attribution           Json?
   lastContactAt         DateTime?
+  nextFollowUpAt        DateTime?
   lgpdConsentAt         DateTime?
   developmentLeadStatus DevelopmentLeadStatus @default(NOVO)
   createdAt             DateTime              @default(now())
@@ -428,6 +431,7 @@ model Lead {
   @@index([linkedDevelopmentId])
   @@index([linkedDevelopmentUnitTypeId])
   @@index([linkedDevelopmentUnitId])
+  @@index([nextFollowUpAt])
   @@index([developmentLeadStatus])
   @@index([landingPageId])
 }

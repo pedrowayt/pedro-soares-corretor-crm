@@ -21,7 +21,9 @@ async function postJson(url: string, payload: unknown) {
   return data;
 }
 
-export function QuickLeadForm() {
+type Choice = { id: string; title: string };
+
+export function QuickLeadForm({ properties = [], developments = [] }: { properties?: Choice[]; developments?: Choice[] }) {
   const [status, setStatus] = useState<Status>({ type: "idle" });
 
   return (
@@ -38,7 +40,13 @@ export function QuickLeadForm() {
             phone: formData.get("phone"),
             email: formData.get("email"),
             source: formData.get("source"),
-            intent: formData.get("intent")
+            intent: formData.get("intent"),
+            budgetMin: formData.get("budgetMin") || undefined,
+            budgetMax: formData.get("budgetMax") || undefined,
+            targetValue: formData.get("targetValue") || undefined,
+            interestDescription: formData.get("interestDescription"),
+            linkedPropertyId: formData.get("linkedPropertyId") || undefined,
+            linkedDevelopmentId: formData.get("linkedDevelopmentId") || undefined
           });
           setStatus({ type: "success", message: "Lead cadastrado." });
           event.currentTarget.reset();
@@ -53,6 +61,12 @@ export function QuickLeadForm() {
           <label>Nome</label>
           <input name="name" required />
         </div>
+        <div><label>Orçamento mínimo</label><input name="budgetMin" type="number" min="0" /></div>
+        <div><label>Orçamento máximo</label><input name="budgetMax" type="number" min="0" /></div>
+        <div><label>Valor-alvo</label><input name="targetValue" type="number" min="0" /></div>
+        <div><label>Imóvel cadastrado</label><select name="linkedPropertyId" defaultValue=""><option value="">Nenhum</option>{properties.map((property) => <option key={property.id} value={property.id}>{property.title}</option>)}</select></div>
+        <div><label>Empreendimento</label><select name="linkedDevelopmentId" defaultValue=""><option value="">Nenhum</option>{developments.map((development) => <option key={development.id} value={development.id}>{development.title}</option>)}</select></div>
+        <div style={{ gridColumn: "1 / -1" }}><label>O que ele procura</label><textarea name="interestDescription" placeholder="Ex.: apartamento de 3 quartos, perto do lago, para morar..." /></div>
         <div>
           <label>Telefone</label>
           <input name="phone" required />

@@ -5,9 +5,9 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import {
   Building2,
+  Flame,
   LayoutDashboard,
   Menu,
-  Users,
   Workflow,
   type LucideIcon
 } from "lucide-react";
@@ -17,7 +17,7 @@ type Tab = { href: string; label: string; Icon: LucideIcon };
 
 const PRIMARY_TABS: ReadonlyArray<Tab> = [
   { href: "/crm/dashboard", label: "Painel", Icon: LayoutDashboard },
-  { href: "/crm/leads", label: "Leads", Icon: Users },
+  { href: "/crm/flow-up", label: "Flow-UP", Icon: Flame },
   { href: "/crm/funil", label: "Funil", Icon: Workflow },
   { href: "/crm/imoveis", label: "Imóveis", Icon: Building2 }
 ];

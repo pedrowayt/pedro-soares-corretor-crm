@@ -5,6 +5,8 @@ import { LeadDevelopmentStatusControl } from "@/components/crm/lead-development-
 import { QuickLeadForm } from "@/components/crm/quick-forms";
 import { buildWhatsappLink } from "@/lib/crm/whatsapp-templates";
 import { listLeads } from "@/lib/data/crm";
+import { listCrmDevelopments } from "@/lib/data/developments";
+import { listCrmProperties } from "@/lib/data/crm-properties";
 
 function buildContext(lead: Awaited<ReturnType<typeof listLeads>>[number]) {
   if (lead.linkedProperty?.title) return lead.linkedProperty.title;
@@ -48,7 +50,7 @@ export default async function CrmLeadsPage({
 }) {
   const params = await searchParams;
   const landingPageSlug = params?.landingPage?.trim() || undefined;
-  const leads = await listLeads({ landingPageSlug });
+  const [leads, properties, developments] = await Promise.all([listLeads({ landingPageSlug }), listCrmProperties(), listCrmDevelopments()]);
 
   return (
     <>
@@ -61,7 +63,7 @@ export default async function CrmLeadsPage({
       ) : null}
 
       <div id="quick-create" className="crm-quick-form-target" style={{ marginTop: 18, marginBottom: 20 }}>
-        <QuickLeadForm />
+        <QuickLeadForm properties={properties.map((property) => ({ id: property.id, title: property.title }))} developments={developments.map((development) => ({ id: development.id, title: development.title }))} />
       </div>
 
       {/* Desktop table */}

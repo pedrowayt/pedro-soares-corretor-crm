@@ -29,6 +29,35 @@ export async function listLeads(filters: { landingPageSlug?: string } = {}) {
   }
 }
 
+export type FlowUpTier = "HOT" | "WARM" | "COLD";
+
+export function getFlowUpTier(lastContactAt: Date | null | undefined, createdAt: Date) {
+  if (!lastContactAt) return { tier: "COLD" as const, days: Math.max(0, Math.floor((Date.now() - createdAt.getTime()) / 86400000)) };
+  const days = Math.max(0, Math.floor((Date.now() - lastContactAt.getTime()) / 86400000));
+  return { tier: days <= 7 ? "HOT" as const : days <= 14 ? "WARM" as const : "COLD" as const, days };
+}
+
+export async function listFlowUpLeads() {
+  const empty = { HOT: [], WARM: [], COLD: [] } as const;
+  if (!hasDatabase) return { leads: empty, counts: { HOT: 0, WARM: 0, COLD: 0 } };
+  try {
+    const leads = await prisma.lead.findMany({
+      where: { stage: { notIn: ["FECHADO", "PERDIDO"] } },
+      orderBy: [{ lastContactAt: "asc" }, { createdAt: "asc" }],
+      include: {
+        linkedProperty: { select: { id: true, title: true, price: true } },
+        linkedDevelopment: { select: { id: true, title: true } },
+        linkedDevelopmentUnitType: { select: { id: true, name: true } }
+      }
+    });
+    const grouped = { HOT: [], WARM: [], COLD: [] } as Record<FlowUpTier, typeof leads>;
+    for (const lead of leads) grouped[getFlowUpTier(lead.lastContactAt, lead.createdAt).tier].push(lead);
+    return { leads: grouped, counts: { HOT: grouped.HOT.length, WARM: grouped.WARM.length, COLD: grouped.COLD.length } };
+  } catch {
+    return { leads: empty, counts: { HOT: 0, WARM: 0, COLD: 0 } };
+  }
+}
+
 export async function listLakeVillagePreRegistrations() {
   if (!hasDatabase) return [];
 

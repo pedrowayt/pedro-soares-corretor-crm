@@ -142,8 +142,10 @@ export const crmCreateLeadSchema = z.object({
   desiredPurpose: z.nativeEnum(PropertyPurpose).optional(),
   budgetMin: z.coerce.number().optional(),
   budgetMax: z.coerce.number().optional(),
+  targetValue: z.coerce.number().optional(),
   desiredCity: z.string().optional(),
   desiredDistrict: z.string().optional(),
+  interestDescription: z.string().trim().max(2000).optional(),
   notes: z.string().optional(),
   developmentLeadStatus: z.nativeEnum(DevelopmentLeadStatus).optional(),
   ownerUserId: z.string().optional(),
@@ -443,6 +445,11 @@ export const crmUpdatePropertyMediaSchema = z.object({
 export const crmUpdateStageSchema = z.object({
   toStage: z.nativeEnum(LeadStage),
   reason: z.string().optional()
+});
+
+export const crmRegisterContactSchema = z.object({
+  channel: z.enum(["WHATSAPP", "PHONE", "EMAIL", "CRM"]).default("WHATSAPP"),
+  message: z.string().trim().max(1000).optional()
 });
 
 export const crmUpdateDevelopmentLeadStatusSchema = z.object({
