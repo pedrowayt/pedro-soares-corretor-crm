@@ -56,7 +56,7 @@ const NAV_ITEMS: ReadonlyArray<CommandItem> = [
 ];
 
 const CREATE_ITEMS: ReadonlyArray<CommandItem> = [
-  { id: "new-lead", label: "Novo lead", hint: "Captura rápida", href: "/crm/leads#quick-create", Icon: Plus, group: "Criar" },
+  { id: "new-lead", label: "Novo lead", hint: "Cadastrar contato", href: "/crm/leads/novo", Icon: Plus, group: "Criar" },
   { id: "new-visit", label: "Nova visita", hint: "Agendamento", href: "/crm/visitas#quick-create", Icon: Plus, group: "Criar" },
   { id: "new-proposal", label: "Nova proposta", hint: "Iniciar negociação", href: "/crm/propostas#quick-create", Icon: Plus, group: "Criar" },
   { id: "new-task", label: "Nova tarefa", hint: "Follow-up", href: "/crm/tarefas#quick-create", Icon: Plus, group: "Criar" },

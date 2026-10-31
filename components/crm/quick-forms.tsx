@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 type Status = { type: "idle" | "success" | "error"; message?: string };
@@ -23,7 +24,8 @@ async function postJson(url: string, payload: unknown) {
 
 type Choice = { id: string; title: string };
 
-export function QuickLeadForm({ properties = [], developments = [] }: { properties?: Choice[]; developments?: Choice[] }) {
+export function QuickLeadForm({ properties = [], developments = [], redirectOnSuccess = false }: { properties?: Choice[]; developments?: Choice[]; redirectOnSuccess?: boolean }) {
+  const router = useRouter();
   const [status, setStatus] = useState<Status>({ type: "idle" });
 
   return (
@@ -49,6 +51,11 @@ export function QuickLeadForm({ properties = [], developments = [] }: { properti
             linkedPropertyId: formData.get("linkedPropertyId") || undefined,
             linkedDevelopmentId: formData.get("linkedDevelopmentId") || undefined
           });
+          if (redirectOnSuccess) {
+            router.push("/crm/leads?created=1");
+            router.refresh();
+            return;
+          }
           setStatus({ type: "success", message: "Lead cadastrado." });
           event.currentTarget.reset();
         } catch (error) {
@@ -56,7 +63,7 @@ export function QuickLeadForm({ properties = [], developments = [] }: { properti
         }
       }}
     >
-      <h3 style={{ marginTop: 0 }}>Novo lead</h3>
+      <h3 className="crm-lead-form__title">Dados do contato</h3>
       <div className="form-grid">
         <div>
           <label>Nome</label>
@@ -98,7 +105,7 @@ export function QuickLeadForm({ properties = [], developments = [] }: { properti
           </select>
         </div>
       </div>
-      <button className="button button-primary" type="submit" style={{ marginTop: 10 }}>
+      <button className="button button-primary crm-lead-form__submit" type="submit">
         Salvar lead
       </button>
       {status.type !== "idle" ? <p style={{ marginTop: 8 }}>{status.message}</p> : null}

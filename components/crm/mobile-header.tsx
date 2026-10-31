@@ -16,6 +16,7 @@ const PAGE_TITLES: Readonly<Record<string, string>> = {
   "/crm/dashboard": "Dashboard",
   "/crm/inbox": "Inbox",
   "/crm/leads": "Leads",
+  "/crm/leads/novo": "Novo lead",
   "/crm/funil": "Funil de vendas",
   "/crm/imoveis": "Imóveis",
   "/crm/captacao": "Captação ativa",

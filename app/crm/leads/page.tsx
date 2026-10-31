@@ -1,8 +1,6 @@
 import { LeadsBoard, type LeadListItem } from "@/components/crm/leads-board";
 import { LeadsCreatePanel } from "@/components/crm/leads-create-panel";
 import { listLeads } from "@/lib/data/crm";
-import { listCrmDevelopments } from "@/lib/data/developments";
-import { listCrmProperties } from "@/lib/data/crm-properties";
 
 function serializeLead(lead: Awaited<ReturnType<typeof listLeads>>[number]): LeadListItem {
   return {
@@ -32,11 +30,11 @@ function serializeLead(lead: Awaited<ReturnType<typeof listLeads>>[number]): Lea
 export default async function CrmLeadsPage({ searchParams }: { searchParams?: Promise<{ landingPage?: string }> }) {
   const params = await searchParams;
   const landingPageSlug = params?.landingPage?.trim() || undefined;
-  const [leads, properties, developments] = await Promise.all([listLeads({ landingPageSlug }), listCrmProperties(), listCrmDevelopments()]);
+  const leads = await listLeads({ landingPageSlug });
 
   return (
     <>
-      <header className="crm-leads-page-head"><div><h1 className="section-title" style={{ marginTop: 0 }}>Leads</h1><p className="section-subtitle">Gerencie seus contatos comerciais.</p></div><div className="crm-leads-page-head__actions"><LeadsCreatePanel properties={properties.map((property) => ({ id: property.id, title: property.title }))} developments={developments.map((development) => ({ id: development.id, title: development.title }))} /></div></header>
+      <header className="crm-leads-page-head"><div><h1 className="section-title" style={{ marginTop: 0 }}>Leads</h1><p className="section-subtitle">Gerencie seus contatos comerciais.</p></div><div className="crm-leads-page-head__actions"><LeadsCreatePanel /></div></header>
       {landingPageSlug ? <p className="badge" style={{ display: "inline-flex", marginTop: 10 }}>Filtro: landing page <strong style={{ marginLeft: 5 }}>{landingPageSlug}</strong></p> : null}
       <LeadsBoard leads={leads.map(serializeLead)} />
     </>
