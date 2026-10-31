@@ -24751,6 +24751,9 @@ body:has(.wp-hero) { background: #fff; }
 .flow-up__toolbar { margin-top: -4px; }
 .flow-up__card { gap: 11px; padding: 15px; border-radius: 16px; background: color-mix(in srgb, var(--surface-card) 94%, #0a1221); box-shadow: 0 4px 14px rgba(0,0,0,.08); }
 .flow-up__card-head { align-items: center; }
+.flow-up__card-head > .flow-up__identity { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.flow-up__card-head > .flow-up__identity > div { display: grid; gap: 3px; min-width: 0; }
+.flow-up__card-head .flow-up__name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .flow-up__avatar { width: 36px; height: 36px; flex-basis: 36px; }
 .flow-up__tier { padding: 5px 9px; border-radius: 999px; font-size: .68rem; font-weight: 800; }
 .flow-up__tier--hot { color: #f5b06a; background: rgba(229,107,66,.16); }
@@ -24785,6 +24788,10 @@ body:has(.wp-hero) { background: #fff; }
   .flow-up__interest { grid-template-columns: minmax(0, 1fr) auto; }
   .flow-up__actions .button { flex: 1 1 calc(50% - 7px); }
   .flow-up__actions .flow-up__details { order: 3; }
+  .flow-up__card-head { gap: 8px; }
+  .flow-up__card-head > .flow-up__identity { gap: 9px; }
+  .flow-up__card-head > .flow-up__identity > div { min-width: 0; }
+  .flow-up__card-head .flow-up__name { max-width: min(62vw, 260px); font-size: .92rem; }
 }
 
 /* Flow-UP color pass: clearer layers in light and dark themes. */
