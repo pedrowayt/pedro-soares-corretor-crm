@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { LeadScorePill } from "@/components/crm/lead-score-pill";
 import { LeadActions } from "@/components/crm/lead-actions";
+import { LeadAuctionToggle } from "@/components/crm/lead-auction-toggle";
 import { WhatsappTemplatePicker } from "@/components/crm/whatsapp-template-picker";
 import { computeLeadScore } from "@/lib/crm/lead-scoring";
 import { matchPropertiesForLead } from "@/lib/crm/property-matching";
@@ -137,6 +138,7 @@ export default async function CrmLeadDetailPage({
               <span className="badge">{lead.stage}</span>
               <span className="badge">{lead.intent}</span>
               <span className="badge">{lead.source}</span>
+              {lead.isAuctionClient ? <span className="badge crm-badge-auction">Cliente de leilão</span> : null}
             </p>
           </div>
         </div>
@@ -174,6 +176,10 @@ export default async function CrmLeadDetailPage({
                 <dd>{lead.desiredPurpose ?? "Não informado"}</dd>
               </div>
               <div>
+                <dt>Perfil de leilão</dt>
+                <dd>{lead.isAuctionClient ? "Cliente de leilão" : "Não classificado"}</dd>
+              </div>
+              <div>
                 <dt>Orçamento</dt>
                 <dd>{budgetRange ?? "Não informado"}</dd>
               </div>
@@ -206,6 +212,7 @@ export default async function CrmLeadDetailPage({
                 <dd>{formatDateTime(lead.lastContactAt)}</dd>
               </div>
             </dl>
+            <LeadAuctionToggle leadId={lead.id} initialValue={lead.isAuctionClient} />
           </section>
 
           {lead.linkedProperty || lead.linkedDevelopment || lead.linkedOwner ? (
@@ -290,6 +297,7 @@ export default async function CrmLeadDetailPage({
                   ? `${lead.budgetMin ? formatCurrencyBRL(Number(lead.budgetMin)) + " – " : "até "}${formatCurrencyBRL(Number(lead.budgetMax))}`
                   : undefined
               }
+              isAuctionClient={lead.isAuctionClient}
             />
           </section>
 

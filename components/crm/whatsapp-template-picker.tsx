@@ -16,6 +16,7 @@ type Props = {
   propertyTitle?: string;
   propertyUrl?: string;
   budgetRange?: string;
+  isAuctionClient?: boolean;
 };
 
 export function WhatsappTemplatePicker({
@@ -24,7 +25,8 @@ export function WhatsappTemplatePicker({
   brokerName = "Pedro Soares",
   propertyTitle,
   propertyUrl,
-  budgetRange
+  budgetRange,
+  isAuctionClient = false
 }: Props) {
   const [activeId, setActiveId] = useState(WHATSAPP_TEMPLATES[0].id);
   const [copied, setCopied] = useState(false);
@@ -34,8 +36,8 @@ export function WhatsappTemplatePicker({
     [leadFirstName, brokerName, propertyTitle, propertyUrl, budgetRange]
   );
 
-  const template =
-    WHATSAPP_TEMPLATES.find((entry) => entry.id === activeId) ?? WHATSAPP_TEMPLATES[0];
+  const availableTemplates = WHATSAPP_TEMPLATES.filter((entry) => isAuctionClient || entry.category !== "auction");
+  const template = availableTemplates.find((entry) => entry.id === activeId) ?? availableTemplates[0];
   const message = renderTemplate(template, vars);
   const link = buildWhatsappLink(phone, message);
 
@@ -57,7 +59,7 @@ export function WhatsappTemplatePicker({
       </header>
 
       <div className="crm-whatsapp-picker__chips" role="tablist" aria-label="Templates">
-        {WHATSAPP_TEMPLATES.map((entry) => (
+        {availableTemplates.map((entry) => (
           <button
             key={entry.id}
             type="button"

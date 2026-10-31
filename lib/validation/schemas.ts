@@ -143,6 +143,7 @@ export const crmCreateLeadSchema = z.object({
   budgetMin: z.coerce.number().optional(),
   budgetMax: z.coerce.number().optional(),
   targetValue: z.coerce.number().optional(),
+  isAuctionClient: z.boolean().optional().default(false),
   desiredCity: z.string().optional(),
   desiredDistrict: z.string().optional(),
   interestDescription: z.string().trim().max(2000).optional(),
@@ -450,6 +451,10 @@ export const crmUpdateStageSchema = z.object({
 export const crmRegisterContactSchema = z.object({
   channel: z.enum(["WHATSAPP", "PHONE", "EMAIL", "CRM"]).default("WHATSAPP"),
   message: z.string().trim().max(1000).optional()
+});
+
+export const crmUpdateLeadSchema = z.object({
+  isAuctionClient: z.boolean()
 });
 
 export const crmUpdateDevelopmentLeadStatusSchema = z.object({

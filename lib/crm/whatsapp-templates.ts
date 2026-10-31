@@ -13,6 +13,7 @@ export type WhatsappTemplate = {
   hint: string;
   body: (vars: TemplateVariables) => string;
   requires?: Array<keyof TemplateVariables>;
+  category?: "auction";
 };
 
 export const WHATSAPP_TEMPLATES: ReadonlyArray<WhatsappTemplate> = [
@@ -81,6 +82,54 @@ export const WHATSAPP_TEMPLATES: ReadonlyArray<WhatsappTemplate> = [
       `Oi ${leadFirstName}, fazem alguns dias que não falamos. ` +
       `Tenho novas oportunidades${budgetRange ? ` na sua faixa (${budgetRange})` : ""} que podem te interessar. ` +
       `Posso te enviar?`
+  }
+  ,{
+    id: "auction-first-contact",
+    label: "Leilão: primeiro contato",
+    hint: "Entende o perfil antes de enviar oportunidades",
+    category: "auction",
+    body: ({ leadFirstName, brokerName }) =>
+      `Olá ${leadFirstName}, aqui é o ${brokerName}. Vi que você tem interesse em oportunidades de leilão. ` +
+      `Quero entender seu perfil, faixa de investimento e região de interesse para te enviar lotes compatíveis. ` +
+      `Podemos conversar?`
+  },
+  {
+    id: "auction-lot-shared",
+    label: "Leilão: enviar lote",
+    hint: "Apresenta o imóvel e o edital",
+    category: "auction",
+    body: ({ leadFirstName, propertyTitle, propertyUrl }) =>
+      `${leadFirstName}, encontrei uma oportunidade de leilão que pode fazer sentido para o seu perfil` +
+      (propertyTitle ? `: ${propertyTitle}. ` : ". ") +
+      (propertyUrl ? `Você pode consultar os detalhes aqui: ${propertyUrl} ` : "") +
+      `Posso te enviar o edital e os próximos pontos para análise.`
+  },
+  {
+    id: "auction-analysis",
+    label: "Leilão: análise",
+    hint: "Confirma se o cliente quer analisar o lote",
+    category: "auction",
+    body: ({ leadFirstName, propertyTitle }) =>
+      `${leadFirstName}, você conseguiu avaliar ${propertyTitle ? `o lote ${propertyTitle}` : "a oportunidade de leilão"}? ` +
+      `Se quiser, organizo com você os principais pontos do edital, ocupação, débitos e riscos antes de qualquer decisão.`
+  },
+  {
+    id: "auction-deadline",
+    label: "Leilão: prazo",
+    hint: "Lembra o cliente de avaliar a oportunidade",
+    category: "auction",
+    body: ({ leadFirstName, propertyTitle }) =>
+      `${leadFirstName}, passando para lembrar da oportunidade${propertyTitle ? ` em ${propertyTitle}` : " de leilão"}. ` +
+      `Quer que eu confira com você a data, o lance mínimo e os documentos antes do prazo?`
+  },
+  {
+    id: "auction-followup",
+    label: "Leilão: follow-up",
+    hint: "Reaproximação após envio do material",
+    category: "auction",
+    body: ({ leadFirstName }) =>
+      `${leadFirstName}, tudo bem? Você conseguiu analisar o material do leilão? ` +
+      `Se ainda fizer sentido, posso te ajudar a comparar essa oportunidade com outras antes de avançarmos.`
   }
 ];
 

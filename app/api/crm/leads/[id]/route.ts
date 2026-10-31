@@ -1,6 +1,17 @@
 import { fail, ok } from "@/lib/api/http";
 import { requireCrmWriteAccess } from "@/lib/auth/permissions";
 import { prisma } from "@/lib/prisma";
+import { crmUpdateLeadSchema } from "@/lib/validation/schemas";
+
+export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { denied } = await requireCrmWriteAccess();
+  if (denied) return denied;
+  const { id } = await params;
+  const parsed = crmUpdateLeadSchema.safeParse(await request.json());
+  if (!parsed.success) return fail("Payload inválido para atualização do Lead.", 422, parsed.error.flatten());
+  const lead = await prisma.lead.update({ where: { id }, data: parsed.data });
+  return ok({ lead });
+}
 
 export async function DELETE(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { session, denied } = await requireCrmWriteAccess();

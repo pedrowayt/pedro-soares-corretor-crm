@@ -389,6 +389,7 @@ model Lead {
   budgetMin             Decimal?              @db.Decimal(14, 2)
   budgetMax             Decimal?              @db.Decimal(14, 2)
   targetValue           Decimal?              @db.Decimal(14, 2)
+  isAuctionClient       Boolean               @default(false)
   desiredCity           String?
   desiredDistrict       String?
   interestDescription   String?
@@ -432,6 +433,7 @@ model Lead {
   @@index([linkedDevelopmentUnitTypeId])
   @@index([linkedDevelopmentUnitId])
   @@index([nextFollowUpAt])
+  @@index([isAuctionClient])
   @@index([developmentLeadStatus])
   @@index([landingPageId])
 }
