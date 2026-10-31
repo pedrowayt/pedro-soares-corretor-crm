@@ -15,6 +15,7 @@ function serializeLead(lead: Awaited<ReturnType<typeof listLeads>>[number]): Lea
     stage: lead.stage,
     createdAt: lead.createdAt.toISOString(),
     lastContactAt: lead.lastContactAt?.toISOString() ?? null,
+    nextFollowUpAt: lead.nextFollowUpAt?.toISOString() ?? null,
     targetValue: lead.targetValue ? Number(lead.targetValue) : null,
     budgetMax: lead.budgetMax ? Number(lead.budgetMax) : null,
     isAuctionClient: lead.isAuctionClient,

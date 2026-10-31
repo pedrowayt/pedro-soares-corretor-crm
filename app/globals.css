@@ -18827,10 +18827,26 @@ body:has(.crm-shell) > main {
 [data-theme="dark"] .crm-leads-quick-filters button.is-active { border-color: #263a59; background: #263a59; }
 [data-theme="dark"] .crm-leads-controls > .crm-leads-search { box-shadow: 0 4px 14px rgba(0,0,0,.14); }
 @media (max-width: 560px) {
+  .crm-leads-page-head { align-items: flex-start; flex-direction: row; gap: 10px; margin-bottom: 2px; }
+  .crm-leads-page-head h1, .crm-leads-page-head .section-subtitle { display: block; }
+  .crm-leads-page-head h1 { font-size: 2rem; }
+  .crm-leads-page-head .section-subtitle { margin-top: 4px; font-size: .76rem; }
+  .crm-leads-page-head__actions, .crm-leads-create-panel { width: auto; }
+  .crm-leads-new-button { width: auto; min-height: 42px; padding-inline: 12px; }
+  .crm-leads-summary article { border-color: #dbe3ed; background: #fbfcfe; box-shadow: 0 4px 12px rgba(31,54,82,.05); }
   .crm-leads-controls .crm-leads-filters { grid-template-columns: 1fr; }
   .crm-leads-result-head { align-items: center; }
   .crm-leads-result-head > span { font-size: .68rem; }
 }
+[data-theme="dark"] .crm-leads-summary article { background: #17253d; border-color: rgba(145,176,214,.18); box-shadow: 0 8px 20px rgba(0,0,0,.18); }
+.crm-leads-stage-pill { display: inline-flex; align-items: center; padding: 5px 10px; border-radius: 999px; background: rgba(229,107,66,.13); color: #a55232; font-size: .68rem; font-weight: 800; white-space: nowrap; }
+.crm-leads-card__facts { gap: 12px; padding-top: 12px; border-top: 1px solid var(--border-subtle); }
+.crm-leads-card__facts dd { font-size: 1rem; }
+.crm-leads-card__footer { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-items: center; }
+.crm-leads-card__footer .button { min-height: 42px; justify-content: center; border-radius: 10px; }
+.crm-leads-card__whatsapp { color: #a66a0b; }
+.crm-leads-card__details { background: #263a59; color: #fff; }
+[data-theme="dark"] .crm-leads-stage-pill { background: rgba(229,107,66,.16); color: #f2aa78; }
 
 /* ============================================================
  * CRM Dashboard v2

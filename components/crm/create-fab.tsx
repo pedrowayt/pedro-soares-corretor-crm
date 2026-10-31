@@ -10,7 +10,6 @@ type CreateAction = {
 };
 
 const ACTIONS: ReadonlyArray<CreateAction> = [
-  { match: (p) => p.startsWith("/crm/leads"), label: "Novo lead" },
   { match: (p) => p.startsWith("/crm/visitas"), label: "Nova visita" },
   { match: (p) => p.startsWith("/crm/propostas"), label: "Nova proposta" },
   { match: (p) => p.startsWith("/crm/tarefas"), label: "Nova tarefa" }
