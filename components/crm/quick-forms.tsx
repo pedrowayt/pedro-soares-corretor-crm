@@ -38,7 +38,7 @@ export function QuickLeadForm({ properties = [], developments = [] }: { properti
           await postJson("/api/crm/leads", {
             name: formData.get("name"),
             phone: formData.get("phone"),
-            email: formData.get("email"),
+            email: formData.get("email") || undefined,
             source: formData.get("source"),
             intent: formData.get("intent"),
             budgetMin: formData.get("budgetMin") || undefined,

@@ -16,9 +16,12 @@ export function LeadsCreatePanel({ properties, developments }: { properties: Cho
         {open ? "Fechar" : "Novo lead"}
       </button>
       {open ? (
-        <div id="quick-create" className="crm-quick-form-target crm-leads-create-form">
-          <QuickLeadForm properties={properties} developments={developments} />
-        </div>
+        <>
+          <button type="button" className="crm-leads-create-backdrop" onClick={() => setOpen(false)} aria-label="Fechar cadastro de Lead" />
+          <div id="quick-create" className="crm-quick-form-target crm-leads-create-form">
+            <QuickLeadForm properties={properties} developments={developments} />
+          </div>
+        </>
       ) : null}
     </div>
   );
