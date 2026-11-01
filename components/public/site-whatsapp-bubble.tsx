@@ -31,6 +31,21 @@ function getWhatsappMessage(pathname: string) {
   if (pathname === "/maestria") {
     return "Olá, Pedro. Quero conhecer o Maestria Urban Design e receber a apresentação.";
   }
+  if (pathname === "/urban-haute") {
+    return "Olá, Pedro. Quero conhecer o Urban Haute e receber a apresentação.";
+  }
+  if (pathname === "/urban-atrio") {
+    return "Olá, Pedro. Quero conhecer o Urban Átrio e receber a apresentação.";
+  }
+  if (pathname === "/urban-raro") {
+    return "Olá, Pedro. Quero conhecer o Urban Raro e receber a apresentação.";
+  }
+  if (pathname === "/urban-horizonte") {
+    return "Olá, Pedro. Quero conhecer o Urban Horizonte e receber a apresentação.";
+  }
+  if (pathname === "/terraco-urban") {
+    return "Olá, Pedro. Quero conhecer o Terraço Urban e receber a apresentação.";
+  }
   if (pathname === "/urban-futuro") {
     return "Olá, Pedro. Quero conhecer o Urban Futuro e receber a apresentação comercial.";
   }
@@ -62,7 +77,7 @@ export function SiteWhatsAppBubble() {
       body: JSON.stringify({
         messageTemplate: whatsappMessage,
         sourcePage: pathname,
-        ...(pathname.startsWith("/palmas-lake") ? { landingPageSlug: "palmas-lake" } : pathname === "/imoveis/na-planta" ? { landingPageSlug: "imoveis-na-planta" } : pathname === "/urban-futuro" ? { landingPageSlug: "urban-futuro" } : {}),
+        ...(pathname.startsWith("/palmas-lake") ? { landingPageSlug: "palmas-lake" } : pathname === "/imoveis/na-planta" ? { landingPageSlug: "imoveis-na-planta" } : pathname === "/maestria" ? { landingPageSlug: "maestria-urban-design" } : pathname === "/urban-haute" ? { landingPageSlug: "urban-haute" } : pathname === "/urban-atrio" ? { landingPageSlug: "urban-atrio" } : pathname === "/urban-raro" ? { landingPageSlug: "urban-raro" } : pathname === "/urban-horizonte" ? { landingPageSlug: "urban-horizonte" } : pathname === "/terraco-urban" ? { landingPageSlug: "terraco-urban" } : pathname === "/urban-futuro" ? { landingPageSlug: "urban-futuro" } : {}),
         attribution: getPublicAttribution()
       })
     }).catch(() => undefined);

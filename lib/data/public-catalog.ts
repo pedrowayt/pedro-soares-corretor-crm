@@ -178,7 +178,7 @@ function fromDevelopment(development: Awaited<ReturnType<typeof listPublicDevelo
     imageUrl: primaryImage ?? editorial?.image,
     status: editorial?.status ?? development.stageLabel,
     propertyTypes: developmentCatalogPropertyTypes(development),
-    startingPrice: development.startingPriceNumber,
+    startingPrice: development.showPrice ? development.startingPriceNumber : null,
     bedroomsFrom: development.bedroomsFrom ?? null,
     areaFromM2: development.areaFromM2Number,
     createdAt: "createdAt" in development ? development.createdAt : undefined,

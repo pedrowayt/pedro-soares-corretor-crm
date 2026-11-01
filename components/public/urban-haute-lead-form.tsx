@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ArrowRight, Check, MessageCircle, Send } from "lucide-react";
 import { buildDevelopmentMessage, buildWhatsAppUrl } from "@/lib/integrations/whatsapp-links";
+import { getPublicAttribution } from "@/lib/attribution";
 
 type Props = { selectedInterest?: string };
 
@@ -17,6 +18,17 @@ export function UrbanHauteLeadForm({ selectedInterest = "" }: Props) {
     const name = String(data?.get("name") ?? "").trim();
     const interest = String(data?.get("interest") ?? selectedInterest).trim();
     const text = `${buildDevelopmentMessage("Urban Haute")}${name ? ` Meu nome é ${name}.` : ""}${interest ? ` Tenho interesse em ${interest}.` : ""}`;
+    void fetch("/api/public/whatsapp-click", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      keepalive: true,
+      body: JSON.stringify({
+        landingPageSlug: "urban-haute",
+        messageTemplate: text,
+        sourcePage: window.location.pathname,
+        attribution: getPublicAttribution()
+      })
+    }).catch(() => undefined);
     window.open(buildWhatsAppUrl(text), "_blank", "noopener,noreferrer");
   }
 
