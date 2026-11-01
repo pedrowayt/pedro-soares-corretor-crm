@@ -488,3 +488,95 @@ main()
   .finally(async () => {
     await prisma.$disconnect();
   });
+  const urbanFuturoData = {
+    title: "Urban Futuro",
+    tagline: "O futuro dos seus negócios já é realidade.",
+    summary: "Empreendimento comercial entregue na 201 Sul, com salas e espaços corporativos de 26,35 a 306,26 m².",
+    description: "Um business office da Urban na Av. Teotônio Segurado, com arquitetura contemporânea, áreas comuns de convivência e infraestrutura pensada para empresas e profissionais.",
+    district: "Plano Diretor Sul",
+    city: "Palmas",
+    neighborhood: "201 Sul",
+    address: "ACSU SO 20 Avenida Siqueira Campos, 15",
+    propertyType: DevelopmentPropertyType.SALA_COMERCIAL,
+    developerName: "Urban Incorporações LTDA",
+    builderName: "Urban Incorporações LTDA",
+    stage: DevelopmentStage.DELIVERED,
+    areaFromM2: 26.35,
+    areaToM2: 306.26,
+    bedroomsFrom: null,
+    bedroomsTo: null,
+    bathroomsFrom: 1,
+    bathroomsTo: 2,
+    parkingFrom: 1,
+    parkingTo: 1,
+    floorsCount: 24,
+    totalUnits: 179,
+    availableUnits: 6,
+    startingPrice: null,
+    priceMax: null,
+    amenities: [
+      "Coworking",
+      "Salas de reunião compartilhadas",
+      "Hall social e Café Futuro",
+      "Terraço descoberto no 3º pavimento",
+      "Jardim, praça e lounge",
+      "5 elevadores",
+      "Gerador",
+      "Portaria e segurança 24h",
+      "Energia solar",
+      "Vista panorâmica"
+    ],
+    differentials: [
+      "Empreendimento comercial entregue",
+      "Av. Teotônio Segurado na 201 Sul",
+      "Arquitetura contemporânea e fachada icônica",
+      "Salas de reunião compartilhadas",
+      "5 elevadores para usuários e visitantes",
+      "182 vagas de garagem conforme memorial"
+    ],
+    projectText: "O Urban Futuro é um business office entregue na Av. Teotônio Segurado, criado para acolher empresas e profissionais com eficiência, conforto e funcionalidade.",
+    apartmentsText: "Salas comerciais, espaços corporativos e loja com áreas anunciadas de 26,35 a 306,26 m², além de ambientes comuns para reuniões, convivência e apoio ao trabalho.",
+    locationText: "ACSU SO 20, Avenida Siqueira Campos, 15, 201 Sul, Plano Diretor Sul de Palmas/TO.",
+    locationHighlights: "Endereço business na Av. Teotônio Segurado, próximo à Praça dos Girassóis, ao Palácio do Governo e aos principais eixos de Palmas.",
+    mapEmbedUrl: "https://www.google.com/maps?q=ACSU+SO+20,+Avenida+Siqueira+Campos,+15,+Palmas+-+TO&output=embed",
+    tablePdfUrl: null,
+    whatsappMessageTemplate: "Olá, Pedro. Quero conhecer o Urban Futuro e receber a apresentação comercial.",
+    ctaPrimaryLabel: "Quero conhecer o Urban Futuro",
+    ctaPrimaryUrl: "/urban-futuro#atendimento",
+    ctaSecondaryLabel: "Receber apresentação comercial",
+    ctaSecondaryUrl: "/urban-futuro#tipologias",
+    seoTitle: "Urban Futuro na 201 Sul | Salas comerciais em Palmas",
+    seoDescription: "Conheça o Urban Futuro: business office entregue na Av. Teotônio Segurado, com salas comerciais, coworking e salas de reunião.",
+    seoKeyword: "Urban Futuro Palmas",
+    showPrice: false,
+    isPublished: true,
+    status: DevelopmentPublicationStatus.PUBLISHED,
+    publishedAt: new Date()
+  };
+
+  const urbanFuturo = await prisma.development.upsert({
+    where: { slug: "urban-futuro" },
+    update: urbanFuturoData,
+    create: { slug: "urban-futuro", ...urbanFuturoData }
+  });
+
+  await prisma.landingPage.upsert({
+    where: { slug: "urban-futuro" },
+    update: {
+      name: "Urban Futuro",
+      publicPath: "/urban-futuro",
+      type: LandingPageType.DEVELOPMENT,
+      status: LandingPageStatus.PUBLISHED,
+      formKey: "development-interest",
+      linkedDevelopmentId: urbanFuturo.id,
+      publishedAt: new Date()
+    },
+    create: {
+      name: "Urban Futuro",
+      slug: "urban-futuro",
+      publicPath: "/urban-futuro",
+      type: LandingPageType.DEVELOPMENT,
+      status: LandingPageStatus.PUBLISHED,
+      formKey: "development-interest",
+      linkedDevelopmentId: urbanFuturo.id,
+      publishedAt: new Date()

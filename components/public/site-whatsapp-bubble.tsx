@@ -31,6 +31,9 @@ function getWhatsappMessage(pathname: string) {
   if (pathname === "/maestria") {
     return "Olá, Pedro. Quero conhecer o Maestria Urban Design e receber a apresentação.";
   }
+  if (pathname === "/urban-futuro") {
+    return "Olá, Pedro. Quero conhecer o Urban Futuro e receber a apresentação comercial.";
+  }
   if (pathname === "/comodoro") {
     return "Olá, Pedro. Quero conhecer o Comodoro by Fama e receber a apresentação.";
   }
@@ -59,7 +62,7 @@ export function SiteWhatsAppBubble() {
       body: JSON.stringify({
         messageTemplate: whatsappMessage,
         sourcePage: pathname,
-        ...(pathname.startsWith("/palmas-lake") ? { landingPageSlug: "palmas-lake" } : pathname === "/imoveis/na-planta" ? { landingPageSlug: "imoveis-na-planta" } : {}),
+        ...(pathname.startsWith("/palmas-lake") ? { landingPageSlug: "palmas-lake" } : pathname === "/imoveis/na-planta" ? { landingPageSlug: "imoveis-na-planta" } : pathname === "/urban-futuro" ? { landingPageSlug: "urban-futuro" } : {}),
         attribution: getPublicAttribution()
       })
     }).catch(() => undefined);

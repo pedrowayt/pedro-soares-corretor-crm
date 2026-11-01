@@ -133,6 +133,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/maestria",
     "/yacht-fama",
     "/terraco-urban",
+    "/urban-futuro",
     "/urban-haute",
     "/cinnamon-studio",
     "/casa-condominio-caribe",
