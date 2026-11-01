@@ -13,17 +13,20 @@ import {
 } from "lucide-react";
 import { LandingPageTracker } from "@/components/public/landing-page-tracker";
 import { MaestriaLeadForm } from "@/components/public/maestria-lead-form";
+import { TrackedWhatsAppLink } from "@/components/public/tracked-whatsapp-link";
 import { buildWhatsAppUrl } from "@/lib/integrations/whatsapp-links";
 import { getSiteUrl } from "@/lib/site-url";
 
 const siteUrl = getSiteUrl();
 const pageUrl = `${siteUrl}/maestria`;
-const whatsappUrl = buildWhatsAppUrl("Olá, Pedro. Quero conhecer o Maestria Urban Design e receber a apresentação, plantas e condições.");
+const maestriaMessage = "Olá, Pedro. Quero conhecer o Maestria Urban Design e receber a apresentação, plantas e condições.";
+const whatsappUrl = buildWhatsAppUrl(maestriaMessage);
+const mapsUrl = "https://www.google.com/maps/search/Quadra+Orla+14+Avenida+Orla,+03,+Palmas,+TO";
 
 export const metadata: Metadata = {
   title: "Maestria Urban Design | A vista lapidada à perfeição",
   description:
-    "Conheça o Maestria Urban Design: apartamentos de 129 a 147 m², arquitetura autoral e vista definitiva para o Lago de Palmas.",
+    "Conheça o Maestria Urban Design: apartamentos de 129,22 a 146,40 m², 3 suítes, arquitetura autoral e vista definitiva para o Lago de Palmas.",
   alternates: { canonical: pageUrl },
   openGraph: {
     type: "website",
@@ -36,10 +39,10 @@ export const metadata: Metadata = {
 };
 
 const highlights = [
-  { value: "129 a 147 m²", label: "apartamentos" },
-  { value: "Vista definitiva", label: "para o Lago de Palmas" },
+  { value: "129,22 a 146,40 m²", label: "apartamentos" },
+  { value: "3 suítes", label: "em todas as plantas" },
   { value: "Orla 14", label: "localização rara" },
-  { value: "25 m", label: "piscina com raia" }
+  { value: "2028", label: "entrega prevista" }
 ];
 
 const features = [
@@ -142,13 +145,13 @@ export default function MaestriaPage() {
           <div className="maestria-location-copy">
             <p className="maestria-kicker">Uma localização rara</p>
             <h2 id="maestria-location-title">Viver na Orla 14 é ter o lago como horizonte.</h2>
-            <p>O Maestria nasce em um dos endereços mais desejados de Palmas: entre a cidade, a natureza e a paisagem definitiva do Lago de Palmas.</p>
+            <p>O Maestria nasce em um dos endereços mais desejados de Palmas: entre a cidade, a natureza e a paisagem definitiva do Lago de Palmas, na Quadra Orla 14 Avenida Orla, 03.</p>
             <div className="maestria-location-facts">
               <div><strong>Orla 14</strong><span>Endereço do Maestria</span></div>
               <div><strong>Lago de Palmas</strong><span>Vista permanente</span></div>
               <div><strong>Palmas / TO</strong><span>Capital em movimento</span></div>
             </div>
-            <a className="maestria-button maestria-button--wine" href="#atendimento">Conhecer o endereço <ArrowRight size={16} /></a>
+            <a className="maestria-button maestria-button--wine" href={mapsUrl} target="_blank" rel="noreferrer">Conhecer o endereço <ArrowRight size={16} /></a>
           </div>
         </div>
       </section>
@@ -178,10 +181,10 @@ export default function MaestriaPage() {
           <div>
             <p className="maestria-kicker">Lapidado sob medida</p>
             <h2>Seu espaço, seu estilo de vida.</h2>
-            <p className="maestria-muted-copy">Plantas de 129 a 147 m² com ambientes integrados, varanda gourmet e soluções pensadas para o conforto de todos os dias.</p>
+            <p className="maestria-muted-copy">Plantas de 129,22 a 146,40 m² com ambientes integrados, varanda gourmet e soluções pensadas para o conforto de todos os dias.</p>
             <div className="maestria-amenities">{amenities.map((item) => <span key={item}><Check size={15} />{item}</span>)}</div>
           </div>
-          <div className="maestria-plan-card"><span className="maestria-plan-number">129 <small>a</small> 147</span><span className="maestria-plan-unit">m²</span><div className="maestria-plan-rule" /><p>Apartamentos com varanda aberta ou integrada, suíte master e o cuidado Urban em todos os detalhes.</p><a className="maestria-text-link" href="#atendimento">Receber plantas <ArrowRight size={16} /></a></div>
+          <div className="maestria-plan-card"><span className="maestria-plan-number">129,22 <small>a</small> 146,40</span><span className="maestria-plan-unit">m²</span><div className="maestria-plan-rule" /><p>Apartamentos com varanda aberta ou integrada, suíte master e o cuidado Urban em todos os detalhes.</p><a className="maestria-text-link" href="#atendimento">Receber plantas <ArrowRight size={16} /></a></div>
         </div>
         <div className="maestria-container maestria-floorplans-block">
           <div className="maestria-floorplans-heading">
@@ -210,7 +213,7 @@ export default function MaestriaPage() {
           <div className="maestria-section-heading maestria-section-heading--units">
             <p className="maestria-kicker">Espelho de unidades</p>
             <h2 id="maestria-units-title">Escolha o seu andar.</h2>
-            <p>São 90 apartamentos distribuídos do 4º ao 33º pavimento. Consulte a disponibilidade, o valor e a condição atualizada de cada unidade no atendimento.</p>
+            <p>São 90 apartamentos distribuídos do 4º ao 33º pavimento. Consulte a disponibilidade, as plantas e as condições atualizadas de cada unidade no atendimento.</p>
           </div>
           <div className="maestria-units-reference">
             <div className="maestria-reference-image">
@@ -250,7 +253,7 @@ export default function MaestriaPage() {
 
       <section id="atendimento" className="maestria-contact-section">
         <div className="maestria-container maestria-contact-grid">
-          <div className="maestria-contact-copy"><p className="maestria-kicker">Seu próximo capítulo</p><h2>Conheça o Maestria com quem entende o seu momento.</h2><p>Eu apresento o projeto, explico as plantas e ajudo você a avaliar as condições com calma e clareza.</p><div className="maestria-broker-mini"><Image src="/brand/pedro-portrait-5.png" alt="Pedro Soares, corretor de imóveis" width={86} height={112} /><span><strong>Pedro Soares</strong><small>Corretor de imóveis · CRECI 5861-TO</small><a href={whatsappUrl} target="_blank" rel="noreferrer"><MessageCircle size={15} /> Falar no WhatsApp</a></span></div></div>
+          <div className="maestria-contact-copy"><p className="maestria-kicker">Seu próximo capítulo</p><h2>Conheça o Maestria com quem entende o seu momento.</h2><p>Eu apresento o projeto, explico as plantas e ajudo você a avaliar as condições com calma e clareza.</p><div className="maestria-broker-mini"><Image src="/brand/pedro-portrait-5.png" alt="Pedro Soares, corretor de imóveis" width={86} height={112} /><span><strong>Pedro Soares</strong><small>Corretor de imóveis · CRECI 5861-TO</small><TrackedWhatsAppLink landingPageSlug="maestria-urban-design" messageTemplate={maestriaMessage} href={whatsappUrl} target="_blank" rel="noreferrer"><MessageCircle size={15} /> Falar no WhatsApp</TrackedWhatsAppLink></span></div></div>
           <MaestriaLeadForm />
         </div>
       </section>

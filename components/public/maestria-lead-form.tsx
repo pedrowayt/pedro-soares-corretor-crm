@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ArrowRight, CheckCircle2, MessageCircle, Send } from "lucide-react";
 import { buildWhatsAppUrl } from "@/lib/integrations/whatsapp-links";
+import { TrackedWhatsAppLink } from "@/components/public/tracked-whatsapp-link";
 
 type FormStatus = "idle" | "success" | "error";
 
@@ -104,9 +105,9 @@ export function MaestriaLeadForm() {
         ) : null}
       </form>
       {status === "success" && whatsappUrl ? (
-        <a className="maestria-button maestria-button--whatsapp" href={whatsappUrl} target="_blank" rel="noreferrer">
+        <TrackedWhatsAppLink className="maestria-button maestria-button--whatsapp" landingPageSlug="maestria-urban-design" messageTemplate={whatsappMessage} href={whatsappUrl} target="_blank" rel="noreferrer">
           <MessageCircle size={17} /> Falar comigo agora
-        </a>
+        </TrackedWhatsAppLink>
       ) : null}
     </div>
   );
