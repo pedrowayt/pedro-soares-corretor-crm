@@ -380,7 +380,29 @@ async function main() {
 
   const urbanHaute = await prisma.development.upsert({
     where: { slug: "urban-haute" },
-    update: {},
+    update: {
+      title: "Urban Haute",
+      district: "Plano Diretor Norte",
+      neighborhood: "ACSU NO13",
+      city: "Palmas",
+      address: "Quadra AE NO 13 Avenida Juscelino Kubitschek, 02",
+      stage: DevelopmentStage.PRE_LAUNCH,
+      deliveryDate: new Date("2030-12-30T00:00:00.000Z"),
+      areaFromM2: 36.41,
+      areaToM2: 194.04,
+      bedroomsFrom: 0,
+      bedroomsTo: 3,
+      bathroomsFrom: 1,
+      bathroomsTo: 5,
+      parkingFrom: 1,
+      parkingTo: 2,
+      totalUnits: 376,
+      availableUnits: 99,
+      showPrice: false,
+      isPublished: true,
+      status: DevelopmentPublicationStatus.PUBLISHED,
+      updatedAt: new Date()
+    },
     create: {
       slug: "urban-haute",
       title: "Urban Haute",
@@ -390,26 +412,33 @@ async function main() {
       district: "Plano Diretor Norte",
       neighborhood: "ACSU NO13",
       city: "Palmas",
-      address: "ACSU NO13, Avenida JK, Lote 02",
+      address: "Quadra AE NO 13 Avenida Juscelino Kubitschek, 02",
       postalCode: "77001-080",
       propertyType: DevelopmentPropertyType.COMPLEXO,
       developerName: "Urban Incorporações LTDA",
       builderName: "Urban Palmas 011 Empreendimentos Imobiliários SPE LTDA",
       stage: DevelopmentStage.PRE_LAUNCH,
-      areaFromM2: 38.63,
-      areaToM2: 203.09,
+      deliveryDate: new Date("2030-12-30T00:00:00.000Z"),
+      areaFromM2: 36.41,
+      areaToM2: 194.04,
+      bedroomsFrom: 0,
+      bedroomsTo: 3,
+      bathroomsFrom: 1,
+      bathroomsTo: 5,
+      parkingFrom: 1,
+      parkingTo: 2,
       landAreaM2: 5137.48,
       floorsCount: 63,
       elevatorsCount: 8,
-      totalUnits: 390,
-      availableUnits: null,
+      totalUnits: 376,
+      availableUnits: 99,
       amenities: ["Rooftop Wellness", "Piscina panorâmica coberta", "Pavimento de lazer com 2.600 m²", "Boulevard gastronômico", "Academia Flex", "Quadras esportivas"],
       differentials: ["245 m declarados no material comercial", "Mixed-use completo", "Ao lado do Capim Dourado Shopping", "Arquitetura de Roberto Carvalho"],
       projectText: "Inspirado nos arranha-céus de Nova York, o Urban Haute integra moradia, negócios, lazer e gastronomia.",
-      apartmentsText: "Residências de 1, 2 e 3 quartos, penthouses de 125,25 a 203,09 m² e offices de 36 a 80 m².",
-      locationText: "ACSU NO13, Avenida JK, Lote 02, ao lado do Shopping Capim Dourado, em Palmas/TO.",
+      apartmentsText: "Residências de 1, 2 e 3 quartos, penthouses e offices com áreas anunciadas de 36,41 a 194,04 m².",
+      locationText: "Quadra AE NO13, Avenida Juscelino Kubitschek, 02, ao lado do Shopping Capim Dourado, em Palmas/TO.",
       locationHighlights: "Capim Dourado Shopping, parques, gastronomia, escolas, academias e serviços de saúde no entorno.",
-      mapEmbedUrl: "https://www.google.com/maps?q=ACSU+NO13,+Avenida+JK,+Lote+02,+Palmas+-+TO&output=embed",
+      mapEmbedUrl: "https://www.google.com/maps?q=Quadra+AE+NO13,+Avenida+Juscelino+Kubitschek,+02,+Palmas+-+TO&output=embed",
       tablePdfUrl: null,
       whatsappMessageTemplate: "Olá, Pedro. Quero conhecer o Urban Haute e receber a apresentação.",
       ctaPrimaryLabel: "Consultar disponibilidade",
@@ -430,8 +459,8 @@ async function main() {
     { id: "urban-haute-unit-1q", name: "Residência 1 quarto · 38,63 m²", unitCategory: DevelopmentUnitCategory.UM_QUARTO, bedrooms: 1, areaFromM2: 38.63, areaToM2: 39.61, description: "Tipo 01 · 19º ao 28º pavimento." },
     { id: "urban-haute-unit-2q", name: "Residência 2 quartos · 49,69 a 79,21 m²", unitCategory: DevelopmentUnitCategory.DOIS_QUARTOS, bedrooms: 2, areaFromM2: 49.69, areaToM2: 79.21, description: "Tipos 01, 02 e 03 · 18º ao 48º pavimento." },
     { id: "urban-haute-unit-3q", name: "Residência 3 quartos · 84,34 a 86,69 m²", unitCategory: DevelopmentUnitCategory.TRES_QUARTOS, bedrooms: 3, areaFromM2: 84.34, areaToM2: 86.69, description: "Tipo 03 · 18º e 44º ao 48º pavimento." },
-    { id: "urban-haute-penthouse", name: "Penthouse · 125,25 a 203,09 m²", unitCategory: DevelopmentUnitCategory.COBERTURA, bedrooms: 3, areaFromM2: 125.25, areaToM2: 203.09, description: "Unidades 5001 a 5802 · 50º ao 58º pavimento." },
-    { id: "urban-haute-office", name: "Haute Offices · 36 a 80 m²", unitCategory: DevelopmentUnitCategory.SALA_COMERCIAL, areaFromM2: 36, areaToM2: 80, description: "Salas comerciais e lajes corporativas · 6º ao 17º pavimento." }
+    { id: "urban-haute-penthouse", name: "Penthouse · 125,25 a 194,04 m²", unitCategory: DevelopmentUnitCategory.COBERTURA, bedrooms: 3, areaFromM2: 125.25, areaToM2: 194.04, description: "Unidades 5001 a 5802 · 50º ao 58º pavimento." },
+    { id: "urban-haute-office", name: "Haute Offices · 36,41 a 80 m²", unitCategory: DevelopmentUnitCategory.SALA_COMERCIAL, areaFromM2: 36.41, areaToM2: 80, description: "Salas comerciais e lajes corporativas · 6º ao 17º pavimento." }
   ]) {
     const { id, ...unitData } = unitType;
     await prisma.developmentUnitType.upsert({
@@ -452,6 +481,158 @@ async function main() {
       status: LandingPageStatus.PUBLISHED,
       formKey: "development-interest",
       linkedDevelopmentId: urbanHaute.id,
+      publishedAt: new Date()
+    }
+  });
+
+  const terracoUrban = await prisma.development.upsert({
+    where: { slug: "terraco-urban" },
+    update: {
+      title: "Terraço Urban",
+      tagline: "Pronto para sonhar alto e morar hoje.",
+      summary: "Apartamentos de 3 quartos, 3 suítes plenas ou 4 suítes na Orla 14, com lazer resort, terraços amplos e vista para o Lago de Palmas.",
+      description: "Um empreendimento entregue da Urban que combina plantas amplas, grandes esquadrias, lazer completo e a experiência de viver próximo ao lago.",
+      district: "Graciosa - Orla 14",
+      city: "Palmas",
+      neighborhood: "Orla 14",
+      address: "Quadra Orla 14 Avenida Orla, 11",
+      propertyType: DevelopmentPropertyType.APARTAMENTO,
+      developerName: "Urban Incorporações LTDA",
+      builderName: "Urban Incorporações LTDA",
+      stage: DevelopmentStage.DELIVERED,
+      areaFromM2: 94.30,
+      areaToM2: 149.29,
+      bedroomsFrom: 3,
+      bedroomsTo: 4,
+      bathroomsFrom: 2,
+      bathroomsTo: 3,
+      parkingFrom: 2,
+      parkingTo: 2,
+      floorsCount: 39,
+      totalUnits: 130,
+      availableUnits: 1,
+      startingPrice: null,
+      priceMax: null,
+      amenities: [
+        "Piscina com borda infinita, deck molhado e raia de 25 m",
+        "Piscina infantil, bangalôs e deck seco",
+        "Academia, quadra de esportes e pista de corrida",
+        "Brinquedoteca, playground e salão de jogos",
+        "Espaços gourmet, churrasqueiras e redário",
+        "Pet place, coworking e bike share",
+        "Rooftop com dois espaços gourmet integráveis",
+        "Vaga para carro elétrico, guarda-volumes e delivery room",
+        "Wi-Fi nas áreas comuns, gerador, mercado e portaria 24 horas",
+        "Espaço de ferramentas compartilhado"
+      ],
+      differentials: [
+        "Pronto para morar",
+        "Orla 14 em Palmas",
+        "2.200 m² de área de lazer",
+        "366 m² de rooftop",
+        "Áreas comuns com Wi-Fi"
+      ],
+      projectText: "O Terraço Urban privilegia a integração dos ambientes, com grandes esquadrias, terraços e lazer resort para viver a Orla de Palmas. O material oficial apresenta opções de 3 quartos, 3 suítes plenas e 4 suítes.",
+      apartmentsText: "Plantas de 94,30 m² com 3 quartos, 113,51 m² com 3 suítes plenas e 149,29 m² com 4 suítes.",
+      locationText: "Quadra Orla 14, Avenida Orla, 11, Palmas/TO.",
+      locationHighlights: "Orla 14, Lago de Palmas, Jardim da Praia, shopping, restaurantes, pista de cooper e deck para o lago.",
+      mapEmbedUrl: "https://www.google.com/maps?q=Quadra+Orla+14+Avenida+Orla,+11,+Palmas+-+TO&output=embed",
+      whatsappMessageTemplate: "Olá, Pedro. Quero conhecer o Terraço Urban e receber a apresentação.",
+      ctaPrimaryLabel: "Quero conhecer o Terraço Urban",
+      ctaPrimaryUrl: "/terraco-urban#atendimento",
+      ctaSecondaryLabel: "Receber apresentação e plantas",
+      ctaSecondaryUrl: "/terraco-urban#plantas",
+      seoTitle: "Terraço Urban na Orla 14 de Palmas | Apartamentos prontos para morar",
+      seoDescription: "Conheça o Terraço Urban na Orla 14 de Palmas: plantas de 94,30 a 149,29 m², lazer resort e vista para o Lago de Palmas.",
+      seoKeyword: "Terraço Urban Palmas",
+      showPrice: false,
+      isPublished: true,
+      status: DevelopmentPublicationStatus.PUBLISHED,
+      publishedAt: new Date()
+    },
+    create: {
+      slug: "terraco-urban",
+      title: "Terraço Urban",
+      tagline: "Pronto para sonhar alto e morar hoje.",
+      summary: "Apartamentos de 3 quartos, 3 suítes plenas ou 4 suítes na Orla 14, com lazer resort, terraços amplos e vista para o Lago de Palmas.",
+      description: "Um empreendimento entregue da Urban que combina plantas amplas, grandes esquadrias, lazer completo e a experiência de viver próximo ao lago.",
+      district: "Graciosa - Orla 14",
+      city: "Palmas",
+      neighborhood: "Orla 14",
+      address: "Quadra Orla 14 Avenida Orla, 11",
+      propertyType: DevelopmentPropertyType.APARTAMENTO,
+      developerName: "Urban Incorporações LTDA",
+      builderName: "Urban Incorporações LTDA",
+      stage: DevelopmentStage.DELIVERED,
+      areaFromM2: 94.30,
+      areaToM2: 149.29,
+      bedroomsFrom: 3,
+      bedroomsTo: 4,
+      bathroomsFrom: 2,
+      bathroomsTo: 3,
+      parkingFrom: 2,
+      parkingTo: 2,
+      floorsCount: 39,
+      totalUnits: 130,
+      availableUnits: 1,
+      amenities: [
+        "Piscina com borda infinita, deck molhado e raia de 25 m",
+        "Piscina infantil, bangalôs e deck seco",
+        "Academia, quadra de esportes e pista de corrida",
+        "Brinquedoteca, playground e salão de jogos",
+        "Espaços gourmet, churrasqueiras e redário",
+        "Pet place, coworking e bike share",
+        "Rooftop com dois espaços gourmet integráveis",
+        "Vaga para carro elétrico, guarda-volumes e delivery room",
+        "Wi-Fi nas áreas comuns, gerador, mercado e portaria 24 horas",
+        "Espaço de ferramentas compartilhado"
+      ],
+      differentials: [
+        "Pronto para morar",
+        "Orla 14 em Palmas",
+        "2.200 m² de área de lazer",
+        "366 m² de rooftop",
+        "Áreas comuns com Wi-Fi"
+      ],
+      projectText: "O Terraço Urban privilegia a integração dos ambientes, com grandes esquadrias, terraços e lazer resort para viver a Orla de Palmas. O material oficial apresenta opções de 3 quartos, 3 suítes plenas e 4 suítes.",
+      apartmentsText: "Plantas de 94,30 m² com 3 quartos, 113,51 m² com 3 suítes plenas e 149,29 m² com 4 suítes.",
+      locationText: "Quadra Orla 14, Avenida Orla, 11, Palmas/TO.",
+      locationHighlights: "Orla 14, Lago de Palmas, Jardim da Praia, shopping, restaurantes, pista de cooper e deck para o lago.",
+      mapEmbedUrl: "https://www.google.com/maps?q=Quadra+Orla+14+Avenida+Orla,+11,+Palmas+-+TO&output=embed",
+      whatsappMessageTemplate: "Olá, Pedro. Quero conhecer o Terraço Urban e receber a apresentação.",
+      ctaPrimaryLabel: "Quero conhecer o Terraço Urban",
+      ctaPrimaryUrl: "/terraco-urban#atendimento",
+      ctaSecondaryLabel: "Receber apresentação e plantas",
+      ctaSecondaryUrl: "/terraco-urban#plantas",
+      seoTitle: "Terraço Urban na Orla 14 de Palmas | Apartamentos prontos para morar",
+      seoDescription: "Conheça o Terraço Urban na Orla 14 de Palmas: plantas de 94,30 a 149,29 m², lazer resort e vista para o Lago de Palmas.",
+      seoKeyword: "Terraço Urban Palmas",
+      showPrice: false,
+      isPublished: true,
+      status: DevelopmentPublicationStatus.PUBLISHED,
+      publishedAt: new Date()
+    }
+  });
+
+  await prisma.landingPage.upsert({
+    where: { slug: "terraco-urban" },
+    update: {
+      name: "Terraço Urban",
+      publicPath: "/terraco-urban",
+      type: LandingPageType.DEVELOPMENT,
+      status: LandingPageStatus.PUBLISHED,
+      formKey: "development-interest",
+      linkedDevelopmentId: terracoUrban.id,
+      publishedAt: new Date()
+    },
+    create: {
+      name: "Terraço Urban",
+      slug: "terraco-urban",
+      publicPath: "/terraco-urban",
+      type: LandingPageType.DEVELOPMENT,
+      status: LandingPageStatus.PUBLISHED,
+      formKey: "development-interest",
+      linkedDevelopmentId: terracoUrban.id,
       publishedAt: new Date()
     }
   });
@@ -614,39 +795,297 @@ async function main() {
     }
   });
 
+  const urbanAtrioData = {
+    title: "Urban Átrio",
+    tagline: "A próxima fase de Palmas começa aqui.",
+    summary: "Empreendimento residencial em obras no Plano Diretor Sul, com apartamentos de 1 a 3 quartos e áreas anunciadas de 36,65 a 209,02 m².",
+    description: "Um projeto residencial da Urban em construção na Quadra ACSU SE20, com diferentes configurações para acompanhar novas fases de vida em Palmas.",
+    district: "Plano Diretor Sul",
+    city: "Palmas",
+    neighborhood: "ACSU SE20",
+    address: "Quadra ACSU SE20 Avenida Siqueira Campos, 17",
+    propertyType: DevelopmentPropertyType.APARTAMENTO,
+    developerName: "Urban Incorporações LTDA",
+    builderName: "Urban Incorporações LTDA",
+    stage: DevelopmentStage.CONSTRUCTION,
+    deliveryDate: new Date("2027-08-30T00:00:00.000Z"),
+    areaFromM2: 36.65,
+    areaToM2: 209.02,
+    bedroomsFrom: 1,
+    bedroomsTo: 3,
+    bathroomsFrom: 1,
+    bathroomsTo: 3,
+    parkingFrom: 1,
+    parkingTo: 3,
+    totalUnits: 181,
+    availableUnits: 34,
+    startingPrice: null,
+    priceMax: null,
+    amenities: [
+      "Áreas comuns e lazer do empreendimento",
+      "Arquitetura residencial contemporânea",
+      "Localização no Plano Diretor Sul"
+    ],
+    differentials: [
+      "Empreendimento em obras",
+      "Entrega prevista para 2027",
+      "Apartamentos de 1 a 3 quartos",
+      "Áreas anunciadas de 36,65 a 209,02 m²"
+    ],
+    projectText: "O Urban Átrio nasce em um momento de transformação de Palmas, com um projeto residencial em obras para conectar moradia, mobilidade e a energia de uma região em crescimento.",
+    apartmentsText: "Apartamentos de 1 a 3 quartos, com áreas anunciadas de 36,65 a 209,02 m² e configurações para diferentes perfis.",
+    locationText: "Quadra ACSU SE20, Avenida Siqueira Campos, 17, em Palmas/TO.",
+    locationHighlights: "Plano Diretor Sul, ACSU SE20 e conexão com os novos eixos de crescimento de Palmas.",
+    mapEmbedUrl: "https://www.google.com/maps?q=Quadra+ACSU+SE20,+Avenida+Siqueira+Campos,+17,+Palmas+-+TO&output=embed",
+    tablePdfUrl: null,
+    whatsappMessageTemplate: "Olá, Pedro. Quero conhecer o Urban Átrio e receber a apresentação, plantas e condições.",
+    ctaPrimaryLabel: "Quero conhecer o Urban Átrio",
+    ctaPrimaryUrl: "/urban-atrio#atendimento",
+    ctaSecondaryLabel: "Receber apresentação e plantas",
+    ctaSecondaryUrl: "/urban-atrio#tipologias",
+    seoTitle: "Urban Átrio no Plano Diretor Sul | Apartamentos em Palmas",
+    seoDescription: "Conheça o Urban Átrio: apartamentos de 1 a 3 quartos, áreas de 36,65 a 209,02 m² e entrega prevista para 2027 em Palmas/TO.",
+    seoKeyword: "Urban Átrio Palmas",
+    showPrice: false,
+    isPublished: true,
+    status: DevelopmentPublicationStatus.PUBLISHED,
+    publishedAt: new Date()
+  };
+
+  const urbanAtrio = await prisma.development.upsert({
+    where: { slug: "urban-atrio" },
+    update: urbanAtrioData,
+    create: { slug: "urban-atrio", ...urbanAtrioData }
+  });
 
   await prisma.landingPage.upsert({
-    where: { slug: "lake-village" },
+    where: { slug: "urban-atrio" },
     update: {
-      name: "Lake Village · Pré-cadastro",
-      publicPath: "/lake-village",
-      type: LandingPageType.CAPTURE,
+      name: "Urban Átrio",
+      publicPath: "/urban-atrio",
+      type: LandingPageType.DEVELOPMENT,
       status: LandingPageStatus.PUBLISHED,
       formKey: "development-interest",
+      linkedDevelopmentId: urbanAtrio.id,
       publishedAt: new Date()
     },
     create: {
-      name: "Lake Village · Pré-cadastro",
-      slug: "lake-village",
-      publicPath: "/lake-village",
-      type: LandingPageType.CAPTURE,
+      name: "Urban Átrio",
+      slug: "urban-atrio",
+      publicPath: "/urban-atrio",
+      type: LandingPageType.DEVELOPMENT,
       status: LandingPageStatus.PUBLISHED,
       formKey: "development-interest",
+      linkedDevelopmentId: urbanAtrio.id,
       publishedAt: new Date()
     }
   });
 
-  console.log("Seed concluído com sucesso.");
-}
+  const urbanRaroData = {
+    title: "Urban Raro",
+    tagline: "Raro por dentro e por fora.",
+    summary: "Empreendimento entregue da Urban Design em frente ao Parque Cesamar, com apenas 16 apartamentos-casa.",
+    description: "Um projeto residencial de arquitetura autoral, com piscina privativa na varanda, plantas flexíveis e uma escala rara de privacidade no Plano Diretor Sul.",
+    district: "Plano Diretor Sul",
+    city: "Palmas",
+    neighborhood: "ARSE 41",
+    address: "Quadra ARSE 41 Alameda 1, 06",
+    propertyType: DevelopmentPropertyType.APARTAMENTO,
+    developerName: "Urban Incorporações LTDA",
+    builderName: "Urban Incorporações LTDA",
+    stage: DevelopmentStage.DELIVERED,
+    areaFromM2: 253,
+    areaToM2: 423,
+    bedroomsFrom: 3,
+    bedroomsTo: 4,
+    suitesFrom: 3,
+    suitesTo: 4,
+    bathroomsFrom: 3,
+    bathroomsTo: 6,
+    parkingFrom: 3,
+    parkingTo: 4,
+    floorsCount: 18,
+    totalUnits: 16,
+    availableUnits: 1,
+    startingPrice: null,
+    priceMax: null,
+    amenities: [
+      "Piscina comum aquecida",
+      "Espaço gourmet com churrasqueira",
+      "Brinquedoteca e playground",
+      "Academia",
+      "Salão de festas",
+      "Delivery room",
+      "Usina solar nas áreas comuns",
+      "Reuso de águas pluviais",
+      "Gerador para áreas comuns e elevadores",
+      "Ponto para recarga de carros híbridos e elétricos",
+      "Portaria remota preparada",
+      "Espaços entregues mobiliados e equipados"
+    ],
+    differentials: [
+      "Em frente ao Parque Cesamar",
+      "Apenas 16 apartamentos-casa",
+      "Uma unidade por andar",
+      "Piscina privativa na varanda",
+      "Planta flexível para personalização",
+      "Arquitetura autoral Urban Design",
+      "Usina solar para as áreas comuns",
+      "Reuso de águas pluviais",
+      "Gerador para áreas comuns e elevadores privativos",
+      "Preparado para portaria remota"
+    ],
+    projectText: "O Urban Raro redefine o alto padrão com arquitetura autoral e imersão na natureza. Em frente ao Parque Cesamar, o projeto valoriza a vista definitiva, a privacidade e a possibilidade de viver com mais espaço e identidade.",
+    apartmentsText: "Plantas de 3 e 4 quartos, com piscina privativa na varanda, churrasqueira a carvão, esquadrias das suítes preparadas para automação e planta flexível para personalização.",
+    locationText: "Quadra ARSE 41 Alameda 1, 06, no Plano Diretor Sul de Palmas/TO.",
+    locationHighlights: "Em frente ao Parque Cesamar, com vista definitiva para o mar verde e conexão com uma das áreas mais agradáveis de Palmas.",
+    mapEmbedUrl: "https://www.google.com/maps?q=Quadra+ARSE+41+Alameda+1,+06,+Palmas+-+TO&output=embed",
+    tablePdfUrl: null,
+    whatsappMessageTemplate: "Olá, Pedro. Quero conhecer o Urban Raro e receber a apresentação, plantas e condições.",
+    ctaPrimaryLabel: "Quero conhecer o Urban Raro",
+    ctaPrimaryUrl: "/urban-raro#atendimento",
+    ctaSecondaryLabel: "Receber apresentação e plantas",
+    ctaSecondaryUrl: "/urban-raro#plantas",
+    seoTitle: "Urban Raro em frente ao Parque Cesamar | Apartamentos em Palmas",
+    seoDescription: "Conheça o Urban Raro: apenas 16 apartamentos-casa em frente ao Parque Cesamar, com plantas de 3 e 4 quartos, piscina privativa e arquitetura autoral.",
+    seoKeyword: "Urban Raro Palmas",
+    showPrice: false,
+    isPublished: true,
+    status: DevelopmentPublicationStatus.PUBLISHED,
+    publishedAt: new Date()
+  };
 
-main()
-  .catch((error) => {
-    console.error(error);
-    process.exit(1);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
+  const urbanRaro = await prisma.development.upsert({
+    where: { slug: "urban-raro" },
+    update: urbanRaroData,
+    create: { slug: "urban-raro", ...urbanRaroData }
   });
+
+  await prisma.landingPage.upsert({
+    where: { slug: "urban-raro" },
+    update: {
+      name: "Urban Raro",
+      publicPath: "/urban-raro",
+      type: LandingPageType.DEVELOPMENT,
+      status: LandingPageStatus.PUBLISHED,
+      formKey: "development-interest",
+      linkedDevelopmentId: urbanRaro.id,
+      publishedAt: new Date()
+    },
+    create: {
+      name: "Urban Raro",
+      slug: "urban-raro",
+      publicPath: "/urban-raro",
+      type: LandingPageType.DEVELOPMENT,
+      status: LandingPageStatus.PUBLISHED,
+      formKey: "development-interest",
+      linkedDevelopmentId: urbanRaro.id,
+      publishedAt: new Date()
+    }
+  });
+
+  const urbanHorizonteData = {
+    title: "Urban Horizonte",
+    tagline: "Um horizonte para viver.",
+    summary: "Empreendimento entregue na Graciosa, na Orla 14 de Palmas, com vista permanente para o Lago e apartamentos de 3 a 5 suítes.",
+    description: "Um projeto de arquitetura orgânica, materiais naturais e áreas comuns com mobiliário autoral, assinado por estúdios de renome nacional.",
+    district: "Graciosa - Orla 14",
+    city: "Palmas",
+    neighborhood: "Orla 14",
+    address: "Orla 14, Palmas/TO",
+    propertyType: DevelopmentPropertyType.APARTAMENTO,
+    developerName: "Urban Incorporações LTDA",
+    builderName: "Urban Incorporações LTDA",
+    stage: DevelopmentStage.DELIVERED,
+    areaFromM2: 156,
+    areaToM2: 316,
+    bedroomsFrom: 3,
+    bedroomsTo: 5,
+    suitesFrom: 3,
+    suitesTo: 5,
+    bathroomsFrom: 5,
+    bathroomsTo: 7,
+    parkingFrom: 3,
+    parkingTo: 4,
+    totalUnits: null,
+    availableUnits: 5,
+    startingPrice: null,
+    priceMax: null,
+    amenities: [
+      "Piscina com vista para o Lago de Palmas",
+      "Academia com assinatura Flex Home",
+      "Salão de festas mobiliado e equipado",
+      "Espaço gourmet integrado ou independente",
+      "Brinquedoteca e playground",
+      "Sala de jogos",
+      "Churrasqueira",
+      "Quadra esportiva",
+      "Varanda gourmet",
+      "Vista panorâmica",
+      "Gerador",
+      "Portaria e segurança 24h",
+      "Redário e pista de caminhada",
+      "Jardim, praça e lounge"
+    ],
+    differentials: [
+      "Vista permanente do Lago de Palmas em todas as unidades",
+      "Empreendimento entregue na Orla 14",
+      "Arquitetura orgânica com materiais naturais",
+      "Projeto assinado por Roberto Carvalho, Sá Spessato e Miriam Coelho",
+      "Mobiliário autoral nas áreas comuns e de lazer",
+      "Plantas flexíveis para personalização",
+      "Elevador privativo",
+      "Academia com assinatura Flex Home"
+    ],
+    projectText: "O Urban Horizonte está no endereço mais nobre da Orla de Palmas, com a vista permanente do Lago em todas as unidades. Formas orgânicas, materiais naturais e varandas generosas criam conexão real com a natureza.",
+    apartmentsText: "Apartamentos de 3, 4 e 5 suítes, com áreas anunciadas de 156, 202 e 316 m², plantas flexíveis, elevador privativo e varanda gourmet.",
+    locationText: "Graciosa - Orla 14, em Palmas/TO, próximo dos melhores restaurantes, escolas, conveniências e da Praia da Graciosa.",
+    locationHighlights: "More no endereço mais nobre da Orla de Palmas, com o Lago de Palmas e a beleza da Praia da Graciosa aos seus pés.",
+    mapEmbedUrl: "https://www.google.com/maps?q=Orla+14,+Palmas+-+TO&output=embed",
+    tablePdfUrl: null,
+    whatsappMessageTemplate: "Olá, Pedro. Quero conhecer o Urban Horizonte e receber a apresentação, plantas e condições.",
+    ctaPrimaryLabel: "Quero conhecer o Urban Horizonte",
+    ctaPrimaryUrl: "/urban-horizonte#atendimento",
+    ctaSecondaryLabel: "Receber apresentação e plantas",
+    ctaSecondaryUrl: "/urban-horizonte#tipologias",
+    seoTitle: "Urban Horizonte na Orla 14 | Apartamentos em Palmas",
+    seoDescription: "Conheça o Urban Horizonte: apartamentos de 3, 4 e 5 suítes na Graciosa, com vista para o Lago de Palmas, áreas comuns completas e projeto autoral.",
+    seoKeyword: "Urban Horizonte Palmas",
+    showPrice: false,
+    isPublished: true,
+    status: DevelopmentPublicationStatus.PUBLISHED,
+    publishedAt: new Date()
+  };
+
+  const urbanHorizonte = await prisma.development.upsert({
+    where: { slug: "urban-horizonte" },
+    update: urbanHorizonteData,
+    create: { slug: "urban-horizonte", ...urbanHorizonteData }
+  });
+
+  await prisma.landingPage.upsert({
+    where: { slug: "urban-horizonte" },
+    update: {
+      name: "Urban Horizonte",
+      publicPath: "/urban-horizonte",
+      type: LandingPageType.DEVELOPMENT,
+      status: LandingPageStatus.PUBLISHED,
+      formKey: "development-interest",
+      linkedDevelopmentId: urbanHorizonte.id,
+      publishedAt: new Date()
+    },
+    create: {
+      name: "Urban Horizonte",
+      slug: "urban-horizonte",
+      publicPath: "/urban-horizonte",
+      type: LandingPageType.DEVELOPMENT,
+      status: LandingPageStatus.PUBLISHED,
+      formKey: "development-interest",
+      linkedDevelopmentId: urbanHorizonte.id,
+      publishedAt: new Date()
+    }
+  });
+
   const urbanFuturoData = {
     title: "Urban Futuro",
     tagline: "O futuro dos seus negócios já é realidade.",
@@ -739,3 +1178,38 @@ main()
       formKey: "development-interest",
       linkedDevelopmentId: urbanFuturo.id,
       publishedAt: new Date()
+    }
+  });
+
+  await prisma.landingPage.upsert({
+    where: { slug: "lake-village" },
+    update: {
+      name: "Lake Village · Pré-cadastro",
+      publicPath: "/lake-village",
+      type: LandingPageType.CAPTURE,
+      status: LandingPageStatus.PUBLISHED,
+      formKey: "development-interest",
+      publishedAt: new Date()
+    },
+    create: {
+      name: "Lake Village · Pré-cadastro",
+      slug: "lake-village",
+      publicPath: "/lake-village",
+      type: LandingPageType.CAPTURE,
+      status: LandingPageStatus.PUBLISHED,
+      formKey: "development-interest",
+      publishedAt: new Date()
+    }
+  });
+
+  console.log("Seed concluído com sucesso.");
+}
+
+main()
+  .catch((error) => {
+    console.error(error);
+    process.exit(1);
+  })
+  .finally(async () => {
+    await prisma.$disconnect();
+  });
