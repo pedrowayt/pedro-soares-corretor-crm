@@ -39,7 +39,7 @@ ON CONFLICT ("slug") DO UPDATE SET
   "locationText" = EXCLUDED."locationText", "locationHighlights" = EXCLUDED."locationHighlights", "mapEmbedUrl" = EXCLUDED."mapEmbedUrl",
   "whatsappMessageTemplate" = EXCLUDED."whatsappMessageTemplate", "ctaPrimaryLabel" = EXCLUDED."ctaPrimaryLabel", "ctaPrimaryUrl" = EXCLUDED."ctaPrimaryUrl",
   "ctaSecondaryLabel" = EXCLUDED."ctaSecondaryLabel", "ctaSecondaryUrl" = EXCLUDED."ctaSecondaryUrl", "seoTitle" = EXCLUDED."seoTitle", "seoDescription" = EXCLUDED."seoDescription",
-  "seoKeyword" = EXCLUDED."seoKeyword", "showPrice" = false, "isPublished" = true, "status" = 'PUBLISHED', "publishedAt" = COALESCE("publishedAt", CURRENT_TIMESTAMP), "updatedAt" = CURRENT_TIMESTAMP;
+  "seoKeyword" = EXCLUDED."seoKeyword", "showPrice" = false, "isPublished" = true, "status" = 'PUBLISHED', "publishedAt" = COALESCE("Development"."publishedAt", CURRENT_TIMESTAMP), "updatedAt" = CURRENT_TIMESTAMP;
 
 INSERT INTO "LandingPage" (
   "id", "name", "slug", "publicPath", "type", "status", "formKey", "linkedDevelopmentId", "publishedAt", "createdAt", "updatedAt"
@@ -49,4 +49,4 @@ VALUES (
 )
 ON CONFLICT ("slug") DO UPDATE SET
   "name" = EXCLUDED."name", "publicPath" = '/urban-futuro', "type" = 'DEVELOPMENT', "status" = 'PUBLISHED', "formKey" = 'development-interest',
-  "linkedDevelopmentId" = 'development-urban-futuro', "publishedAt" = COALESCE("publishedAt", CURRENT_TIMESTAMP), "updatedAt" = CURRENT_TIMESTAMP;
+  "linkedDevelopmentId" = 'development-urban-futuro', "publishedAt" = COALESCE("LandingPage"."publishedAt", CURRENT_TIMESTAMP), "updatedAt" = CURRENT_TIMESTAMP;
