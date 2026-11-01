@@ -21,6 +21,7 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
   const isPalmasLakeLanding = pathname.startsWith("/palmas-lake");
   const isComodoroLanding = pathname === "/comodoro";
   const isUrbanHauteLanding = pathname === "/urban-haute";
+  const isUrbanFuturoLanding = pathname === "/urban-futuro";
   const isCinnamonLanding = pathname === "/cinnamon-studio";
   const isCaribeLanding = pathname.startsWith("/casa-condominio-caribe");
   const isCaribeResidenceLanding = pathname.startsWith("/casa-caribe-residence");
@@ -28,7 +29,7 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
   const isMiranteLanding = pathname.startsWith("/casa-mirante-do-lago");
   const isCasaTerreaMiranteLanding = pathname.startsWith("/casa-terrea-mirante-do-lago");
   const isPolinesiaLanding = pathname.startsWith("/casa-condominio-polineisia");
-  const isStandaloneLanding = isLakeVillageLanding || isQuintaDoLagoLanding || isAcordesLanding || isLike210Landing || isMaestriaLanding || isHeritageLanding || isYachtLanding || isYouLanding || isTerracoUrbanLanding || isPalmasLakeLanding || isComodoroLanding || isUrbanHauteLanding || isCinnamonLanding || isCaribeLanding || isCaribeResidenceLanding || isCasaNovaCaribeLanding || isMiranteLanding || isCasaTerreaMiranteLanding || isPolinesiaLanding;
+  const isStandaloneLanding = isLakeVillageLanding || isQuintaDoLagoLanding || isAcordesLanding || isLike210Landing || isMaestriaLanding || isHeritageLanding || isYachtLanding || isYouLanding || isTerracoUrbanLanding || isPalmasLakeLanding || isComodoroLanding || isUrbanHauteLanding || isUrbanFuturoLanding || isCinnamonLanding || isCaribeLanding || isCaribeResidenceLanding || isCasaNovaCaribeLanding || isMiranteLanding || isCasaTerreaMiranteLanding || isPolinesiaLanding;
   const isInternalArea = pathname.startsWith("/admin") || pathname.startsWith("/crm");
   const isPropertyCatalog = pathname.startsWith("/imoveis/prontos");
 
