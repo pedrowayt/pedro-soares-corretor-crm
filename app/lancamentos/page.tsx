@@ -6,6 +6,8 @@ import { getSiteUrl } from "@/lib/site-url";
 
 const baseUrl = getSiteUrl();
 
+export const revalidate = 300;
+
 export const metadata: Metadata = {
   title: "Lançamentos imobiliários em Palmas TO | Pedro Soares",
   description:

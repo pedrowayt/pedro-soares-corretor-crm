@@ -42,6 +42,50 @@ export const publicLandingPages: PublicLandingPage[] = [
     propertyTypes: ["APARTAMENTO", "COMERCIAL"]
   },
   {
+    slug: "urban-atrio",
+    href: "/urban-atrio",
+    title: "Urban Átrio",
+    category: "Apartamentos em obras",
+    location: "Plano Diretor Sul · Palmas/TO",
+    summary: "Apartamentos de 1 a 3 quartos, penthouses e lazer em escala resort em um endereço que acompanha o movimento de Palmas.",
+    image: "/brand/urban-atrio/hero.jpg",
+    status: "Em obras",
+    propertyTypes: ["APARTAMENTO"]
+  },
+  {
+    slug: "urban-raro",
+    href: "/urban-raro",
+    title: "Urban Raro",
+    category: "Apartamentos-casa de alto padrão",
+    location: "Plano Diretor Sul · Palmas/TO",
+    summary: "Apartamentos-casa em frente ao Parque Cesamar, com arquitetura autoral, piscina privativa e uma escala rara de privacidade.",
+    image: "/brand/urban-raro/park-pool.jpg",
+    status: "Pronto para morar",
+    propertyTypes: ["APARTAMENTO"]
+  },
+  {
+    slug: "urban-horizonte",
+    href: "/urban-horizonte",
+    title: "Urban Horizonte",
+    category: "Apartamentos de alto padrão",
+    location: "Orla 14 · Palmas/TO",
+    summary: "Apartamentos de 3, 4 e 5 suítes na Orla 14, com vista permanente para o Lago de Palmas e design autoral.",
+    image: "/brand/urban-horizonte/orla-view.jpg",
+    status: "Pronto para morar",
+    propertyTypes: ["APARTAMENTO"]
+  },
+  {
+    slug: "urban-futuro",
+    href: "/urban-futuro",
+    title: "Urban Futuro",
+    category: "Business office",
+    location: "201 Sul · Palmas/TO",
+    summary: "Salas e espaços corporativos na Av. Teotônio Segurado, com coworking, salas de reunião e infraestrutura para negócios.",
+    image: "/brand/urban-futuro/hero.jpg",
+    status: "Entregue",
+    propertyTypes: ["COMERCIAL", "SALA"]
+  },
+  {
     slug: "comodoro-by-fama",
     href: "/comodoro",
     title: "Comodoro by Fama",
