@@ -125,7 +125,7 @@ ON CONFLICT ("slug") DO UPDATE SET
   "showPrice" = false,
   "isPublished" = true,
   "status" = 'PUBLISHED',
-  "publishedAt" = COALESCE("publishedAt", CURRENT_TIMESTAMP),
+  "publishedAt" = COALESCE("Development"."publishedAt", CURRENT_TIMESTAMP),
   "updatedAt" = CURRENT_TIMESTAMP;
 
 INSERT INTO "LandingPage" (
@@ -152,5 +152,5 @@ ON CONFLICT ("slug") DO UPDATE SET
   "status" = 'PUBLISHED',
   "formKey" = 'development-interest',
   "linkedDevelopmentId" = 'development-maestria-urban-design',
-  "publishedAt" = COALESCE("publishedAt", CURRENT_TIMESTAMP),
+  "publishedAt" = COALESCE("LandingPage"."publishedAt", CURRENT_TIMESTAMP),
   "updatedAt" = CURRENT_TIMESTAMP;
