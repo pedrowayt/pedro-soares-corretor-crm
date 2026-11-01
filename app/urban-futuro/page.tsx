@@ -19,18 +19,19 @@ export const metadata: Metadata = {
   description: "Conheça o Urban Futuro: empreendimento comercial entregue na Av. Teotônio Segurado, com salas corporativas, coworking, salas de reunião e infraestrutura completa.",
   keywords: ["Urban Futuro", "salas comerciais em Palmas", "business office Palmas", "sala comercial 201 Sul"],
   alternates: { canonical: pageUrl },
-  openGraph: { type: "website", locale: "pt_BR", url: pageUrl, title: "Urban Futuro | O futuro dos seus negócios já é realidade", description: "Salas e espaços corporativos na Av. Teotônio Segurado, com arquitetura contemporânea e infraestrutura para negócios.", images: [{ url: `${siteUrl}/brand/urban-futuro/hero.jpg`, alt: "Fachada do Urban Futuro Business Office" }] },
-  twitter: { card: "summary_large_image", title: "Urban Futuro | Business office em Palmas", description: "Conheça o Urban Futuro e receba a apresentação comercial atualizada.", images: [`${siteUrl}/brand/urban-futuro/hero.jpg`] }
+  openGraph: { type: "website", locale: "pt_BR", url: pageUrl, title: "Urban Futuro | O futuro dos seus negócios já é realidade", description: "Salas e espaços corporativos na Av. Teotônio Segurado, com arquitetura contemporânea e infraestrutura para negócios.", images: [{ url: `${siteUrl}/brand/urban-futuro/facade-ready.jpg`, alt: "Urban Futuro pronto na Avenida Teotônio Segurado" }] },
+  twitter: { card: "summary_large_image", title: "Urban Futuro | Business office em Palmas", description: "Conheça o Urban Futuro e receba a apresentação comercial atualizada.", images: [`${siteUrl}/brand/urban-futuro/facade-ready.jpg`] }
 };
 
-const highlights = [["26,35 a 306,26 m²", "salas e espaços corporativos"], ["5", "elevadores"], ["201 Sul", "Av. Teotônio Segurado"], ["Entregue", "pronto para operar"]];
+const highlights = [["26,35 a 306,26 m²", "salas e espaços corporativos"], ["5", "elevadores"], ["201 Sul", "Av. Teotônio Segurado"], ["Pronto", "empreendimento entregue"]];
 const gallery = [
-  ["lobby-cafe.jpg", "Hall social e Café Futuro"],
-  ["terrace.jpg", "Terraço Futuro"],
-  ["meeting-rooms.jpg", "Salas de reunião compartilhadas"],
+  ["facade-ready.jpg", "Empreendimento pronto na Avenida Teotônio Segurado"],
+  ["facade-real.jpg", "Fachada do edifício na 201 Sul"],
+  ["lounge-real.jpg", "Lounge corporativo com vista para Palmas"],
+  ["meeting-room-real.jpg", "Sala de reunião compartilhada"],
   ["architecture-room.jpg", "Sala com arquitetura contemporânea"],
-  ["corporate-room.jpg", "Sala Corporate"],
-  ["hero.jpg", "Fachada icônica na Av. Teotônio Segurado"]
+  ["office-real.jpg", "Ambiente corporativo com vista para a cidade"],
+  ["corporate-room.jpg", "Sala Corporate"]
 ];
 const amenities = ["Coworking e salas de reunião compartilhadas", "Hall social com Café Futuro", "Terraço descoberto no 3º pavimento", "Jardim, praça e lounge", "5 elevadores para usuários e visitantes", "Gerador e infraestrutura de apoio", "Portaria e segurança 24 horas", "Energia solar e vista panorâmica"];
 const typologies = [
@@ -51,12 +52,14 @@ export default function UrbanFuturoPage() {
 
     <section className={styles.hero} id="inicio">
       <div className={styles.heroCopy}><p className={styles.eyebrow}><span /> Entregue · Plano Diretor Sul · Palmas</p><p className={styles.overline}>BUSINESS OFFICE NA AVENIDA MAIS ESTRATÉGICA</p><h1>O futuro dos seus negócios já é realidade.</h1><p className={styles.heroLede}>Salas e espaços corporativos no ponto mais valorizado da Av. Teotônio Segurado, com arquitetura contemporânea e infraestrutura para trabalhar melhor.</p><div className={styles.actions}><a className={styles.primaryButton} href="#atendimento">Conhecer o Urban Futuro <ArrowRight size={17} /></a><a className={styles.textLink} href="#projeto">Descobrir o projeto <ArrowDown size={15} /></a></div><div className={styles.heroFoot}><span><MapPin size={14} /> Palmas / TO</span><span>ACSU SO 20 · 201 Sul</span></div></div>
-      <div className={styles.heroVisual}><Image src="/brand/urban-futuro/hero.jpg" alt="Fachada do Urban Futuro Business Office na Avenida Teotônio Segurado" fill priority quality={90} sizes="(max-width: 800px) 100vw, 54vw" /><div className={styles.heroOverlay} /><div className={styles.heroStamp}><span>BUSINESS OFFICE</span><strong>UF</strong><small>um novo marco para Palmas</small></div><div className={styles.heroCaption}>Apresentação oficial Urban Futuro</div></div>
+      <div className={styles.heroVisual}><Image src="/brand/urban-futuro/facade-ready.jpg" alt="Urban Futuro pronto na Avenida Teotônio Segurado" fill priority quality={90} sizes="(max-width: 800px) 100vw, 54vw" /><div className={styles.heroOverlay} /><div className={styles.heroStamp}><span>BUSINESS OFFICE</span><strong>UF</strong><small>um novo marco para Palmas</small></div><div className={styles.heroProof}><strong>Pronto para operar</strong><span>empreendimento entregue na 201 Sul</span></div><div className={styles.heroCaption}>Foto atual do edifício</div></div>
     </section>
 
     <section className={styles.statStrip} aria-label="Resumo do empreendimento"><div className={styles.container}>{highlights.map(([value, label]) => <div key={label}><strong>{value}</strong><span>{label}</span></div>)}</div></section>
 
     <section className={`${styles.section} ${styles.paper}`} id="projeto"><div className={`${styles.container} ${styles.story}`}><div><p className={styles.kicker}>O projeto</p><h2>Um endereço para o trabalho ganhar futuro.</h2></div><div className={styles.storyCopy}><p>O Urban Futuro é um empreendimento comercial entregue na Av. Teotônio Segurado, em Palmas, criado para acolher empresas e profissionais com eficiência, conforto e funcionalidade.</p><p>Arquitetura icônica, paisagismo, espaços de convivência e salas de reunião compartilhadas formam uma base para negócios que querem estar no centro das oportunidades.</p><a className={styles.textLinkDark} href="#diferenciais">Ver os diferenciais <ArrowRight size={15} /></a></div></div></section>
+
+    <section className={`${styles.section} ${styles.specSection}`} id="ficha-tecnica"><div className={styles.container}><div className={styles.headingDark}><p className={styles.kicker}>Ficha técnica</p><h2>Informação para decidir com clareza.</h2><p>Composição extraída do memorial descritivo e do caderno técnico do Urban Futuro. A disponibilidade comercial deve ser confirmada no atendimento.</p></div><div className={styles.specGrid}><div><strong>180</strong><span>unidades na composição do memorial</span><small>173 salas comerciais · 3 corporativas · 3 lojas · 1 Café</small></div><div><strong>182</strong><span>vagas de garagem</span><small>Subsolos, térreo e operação com manobrista conforme o memorial</small></div><div><strong>26</strong><span>pavimentos descritos</span><small>2 subsolos, térreo, mezanino e pavimentos de salas comerciais</small></div><div><strong>1.800 m²</strong><span>área do terreno</span><small>Uso exclusivamente comercial</small></div></div></div></section>
 
     <section className={`${styles.section} ${styles.ink}`} id="diferenciais"><div className={styles.container}><div className={styles.heading}><p className={styles.kicker}>A experiência Urban Futuro</p><h2>Trabalhar com qualidade de vida.</h2><p>Uma estrutura comercial pensada para o cotidiano de empresas, profissionais e visitantes.</p></div><div className={styles.detailGrid}><article className={styles.detailCard}><Building2 size={22} /><h3>Presença urbana</h3><p>Fachada contemporânea e localização estratégica para posicionar seu negócio na cidade.</p></article><article className={styles.detailCard}><Users size={22} /><h3>Conexões para crescer</h3><p>Coworking, salas de reunião e áreas comuns que aproximam pessoas, ideias e negócios.</p></article><article className={styles.detailCard}><Sparkles size={22} /><h3>Infraestrutura completa</h3><p>Hall social, elevadores, gerador, portaria e segurança para uma operação mais fluida.</p></article></div></div></section>
 
