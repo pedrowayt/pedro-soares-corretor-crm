@@ -7,6 +7,7 @@ import {
   Bell,
   Building2,
   ChevronDown,
+  Flame,
   Hammer,
   LayoutDashboard,
   LogOut,
@@ -41,6 +42,7 @@ type Props = {
 const PRIMARY_NAV: ReadonlyArray<TopbarLink> = [
   { href: "/crm/dashboard", label: "Dashboard", Icon: LayoutDashboard },
   { href: "/crm/leads", label: "Leads", Icon: Users },
+  { href: "/crm/flow-up", label: "Flow-UP", Icon: Flame },
   { href: "/crm/funil", label: "Funil", Icon: Workflow },
   { href: "/crm/imoveis", label: "Imóveis", Icon: Building2 },
   { href: "/crm/leiloes", label: "Leilões", Icon: Hammer },

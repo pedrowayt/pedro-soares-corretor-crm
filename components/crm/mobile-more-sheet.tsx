@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect } from "react";
 import {
   BarChart3,
+  Building2,
   CalendarCheck,
   ChevronRight,
   FileSignature,
@@ -37,6 +38,7 @@ const GROUPS: ReadonlyArray<Group> = [
       { href: "/crm/inbox", label: "Inbox", Icon: Inbox },
       { href: "/crm/leads", label: "Leads", Icon: Users },
       { href: "/crm/pre-cadastros", label: "Pré-cadastros", Icon: ClipboardList },
+      { href: "/crm/imoveis", label: "Imóveis", Icon: Building2 },
       { href: "/crm/captacao", label: "Captação ativa", Icon: Target },
       { href: "/crm/leiloes", label: "Leilões", Icon: Hammer },
       { href: "/crm/proprietarios", label: "Proprietários", Icon: UserCheck },
