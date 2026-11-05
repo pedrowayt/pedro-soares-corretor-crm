@@ -4,7 +4,7 @@ import { FlamboyantLanding } from "./flamboyant-landing";
 
 const baseUrl = getSiteUrl();
 const path = "/apartamento-flamboyant-ville-405-norte";
-const hero = `${baseUrl}/brand/apartamento-flamboyant-ville-405-norte/8-Foto-8.jpg`;
+const hero = `${baseUrl}/brand/apartamento-flamboyant-ville-405-norte/11-area-externa-entrada.jpg`;
 
 export const metadata: Metadata = {
   title: "Apartamento à venda e para locação no Flamboyant Ville | Palmas/TO",
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
     url: `${baseUrl}${path}`,
     title: "Apartamento Flamboyant Ville · 405 Norte",
     description: "2 quartos, 58 m², varanda e condomínio com piscina em Palmas/TO.",
-    images: [{ url: hero, width: 1280, height: 960, alt: "Sala planejada do apartamento no Residencial Flamboyant Ville" }]
+    images: [{ url: hero, width: 1280, height: 960, alt: "Entrada do Residencial Flamboyant Ville na 405 Norte" }]
   },
   twitter: {
     card: "summary_large_image",

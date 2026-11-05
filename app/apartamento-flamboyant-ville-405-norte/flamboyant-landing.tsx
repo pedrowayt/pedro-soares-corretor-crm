@@ -26,6 +26,7 @@ import { buildWhatsAppUrl } from "@/lib/integrations/whatsapp-links";
 
 const propertySlug = "apartamento-flamboyant-ville-405-norte";
 const landingPageSlug = propertySlug;
+const heroImage = "/brand/apartamento-flamboyant-ville-405-norte/11-area-externa-entrada.jpg";
 
 const gallery = [
   ["/brand/apartamento-flamboyant-ville-405-norte/8-Foto-8.jpg", "Sala com painel planejado, iluminação e ar-condicionado", "hero"],
@@ -167,7 +168,7 @@ export function FlamboyantLanding() {
 
       <main>
         <section className="flamboyant-hero" id="inicio">
-          <Image src={gallery[0][0]} alt={gallery[0][1]} fill priority sizes="100vw" className="flamboyant-hero-image" />
+          <Image src={heroImage} alt="Entrada do Residencial Flamboyant Ville na 405 Norte" fill priority sizes="100vw" className="flamboyant-hero-image" />
           <div className="flamboyant-hero-overlay" />
           <div className="flamboyant-container flamboyant-hero-content">
             <div className="flamboyant-hero-copy"><p className="flamboyant-kicker flamboyant-kicker--light"><span /> Residencial Flamboyant Ville · Palmas/TO</p><h1>Seu próximo endereço na 405 Norte.</h1><p className="flamboyant-hero-lede">Apartamento com 2 quartos, ambientes planejados e lazer para viver com praticidade em Palmas.</p><div className="flamboyant-hero-actions"><a href="#atendimento" className="flamboyant-button flamboyant-button--coral">Quero conhecer <ArrowUpRight size={18} /></a><a href="#galeria" className="flamboyant-text-link">Ver fotos <ArrowDown size={17} /></a></div></div>
