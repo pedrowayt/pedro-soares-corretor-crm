@@ -51,7 +51,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Per-record routes use the row's own updatedAt so Google can detect real
   // changes; if missing (mock/fallback data) we fall back to "now".
   const propertyRoutes = properties.map((property) => ({
-    url: `${baseUrl}/imoveis/${property.slug}`,
+    url: `${baseUrl}${(property as { landingPages?: ReadonlyArray<{ publicPath: string }> }).landingPages?.[0]?.publicPath ?? `/imoveis/${property.slug}`}`,
     lastModified: pickLastModified(
       (property as { updatedAt?: Date | string | null }).updatedAt,
       (property as { createdAt?: Date | string | null }).createdAt
@@ -161,7 +161,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.85
   }));
 
-  return [
+  const routes = [
     ...staticRoutes,
     ...palmasLakeTowerRoutes,
     ...propertyRoutes,
@@ -169,4 +169,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...blogRoutes,
     ...blogCategoryRoutes
   ];
+
+  return Array.from(new Map(routes.map((route) => [route.url, route])).values());
 }

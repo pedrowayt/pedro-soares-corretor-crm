@@ -31,7 +31,8 @@ export async function listCrmLandingPages() {
       orderBy: [{ status: "asc" }, { updatedAt: "desc" }],
       include: {
         _count: { select: { leads: true } },
-        linkedDevelopment: { select: { title: true, slug: true } }
+        linkedDevelopment: { select: { title: true, slug: true } },
+        linkedProperty: { select: { title: true, slug: true } }
       }
     });
 

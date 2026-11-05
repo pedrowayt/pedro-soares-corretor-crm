@@ -2,6 +2,8 @@
 
 Este documento deve ser consultado pelo Codex sempre que uma nova landing page for criada para o site Pedro Soares Corretor.
 
+Para landing pages de imóveis prontos à venda ou para locação, use também o template [`docs/templates/NOVA_LANDING_PAGE_IMOVEL.md`](./templates/NOVA_LANDING_PAGE_IMOVEL.md). O padrão de imóvel exige vínculo formal entre `LandingPage` e `Property`, além de presença no catálogo público.
+
 Para a parte de tráfego, consentimento, atribuição e conferência no dashboard, seguir também o checklist obrigatório em [`docs/GUIA_LANDING_PAGES_TRAFEGO_SITE.md`](./GUIA_LANDING_PAGES_TRAFEGO_SITE.md).
 
 ## Regra principal

@@ -4,6 +4,7 @@ import { formatCurrencyBRL } from "@/lib/utils";
 
 type Props = {
   slug: string;
+  href?: string;
   title: string;
   city: string;
   district: string;
@@ -38,6 +39,7 @@ const STATUS_BADGE: Record<string, { label: string; tone: string }> = {
 
 export function PropertyCardHorizontal({
   slug,
+  href: providedHref,
   title,
   city,
   district,
@@ -65,7 +67,7 @@ export function PropertyCardHorizontal({
 }: Props) {
   const statusBadge = status ? STATUS_BADGE[status] : undefined;
   const isSold = status === "VENDIDO";
-  const href = `/imoveis/${slug}`;
+  const href = providedHref ?? `/imoveis/${slug}`;
 
   return (
     <article className={`property-list-card${isSold ? " is-sold" : ""}`}>

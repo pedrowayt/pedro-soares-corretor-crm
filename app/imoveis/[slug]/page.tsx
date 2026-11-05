@@ -86,7 +86,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const purposeLabel = purposeLabelMap[property.purpose] ?? "imóvel";
   const title = `${property.title} em ${property.district}, ${property.city} | Pedro Soares`;
   const description = `${purposeLabel.toUpperCase()} em ${property.district}, ${property.city}. ${property.bedrooms ?? "-"} quartos, ${property.areaM2Value ?? "-"} m². Fale com Pedro Soares para mais informações.`;
-  const canonical = `${baseUrl}/imoveis/${property.slug}`;
+  const dedicatedLandingPath = property.landingPages?.[0]?.publicPath;
+  const canonical = `${baseUrl}${dedicatedLandingPath ?? `/imoveis/${property.slug}`}`;
   const mainImage = property.media?.[0]?.url ?? `${baseUrl}/brand/home-search-showcase.png`;
 
   return {
@@ -167,8 +168,19 @@ export default async function PropertyDetailsPage({ params }: { params: Promise<
     redirect("/casa-condominio-polineisia");
   }
 
+  const dedicatedLandingPath = property.landingPages?.[0]?.publicPath;
+  if (dedicatedLandingPath && dedicatedLandingPath !== `/imoveis/${property.slug}`) {
+    redirect(dedicatedLandingPath);
+  }
+
   const propertyUrl = `${baseUrl}/imoveis/${property.slug}`;
   const purposeLabel = purposeLabelMap[property.purpose] ?? "imóvel";
+  const salePrice = property.salePriceValue ?? (property.purpose === "VENDA" ? property.priceValue : null);
+  const rentPrice = property.rentPriceValue ?? (property.purpose === "LOCACAO" ? property.priceValue : null);
+  const commercialOffers = [
+    salePrice != null ? { label: "Venda", value: salePrice } : null,
+    rentPrice != null ? { label: "Locação", value: rentPrice } : null
+  ].filter((offer): offer is { label: string; value: number } => Boolean(offer));
   const whatsappMessage = `Olá, vi o imóvel ${property.title} no site e gostaria de mais informações.`;
   const mapEmbedUrl = buildGoogleMapsEmbedUrl({
     googleMapsUrl: property.googleMapsUrl,
@@ -368,16 +380,20 @@ export default async function PropertyDetailsPage({ params }: { params: Promise<
     description: property.description,
     url: propertyUrl,
     image: (property.media ?? []).map((media) => media.url),
-    offers: {
+    offers: (commercialOffers.length
+      ? commercialOffers
+      : [{ label: purposeLabel, value: property.priceValue }]
+    ).map((offer) => ({
       "@type": "Offer",
-      price: property.priceValue,
+      name: offer.label,
+      price: offer.value,
       priceCurrency: "BRL",
       availability:
         property.status === "VENDIDO"
           ? "https://schema.org/SoldOut"
           : "https://schema.org/InStock",
       url: propertyUrl
-    },
+    })),
     address: {
       "@type": "PostalAddress",
       addressLocality: property.city,
@@ -431,9 +447,13 @@ export default async function PropertyDetailsPage({ params }: { params: Promise<
           className="property-detail-price-box property-detail-price-box--inline"
           aria-hidden="true"
         >
-          <span>{purposeLabel}</span>
-          <strong>{formatCurrencyBRL(property.priceValue)}</strong>
-          <small>Valor anunciado do imóvel</small>
+          {commercialOffers.length ? commercialOffers.map((offer) => (
+            <div key={offer.label}>
+              <span>{offer.label}</span>
+              <strong>{formatCurrencyBRL(offer.value)}</strong>
+              {offer.label === "Locação" ? <small>por mês</small> : <small>valor anunciado</small>}
+            </div>
+          )) : <><span>{purposeLabel}</span><strong>{formatCurrencyBRL(property.priceValue)}</strong><small>Valor anunciado do imóvel</small></>}
         </div>
 
         {property.status === "VENDIDO" ? (
@@ -445,9 +465,13 @@ export default async function PropertyDetailsPage({ params }: { params: Promise<
         <div className="property-detail-layout">
           <aside className="property-detail-sidebar">
             <div className="property-detail-price-box property-detail-price-box--sidebar">
-              <span>{purposeLabel}</span>
-              <strong>{formatCurrencyBRL(property.priceValue)}</strong>
-              <small>Valor anunciado do imóvel</small>
+              {commercialOffers.length ? commercialOffers.map((offer) => (
+                <div key={offer.label}>
+                  <span>{offer.label}</span>
+                  <strong>{formatCurrencyBRL(offer.value)}</strong>
+                  {offer.label === "Locação" ? <small>por mês</small> : <small>valor anunciado</small>}
+                </div>
+              )) : <><span>{purposeLabel}</span><strong>{formatCurrencyBRL(property.priceValue)}</strong><small>Valor anunciado do imóvel</small></>}
             </div>
 
             <div className="property-contact-panel">

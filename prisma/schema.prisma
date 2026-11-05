@@ -463,12 +463,15 @@ model LandingPage {
 
   linkedDevelopmentId String?
   linkedDevelopment   Development?     @relation("DevelopmentLandingPages", fields: [linkedDevelopmentId], references: [id], onDelete: SetNull)
+  linkedPropertyId    String?
+  linkedProperty      Property?        @relation("PropertyLandingPages", fields: [linkedPropertyId], references: [id], onDelete: SetNull)
   leads               Lead[]           @relation("LandingPageLeads")
   events              LandingPageEvent[]
 
   @@index([status])
   @@index([type])
   @@index([linkedDevelopmentId])
+  @@index([linkedPropertyId])
 }
 
 model LandingPageEvent {
@@ -882,6 +885,8 @@ model Property {
   purpose               PropertyPurpose
   status                PropertyStatus  @default(DISPONIVEL)
   price                 Decimal         @db.Decimal(14, 2)
+  salePrice             Decimal?        @db.Decimal(14, 2)
+  rentPrice             Decimal?        @db.Decimal(14, 2)
   address               String?
   city                  String
   district              String
@@ -924,6 +929,7 @@ model Property {
   ownerId String?
   owner   Owner?  @relation(fields: [ownerId], references: [id], onDelete: SetNull)
 
+  landingPages       LandingPage[] @relation("PropertyLandingPages")
   media               PropertyMedia[]
   leads               Lead[]
   interactions        LeadInteraction[]

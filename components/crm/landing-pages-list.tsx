@@ -28,6 +28,7 @@ type LandingPage = {
   deployUrl: string | null;
   deployRef: string | null;
   linkedDevelopment: { title: string; slug: string } | null;
+  linkedProperty: { title: string; slug: string } | null;
   publishedAt: string | null;
   updatedAt: string;
   leads: number;
@@ -101,12 +102,15 @@ function Metric({ icon: Icon, label, value }: { icon: typeof Users; label: strin
 export function LandingPagesList({ pages, siteUrl }: Props) {
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState<StatusFilter>("ALL");
-  const [development, setDevelopment] = useState("ALL");
+  const [asset, setAsset] = useState("ALL");
   const [requestOpen, setRequestOpen] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
-  const developmentOptions = useMemo(
-    () => Array.from(new Map(pages.flatMap((page) => page.linkedDevelopment ? [[page.linkedDevelopment.slug, page.linkedDevelopment.title]] : [])).entries()).sort((a, b) => a[1].localeCompare(b[1], "pt-BR")),
+  const assetOptions = useMemo(
+    () => Array.from(new Map(pages.flatMap((page) => {
+      const linked = page.linkedProperty ?? page.linkedDevelopment;
+      return linked ? [[linked.slug, linked.title]] : [];
+    })).entries()).sort((a, b) => a[1].localeCompare(b[1], "pt-BR")),
     [pages]
   );
 
@@ -114,11 +118,12 @@ export function LandingPagesList({ pages, siteUrl }: Props) {
     const normalizedQuery = query.trim().toLocaleLowerCase("pt-BR");
     return pages.filter((page) => {
       const matchesStatus = status === "ALL" || page.status === status;
-      const matchesDevelopment = development === "ALL" || page.linkedDevelopment?.slug === development;
-      const haystack = [page.name, page.slug, page.publicPath, page.linkedDevelopment?.title].filter(Boolean).join(" ").toLocaleLowerCase("pt-BR");
-      return matchesStatus && matchesDevelopment && (!normalizedQuery || haystack.includes(normalizedQuery));
+      const linked = page.linkedProperty ?? page.linkedDevelopment;
+      const matchesAsset = asset === "ALL" || linked?.slug === asset;
+      const haystack = [page.name, page.slug, page.publicPath, page.linkedProperty?.title, page.linkedDevelopment?.title].filter(Boolean).join(" ").toLocaleLowerCase("pt-BR");
+      return matchesStatus && matchesAsset && (!normalizedQuery || haystack.includes(normalizedQuery));
     });
-  }, [development, pages, query, status]);
+  }, [asset, pages, query, status]);
 
   const summary = useMemo(() => pages.reduce((result, page) => ({
     pages: result.pages + 1,
@@ -141,10 +146,10 @@ export function LandingPagesList({ pages, siteUrl }: Props) {
   const clearFilters = () => {
     setQuery("");
     setStatus("ALL");
-    setDevelopment("ALL");
+    setAsset("ALL");
   };
 
-  const hasFilters = Boolean(query || status !== "ALL" || development !== "ALL");
+  const hasFilters = Boolean(query || status !== "ALL" || asset !== "ALL");
 
   return (
     <div className="crm-landing-page">
@@ -193,10 +198,10 @@ export function LandingPagesList({ pages, siteUrl }: Props) {
           </select>
         </label>
         <label className="crm-landing-filter">
-          <span>Empreendimento</span>
-          <select value={development} onChange={(event) => setDevelopment(event.target.value)} aria-label="Filtrar por empreendimento">
-            <option value="ALL">Todos os empreendimentos</option>
-            {developmentOptions.map(([value, label]) => <option value={value} key={value}>{label}</option>)}
+          <span>Imóvel ou empreendimento</span>
+          <select value={asset} onChange={(event) => setAsset(event.target.value)} aria-label="Filtrar por imóvel ou empreendimento">
+            <option value="ALL">Todos os imóveis e empreendimentos</option>
+            {assetOptions.map(([value, label]) => <option value={value} key={value}>{label}</option>)}
           </select>
         </label>
         {hasFilters ? <button type="button" className="crm-landing-clear" onClick={clearFilters}><X size={15} aria-hidden="true" /> Limpar</button> : null}
@@ -220,7 +225,7 @@ export function LandingPagesList({ pages, siteUrl }: Props) {
                   const url = publicUrl(page, siteUrl);
                   return <tr key={page.id}>
                     <td>
-                      <div className="crm-landing-table-name"><strong>{page.name}</strong><span>{page.linkedDevelopment?.title || "Sem empreendimento vinculado"}</span><a href={url} target="_blank" rel="noreferrer">{page.publicPath} <ExternalLink size={12} aria-hidden="true" /></a></div>
+                      <div className="crm-landing-table-name"><strong>{page.name}</strong><span>{page.linkedProperty?.title || page.linkedDevelopment?.title || "Sem imóvel ou empreendimento vinculado"}</span><a href={url} target="_blank" rel="noreferrer">{page.publicPath} <ExternalLink size={12} aria-hidden="true" /></a></div>
                     </td>
                     <td><span className={statusClass(page.status)}><span aria-hidden="true" />{STATUS_LABELS[page.status]}</span><small className="crm-landing-type">{TYPE_LABELS[page.type]}</small></td>
                     <td><strong className="crm-landing-number">{numberLabel(page.leads)}</strong></td>
@@ -238,7 +243,7 @@ export function LandingPagesList({ pages, siteUrl }: Props) {
             {filteredPages.map((page) => {
               const url = publicUrl(page, siteUrl);
               return <article className="crm-landing-mobile-card" key={page.id}>
-                <header><div><span className={statusClass(page.status)}><span aria-hidden="true" />{STATUS_LABELS[page.status]}</span><h3>{page.name}</h3><p>{page.linkedDevelopment?.title || "Sem empreendimento vinculado"}</p></div><span className="crm-landing-type">{TYPE_LABELS[page.type]}</span></header>
+                <header><div><span className={statusClass(page.status)}><span aria-hidden="true" />{STATUS_LABELS[page.status]}</span><h3>{page.name}</h3><p>{page.linkedProperty?.title || page.linkedDevelopment?.title || "Sem imóvel ou empreendimento vinculado"}</p></div><span className="crm-landing-type">{TYPE_LABELS[page.type]}</span></header>
                 <a className="crm-landing-mobile-url" href={url} target="_blank" rel="noreferrer">{page.publicPath} <ExternalLink size={12} aria-hidden="true" /></a>
                 <div className="crm-landing-mobile-metrics"><Metric icon={Users} label="Leads" value={numberLabel(page.leads)} /><Metric icon={MousePointerClick} label="Visualizações" value={numberLabel(page.metrics.visits)} /><Metric icon={BarChart3} label="Conversão" value={`${page.metrics.conversionRate.toLocaleString("pt-BR", { maximumFractionDigits: 1 })}%`} /></div>
                 <footer><span>Atualizada em {dateLabel(page.updatedAt, true)}</span><div className="crm-landing-actions"><a className="button button-ghost" href={url} target="_blank" rel="noreferrer"><ExternalLink size={14} aria-hidden="true" /> Ver página</a><Link className="button button-primary" href={`/crm/leads?landingPage=${encodeURIComponent(page.slug)}`}><Users size={14} aria-hidden="true" /> Leads</Link><button type="button" className="button button-ghost" onClick={() => copyLink(page)}>{copiedId === page.id ? <Check size={14} aria-hidden="true" /> : <Clipboard size={14} aria-hidden="true" />} {copiedId === page.id ? "Copiado" : "Copiar link"}</button></div></footer>

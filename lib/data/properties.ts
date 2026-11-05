@@ -1,4 +1,4 @@
-import { PropertyPurpose, PropertyStatus, PropertyType } from "@prisma/client";
+import { Prisma, PropertyPurpose, PropertyStatus, PropertyType } from "@prisma/client";
 import { listCrmProperties } from "@/lib/data/crm-properties";
 import { prisma } from "@/lib/prisma";
 import { mockProperties } from "@/lib/data/mock";
@@ -53,6 +53,33 @@ function normalizeForMatch(value: string) {
     .toLowerCase();
 }
 
+type PropertyOfferPrices = {
+  price: number;
+  salePrice?: number | null;
+  rentPrice?: number | null;
+};
+
+function effectivePrice(property: PropertyOfferPrices, purpose?: PropertyPurpose) {
+  if (purpose === PropertyPurpose.VENDA && property.salePrice != null) {
+    return property.salePrice;
+  }
+  if (purpose === PropertyPurpose.LOCACAO && property.rentPrice != null) {
+    return property.rentPrice;
+  }
+  return property.price;
+}
+
+function supportsPurpose(property: PropertyOfferPrices & { purpose: PropertyPurpose }, purpose?: PropertyPurpose) {
+  if (!purpose || purpose === PropertyPurpose.INVESTIMENTO) return property.purpose === purpose;
+  if (purpose === PropertyPurpose.VENDA) {
+    return property.purpose === PropertyPurpose.VENDA || property.salePrice != null;
+  }
+  if (purpose === PropertyPurpose.LOCACAO) {
+    return property.purpose === PropertyPurpose.LOCACAO || property.rentPrice != null;
+  }
+  return property.purpose === purpose;
+}
+
 function matchPublicFilters(
   property: {
     city: string;
@@ -60,6 +87,8 @@ function matchPublicFilters(
     type: PropertyType;
     purpose: PropertyPurpose;
     price: number;
+    salePrice?: number | null;
+    rentPrice?: number | null;
     bedrooms: number | null;
     areaM2: number | null;
     isInvestorHighlight?: boolean;
@@ -76,9 +105,10 @@ function matchPublicFilters(
     if (!normalizeForMatch(property.district).includes(needle)) return false;
   }
   if (filters.type && property.type !== filters.type) return false;
-  if (filters.purpose && property.purpose !== filters.purpose) return false;
-  if (filters.minPrice && property.price < filters.minPrice) return false;
-  if (filters.maxPrice && property.price > filters.maxPrice) return false;
+  if (filters.purpose && !supportsPurpose(property, filters.purpose)) return false;
+  const price = effectivePrice(property, filters.purpose);
+  if (filters.minPrice && price < filters.minPrice) return false;
+  if (filters.maxPrice && price > filters.maxPrice) return false;
   if (filters.bedrooms !== undefined && (property.bedrooms ?? 0) < filters.bedrooms) return false;
   if (filters.minAreaM2 && (!property.areaM2 || property.areaM2 < filters.minAreaM2)) return false;
   if (filters.investmentOnly && !property.isInvestorHighlight && !property.investorOpportunity) return false;
@@ -95,7 +125,9 @@ async function fallbackPublicProperties(filters: PublicPropertyFilters = {}) {
     )
     .map((property) => ({
       ...property,
-      priceValue: Number(property.price),
+      priceValue: effectivePrice(property, filters.purpose),
+      salePriceValue: property.salePrice ?? null,
+      rentPriceValue: property.rentPrice ?? null,
       areaM2Value: property.areaM2 ? Number(property.areaM2) : null,
       landAreaM2Value: property.landAreaM2 ? Number(property.landAreaM2) : null,
       frontMeters: property.frontMeters ?? null,
@@ -120,6 +152,8 @@ async function fallbackPublicProperties(filters: PublicPropertyFilters = {}) {
           type: property.type,
           purpose: property.purpose,
           price: property.priceValue,
+          salePrice: property.salePriceValue,
+          rentPrice: property.rentPriceValue,
           bedrooms: property.bedrooms ?? null,
           areaM2: property.areaM2Value,
           isInvestorHighlight: property.isInvestorHighlight,
@@ -133,7 +167,9 @@ async function fallbackPublicProperties(filters: PublicPropertyFilters = {}) {
   return mockProperties
     .map((property) => ({
       ...property,
-      priceValue: property.price,
+      priceValue: effectivePrice(property, filters.purpose),
+      salePriceValue: null,
+      rentPriceValue: null,
       areaM2Value: property.areaM2,
       landAreaM2Value: property.landAreaM2,
       frontMeters: null,
@@ -156,6 +192,8 @@ async function fallbackPublicProperties(filters: PublicPropertyFilters = {}) {
           type: property.type,
           purpose: property.purpose,
           price: property.priceValue,
+          salePrice: property.salePriceValue,
+          rentPrice: property.rentPriceValue,
           bedrooms: property.bedrooms ?? null,
           areaM2: property.areaM2Value,
           isInvestorHighlight: property.isInvestorHighlight,
@@ -172,6 +210,57 @@ export async function listPublicProperties(filters: PublicPropertyFilters = {}) 
   }
 
   try {
+    const andConditions: Prisma.PropertyWhereInput[] = [];
+    const priceRange = {
+      ...(typeof filters.minPrice === "number" ? { gte: filters.minPrice } : {}),
+      ...(typeof filters.maxPrice === "number" ? { lte: filters.maxPrice } : {})
+    };
+
+    if (filters.purpose === PropertyPurpose.VENDA) {
+      andConditions.push({
+        OR: [
+          { salePrice: { not: null } },
+          { purpose: PropertyPurpose.VENDA }
+        ]
+      });
+    } else if (filters.purpose === PropertyPurpose.LOCACAO) {
+      andConditions.push({
+        OR: [
+          { rentPrice: { not: null } },
+          { purpose: PropertyPurpose.LOCACAO }
+        ]
+      });
+    }
+
+    if (Object.keys(priceRange).length) {
+      if (filters.purpose === PropertyPurpose.VENDA) {
+        andConditions.push({
+          OR: [
+            { salePrice: priceRange },
+            { salePrice: null, price: priceRange }
+          ]
+        });
+      } else if (filters.purpose === PropertyPurpose.LOCACAO) {
+        andConditions.push({
+          OR: [
+            { rentPrice: priceRange },
+            { rentPrice: null, price: priceRange }
+          ]
+        });
+      } else {
+        andConditions.push({ price: priceRange });
+      }
+    }
+
+    if (filters.investmentOnly) {
+      andConditions.push({
+        OR: [
+          { isInvestorHighlight: true },
+          { investorOpportunity: { isNot: null } }
+        ]
+      });
+    }
+
     const properties = await prisma.property.findMany({
       where: {
         status: {
@@ -188,14 +277,10 @@ export async function listPublicProperties(filters: PublicPropertyFilters = {}) 
           ? { district: { contains: filters.district, mode: "insensitive" } }
           : {}),
         ...(filters.type ? { type: filters.type } : {}),
-        ...(filters.purpose ? { purpose: filters.purpose } : {}),
-        ...(typeof filters.minPrice === "number" || typeof filters.maxPrice === "number"
-          ? {
-              price: {
-                ...(typeof filters.minPrice === "number" ? { gte: filters.minPrice } : {}),
-                ...(typeof filters.maxPrice === "number" ? { lte: filters.maxPrice } : {})
-              }
-            }
+        ...(filters.purpose &&
+        filters.purpose !== PropertyPurpose.VENDA &&
+        filters.purpose !== PropertyPurpose.LOCACAO
+          ? { purpose: filters.purpose }
           : {}),
         ...(typeof filters.bedrooms === "number"
           ? { bedrooms: { gte: filters.bedrooms } }
@@ -203,18 +288,7 @@ export async function listPublicProperties(filters: PublicPropertyFilters = {}) 
         ...(typeof filters.minAreaM2 === "number"
           ? { areaM2: { gte: filters.minAreaM2 } }
           : {}),
-        ...(filters.investmentOnly
-          ? {
-              AND: [
-                {
-                  OR: [
-                    { isInvestorHighlight: true },
-                    { investorOpportunity: { isNot: null } }
-                  ]
-                }
-              ]
-            }
-          : {})
+        ...(andConditions.length ? { AND: andConditions } : {})
       },
       include: {
         media: {
@@ -227,7 +301,11 @@ export async function listPublicProperties(filters: PublicPropertyFilters = {}) 
           take: 3
         },
         investorOpportunity: true,
-        auctionCase: true
+        auctionCase: true,
+        landingPages: {
+          where: { status: "PUBLISHED" },
+          select: { publicPath: true, status: true }
+        }
       },
       orderBy: {
         createdAt: "desc"
@@ -236,7 +314,16 @@ export async function listPublicProperties(filters: PublicPropertyFilters = {}) 
 
     return properties.map((property) => ({
       ...property,
-      priceValue: Number(property.price),
+      priceValue: effectivePrice(
+        {
+          price: Number(property.price),
+          salePrice: property.salePrice ? Number(property.salePrice) : null,
+          rentPrice: property.rentPrice ? Number(property.rentPrice) : null
+        },
+        filters.purpose
+      ),
+      salePriceValue: property.salePrice ? Number(property.salePrice) : null,
+      rentPriceValue: property.rentPrice ? Number(property.rentPrice) : null,
       areaM2Value: property.areaM2 ? Number(property.areaM2) : null,
       landAreaM2Value: property.landAreaM2 ? Number(property.landAreaM2) : null,
       frontMeters: property.frontMeters ? Number(property.frontMeters) : null,
@@ -291,6 +378,7 @@ export async function getPropertyBySlug(slug: string) {
       marketEstimatedValueNumber: null,
       marketOpportunityNumber: null,
       owner: null,
+      landingPages: [],
       investorOpportunity: null,
       auctionCase: null
     };
@@ -306,6 +394,10 @@ export async function getPropertyBySlug(slug: string) {
           }
         },
         owner: true,
+        landingPages: {
+          where: { status: "PUBLISHED" },
+          select: { publicPath: true, status: true }
+        },
         investorOpportunity: true,
         auctionCase: true
       }
@@ -317,6 +409,8 @@ export async function getPropertyBySlug(slug: string) {
     return {
       ...property,
       priceValue: Number(property.price),
+      salePriceValue: property.salePrice ? Number(property.salePrice) : null,
+      rentPriceValue: property.rentPrice ? Number(property.rentPrice) : null,
       areaM2Value: property.areaM2 ? Number(property.areaM2) : null,
       landAreaM2Value: property.landAreaM2 ? Number(property.landAreaM2) : null,
       frontMeters: property.frontMeters ? Number(property.frontMeters) : null,
@@ -367,6 +461,7 @@ export async function getPropertyBySlug(slug: string) {
       marketEstimatedValueNumber: null,
       marketOpportunityNumber: null,
       owner: null,
+      landingPages: [],
       investorOpportunity: null,
       auctionCase: null
     };

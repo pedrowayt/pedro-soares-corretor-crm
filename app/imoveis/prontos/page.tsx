@@ -153,6 +153,7 @@ type CardProperty = {
   type: string;
   purpose: PropertyPurpose;
   media?: ReadonlyArray<{ url: string }>;
+  landingPages?: ReadonlyArray<{ publicPath: string }>;
   createdAt?: Date;
   updatedAt?: Date;
 };
@@ -643,6 +644,7 @@ export default async function ImoveisProntosPage({
                       <li key={property.id}>
                         <PropertyCardHorizontal
                           slug={property.slug}
+                          href={property.landingPages?.[0]?.publicPath}
                           title={property.title}
                           city={property.city}
                           district={property.district}
@@ -665,7 +667,7 @@ export default async function ImoveisProntosPage({
                           unitCount={property.unitCount}
                           imageUrl={property.media?.[0]?.url}
                           status={property.status}
-                          purposeLabel={isInvestmentPage ? "Investir" : purposeLabelFor(property.purpose)}
+                          purposeLabel={isInvestmentPage ? "Investir" : purposeLabelFor(activePurpose)}
                           typeLabel={typeLabelFor(property.type)}
                         />
                       </li>

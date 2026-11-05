@@ -271,11 +271,12 @@ function normalizePropertyCard(property: {
   status: PropertyStatus;
   isAuctionOpportunity?: boolean | null;
   auctionCase?: unknown | null;
+  landingPages?: ReadonlyArray<{ publicPath: string }>;
   media?: ReadonlyArray<{ url: string }>;
 }) {
   return {
     id: property.id,
-    href: `/imoveis/${property.slug}`,
+    href: property.landingPages?.[0]?.publicPath ?? `/imoveis/${property.slug}`,
     title: property.title,
     city: property.city,
     district: property.district,

@@ -50,6 +50,8 @@ export type CrmPropertyPayload = {
   purpose: Property["purpose"];
   status: Property["status"];
   price: number;
+  salePrice?: number | null;
+  rentPrice?: number | null;
   city: string;
   district: string;
   address?: string | null;
@@ -111,6 +113,8 @@ type MemoryProperty = {
   purpose: Property["purpose"];
   status: Property["status"];
   price: number;
+  salePrice: NullableNumber;
+  rentPrice: NullableNumber;
   address: string | null;
   city: string;
   district: string;
@@ -300,6 +304,8 @@ function normalizeDbProperty(property: DbPropertyWithRelations) {
   return {
     ...property,
     price: Number(property.price),
+    salePrice: toNumber(property.salePrice),
+    rentPrice: toNumber(property.rentPrice),
     areaM2: toNumber(property.areaM2),
     landAreaM2: toNumber(property.landAreaM2),
     frontMeters: toNumber(property.frontMeters),
@@ -335,6 +341,8 @@ function fromMockProperty(property: (typeof mockProperties)[number], index: numb
     purpose: property.purpose,
     status: property.status,
     price: property.price,
+    salePrice: null,
+    rentPrice: null,
     address: null,
     city: property.city,
     district: property.district,
@@ -411,6 +419,8 @@ function normalizeForCreate(input: CrmPropertyPayload): CrmPropertyPayload {
     address: optionalString(input.address),
     postalCode: optionalString(input.postalCode),
     googleMapsUrl: optionalString(input.googleMapsUrl),
+    salePrice: optionalNumber(input.salePrice),
+    rentPrice: optionalNumber(input.rentPrice),
     legalNotes: optionalString(input.legalNotes),
     internalNotes: optionalString(input.internalNotes),
     marketLiquidityNotes: optionalString(input.marketLiquidityNotes),
@@ -487,6 +497,8 @@ export async function createCrmProperty(payload: CrmPropertyPayload) {
           purpose: normalized.purpose,
           status: normalized.status,
           price: normalized.price,
+          salePrice: normalized.salePrice,
+          rentPrice: normalized.rentPrice,
           city: normalized.city,
           district: normalized.district,
           address: normalized.address,
@@ -567,6 +579,8 @@ export async function createCrmProperty(payload: CrmPropertyPayload) {
     purpose: normalized.purpose,
     status: normalized.status,
     price: normalized.price,
+    salePrice: normalized.salePrice ?? null,
+    rentPrice: normalized.rentPrice ?? null,
     address: normalized.address ?? null,
     city: normalized.city,
     district: normalized.district,
@@ -640,6 +654,8 @@ export async function updateCrmProperty(id: string, payload: Partial<CrmProperty
     address: optionalString(scalarPayload.address),
     postalCode: optionalString(scalarPayload.postalCode),
     googleMapsUrl: optionalString(scalarPayload.googleMapsUrl),
+    salePrice: optionalNumber(scalarPayload.salePrice),
+    rentPrice: optionalNumber(scalarPayload.rentPrice),
     legalNotes: optionalString(scalarPayload.legalNotes),
     internalNotes: optionalString(scalarPayload.internalNotes),
     marketLiquidityNotes: optionalString(scalarPayload.marketLiquidityNotes),
@@ -725,6 +741,8 @@ export async function updateCrmProperty(id: string, payload: Partial<CrmProperty
     purpose: partial.purpose ?? current.purpose,
     status: partial.status ?? current.status,
     price: partial.price ?? current.price,
+    salePrice: partial.salePrice === undefined ? current.salePrice : partial.salePrice,
+    rentPrice: partial.rentPrice === undefined ? current.rentPrice : partial.rentPrice,
     slug: partial.slug ?? current.slug,
     title: partial.title ?? current.title,
     city: partial.city ?? current.city,

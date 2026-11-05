@@ -15,6 +15,7 @@ export default async function CrmLandingPagesPage() {
     deployUrl: page.deployUrl,
     deployRef: page.deployRef,
     linkedDevelopment: page.linkedDevelopment,
+    linkedProperty: page.linkedProperty,
     publishedAt: page.publishedAt?.toISOString() ?? null,
     updatedAt: page.updatedAt.toISOString(),
     leads: page._count.leads,

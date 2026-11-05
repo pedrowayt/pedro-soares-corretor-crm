@@ -173,6 +173,8 @@ export type WizardProperty = {
   purpose: string;
   status: string;
   price: number;
+  salePrice: number | null;
+  rentPrice: number | null;
   city: string;
   district: string;
   address: string | null;
@@ -241,6 +243,8 @@ function makeInitialState(initial?: WizardProperty): FormState {
     purpose: initial?.purpose ?? "VENDA",
     status: initial?.status ?? "DISPONIVEL",
     price: initial?.price ?? 0,
+    salePrice: initial?.salePrice ?? null,
+    rentPrice: initial?.rentPrice ?? null,
     city: initial?.city ?? "Palmas",
     district: initial?.district ?? "",
     address: initial?.address ?? null,
@@ -462,6 +466,8 @@ export function PropertyWizard({ mode, initial }: Props) {
       purpose: state.purpose,
       status: state.status,
       price: state.price || 1,
+      salePrice: state.salePrice ?? undefined,
+      rentPrice: state.rentPrice ?? undefined,
       city: state.city,
       district: state.district,
       address: state.address,
@@ -1387,7 +1393,7 @@ function StepDetalhes({
           </span>
         </div>
         <div className="wiz-field wiz-field--price">
-          <label>Preço *</label>
+          <label>Preço principal *</label>
           <div className="wiz-input-with-prefix">
             <span>R$</span>
             <input
@@ -1399,6 +1405,38 @@ function StepDetalhes({
                 onChange({ price: event.target.value === "" ? 0 : Number(event.target.value) })
               }
               placeholder="850000"
+            />
+          </div>
+        </div>
+        <div className="wiz-field wiz-field--price">
+          <label>Preço de venda</label>
+          <div className="wiz-input-with-prefix">
+            <span>R$</span>
+            <input
+              type="number"
+              min={0}
+              step="0.01"
+              value={state.salePrice ?? ""}
+              onChange={(event) =>
+                onChange({ salePrice: event.target.value === "" ? null : Number(event.target.value) })
+              }
+              placeholder="Opcional"
+            />
+          </div>
+        </div>
+        <div className="wiz-field wiz-field--price">
+          <label>Preço de locação</label>
+          <div className="wiz-input-with-prefix">
+            <span>R$</span>
+            <input
+              type="number"
+              min={0}
+              step="0.01"
+              value={state.rentPrice ?? ""}
+              onChange={(event) =>
+                onChange({ rentPrice: event.target.value === "" ? null : Number(event.target.value) })
+              }
+              placeholder="Opcional / mês"
             />
           </div>
         </div>

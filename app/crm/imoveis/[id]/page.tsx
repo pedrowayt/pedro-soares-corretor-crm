@@ -37,6 +37,8 @@ export default async function CrmImovelEditPage({ params }: { params: Promise<{ 
     purpose: property.purpose,
     status: property.status,
     price: Number(property.price),
+    salePrice: property.salePrice ?? null,
+    rentPrice: property.rentPrice ?? null,
     city: property.city,
     district: property.district,
     address: property.address ?? null,

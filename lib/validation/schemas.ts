@@ -162,6 +162,8 @@ export const crmCreatePropertySchema = z.object({
   purpose: z.nativeEnum(PropertyPurpose),
   status: z.nativeEnum(PropertyStatus).default(PropertyStatus.DISPONIVEL),
   price: z.coerce.number().positive(),
+  salePrice: z.coerce.number().positive().nullish(),
+  rentPrice: z.coerce.number().positive().nullish(),
   city: z.string().min(2).default("Palmas"),
   district: z.string().min(2),
   address: z.string().nullish(),
