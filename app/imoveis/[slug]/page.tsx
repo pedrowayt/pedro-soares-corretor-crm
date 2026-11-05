@@ -159,6 +159,10 @@ export default async function PropertyDetailsPage({ params }: { params: Promise<
     redirect("/casa-mirante-do-lago-235m2");
   }
 
+  if (property.slug === "apartamento-flamboyant-ville-405-norte") {
+    redirect("/apartamento-flamboyant-ville-405-norte");
+  }
+
   if (property.slug === "casa-nova-condominio-polineisia-palmas") {
     redirect("/casa-condominio-polineisia");
   }
