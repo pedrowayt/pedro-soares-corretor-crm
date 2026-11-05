@@ -5021,6 +5021,17 @@ body:has(.crm-shell) > main {
 .flamboyant-gallery img { object-fit: cover; transition: transform .35s ease, filter .35s ease; }
 .flamboyant-gallery a:hover img { transform: scale(1.04); filter: brightness(.77); }
 .flamboyant-gallery figcaption { position: absolute; z-index: 1; right: 12px; bottom: 12px; left: 12px; color: #fff; font-size: .7rem; line-height: 1.35; text-shadow: 0 1px 8px rgba(0,0,0,.7); }
+.flamboyant-reviews { padding: 92px 0; background: #fff; }
+.flamboyant-reviews-heading { display: flex; align-items: end; justify-content: space-between; gap: 35px; margin-bottom: 38px; }
+.flamboyant-reviews-heading h2 { max-width: 700px; margin-top: 18px; font-family: Georgia, serif; font-size: clamp(2.5rem, 5vw, 4.5rem); font-weight: 400; letter-spacing: -.06em; line-height: .98; }
+.flamboyant-reviews-heading > p { max-width: 34ch; color: var(--flamboyant-muted); font-size: .82rem; line-height: 1.7; }
+.flamboyant-review-card { display: grid; grid-template-columns: minmax(220px, .45fr) minmax(0, 1fr); align-items: center; gap: 40px; padding: 31px; border: 1px solid var(--flamboyant-line); background: var(--flamboyant-cream); }
+.flamboyant-review-rating { display: grid; gap: 4px; padding-left: 19px; border-left: 2px solid var(--flamboyant-coral); }
+.flamboyant-review-rating strong { font-family: Georgia, serif; font-size: clamp(3.5rem, 6vw, 5.3rem); font-weight: 400; letter-spacing: -.08em; line-height: .9; }
+.flamboyant-review-rating span { color: var(--flamboyant-coral); font-size: 1.25rem; letter-spacing: .12em; }
+.flamboyant-review-rating small { color: var(--flamboyant-muted); font-size: .72rem; }
+.flamboyant-review-card-copy { display: flex; align-items: center; justify-content: space-between; gap: 28px; }
+.flamboyant-review-card-copy p { max-width: 52ch; color: var(--flamboyant-muted); font-size: .9rem; line-height: 1.8; }
 .flamboyant-contact { padding: 105px 0; background: #e9dac8; }
 .flamboyant-contact-grid { display: grid; grid-template-columns: minmax(0, .85fr) minmax(420px, 1.15fr); align-items: start; gap: clamp(50px, 8vw, 110px); }
 .flamboyant-contact-copy > p:not(.flamboyant-kicker) { max-width: 44ch; margin-top: 24px; color: var(--flamboyant-muted); font-size: .93rem; line-height: 1.8; }
@@ -5061,8 +5072,11 @@ body:has(.crm-shell) > main {
   .flamboyant-hero h1 { font-size: clamp(48px, 15vw, 76px); }
   .flamboyant-hero-meta { min-width: 0; margin-top: 42px; }
   .flamboyant-scroll-cue { display: none; }
-  .flamboyant-intro, .flamboyant-details, .flamboyant-condominium, .flamboyant-location, .flamboyant-gallery-section, .flamboyant-contact { padding: 75px 0; }
+  .flamboyant-intro, .flamboyant-details, .flamboyant-condominium, .flamboyant-location, .flamboyant-gallery-section, .flamboyant-reviews, .flamboyant-contact { padding: 75px 0; }
   .flamboyant-intro-grid, .flamboyant-details-grid, .flamboyant-condominium-grid, .flamboyant-location-grid, .flamboyant-contact-grid { grid-template-columns: 1fr; gap: 38px; }
+  .flamboyant-reviews-heading { align-items: flex-start; flex-direction: column; gap: 18px; }
+  .flamboyant-review-card { grid-template-columns: 1fr; gap: 28px; }
+  .flamboyant-review-card-copy { align-items: flex-start; flex-direction: column; }
   .flamboyant-intro-grid > div:last-child { padding-top: 0; }
   .flamboyant-highlight-grid { grid-template-columns: repeat(2, 1fr); margin-top: 50px; }
   .flamboyant-highlight-grid article:nth-child(3) { padding-left: 0; border-left: 0; }
