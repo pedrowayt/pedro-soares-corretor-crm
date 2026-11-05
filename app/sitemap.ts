@@ -145,7 +145,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     "/casa-mirante-do-lago",
     "/casa-terrea-mirante-do-lago",
     "/casa-mirante-do-lago-235m2",
-    "/casa-condominio-polineisia"
+    "/casa-condominio-polineisia",
+    "/apartamento-flamboyant-ville-405-norte"
   ].map((path) => ({
     url: `${baseUrl}${path}`,
     lastModified: catalogueFreshness,

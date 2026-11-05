@@ -29,7 +29,8 @@ export function SiteChrome({ children }: { children: React.ReactNode }) {
   const isMiranteLanding = pathname.startsWith("/casa-mirante-do-lago");
   const isCasaTerreaMiranteLanding = pathname.startsWith("/casa-terrea-mirante-do-lago");
   const isPolinesiaLanding = pathname.startsWith("/casa-condominio-polineisia");
-  const isStandaloneLanding = isLakeVillageLanding || isQuintaDoLagoLanding || isAcordesLanding || isLike210Landing || isMaestriaLanding || isHeritageLanding || isYachtLanding || isYouLanding || isTerracoUrbanLanding || isPalmasLakeLanding || isComodoroLanding || isUrbanHauteLanding || isUrbanFuturoLanding || isCinnamonLanding || isCaribeLanding || isCaribeResidenceLanding || isCasaNovaCaribeLanding || isMiranteLanding || isCasaTerreaMiranteLanding || isPolinesiaLanding;
+  const isFlamboyantLanding = pathname.startsWith("/apartamento-flamboyant-ville-405-norte");
+  const isStandaloneLanding = isLakeVillageLanding || isQuintaDoLagoLanding || isAcordesLanding || isLike210Landing || isMaestriaLanding || isHeritageLanding || isYachtLanding || isYouLanding || isTerracoUrbanLanding || isPalmasLakeLanding || isComodoroLanding || isUrbanHauteLanding || isUrbanFuturoLanding || isCinnamonLanding || isCaribeLanding || isCaribeResidenceLanding || isCasaNovaCaribeLanding || isMiranteLanding || isCasaTerreaMiranteLanding || isPolinesiaLanding || isFlamboyantLanding;
   const isInternalArea = pathname.startsWith("/admin") || pathname.startsWith("/crm");
   const isPropertyCatalog = pathname.startsWith("/imoveis/prontos");
 
