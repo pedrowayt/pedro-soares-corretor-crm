@@ -46,7 +46,9 @@ const gallery = [
   ["/brand/apartamento-flamboyant-ville-405-norte/14-area-externa-piscina.jpg", "Piscina e deck da área de lazer", "small"],
   ["/brand/apartamento-flamboyant-ville-405-norte/15-area-externa-acesso.jpg", "Circulação e acesso à área comum", "small"],
   ["/brand/apartamento-flamboyant-ville-405-norte/16-area-externa-piscina-deck.jpg", "Piscina, deck e espreguiçadeiras", "small"],
-  ["/brand/apartamento-flamboyant-ville-405-norte/17-area-externa-jardins.jpg", "Jardins e caminhos internos do condomínio", "small"]
+  ["/brand/apartamento-flamboyant-ville-405-norte/17-area-externa-jardins.jpg", "Jardins e caminhos internos do condomínio", "small"],
+  ["/brand/apartamento-flamboyant-ville-405-norte/18-salao-de-festas.jpg", "Salão de festas do condomínio", "wide"],
+  ["/brand/apartamento-flamboyant-ville-405-norte/19-entrada-condominio.jpg", "Entrada e portaria do Residencial Flamboyant Ville", "wide"]
 ] as const;
 
 const highlights = [
