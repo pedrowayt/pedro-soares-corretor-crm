@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import "./yacht.module.css";
-import { ArrowDown, ArrowRight, Check, Dumbbell, ExternalLink, Home, MessageCircle, Play, Sparkles, Waves } from "lucide-react";
+import { ArrowDown, ArrowRight, CalendarDays, Check, Dumbbell, ExternalLink, Home, MessageCircle, Play, Sparkles, Waves } from "lucide-react";
 import { YachtLeadForm } from "@/components/public/yacht-lead-form";
 import { LandingPageTracker } from "@/components/public/landing-page-tracker";
 import { buildWhatsAppUrl } from "@/lib/integrations/whatsapp-links";
@@ -47,6 +47,31 @@ const gallery = [
   ["/yacht/restaurant.jpg", "Restaurante", "Experiência"]
 ];
 
+const novemberUnits = [
+  ["511", "12", "R$ 866.957,18"],
+  ["611", "25", "R$ 870.656,85"],
+  ["711", "31", "R$ 874.356,53"],
+  ["811", "33", "R$ 878.056,20"],
+  ["911", "35", "R$ 881.755,88"],
+  ["1.411", "45", "R$ 898.658,23"],
+  ["1.511", "47", "R$ 902.234,65"],
+  ["1.611", "49", "R$ 907.653,60"],
+  ["1.711", "51", "R$ 909.297,90"],
+  ["2.011", "57", "R$ 914.230,80"],
+  ["2.111", "59", "R$ 915.875,10"],
+  ["2.211", "61", "R$ 917.519,40"],
+  ["2.311", "63", "R$ 919.163,70"],
+  ["2.411", "65", "R$ 920.808,00"],
+  ["3.111", "100", "R$ 932.318,10"]
+];
+
+const novemberPaymentPlan = [
+  ["Iniciais", "6x de R$ 6.116,80", "10/12/2026"],
+  ["Mensais", "30x de R$ 1.896,21", "a partir de 10/06/2027"],
+  ["Semestrais", "5x de R$ 18.350,39", "a partir de 10/08/2027"],
+  ["Única", "R$ 55.051,16", "01/10/2029"]
+];
+
 export default function YachtFamaPage() {
   return (
     <main className="yacht-landing">
@@ -57,7 +82,7 @@ export default function YachtFamaPage() {
         <div className="yacht-hero-shade" />
         <header className="yacht-nav yacht-container">
           <a href="#inicio" aria-label="Yacht by Fama"><Image src="/yacht/logo-02.png" alt="Yacht by Fama" width={185} height={131} className="yacht-logo" /></a>
-          <nav aria-label="Navegação principal"><a href="#projeto">O projeto</a><a href="#experiencia">Experiência</a><a href="#plantas">Plantas</a><a href="#obras">Obras</a></nav>
+          <nav aria-label="Navegação principal"><a href="#condicoes">Condições</a><a href="#projeto">O projeto</a><a href="#experiencia">Experiência</a><a href="#plantas">Plantas</a><a href="#obras">Obras</a></nav>
           <a className="yacht-button yacht-button--outline yacht-nav-cta" href="#atendimento">Receber apresentação <ArrowRight size={15} /></a>
         </header>
         <div className="yacht-container yacht-hero-content">
@@ -71,6 +96,33 @@ export default function YachtFamaPage() {
           <div className="yacht-hero-stamp"><span>YACHT</span><small>BY FAMA · PALMAS/TO</small></div>
         </div>
         <a className="yacht-scroll-cue" href="#video"><span>Descubra o projeto</span><ArrowDown size={17} /></a>
+      </section>
+
+      <section id="condicoes" className="yacht-november-offer">
+        <div className="yacht-container yacht-november-grid">
+          <div className="yacht-november-copy">
+            <p className="yacht-kicker"><CalendarDays size={15} /> Fama November · Novembro/2026</p>
+            <h2>Últimas unidades com condições especiais neste mês.</h2>
+            <p>O Yacht by Fama reúne apartamentos de 58,19 m² para morar ou investir na Orla 14. Consulte a unidade desejada e confirme a disponibilidade com um consultor.</p>
+            <div className="yacht-november-highlights">
+              <div><strong>58,19 m²</strong><span>área das unidades da tabela</span></div>
+              <div><strong>Nov/2029</strong><span>previsão de entrega</span></div>
+            </div>
+            <a className="yacht-button yacht-button--blue" href="#atendimento">Consultar disponibilidade <ArrowRight size={16} /></a>
+          </div>
+          <div className="yacht-november-art">
+            <Image src="/yacht/fama-november.jpg" alt="Fama November: condições especiais do Yacht by Fama em novembro" fill sizes="(max-width: 800px) 100vw, 42vw" />
+          </div>
+        </div>
+        <div className="yacht-container yacht-payment-plan">
+          <div className="yacht-payment-heading"><p className="yacht-kicker">Fluxo até o habite-se</p><p>Condições da tabela comercial vigente. Valores sujeitos a confirmação.</p></div>
+          <div className="yacht-payment-grid">{novemberPaymentPlan.map(([label, value, date]) => <div key={label}><span>{label}</span><strong>{value}</strong><small>{date}</small></div>)}</div>
+        </div>
+        <div className="yacht-container yacht-units-table-wrap">
+          <div className="yacht-units-heading"><div><p className="yacht-kicker">Tabela especial</p><h3>Unidades disponíveis na condição de novembro.</h3></div><p>Área: 58,19 m² · Garagem e valores conforme tabela recebida.</p></div>
+          <div className="yacht-units-table-scroll"><table className="yacht-units-table"><thead><tr><th>Unidade</th><th>Box</th><th>Área</th><th>Valor total</th><th>Mensais</th></tr></thead><tbody>{novemberUnits.map(([unit, box, total]) => <tr key={unit}><th scope="row">{unit}</th><td>{box}</td><td>58,19 m²</td><td>{total}</td><td>30x de R$ 1.896,21</td></tr>)}</tbody></table></div>
+          <p className="yacht-units-note">Tabela especial Yacht by Fama · novembro/2026. Últimas unidades sujeitas à disponibilidade, atualização comercial e confirmação do consultor.</p>
+        </div>
       </section>
 
       <section className="yacht-stat-strip"><div className="yacht-container yacht-stat-grid">{marketFacts.map(([value, label]) => <div key={value}><strong>{value}</strong><span>{label}</span></div>)}</div></section>
