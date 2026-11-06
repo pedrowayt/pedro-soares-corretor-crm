@@ -2,6 +2,10 @@
 
 Consulte `docs/templates/NOVA_LANDING_PAGE_IMOVEL.md` sempre que o usuário pedir uma landing page para um imóvel à venda ou para locação.
 
+## Gatilho automático de cadastro
+
+Quando o usuário disser “cadastra imóvel” ou enviar os dados de um imóvel com pedido de cadastro, trate isso como um fluxo completo: cadastre ou atualize o `Property`, salve a galeria, crie a landing dedicada, registre e publique a `LandingPage` vinculada ao imóvel e faça a rota `/imoveis/<slug>` redirecionar para a URL canônica da landing. Não entregue somente o registro do imóvel como concluído.
+
 ## Regras obrigatórias
 
 - Cadastre ou atualize o imóvel em `Property` e as imagens em `PropertyMedia`.

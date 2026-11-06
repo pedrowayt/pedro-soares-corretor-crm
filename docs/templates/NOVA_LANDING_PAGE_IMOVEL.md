@@ -2,6 +2,20 @@
 
 Use este arquivo sempre que for criada uma landing dedicada para um imóvel à venda ou para locação. Preencha os dados antes de implementar a página e mantenha a fonte comercial confirmada.
 
+## Regra para o comando “cadastra imóvel”
+
+Sempre que o usuário disser “cadastra imóvel”, “cadastre este imóvel” ou enviar os dados de um imóvel com esse objetivo, o resultado esperado é o pacote completo abaixo — não apenas um registro em `Property`:
+
+- cadastrar ou atualizar `Property` e `PropertyMedia`;
+- criar a rota e o componente visual da landing dedicada;
+- registrar uma `LandingPage` publicada, com `formKey: property-interest` e `linkedPropertyId`;
+- fazer `/imoveis/<slug>` redirecionar para a landing;
+- conectar galeria, hero, descrição, SEO, mapa, CTA de WhatsApp, formulário LGPD e rastreamento ao CRM;
+- verificar home, “últimos imóveis”, filtros públicos, CRM e sitemap;
+- validar localmente, aplicar migration no banco de desenvolvimento e separar claramente o que ainda depende de deploy/cache/domínio.
+
+Se faltarem dados comerciais, não invente: use “sob consulta” ou localização aproximada e registre os campos pendentes para confirmação.
+
 ## Brief comercial
 
 ```yaml
