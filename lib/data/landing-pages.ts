@@ -221,7 +221,7 @@ export const publicLandingPages: PublicLandingPage[] = [
     slug: "lake-loft",
     href: "/palmas-lake/lake-loft",
     title: "Lake Loft",
-    category: "Multifuncional · 2029",
+    category: "Multifuncional",
     location: "Palmas Lake · Palmas/TO",
     summary: "Lofts compactos e inteligentes preparados para morar, hospedar ou investir.",
     image: "/brand/palmas-lake/loft.jpg",

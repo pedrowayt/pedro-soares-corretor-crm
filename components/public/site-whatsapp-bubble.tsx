@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { MessageCircle, Sparkles } from "lucide-react";
 import { usePathname } from "next/navigation";
+import { useState } from "react";
 import { buildWhatsAppUrl } from "@/lib/integrations/whatsapp-links";
 import { getPublicAttribution } from "@/lib/attribution";
 
@@ -66,6 +67,8 @@ function getWhatsappMessage(pathname: string) {
 
 export function SiteWhatsAppBubble() {
   const pathname = usePathname();
+  const [isMinimized, setIsMinimized] = useState(false);
+  const [isClosed, setIsClosed] = useState(false);
   const whatsappMessage = getWhatsappMessage(pathname);
   const whatsappUrl = buildWhatsAppUrl(whatsappMessage);
 
@@ -84,26 +87,58 @@ export function SiteWhatsAppBubble() {
   }
 
   return (
-    <a
-      className="site-whatsapp-bubble"
-      href={whatsappUrl}
-      target="_blank"
-      rel="noreferrer"
-      onClick={trackClick}
-      aria-label="Falar com Pedro Soares pelo WhatsApp"
-    >
-      <span className="site-whatsapp-bubble__halo" aria-hidden="true" />
-      <span className="site-whatsapp-bubble__avatar">
-        <Image src="/brand/pedro-whatsapp-avatar.png" alt="Pedro Soares" fill sizes="68px" />
-      </span>
-      <span className="site-whatsapp-bubble__copy">
-        <small><Sparkles size={11} aria-hidden="true" /> Atendimento direto</small>
-        <strong>Fale comigo</strong>
-        <span>WhatsApp · (63) 98484-5101</span>
-      </span>
-      <span className="site-whatsapp-bubble__action" aria-hidden="true">
-        <MessageCircle size={21} strokeWidth={2.2} />
-      </span>
-    </a>
+    <div className={`site-whatsapp-bubble-shell${isMinimized ? " is-minimized" : ""}${isClosed ? " is-closed" : ""}`}>
+      {isClosed ? (
+        <button
+          type="button"
+          className="site-whatsapp-bubble-reopen"
+          onClick={() => setIsClosed(false)}
+          aria-label="Reabrir atendimento direto"
+        >
+          <MessageCircle size={18} aria-hidden="true" />
+          <span>Atendimento</span>
+        </button>
+      ) : (
+        <>
+          <a
+            className="site-whatsapp-bubble"
+            href={whatsappUrl}
+            target="_blank"
+            rel="noreferrer"
+            onClick={trackClick}
+            aria-label="Falar com Pedro Soares pelo WhatsApp"
+          >
+            <span className="site-whatsapp-bubble__halo" aria-hidden="true" />
+            <span className="site-whatsapp-bubble__avatar">
+              <Image src="/brand/pedro-whatsapp-avatar.png" alt="Pedro Soares" fill sizes="68px" />
+            </span>
+            <span className="site-whatsapp-bubble__copy">
+              <small><Sparkles size={11} aria-hidden="true" /> Atendimento direto</small>
+              <strong>Fale comigo</strong>
+              <span>WhatsApp · (63) 98484-5101</span>
+            </span>
+            <span className="site-whatsapp-bubble__action" aria-hidden="true">
+              <MessageCircle size={21} strokeWidth={2.2} />
+            </span>
+          </a>
+          <div className="site-whatsapp-bubble-controls" aria-label="Controles do atendimento">
+            <button
+              type="button"
+              onClick={() => setIsMinimized((value) => !value)}
+              aria-label={isMinimized ? "Expandir atendimento direto" : "Minimizar atendimento direto"}
+            >
+              {isMinimized ? "+" : "−"}
+            </button>
+            <button
+              type="button"
+              onClick={() => setIsClosed(true)}
+              aria-label="Fechar atendimento direto"
+            >
+              ×
+            </button>
+          </div>
+        </>
+      )}
+    </div>
   );
 }
